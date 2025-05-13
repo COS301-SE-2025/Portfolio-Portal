@@ -6,7 +6,7 @@ Our team, CtrlFreaks, is developing a 3D portfolio website generator that scans 
 ## Team Members and Roles
 | Name | Role | Student Number | Profile |
 |------|------|------|---------|
-| Angelique Breedt | Group Leader | u23542838 | [LinkedIn](https://www.linkedin.com/in/angelique-breedt-17bb87231/) |
+| Angelique Breedt | Group Leader | u23542838 | [LinkedIn](https://www.linkedin.com/in/angelique-breedt/) |
 | Eric Booyens | Developer | u05127824 | [LinkedIn](https://www.linkedin.com/in/eric-booyens-60a736353/) |
 | Keegan Walker | Developer | u22693760 | [LinkedIn](https://www.linkedin.com/in/keegan-walker-2144a0324/) |
 | Nabegh Muhra | Developer | u23661268 | [LinkedIn](https://www.linkedin.com/in/nabegh-muhra-222446252/) |
