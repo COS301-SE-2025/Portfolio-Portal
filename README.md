@@ -22,7 +22,7 @@ Our team, CtrlFreaks, is developing a 3D portfolio website generator that scans 
 Issues are created and assigned to team members who have to implement or fix certain areas of code. These issues are linked to tasks in the projects.
 
 ### Branching Strategy
-We use the git flow branching strategy. The main branch is used for production-ready versions. The dev branch is where the continuous development occurs, and any other feature is branched off of dev and remerged once the feature is complete.
+We use the git flow branching strategy. The main branch is used for production-ready versions. The dev branch is where the continuous development occurs, and any other feature is branched off of dev and merged once the feature is complete.
 
 ### Issue Tracking
-The issues that are created are assigned to team mebers to complete certain tasks in the project.
+The issues that are created are assigned to team meMbers to complete certain tasks in the project.
