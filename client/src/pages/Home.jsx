@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import FileUpload from '../components/ui/FileUpload'
-import PDFViewer from '../components/ui/PDFViewer'
 
-const HomePage = () => {
+const Home = () => {
   const [file, setFile] = useState(null)
 
   const handleFileSelect = (selectedFile) => {
@@ -26,4 +24,4 @@ const HomePage = () => {
   )
 }
 
-export default HomePage
+export default Home
