@@ -18,7 +18,7 @@ const Home = () => {
     <div id="home-container" className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6 transition-opacity duration-300">
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full">
         <h1 className="text-4xl font-bold text-center text-indigo-700 mb-4">Portfolio Portal</h1>
-        <p className="text-gray-600 text-center">Upload your CV and watch your career come to life
+        <p className="text-gray-600 text-center">Upload your CV and watch your portfolio come to life
         </p>
         <div className="mt-8 grid grid-cols-1 md:grid-cols-1 gap-4">
           <button 

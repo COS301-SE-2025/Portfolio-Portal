@@ -8,6 +8,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: url('../public//assets/Creativeportfolio.jpg');
+  background: url('../assets/Creativeportfolio.jpg');
   background-size: cover;
 }
+
