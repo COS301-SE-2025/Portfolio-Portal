@@ -8,7 +8,7 @@ Our team, CtrlFreaks, is developing a 3D portfolio website generator that scans 
 
 | Name             | Role         | Student Number | Profile                                                                            |
 | ---------------- | ------------ | -------------- | ---------------------------------------------------------------------------------- |
-| Angelique Breedt | Group Leader | u23542838      | [LinkedIn](https://www.linkedin.com/in/angelique-breedt-17bb87231/)                |
+| Angelique Breedt | Group Leader | u23542838      | [LinkedIn](https://www.linkedin.com/in/angelique-breedt/)                          |
 | Eric Booyens     | Developer    | u05127824      | [LinkedIn](https://www.linkedin.com/in/eric-booyens-60a736353/)                    |
 | Keegan Walker    | Developer    | u22693760      | [LinkedIn](https://www.linkedin.com/in/keegan-walker-2144a0324/)                   |
 | Nabegh Muhra     | Developer    | u23661268      | [LinkedIn](https://www.linkedin.com/in/nabegh-muhra-222446252/)                    |
@@ -26,8 +26,8 @@ Issues are created and assigned to team members who have to implement or fix cer
 
 ### Branching Strategy
 
-We use the git flow branching strategy. The main branch is used for production-ready versions. The dev branch is where the continuous development occurs, and any other feature is branched off of dev and remerged once the feature is complete.
+We use the git flow branching strategy. The main branch is used for production-ready versions. The dev branch is where the continuous development occurs, and any other feature is branched off of dev and merged once the feature is complete.
 
 ### Issue Tracking
 
-The issues that are created are assigned to team mebers to complete certain tasks in the project.
+The issues that are created are assigned to team members to complete certain tasks in the project.
