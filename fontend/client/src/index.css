@@ -3,12 +3,15 @@
 @tailwind utilities;
 @import "tailwindcss";
 
-/* Base styles */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: url('../assets/Creativeportfolio.jpg');
-  background-size: cover;
 }
 
+/* Instead of applying background globally, do it only for Home */
+.home-background {
+  background: url('../assets/Creativeportfolio.jpg');
+  background-size: cover;
+  background-position: center;
+}
