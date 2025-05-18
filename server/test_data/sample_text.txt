@@ -1,0 +1,36 @@
+Johnathan D. Doe
+123 Example Street, Pretoria, 0002
+Mobile: +27 82 123 4567
+Email: johndoe123@example.com
+LinkedIn: linkedin.com/in/johndoe
+GitHub: github.com/johndoe
+
+Education
+BSc Computer Science - University of Pretoria
+Graduated: December 2023
+Final Year Project: Develop a real-time portfolio generator
+
+Experience
+Software Engineering Intern – Amazon
+June 2023 – August 2023
+• Developed internal dashboard using React and Node.js
+• Automated data collection scripts with Python
+
+Student Assistant – University of Pretoria
+February 2022 – November 2022
+• Assisted students in Computer Science 101 practicals
+• Marked assignments and provided debugging support
+
+Skills
+Java, JavaScript, Python, C++
+React, Node.js, MongoDB
+Version Control (Git/GitHub)
+Strong problem-solving and debugging skills
+
+Certifications
+AWS Cloud Practitioner – 2023
+Google IT Automation with Python – Coursera
+
+References
+Piet Pogempoel
+Mobile: +27 82 123 4567
