@@ -3,7 +3,7 @@
 const fs = require('fs');
 const analyzer = require('../utils/cv-analyzer');
 
-const text = fs.readFileSync('./sample_text.txt', 'utf-8');  // reading sample textfile
+const text = fs.readFileSync('./test/sample_text.txt', 'utf-8');  // reading sample textfile. update when OCR scanner implemented.
 
 const result = analyzer.processCV(text);
-console.log(result);
+console.log(JSON.stringify(result, null, 2));
