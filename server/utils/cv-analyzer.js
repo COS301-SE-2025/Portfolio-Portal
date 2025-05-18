@@ -1,5 +1,6 @@
 // Extract the raw text from the OCR Scanner
 
+// TODO: implement it so that it extracts all sections listed, and for each section, extract relative info
 
 /**
  * Extracts the candidate's email address from the CV lines.
@@ -72,6 +73,42 @@ const extractName = (lines) => {
     return lines[0] || "Unknown";
 };
 
+
+/**
+ * Extracts all skills listed under a "Skills" section from the CV lines.
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {string[]} Array of extracted skill strings
+ */
+const extractSkills = (lines) => {
+    const skillsIndex = lines.findIndex(line => line.toLowerCase().includes("skills"));
+    if (skillsIndex === -1) return [];
+
+    const skillsLines = [];
+
+    for (let i = skillsIndex + 1; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+
+        if (line.includes("education") || line.includes("projects") || line.includes("experience") || line.includes("certifications") || line === ""
+            || line === " ") {
+                break;  // no more skills to extract
+        }
+
+        skillsLines.push(line);
+    }
+
+    const finalSkills = skillsLines.join(", ").split(/[,•\-–]+/).map(skill => skill.trim()).filter(Boolean);
+    return finalSkills;
+}
+
+
+/**
+ * Extracts all education listed under a "Education" section from the CV lines.
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {string[]} Array of extracted education strings
+ */
+const extractEducation = (lines) => {
+    
+}
 
 /**
  * Main function to process raw OCR text and extract basic CV metadata.
