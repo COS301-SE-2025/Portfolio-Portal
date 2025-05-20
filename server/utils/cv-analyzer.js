@@ -80,7 +80,7 @@ const extractName = (lines) => {
  * @returns {string[]} Array of extracted skill strings
  */
 const extractSkills = (lines) => {
-    const skillsLines = extractSectionLines(lines, "skills");
+    const skillsLines = sectionLines(lines, "skills");
     if (skillsLines.length === 0) return [];
 
     const finalSkills = skillsLines.join(", ").split(/[,•\-–]+/).map(skill => skill.trim()).filter(Boolean);
@@ -95,7 +95,7 @@ const extractSkills = (lines) => {
  * TODO: Implement analyzing different date formats
  */
 const extractEducation = (lines) => {
-    const edLines = extractSectionLines(lines, "education");
+    const edLines = sectionLines(lines, "education");
     if (edLines.length === 0) return [];
 
     const entry = {
@@ -118,14 +118,14 @@ const extractEducation = (lines) => {
         } else if (lower.includes("graduated")) {
             const match = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
             if (match) entry.endDate = match[0];
-        } else if (/\d{4}\s*[-–]\s*(present|current|\d{4})/i.test(line)) {
-            const match = line.match(/(\d{4})\s*[-–]\s*(present|current|\d{4})/i);  // only years  ->  TODO: months
-            if (match) {
-                entry.startDate = match[1];
-                entry.endDate = match[2];
-            }
         } else {
-            entry.extra.push(line.trim());  // projects, etc...
+            const dates = dateRange(line);
+            if (dates) {
+                entry.startDate = dates.startDate;
+                entry.endDate = dates.endDate;
+            } else {
+                entry.extra.push(line.trim());
+            }
         }
     }
 
@@ -134,14 +134,46 @@ const extractEducation = (lines) => {
 
 
 /**
+ * Extract all experience listed under "Experience" section from the CV lines.
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {string[]} - Array of extracted experience strings.
+ */
+const extractExperience = (lines) => {
+    const expLines = sectionLines(lines, "experience");
+    if (expLines.length === 0) return [];
+
+    const experience = [];
+
+    let entry = null;
+
+    for (let i = 0; i < expLines.length; i++) {
+        const line = expLines[i].trim();
+
+        if (line.includes(" - ")) {
+            if (entry) experience.push(entry);
+
+            const [title, company] = line.split(" - ").map(l => l.trim());
+            entry = {
+                title,
+                company,
+                startDate: "",
+                endDate: "",
+                extra: []
+            };
+        }
+    }
+}
+
+
+/**
  * Extracts all lines from a specific CV section based on its header.
  * Stops when a new section starts (based on common section headers).
  *
- * @param {string[]} lines - The OCR-processed lines of the CV
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @param {string} sectionHeader - The header to look for (e.g., "education")
  * @returns {string[]} Array of lines that belong to that section
  */
-const extractSectionLines = (lines, section) => {
+const sectionLines = (lines, section) => {
     const index = lines.findIndex(line => line.toLowerCase().includes(section.toLowerCase()));
     if (index === -1) {
         return [];
@@ -164,6 +196,32 @@ const extractSectionLines = (lines, section) => {
     }
 
     return sectionLines;
+};
+
+
+/**
+ * Extracts a date range (start and end date).
+ * Supports formats like:
+ *   - June 2023 – August 2023
+ *   - 2019 - Present
+ *   - Feb 2020 - 2021
+ *
+ * @param {string} line
+ * @returns {{ startDate: string, endDate: string } | null}
+ */
+const dateRange = (line) => {
+    const match = line.match(/(\w+\s+\d{4}|\d{4})\s*[-–]\s*(\w+\s+\d{4}|present|current|\d{4})/i);
+
+    if (match) {
+        let [, start, end] = match;
+        end = end.toLowerCase();
+        return {
+            startDate: start,
+            endDate: end === 'present' || end === 'current' ? 'present' : end
+        };
+    }
+
+    return null;
 };
 
 
