@@ -1,7 +1,7 @@
 # Portfolio-Portal
 
 ## Project Information
-Our team, CtrlFreaks, is developing a 3D portfolio website generator that scans a users CV and generates a custom 3D portfolio website!
+Our team, CtrlFreaks, is developing PortfolioPortal - an innovative web platform that enables users to create immersive, interactive 3D portfolio websites dynamically by simply uploading their CV. The system uses OCR technology to extract information from CVs and intelligently match it with appropriate 3D templates to generate personalized portfolio websites.
 
 ## Team Members and Roles
 | Name | Role | Student Number | Profile |
