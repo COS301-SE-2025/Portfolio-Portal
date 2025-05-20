@@ -116,8 +116,14 @@ const extractEducation = (lines) => {
             entry.degree = degree.trim();
             entry.institution = institution.trim();
         } else if (lower.includes("graduated")) {
-            const dateMatch = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
-            if (dateMatch) entry.endDate = dateMatch[0];
+            const match = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
+            if (match) entry.endDate = match[0];
+        } else if (/\d{4}\s*[-–]\s*(present|current|\d{4})/i.test(line)) {
+            const match = line.match(/(\d{4})\s*[-–]\s*(present|current|\d{4})/i);  // only years  ->  TODO: months
+            if (match) {
+                entry.startDate = match[1];
+                entry.endDate = match[2];
+            }
         } else {
             entry.extra.push(line.trim());  // projects, etc...
         }
@@ -136,7 +142,7 @@ const extractEducation = (lines) => {
  * @returns {string[]} Array of lines that belong to that section
  */
 const extractSectionLines = (lines, section) => {
-    const index = lines.findIndex(line => line.toLowerCase().includes(section.toLowerCase));
+    const index = lines.findIndex(line => line.toLowerCase().includes(section.toLowerCase()));
     if (index === -1) {
         return [];
     }
@@ -175,12 +181,14 @@ const extractSectionLines = (lines, section) => {
  * }}
  */
 exports.processCV = (text) => {
-    const lines = text.split('\n').map(line => line.trim()).filter(Boolean);  // /[\n\r]+/   ?? Fuzzy logic if not correctly spaced
+    const lines = text.split(/\s*[\n]\s*/).map(l => l.trim()).filter(Boolean);
 
     return {
         name: extractName(lines),
         email: extractEmail(lines),
         phone: extractPhone(lines),
-        links: extractLinks(lines)
+        links: extractLinks(lines),
+        skills: extractSkills(lines),
+        education: extractEducation(lines),
     };
 };
