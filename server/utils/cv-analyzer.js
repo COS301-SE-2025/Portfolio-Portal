@@ -1,4 +1,4 @@
-// Extract the raw text from the OCR Scanner
+// Extract and analyze the raw text from the OCR Scanner
 
 // TODO: implement it so that it extracts all sections listed, and for each section, extract relative info
 
@@ -7,7 +7,7 @@
  * First searches for a line labeled with "email", then falls back to full scan if the email isn't clearly labeled. 
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @returns {string|null} The extracted email address or null if not found
- * TODO: Check wheter the loop is in the candidate section or references to know exactly what email is saved in match.
+ * TODO: (Demo 2) Check wheter the loop is in the candidate section or references to know exactly what email is saved in match.
  *       Not assuming first email is the candidate's.
  */
 const extractEmail = (lines) => {
@@ -40,7 +40,7 @@ const extractPhone = (lines) => {
     for (const line of lines) {
         if (line.toLowerCase().includes("phone") || line.toLowerCase().includes("mobile") || line.toLowerCase().includes("number")) {
             const match = line.match(/(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3,4}[-\s]?\d{3,4}/);
-        if (match) return match[0];
+            if (match) return match[0];
         }
     }
 
@@ -57,7 +57,7 @@ const extractPhone = (lines) => {
  */
 const extractLinks = (lines) => {
     const joined = lines.join(" ");
-    const linkedIn = joined.match(/linkedin\.com\/[^\s]+/i)?.[0] || null;
+    const linkedIn = joined.match(/linkedin\.com\/[^\s]+/i)?.[0] || null;  // case insensitive matching
     const github = joined.match(/github\.com\/[^\s]+/i)?.[0] || null;
     return { linkedIn, github };
 }
@@ -80,21 +80,8 @@ const extractName = (lines) => {
  * @returns {string[]} Array of extracted skill strings
  */
 const extractSkills = (lines) => {
-    const skillsIndex = lines.findIndex(line => line.toLowerCase().includes("skills"));
-    if (skillsIndex === -1) return [];
-
-    const skillsLines = [];
-
-    for (let i = skillsIndex + 1; i < lines.length; i++) {
-        const line = lines[i].toLowerCase();
-
-        if (line.includes("education") || line.includes("projects") || line.includes("experience") || line.includes("certifications") || line === ""
-            || line === " ") {
-                break;  // no more skills to extract
-        }
-
-        skillsLines.push(line);
-    }
+    const skillsLines = extractSectionLines(lines, "skills");
+    if (skillsLines.length === 0) return [];
 
     const finalSkills = skillsLines.join(", ").split(/[,•\-–]+/).map(skill => skill.trim()).filter(Boolean);
     return finalSkills;
@@ -105,10 +92,74 @@ const extractSkills = (lines) => {
  * Extracts all education listed under a "Education" section from the CV lines.
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @returns {string[]} Array of extracted education strings
+ * TODO: Implement analyzing different date formats
  */
 const extractEducation = (lines) => {
-    
+    const edLines = extractSectionLines(lines, "education");
+    if (edLines.length === 0) return [];
+
+    const entry = {
+        degree: "",
+        institution: "",
+        field: "",  // TODO
+        startDate: "",
+        endDate: "",
+        extra: []
+    };
+
+    for (const line of edLines) {
+        const lower = line.toLowerCase();
+
+        if (line.includes(" - ")) {
+            // Likely degree tehn institution
+            const [degree, institution] = line.split(" - ");
+            entry.degree = degree.trim();
+            entry.institution = institution.trim();
+        } else if (lower.includes("graduated")) {
+            const dateMatch = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
+            if (dateMatch) entry.endDate = dateMatch[0];
+        } else {
+            entry.extra.push(line.trim());  // projects, etc...
+        }
+    }
+
+    return [entry];
 }
+
+
+/**
+ * Extracts all lines from a specific CV section based on its header.
+ * Stops when a new section starts (based on common section headers).
+ *
+ * @param {string[]} lines - The OCR-processed lines of the CV
+ * @param {string} sectionHeader - The header to look for (e.g., "education")
+ * @returns {string[]} Array of lines that belong to that section
+ */
+const extractSectionLines = (lines, section) => {
+    const index = lines.findIndex(line => line.toLowerCase().includes(section.toLowerCase));
+    if (index === -1) {
+        return [];
+    }
+
+    const sectionLines = [];
+    for (let i = index + 1; i < lines.length; i++) {
+        const line = lines[i].trim().toLowerCase();
+        if (
+            line.includes("skills") ||
+            line.includes("experience") ||
+            line.includes("projects") ||
+            line.includes("certifications") ||
+            line.includes("references") ||
+            line.includes("contact")
+        ) {
+            break;
+        }
+        sectionLines.push(line);
+    }
+
+    return sectionLines;
+};
+
 
 /**
  * Main function to process raw OCR text and extract basic CV metadata.
@@ -124,12 +175,12 @@ const extractEducation = (lines) => {
  * }}
  */
 exports.processCV = (text) => {
-  const lines = text.split('\n').map(line => line.trim()).filter(Boolean);  // /[\n\r]+/   ?? Fuzzy logic if not correctly spaced
+    const lines = text.split('\n').map(line => line.trim()).filter(Boolean);  // /[\n\r]+/   ?? Fuzzy logic if not correctly spaced
 
-  return {
-    name: extractName(lines),
-    email: extractEmail(lines),
-    phone: extractPhone(lines),
-    links: extractLinks(lines)
-  };
+    return {
+        name: extractName(lines),
+        email: extractEmail(lines),
+        phone: extractPhone(lines),
+        links: extractLinks(lines)
+    };
 };
