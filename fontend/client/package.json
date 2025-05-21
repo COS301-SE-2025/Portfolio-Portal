@@ -10,9 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.8",
+    "@react-three/fiber": "^9.1.2",
     "@tailwindcss/vite": "^4.1.6",
+    "framer-motion": "^12.12.1",
+    "motion": "^12.12.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0",
     "three": "^0.176.0"
   },
   "devDependencies": {
