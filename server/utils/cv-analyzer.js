@@ -91,7 +91,7 @@ const extractSkills = (lines) => {
 /**
  * Extracts all education listed under a "Education" section from the CV lines.
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
- * @returns {string[]} Array of extracted education strings
+ * @returns {Array<{ degree: string, institution: string, field: string, startDate: string, endDate: string, extra: string[] }>} - Array of extracted education strings
  * TODO: Implement analyzing different date formats
  */
 const extractEducation = (lines) => {
@@ -136,7 +136,7 @@ const extractEducation = (lines) => {
 /**
  * Extract all experience listed under "Experience" section from the CV lines.
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
- * @returns {string[]} - Array of extracted experience strings.
+ * @returns {Array<{ title: string, company: string, startDate: string, endDate: string, extra: string }>} - Array of extracted experience strings.
  */
 const extractExperience = (lines) => {
     const expLines = sectionLines(lines, "experience");
@@ -176,6 +176,58 @@ const extractExperience = (lines) => {
 
     return experience.map(exp => ({ ...exp, extra: exp.extra.join(" ") }));
 }
+
+
+/**
+ * Extract all certifications listed under "Certifications" section from the CV lines.
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {string[]} - Array of extracted certification strings.
+ */
+const extractCertifications = (lines) => {
+    const certLines = sectionLines(lines, "certifications");
+    if (certLines.length === 0) return [];
+
+    return certLines.map(line => line.trim()).filter(Boolean);
+};
+
+
+/**
+ * Extract all references listed under "References" section from the CV lines.
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {Array<{ name: string, phone?: string, email?: string }>} Array of extracted reference objects
+ */
+const extractReferences = (lines) => {
+    const refLines = sectionLines(lines, "references");
+    if (refLines.length === 0) return [];
+
+    const references = [];
+    let current = {};
+
+    for (const line of refLines) {
+        const lower = line.toLowerCase();
+
+        const phoneMatch = line.match(/(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3,4}[-\s]?\d{3,4}/);
+        const emailMatch = line.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/);
+
+        if (emailMatch) {
+            current.email = emailMatch?.[0] || "";
+        } else if (lower.includes("mobile") || lower.includes("phone") || lower.includes("number") || phoneMatch) {
+            current.phone = phoneMatch?.[0] || "";
+        } else {
+            if (Object.keys(current).length > 0) {
+                references.push(current);
+                current = {};
+            }
+            current.name = line.trim();
+        }
+    }
+
+    if (Object.keys(current).length > 0) {
+        references.push(current);
+    }
+
+    return references;
+};
 
 
 /**
@@ -267,5 +319,7 @@ exports.processCV = (text) => {
         skills: extractSkills(lines),
         education: extractEducation(lines),
         experience: extractExperience(lines),
+        certifications: extractCertifications(lines),
+        references: extractReferences(lines),
     };
 };

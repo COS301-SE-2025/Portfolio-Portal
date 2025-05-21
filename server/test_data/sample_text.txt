@@ -36,3 +36,8 @@ Google IT Automation with Python - Coursera
 References
 Piet Pogempoel
 Mobile: +27 82 123 4567
+emai: piet@gmail.com
+
+Jan Jansen
+082 123 4567
+jan@yahoo.com
