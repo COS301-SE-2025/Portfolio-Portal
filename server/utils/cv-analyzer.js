@@ -1,7 +1,5 @@
 // Extract and analyze the raw text from the OCR Scanner
 
-// TODO: implement it so that it extracts all sections listed, and for each section, extract relative info
-
 /**
  * Extracts the candidate's email address from the CV lines.
  * First searches for a line labeled with "email", then falls back to full scan if the email isn't clearly labeled. 
@@ -118,27 +116,29 @@ const extractEducation = (lines) => {
     const edLines = sectionLines(lines, "education");
     if (edLines.length === 0) return [];
 
-    const entry = {
-        degree: "",
-        institution: "",
-        field: "",  // TODO
-        startDate: "",
-        endDate: "",
-        extra: []
-    };
+    const entries = [];
+    let entry = null;
 
     for (const line of edLines) {
         const lower = line.toLowerCase();
 
         if (line.includes(" - ")) {
+            if (entry) entries.push(entry);
+
             // Likely degree then institution
             const [degree, institution] = line.split(" - ");
-            entry.degree = degree.trim();
-            entry.institution = institution.trim();
-        } else if (lower.includes("graduated")) {
+            entry = {
+                degree: degree.trim(),
+                institution: institution.trim(),
+                field: "", // TODO
+                startDate: "",
+                endDate: "",
+                extra: []
+            };
+        } else if (lower.includes("graduated") || lower.includes("matriculated")) {
             const match = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
-            if (match) entry.endDate = match[0];
-        } else {
+            if (match && entry) entry.endDate = match[0];
+        } else if (entry) {
             const dates = dateRange(line);
             if (dates) {
                 entry.startDate = dates.startDate;
@@ -149,7 +149,9 @@ const extractEducation = (lines) => {
         }
     }
 
-    return [entry];
+    if (entry) entries.push(entry);
+
+    return entries;
 }
 
 
