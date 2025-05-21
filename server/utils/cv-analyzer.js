@@ -68,7 +68,18 @@ const extractLinks = (lines) => {
  * @returns {string} The extracted name or "Unknown" if not found
  */
 const extractName = (lines) => {
-    return lines[0] || "Unknown";
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.length === 0) continue;  // skips empty lines
+
+        const match = trimmed.match(/^(name|full name)[\s:–-]+(.+)$/i);
+        if (match) {
+            return match[2].trim();
+        }
+
+        return trimmed;
+    }
+    return "Unknown";
 };
 
 
@@ -333,7 +344,7 @@ const dateRange = (line) => {
  *   }
  * }}
  */
-exports.processCV = (text) => {
+const processCV = (text) => {
     const lines = text.split(/\s*[\n]\s*/).map(l => l.trim()).filter(Boolean);
 
     return {
@@ -348,4 +359,18 @@ exports.processCV = (text) => {
         certifications: extractCertifications(lines),
         references: extractReferences(lines),
     };
+};
+
+module.exports = {
+    extractEmail,
+    extractPhone,
+    extractName,
+    extractLinks,
+    extractAbout,
+    extractCertifications,
+    extractSkills,
+    extractEducation,
+    extractExperience,
+    extractReferences,
+    processCV
 };

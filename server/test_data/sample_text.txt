@@ -1,4 +1,4 @@
-Johnathan D. Doe
+Name: Johnathan D. Doe
 123 Example Street, Pretoria, 0002
 Mobile: +27 82 123 4567
 Email: johndoe123@example.com
