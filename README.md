@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="fontend/client/public/assets/logo_temp.png" alt="Logo"/>
+  <img src="fontend/client/public/assets/logo1.png" alt="Logo"/>
 </h1>
 
 <p align="center">

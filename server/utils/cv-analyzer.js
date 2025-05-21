@@ -83,7 +83,7 @@ const extractSkills = (lines) => {
     const skillsLines = sectionLines(lines, "skills");
     if (skillsLines.length === 0) return [];
 
-    const finalSkills = skillsLines.join(", ").split(/[,•\-–]+/).map(skill => skill.trim()).filter(Boolean);
+    const finalSkills = skillsLines.join(", ").split(/[,•]+/).map(skill => skill.trim()).filter(Boolean);
     return finalSkills;
 }
 
@@ -111,7 +111,7 @@ const extractEducation = (lines) => {
         const lower = line.toLowerCase();
 
         if (line.includes(" - ")) {
-            // Likely degree tehn institution
+            // Likely degree then institution
             const [degree, institution] = line.split(" - ");
             entry.degree = degree.trim();
             entry.institution = institution.trim();
@@ -149,6 +149,13 @@ const extractExperience = (lines) => {
     for (let i = 0; i < expLines.length; i++) {
         const line = expLines[i].trim();
 
+        const dates = dateRange(line);
+        if (dates && entry) {
+            entry.startDate = dates.startDate;
+            entry.endDate = dates.endDate;
+            continue;
+        }
+
         if (line.includes(" - ")) {
             if (entry) experience.push(entry);
 
@@ -160,8 +167,14 @@ const extractExperience = (lines) => {
                 endDate: "",
                 extra: []
             };
+        } else if (entry) {
+            entry.extra.push(line.replace(/^(\s*(•|-|→|\d+\.)\s*)/, "").trim());
         }
     }
+
+    if (entry) experience.push(entry);
+
+    return experience.map(exp => ({ ...exp, extra: exp.extra.join(" ") }));
 }
 
 
@@ -180,18 +193,23 @@ const sectionLines = (lines, section) => {
     }
 
     const sectionLines = [];
+    const sectionHeadings = [
+        "skills",
+        "experience",
+        "projects",
+        "certifications",
+        "references",
+        "contact",
+        "education"
+    ];
+
     for (let i = index + 1; i < lines.length; i++) {
         const line = lines[i].trim().toLowerCase();
-        if (
-            line.includes("skills") ||
-            line.includes("experience") ||
-            line.includes("projects") ||
-            line.includes("certifications") ||
-            line.includes("references") ||
-            line.includes("contact")
-        ) {
+
+        if (sectionHeadings.includes(line)) {
             break;
         }
+
         sectionLines.push(line);
     }
 
@@ -248,5 +266,6 @@ exports.processCV = (text) => {
         links: extractLinks(lines),
         skills: extractSkills(lines),
         education: extractEducation(lines),
+        experience: extractExperience(lines),
     };
 };
