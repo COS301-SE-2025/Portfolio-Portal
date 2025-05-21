@@ -5,12 +5,14 @@ Email: johndoe123@example.com
 LinkedIn: linkedin.com/in/johndoe
 GitHub: github.com/johndoe
 
+profile
 I am John Doe, blah blah blah. Personal description.
 
 Education
 BSc Computer Science - University of Pretoria
 Graduated: December 2023
 Final Year Project: Develop a real-time portfolio generator
+I learned a lot
 
 Experience
 Software Engineering Intern - Amazon

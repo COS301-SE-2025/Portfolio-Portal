@@ -7,7 +7,7 @@
  * First searches for a line labeled with "email", then falls back to full scan if the email isn't clearly labeled. 
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @returns {string|null} The extracted email address or null if not found
- * TODO: (Demo 2) Check wheter the loop is in the candidate section or references to know exactly what email is saved in match.
+ * TODO: Check wheter the loop is in the candidate section or references to know exactly what email is saved in match.
  *       Not assuming first email is the candidate's.
  */
 const extractEmail = (lines) => {
@@ -71,6 +71,26 @@ const extractLinks = (lines) => {
  */
 const extractName = (lines) => {
     return lines[0] || "Unknown";
+};
+
+
+/**
+ * Extracts the "About Me".
+ *
+ * @param {string[]} lines - Array of lines from the OCR-scanned CV
+ * @returns {string|null} The extracted About section or null if not found
+ */
+const extractAbout = (lines) => {
+    const keywords = ["about", "about me", "summary", "profile"];
+
+    for (const keyword of keywords) {
+        const aboutLines = sectionLines(lines, keyword);
+        if (aboutLines.length > 0) {
+            return aboutLines.join(" ").trim();
+        }
+    }
+
+    return null;
 };
 
 
@@ -174,7 +194,7 @@ const extractExperience = (lines) => {
 
     if (entry) experience.push(entry);
 
-    return experience.map(exp => ({ ...exp, extra: exp.extra.join(" ") }));
+    return experience;
 }
 
 
@@ -251,8 +271,11 @@ const sectionLines = (lines, section) => {
         "projects",
         "certifications",
         "references",
-        "contact",
-        "education"
+        "education",
+        "about",
+        "about me",
+        "summary",
+        "profile",
     ];
 
     for (let i = index + 1; i < lines.length; i++) {
@@ -316,6 +339,7 @@ exports.processCV = (text) => {
         email: extractEmail(lines),
         phone: extractPhone(lines),
         links: extractLinks(lines),
+        about: extractAbout(lines),
         skills: extractSkills(lines),
         education: extractEducation(lines),
         experience: extractExperience(lines),
