@@ -6,9 +6,10 @@ const {
     extractAbout,
     extractSkills,
     extractEducation,
-    extractCertifications,
     extractExperience,
-    extractReferences
+    extractCertifications,
+    extractReferences,
+    processCV
 } = require('../cv-analyzer');
 
 
@@ -361,6 +362,547 @@ describe('extractEducation', () => {
                 startDate: '',
                 endDate: '2020',
                 extra: ['Subjects: IT, Accounting', 'Played hockey.']
+            }
+        ]);
+    });
+
+    test('begin and end date range (and other sections)', () => {
+        const lines = [
+            'Experience',
+            'A lot',
+            ' ',
+            'Education',
+            'BSc Computer Science - University of Pretoria',
+            'Feb 2023 - Nov 2025',
+            'Graduated with distinction',
+            '',
+            'Skills',
+            'A lot'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'University of Pretoria',
+                field: '',
+                startDate: 'Feb 2023',
+                endDate: 'Nov 2025',
+                extra: ['Graduated with distinction']
+            }
+        ]);
+    });
+
+    test('mixed lines and bad formatting', () => {
+        const lines = [
+            'Education',
+            'This has nothing to do with education',
+            'BSc Computer Science - UP',
+            'Graduated: 2025'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'UP',
+                field: '',
+                startDate: '',
+                endDate: '2025',
+                extra: []
+            }
+        ]);
+    });
+
+    test('date range before degree line', () => {
+        const lines = [
+            'Education',
+            'Feb 2020 - 2023',
+            'BSc Computer Science - UP',
+            'Graduated with honours'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'UP',
+                field: '',
+                startDate: 'Feb 2020',
+                endDate: '2023',
+                extra: ['Graduated with honours']
+            }
+        ]);
+    });
+
+    test('graduated before degree line', () => {
+        const lines = [
+            'Education',
+            'Graduated: 2023',
+            'BSc Computer Science - UP',
+            'Graduated with honours'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'UP',
+                field: '',
+                startDate: '',
+                endDate: '2023',
+                extra: ['Graduated with honours']
+            }
+        ]);
+    });
+
+    test('line contains dash but is not degree-institution', () => {
+        const lines = [
+            'Education',
+            'BSc CS - UP',
+            'Note: Final-year distinction Top 5% of class',
+            'Graduated: 2025'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc CS',
+                institution: 'UP',
+                field: '',
+                startDate: '',
+                endDate: '2025',
+                extra: ['Note: Final-year distinction Top 5% of class']
+            }
+        ]);
+    });
+
+    test('No education found', () => {
+        const lines = [
+            'Experience',
+            'A lot'
+        ];
+
+        expect(extractEducation(lines)).toEqual([]);
+    });
+});
+// =================================================================
+
+// testing experience analyzing
+describe('extractExperience', () => {
+    test('single entry with title and company', () => {
+        const lines = [
+            '   Experience   ',
+            '  Software Engineer - Google',
+            'June 2023 - August 2023',
+            'Worked on search features'
+        ];
+
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'Software Engineer',
+                company: 'Google',
+                startDate: 'June 2023',
+                endDate: 'August 2023',
+                extra: ['Worked on search features']
+            }
+        ]);
+    });
+
+    test('multiple entries (and other sections)', () => {
+        const lines = [
+            'Experience',
+            'Dev - Company A',
+            'Jan 2020 - Mar 2021',
+            '• A',
+            '• B',
+            ' ',
+            'Engineer - Company B',
+            'Apr 2021 - Present',
+            '• C',
+            'Education',
+            'education blah blh',
+            'Jun 2024 - Dec 2024'
+        ];
+
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'Dev',
+                company: 'Company A',
+                startDate: 'Jan 2020',
+                endDate: 'Mar 2021',
+                extra: ['A', 'B']
+            },
+            {
+                title: 'Engineer',
+                company: 'Company B',
+                startDate: 'Apr 2021',
+                endDate: 'present',
+                extra: ['C']
+            }
+        ]);
+    });
+
+    test('ignores lines before experience section', () => {
+        const lines = [
+            'Summary',
+            'Hard worker',
+            'Experience',
+            'PM - Test Corp',
+            'Managed projects'
+        ];
+
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'PM',
+                company: 'Test Corp',
+                startDate: '',
+                endDate: '',
+                extra: ['Managed projects']
+            }
+        ]);
+    });
+
+    test('date before', () => {
+        const lines = [
+            '   Experience   ',
+            'June 2023 - August 2023',
+            '  Software Engineer - Google',
+            'Worked on search features'
+        ];
+
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'Software Engineer',
+                company: 'Google',
+                startDate: 'June 2023',
+                endDate: 'August 2023',
+                extra: ['Worked on search features']
+            }
+        ]);
+    });
+
+    test('dashes in the extra section', () => {
+        const lines = [
+            '   Experience   ',
+            '  Software Engineer - Google',
+            'Worked on - search features'
+        ];
+
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'Software Engineer',
+                company: 'Google',
+                startDate: 'June 2023',
+                endDate: 'August 2023',
+                extra: ['Worked on - search features']
+            }
+        ]);
+    });
+
+    test('No experience', () => {
+        const lines = [
+            'Education',
+            'Some Degree - Some Uni'
+        ];
+
+        expect(extractExperience(lines)).toEqual([]);
+    });
+});
+// =================================================================
+
+// testing certificates
+describe('extractCertifications', () => {
+    test('single certificate', () => {
+        const lines = [
+            'Certifications',
+            'AWS Certified Solutions Architect'
+        ];
+
+        expect(extractCertifications(lines)).toEqual([
+            'AWS Certified Solutions Architect'
+        ]);
+    });
+
+    test('multiple certifications', () => {
+        const lines = [
+            'Certifications',
+            'AWS Certified Solutions Architect',
+            'Google Cloud Associate Engineer',
+            'Certified Ethical Hacker'
+        ];
+
+        expect(extractCertifications(lines)).toEqual([
+            'AWS Certified Solutions Architect',
+            'Google Cloud Associate Engineer',
+            'Certified Ethical Hacker'
+        ]);
+    });
+
+    test('blank lines in section', () => {
+        const lines = [
+            '    Certifications ',
+            '',
+            '    AWS Certified Solutions Architect ',
+            '    ',
+            'Certified Scrum Master        ',
+            '                ',
+            ''
+        ];
+
+        expect(extractCertifications(lines)).toEqual([
+            'AWS Certified Solutions Architect',
+            'Certified Scrum Master'
+        ]);
+    });
+
+    test('no certificates', () => {
+        const lines = [
+            'Experience',
+            'Software Engineer - Google'
+        ];
+
+        expect(extractCertifications(lines)).toEqual([]);
+    });
+
+    test('other sections', () => {
+        const lines = [
+            'Certifications',
+            'AWS Certified Solutions Architect - 2023',
+            'Certified Scrum Master - Coursera',
+            'Experience',
+            'Software Engineer - Google'
+        ];
+
+        expect(extractCertifications(lines)).toEqual([
+            'AWS Certified Solutions Architect - 2023',
+            'Certified Scrum Master - Coursera'
+        ]);
+    });
+});
+// =================================================================
+
+// testing references
+describe('extractReferences', () => {
+    test('single reference with name, phone and email (labeled)', () => {
+        const lines = [
+            'References',
+            'Piet Pogempoel',
+            'Phone: 082 123 4567',
+            'piet@gmail.com'
+        ];
+
+        expect(extractReferences(lines)).toEqual([
+            {
+                name: 'Piet Pogempoel',
+                phone: '082 123 4567',
+                email: 'piet@gmail.com'
+            }
+        ]);
+    });
+
+    test('single reference with name, phone and email (unlabeled)', () => {
+        const lines = [
+            '     References  ',
+            'Piet Pogempoel',
+            '               ',
+            ' 082 123 4567',
+            '    piet@gmail.com',
+            ''
+        ];
+
+        expect(extractReferences(lines)).toEqual([
+            {
+                name: 'Piet Pogempoel',
+                phone: '082 123 4567',
+                email: 'piet@gmail.com'
+            }
+        ]);
+    });
+
+    test('multiple', () => {
+        const lines = [
+            'References',
+            'Piet Pogempoel',
+            'Phone: 082 123 4567',
+            'piet@gmail.com',
+            '',
+            'Jan Jan',
+            '082 222 3333',
+            'jan@gmail.com'
+        ];
+
+        expect(extractReferences(lines)).toEqual([
+            {
+                name: 'Piet Pogempoel',
+                phone: '082 123 4567',
+                email: 'piet@gmail.com'
+            },
+            {
+                name: 'Jan Jan',
+                phone: '082 222 3333',
+                email: 'jan@gmail.com'
+            }
+        ]);
+    });
+
+    test('no contact info', () => {
+        const lines = [
+            '     References  ',
+            'Piet Pogempoel',
+        ];
+
+        expect(extractReferences(lines)).toEqual([
+            {
+                name: 'Piet Pogempoel'
+            }
+        ]);
+    });
+
+    test('no references', () => {
+        const lines = [
+            'Experience',
+            'Developer - SomeCompany'
+        ];
+
+        expect(extractReferences(lines)).toEqual([]);
+    });
+});
+// =================================================================
+
+// test processCV
+describe('processCV', () => {
+    test('extracts the CV as a whole', () => {
+        const text = `
+Name: Johnathan D. Doe
+123 Example Street, Pretoria, 0002
+Mobile: +27 82 123 4567
+Email: johndoe123@example.com
+LinkedIn: linkedin.com/in/johndoe
+GitHub: github.com/johndoe
+
+profile
+I am John Doe, blah blah blah. Personal description.
+This is a new line, blah nla blah.
+
+Education
+BSc Computer Science - University of Pretoria
+Graduated: December 2023
+Final Year Project: Develop a real time portfolio generator
+I learned a lot
+
+High school diploma - pbhs
+matriculated: 2022
+accounting, it, biology
+
+Experience
+Software Engineering Intern - Amazon
+June 2023 - August 2023
+• Developed internal dashboard using React and Node.js
+• Automated data collection scripts with Python
+
+Student Assistant - University of Pretoria
+February 2022 - November 2022
+• Assisted students in Computer Science 101 practicals
+• Marked assignments and provided debugging support
+
+Skills
+Java, JavaScript, Python, C++
+React, Node.js, MongoDB
+Version Control (Git/GitHub)
+Strong problem-solving and debugging skills
+
+Certifications
+AWS Cloud Practitioner - 2023
+Google IT Automation with Python - Coursera
+
+References
+Piet Pogempoel
+Mobile: +27 82 123 4567
+emai: piet@gmail.com
+
+Jan Jansen
+082 123 4567
+jan@yahoo.com
+        `;
+
+        const result = processCV(text);
+
+        expect(result.name).toBe('Johnathan D. Doe');
+        expect(result.email).toBe('johndoe123@example.com');
+        expect(result.phone).toBe('+27 82 123 4567');
+        expect(result.links).toEqual({
+            linkedIn: 'linkedin.com/in/johndoe',
+            github: 'github.com/johndoe'
+        });
+
+        expect(result.about).toEqual([
+            'I am John Doe, blah blah blah. Personal description.',
+            'This is a new line, blah nla blah.'
+        ]);
+
+        expect(result.skills).toEqual([
+            'Java', 'JavaScript', 'Python', 'C++',
+            'React', 'Node.js', 'MongoDB',
+            'Version Control (Git/GitHub)',
+            'Strong problem-solving and debugging skills'
+        ]);
+
+        expect(result.education).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'University of Pretoria',
+                field: '',
+                startDate: '',
+                endDate: 'December 2023',
+                extra: [
+                    'Final Year Project: Develop a real time portfolio generator',
+                    'I learned a lot'
+                ]
+            },
+            {
+                degree: 'High school diploma',
+                institution: 'pbhs',
+                field: '',
+                startDate: '',
+                endDate: '2022',
+                extra: ['accounting, it, biology']
+            }
+        ]);
+
+        expect(result.experience).toEqual([
+            {
+                title: 'Software Engineering Intern',
+                company: 'Amazon',
+                startDate: 'June 2023',
+                endDate: 'August 2023',
+                extra: [
+                    'Developed internal dashboard using React and Node.js',
+                    'Automated data collection scripts with Python'
+                ]
+            },
+            {
+                title: 'Student Assistant',
+                company: 'University of Pretoria',
+                startDate: 'February 2022',
+                endDate: 'November 2022',
+                extra: [
+                    'Assisted students in Computer Science 101 practicals',
+                    'Marked assignments and provided debugging support'
+                ]
+            }
+        ]);
+
+        expect(result.certifications).toEqual([
+            'AWS Cloud Practitioner - 2023',
+            'Google IT Automation with Python - Coursera'
+        ]);
+
+        expect(result.references).toEqual([
+            {
+                name: 'Piet Pogempoel',
+                phone: '+27 82 123 4567',
+                email: 'piet@gmail.com'
+            },
+            {
+                name: 'Jan Jansen',
+                phone: '082 123 4567',
+                email: 'jan@yahoo.com'
             }
         ]);
     });

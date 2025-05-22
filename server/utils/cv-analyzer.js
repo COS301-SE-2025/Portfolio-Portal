@@ -1,5 +1,7 @@
 // Extract and analyze the raw text from the OCR Scanner
 
+// Note: Education and Experience dashes issue
+
 /**
  * Extracts the candidate's email address from the CV lines.
  * First searches for a line labeled with "email", then falls back to full scan if the email isn't clearly labeled. 
@@ -126,44 +128,65 @@ const extractEducation = (lines) => {
 
     const entries = [];
     let entry = null;
+    let pendingDates = null;
 
     for (const line of edLines) {
-        const lower = line.toLowerCase();
+        const trimmed = line.trim();
+        const lower = trimmed.toLowerCase();
+        if (!trimmed) continue;
 
-        if (line.includes(" - ")) {
-            if (entry) entries.push(entry);
-
-            // Likely degree then institution
-            const [degree, institution] = line.split(" - ");
-            entry = {
-                degree: degree.trim(),
-                institution: institution.trim(),
-                field: "", // TODO
-                startDate: "",
-                endDate: "",
-                extra: []
-            };
-        } else if (lower.includes("graduated") || lower.includes("matriculated")) {
-            const match = line.match(/\b\w+\s+\d{4}\b/) || line.match(/\b\d{4}\b/);
-            if (match && entry) entry.endDate = match[0];
-        } else if (entry) {
-            const dates = dateRange(line);
-            if (dates) {
+        const dates = dateRange(trimmed);
+        if (dates) {
+            if (entry) {
                 entry.startDate = dates.startDate;
                 entry.endDate = dates.endDate;
             } else {
-                const trimmed = line.trim();
-                if (trimmed !== '') {
-                    entry.extra.push(trimmed);
-                }
+                pendingDates = dates;
             }
+            continue;
+        }
+
+        if (lower.includes("graduated") || lower.includes("matriculated")) {
+            const match = trimmed.match(/\b\w+\s+\d{4}\b/) || trimmed.match(/\b\d{4}\b/);
+            if (match) {
+                const date = match[0];
+                if (entry) {
+                    entry.endDate = date;
+                } else {
+                    pendingDates = { startDate: "", endDate: date };
+                }
+            } else if (entry) {
+                entry.extra.push(trimmed);
+            }
+            continue;
+        }
+
+        if (trimmed.includes("-")) {
+            const parts = trimmed.split("-").map(part => part.trim());
+            if (parts.length === 2) {
+                if (entry) entries.push(entry);
+
+                entry = {
+                    degree: parts[0],
+                    institution: parts[1],
+                    field: "",
+                    startDate: pendingDates?.startDate || "",
+                    endDate: pendingDates?.endDate || "",
+                    extra: []
+                };
+                pendingDates = null;
+                continue;
+            }
+        }
+
+        if (entry) {
+            entry.extra.push(trimmed);
         }
     }
 
     if (entry) entries.push(entry);
-
     return entries;
-}
+};
 
 
 /**
@@ -176,31 +199,42 @@ const extractExperience = (lines) => {
     if (expLines.length === 0) return [];
 
     const experience = [];
-
+    let pendingDates = null;
     let entry = null;
 
     for (let i = 0; i < expLines.length; i++) {
         const line = expLines[i].trim();
+        if (!line) continue;
 
         const dates = dateRange(line);
-        if (dates && entry) {
-            entry.startDate = dates.startDate;
-            entry.endDate = dates.endDate;
+        if (dates) {
+            if (entry) {
+                entry.startDate = dates.startDate;
+                entry.endDate = dates.endDate;
+            } else {
+                pendingDates = dates;
+            }
             continue;
         }
 
-        if (line.includes(" - ")) {
-            if (entry) experience.push(entry);
+        if (line.includes("-")) {
+            const parts = line.split("-").map(part => part.trim());
+            if (parts.length === 2) {
+                if (entry) experience.push(entry);
 
-            const [title, company] = line.split(" - ").map(l => l.trim());
-            entry = {
-                title,
-                company,
-                startDate: "",
-                endDate: "",
-                extra: []
-            };
-        } else if (entry) {
+                entry = {
+                    title: parts[0].trim(),
+                    company: parts[1].trim(),
+                    startDate: pendingDates?.startDate || "",
+                    endDate: pendingDates?.endDate || "",
+                    extra: []
+                };
+                pendingDates = null;
+                continue;
+            }
+        }
+
+        if (entry) {
             entry.extra.push(line.replace(/^(\s*(•|-|→|\d+\.)\s*)/, "").trim());
         }
     }
@@ -238,6 +272,7 @@ const extractReferences = (lines) => {
 
     for (const line of refLines) {
         const lower = line.toLowerCase();
+        if (!lower.trim()) continue;
 
         const phoneMatch = line.match(/(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3,4}[-\s]?\d{3,4}/);
         const emailMatch = line.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/);
@@ -321,10 +356,9 @@ const dateRange = (line) => {
 
     if (match) {
         let [, start, end] = match;
-        end = end.toLowerCase();
         return {
             startDate: start,
-            endDate: end === 'present' || end === 'current' ? 'present' : end
+            endDate: end.toLowerCase() === 'present' || end.toLowerCase() === 'current' ? 'present' : end
         };
     }
 
