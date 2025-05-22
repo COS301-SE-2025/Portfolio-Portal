@@ -68,6 +68,16 @@ describe('extractPhone', () => {
         expect(extractPhone(lines)).toBe('+27 82 123 4567');
     });
 
+    test('extracts US-style number', () => {
+        const lines = ['Phone: +1 202-555-0182'];
+        expect(extractPhone(lines)).toBe('+1 202-555-0182');
+    });
+
+    test('extracts German number with dashes', () => {
+        const lines = ['Phone: +49-89-636-48018'];
+        expect(extractPhone(lines)).toBe('+49-89-636-48018');
+    });
+
     test('extracts number with spaces', () => {
         const lines = ['Mobile: 082 123 4567'];
         expect(extractPhone(lines)).toBe('082 123 4567');
@@ -101,6 +111,11 @@ describe('extractPhone', () => {
     test('returns only first matching phone number', () => {
         const lines = ['Phone: 082 123 4567', 'Number: 083 987 6543'];
         expect(extractPhone(lines)).toBe('082 123 4567');
+    });
+
+    test('returns null for incomplete number', () => {
+        const lines = ['Phone: +999'];
+        expect(extractPhone(lines)).toBeNull();
     });
 });
 // ==================================================================
@@ -138,3 +153,49 @@ describe('extractName', () => {
     });
 });
 // =================================================================
+
+// testing links
+describe('extractLinks', () => {
+    test('extract linkedin only', () => {
+        const lines = [' ', 'LinkedIn: linkedin.com/in/johndoe', 'nothing herre', ''];
+        expect(extractLinks(lines).linkedIn).toBe('linkedin.com/in/johndoe');
+        expect(extractLinks(lines).github).toBeNull();
+    });
+
+    test('extract github only', () => {
+        const lines = ['nothing here', 'GitHub: github.com/johndoe'];
+        expect(extractLinks(lines).github).toBe('github.com/johndoe');
+        expect(extractLinks(lines).linkedIn).toBeNull();
+    });
+
+    test('extract both', () => {
+        const lines = ['LinkedIn: linkedin.com/in/johndoe', 'nothing herre', 'GitHub: github.com/johndoe'];
+        expect(extractLinks(lines).linkedIn).toBe('linkedin.com/in/johndoe');
+        expect(extractLinks(lines).github).toBe('github.com/johndoe');
+    });
+
+    test('extract both (unlabeled)', () => {
+        const lines = ['djesf', 'sfe linkedin.com/in/johndoe esfsf', 'fs github.com/johndoe sefsef'];
+        expect(extractLinks(lines).linkedIn).toBe('linkedin.com/in/johndoe');
+        expect(extractLinks(lines).github).toBe('github.com/johndoe');
+    });
+
+    test('Invalid links, return null', () => {
+        const lines = ['LinkedIn: linkeddoe', 'nothing herre', 'GitHub: github.'];
+        expect(extractLinks(lines).linkedIn).toBeNull();
+        expect(extractLinks(lines).github).toBeNull();
+    });
+
+    test('case-insensitive', () => {
+        const lines = ['Visit my LinkedIn: LINKEDIN.com/in/test', 'GitHub: GITHUB.com/user'];
+        expect(extractLinks(lines).linkedIn).toBe('LINKEDIN.com/in/test');
+        expect(extractLinks(lines).github).toBe('GITHUB.com/user');
+    });
+
+    test('no links, return null', () => {
+        const lines = ['', 'nothing herre', 'github'];
+        expect(extractLinks(lines).linkedIn).toBeNull();
+        expect(extractLinks(lines).github).toBeNull();
+    });
+});
+// ================================================================

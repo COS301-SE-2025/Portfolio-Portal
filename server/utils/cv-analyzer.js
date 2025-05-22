@@ -27,22 +27,19 @@ const extractEmail = (lines) => {
  * Falls back to scanning the whole CV text if needed.
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @returns {string|null} The extracted phone number or null if not found
- * TODO: Same as with email references section. Also, additional phone number formats?
+ * TODO: Same as with email references section.
  */
 const extractPhone = (lines) => {
-    // extract phone numbers:
-    // +27 82 123 4567
-    // 082 123 4567
-    // 012-345-6789
-    // (012) 345 6789
+    const phoneMatch = /(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)*\d{2,5}([-\s]?\d{2,5}){1,3}/;
+
     for (const line of lines) {
         if (line.toLowerCase().includes("phone") || line.toLowerCase().includes("mobile") || line.toLowerCase().includes("number")) {
-            const match = line.match(/(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3,4}[-\s]?\d{3,4}/);
+            const match = line.match(phoneMatch);
             if (match) return match[0];
         }
     }
 
-    const match = lines.join(" ").match(/(\+?\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3,4}[-\s]?\d{3,4}/);
+    const match = lines.join(" ").match(phoneMatch);
     return match ? match[0] : null;
 }
 
