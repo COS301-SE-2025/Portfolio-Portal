@@ -61,6 +61,50 @@ describe('extractEmail', () => {
 });
 // ==================================================================
 
+// testing phone number
+describe('extractPhone', () => {
+    test('extracts SA number with +27 format', () => {
+        const lines = ['Phone: +27 82 123 4567'];
+        expect(extractPhone(lines)).toBe('+27 82 123 4567');
+    });
+
+    test('extracts number with spaces', () => {
+        const lines = ['Mobile: 082 123 4567'];
+        expect(extractPhone(lines)).toBe('082 123 4567');
+    });
+
+    test('extracts with dashes', () => {
+        const lines = ['Phone: 012-345-6789'];
+        expect(extractPhone(lines)).toBe('012-345-6789');
+    });
+
+    test('extracts with parentheses', () => {
+        const lines = ['Number: (012) 345 6789'];
+        expect(extractPhone(lines)).toBe('(012) 345 6789');
+    });
+
+    test('extracts from unlabeled line', () => {
+        const lines = ['contact me on 021 345 6789'];
+        expect(extractPhone(lines)).toBe('021 345 6789');
+    });
+
+    test('extracts from unlabeled line (numb only)', () => {
+        const lines = ['012 345 6789'];
+        expect(extractPhone(lines)).toBe('012 345 6789');
+    });
+
+    test('returns null if no phone number present', () => {
+        const lines = ['Email: user@example.com', 'Location: Cape Town'];
+        expect(extractPhone(lines)).toBeNull();
+    });
+
+    test('returns only first matching phone number', () => {
+        const lines = ['Phone: 082 123 4567', 'Number: 083 987 6543'];
+        expect(extractPhone(lines)).toBe('082 123 4567');
+    });
+});
+// ==================================================================
+
 // testing name analyzing
 describe('extractName', () => {
     test('returns first line as name', () => {
