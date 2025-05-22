@@ -92,11 +92,11 @@ const extractAbout = (lines) => {
     for (const keyword of keywords) {
         const aboutLines = sectionLines(lines, keyword);
         if (aboutLines.length > 0) {
-            return aboutLines.join(" ").trim();
+            return aboutLines.map(line => line.trim()).filter(Boolean);
         }
     }
 
-    return null;
+    return [];
 };
 
 
@@ -144,7 +144,7 @@ const extractEducation = (lines) => {
                 extra: []
             };
         } else if (lower.includes("graduated") || lower.includes("matriculated")) {
-            const match = line.match(/\b\w+\s+\d{4}\b/); // e.g. December 2025  ->  TODO: other date formats
+            const match = line.match(/\b\w+\s+\d{4}\b/) || line.match(/\b\d{4}\b/);
             if (match && entry) entry.endDate = match[0];
         } else if (entry) {
             const dates = dateRange(line);
@@ -152,7 +152,10 @@ const extractEducation = (lines) => {
                 entry.startDate = dates.startDate;
                 entry.endDate = dates.endDate;
             } else {
-                entry.extra.push(line.trim());
+                const trimmed = line.trim();
+                if (trimmed !== '') {
+                    entry.extra.push(trimmed);
+                }
             }
         }
     }
@@ -289,9 +292,10 @@ const sectionLines = (lines, section) => {
     ];
 
     for (let i = index + 1; i < lines.length; i++) {
-        const line = lines[i].trim().toLowerCase();
+        const line = lines[i].trim();
+        const lowerLine = line.toLowerCase();
 
-        if (sectionHeadings.includes(line)) {
+        if (sectionHeadings.includes(lowerLine)) {
             break;
         }
 

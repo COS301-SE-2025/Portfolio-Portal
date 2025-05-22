@@ -4,9 +4,9 @@ const {
     extractName,
     extractLinks,
     extractAbout,
-    extractCertifications,
     extractSkills,
     extractEducation,
+    extractCertifications,
     extractExperience,
     extractReferences
 } = require('../cv-analyzer');
@@ -199,3 +199,170 @@ describe('extractLinks', () => {
     });
 });
 // ================================================================
+
+// testing about
+describe('extractAbout', () => {
+    test('"About" heading', () => {
+        const lines = [
+            'About',
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ];
+        expect(extractAbout(lines)).toEqual([
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ]);
+    });
+
+    test('"About me" heading (extra spaces)', () => {
+        const lines = [
+            '   About me ',
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ];
+        expect(extractAbout(lines)).toEqual([
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ]);
+    });
+
+    test('"Profile" heading (with other sections as well)', () => {
+        const lines = [
+            'Education',
+            'BSc Computer Science',
+            'Profile',
+            'I am a passionate software developer.',
+            'I love red bull.',
+            'Skills',
+            'JavaScript, Python'
+        ];
+        expect(extractAbout(lines)).toEqual([
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ]);
+    });
+
+    test('"Summary" heading (ALSO TEST UPPERCASE)', () => {
+        const lines = [
+            'SUMMARY',
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ];
+        expect(extractAbout(lines)).toEqual([
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ]);
+    });
+
+    test('Not labeled', () => {
+        const lines = [
+            'I am a passionate software developer.',
+            'I love red bull.'
+        ];
+        expect(extractAbout(lines)).toEqual([]);
+    });
+});
+// =================================================================
+
+// testing skills section
+describe('extractSkills', () => {
+    test('comma-separated skills from one line', () => {
+        const lines = [
+            'Skills',
+            'JavaScript, Python, C++'
+        ];
+        expect(extractSkills(lines)).toEqual(['JavaScript', 'Python', 'C++']);
+    });
+
+    test('bullet-separated skills from one line', () => {
+        const lines = [
+            'Skills',
+            'JavaScript • Python • C++'
+        ];
+        expect(extractSkills(lines)).toEqual(['JavaScript', 'Python', 'C++']);
+    });
+
+    test('removes empty entries and trims spaces', () => {
+        const lines = [
+            'Skills',
+            ' JavaScript , ,  Python ,,  '
+        ];
+        expect(extractSkills(lines)).toEqual(['JavaScript', 'Python']);
+    });
+
+    test('No skills section', () => {
+        const lines = [
+            'Experience',
+            'Google - Software Engineer'
+        ];
+        expect(extractSkills(lines)).toEqual([]);
+    });
+
+    test('multiple lines (and other sections)', () => {
+        const lines = [
+            '   Skills  ',
+            '  JavaScript, Python   • C++ ',
+            'HTML,        CSS • SQL         ',
+            'Experience',
+            'Google - Software Engineer'
+        ];
+        expect(extractSkills(lines)).toEqual(['JavaScript', 'Python', 'C++', 'HTML', 'CSS', 'SQL']);
+    });
+});
+// =================================================================
+
+// testing education
+describe('extractEducation', () => {
+    test('one education entry with degree and institution', () => {
+        const lines = [
+            'Education',
+            'BSc Computer Science - University of Pretoria',
+            'Graduated: December 2025',
+            'Final year project: 3D portfolio generator'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'University of Pretoria',
+                field: '',
+                startDate: '',
+                endDate: 'December 2025',
+                extra: ['Final year project: 3D portfolio generator']
+            }
+        ]);
+    });
+
+    test('multiple education entries', () => {
+        const lines = [
+            'Education',
+            'BSc Computer Science - University of Pretoria',
+            'Graduated: December 2025',
+            '              ',
+            'High School Diploma - PBHS',
+            'Matriculated: 2020',
+            'Subjects: IT, Accounting',
+            'Played hockey.'
+        ];
+
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc Computer Science',
+                institution: 'University of Pretoria',
+                field: '',
+                startDate: '',
+                endDate: 'December 2025',
+                extra: []
+            },
+            {
+                degree: 'High School Diploma',
+                institution: 'PBHS',
+                field: '',
+                startDate: '',
+                endDate: '2020',
+                extra: ['Subjects: IT, Accounting', 'Played hockey.']
+            }
+        ]);
+    });
+});
+// =================================================================
