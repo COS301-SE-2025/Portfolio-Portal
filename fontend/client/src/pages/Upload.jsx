@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const templates = [
   {
@@ -43,7 +42,6 @@ const Upload = () => {
   const [showTemplates, setShowTemplates] = useState(false);
   const fileInputRef = useRef(null);
   const templatesRef = useRef(null);
-  const navigate = useNavigate();
   
   useEffect(() => {
     // Add entrance animation when component mounts
@@ -115,13 +113,6 @@ const Upload = () => {
     fileInputRef.current.click();
   };
 
-  const handleExploreTemplates = () => {
-    setShowTemplates(true);
-    setTimeout(() => {
-      const templatesSection = document.getElementById('templates-section');
-      templatesSection?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
 
   return (
     <div className="transition-opacity duration-500">
