@@ -4,6 +4,7 @@ import Upload from './pages/Upload'
 import Space from './pages/Space'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Templates from './pages/Templates'
 import Navbar from './components/Navbar' // Adjust path as needed
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/space" element={<Space />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/templates" element={<Templates />} />
         <Route path="/home" element={<Home />} />
       </Routes>
     </div>
