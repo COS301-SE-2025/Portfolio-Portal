@@ -10,13 +10,13 @@ function App() {
   const location = useLocation()
   
   // Hide navbar on login and register pages
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/'
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register'
 
   return (
     <div>
       {!hideNavbar && <Navbar />}
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/space" element={<Space />} />
         <Route path="/login" element={<Login />} />

@@ -1,12 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Upload from './Upload'; // Import the Upload component
 
 const Home = () => {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const howItWorksRef = useRef(null);
+  const uploadRef = useRef(null);
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null, // Use viewport as root
+      rootMargin: '0px',
+      threshold: 0.1, // Trigger when 10% of the section is visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          if (entry.target.id === 'how-it-works') {
+            setShowHowItWorks(true);
+          }
+          if (entry.target.id === 'upload-section') {
+            setShowUpload(true);
+          }
+        }
+      });
+    }, observerOptions);
+
+    if (howItWorksRef.current) observer.observe(howItWorksRef.current);
+    if (uploadRef.current) observer.observe(uploadRef.current);
+
+    return () => {
+      if (howItWorksRef.current) observer.unobserve(howItWorksRef.current);
+      if (uploadRef.current) observer.unobserve(uploadRef.current);
+    };
+  }, []);
 
   const handleFindOutMore = () => {
     setShowHowItWorks(true);
-    // Smooth scroll to the how it works section
     setTimeout(() => {
       const howItWorksSection = document.getElementById('how-it-works');
       howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
@@ -14,7 +45,7 @@ const Home = () => {
   };
 
   const handleGetStarted = () => {
-    // Smooth scroll to the upload section
+    setShowUpload(true);
     setTimeout(() => {
       const uploadSection = document.getElementById('upload-section');
       uploadSection?.scrollIntoView({ behavior: 'smooth' });
@@ -78,12 +109,13 @@ const Home = () => {
       <div className="absolute top-32 right-16 w-3 h-3 bg-green-400 rounded-full opacity-50 animate-pulse delay-500"></div>
       
       {/* How it works section */}
-      {showHowItWorks && (
-        <div 
-          id="how-it-works" 
-          className="min-h-screen flex flex-col items-center justify-center px-8 py-16 animate-fadeIn"
-        >
-          <div className="max-w-4xl w-full text-center text-white space-y-12">
+      <div 
+        id="how-it-works" 
+        ref={howItWorksRef}
+        className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
+      >
+        {showHowItWorks && (
+          <div className="max-w-4xl w-full text-center text-white space-y-12 animate-fadeIn">
             <h2 className="text-5xl lg:text-6xl font-bold mb-8">How it works</h2>
             
             <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-16">
@@ -128,27 +160,37 @@ const Home = () => {
             
             <button 
               onClick={handleGetStarted}
-              className="mt-16 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium py-4 px-12 rounded-full hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+              className="mt-16 animate-pulseArrow"
             >
-              Get Started Now
+              <svg 
+                className="w-12 h-12 text-white hover:text-purple-300 transition-colors duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Upload Section */}
-      {showHowItWorks && (
-        <div id="upload-section" className="min-h-screen flex items-center justify-center px-8 py-16">
-          <Upload />
-        </div>
-      )}
+      <div 
+        id="upload-section" 
+        ref={uploadRef}
+        className="min-h-screen flex items-center justify-center px-8 py-16"
+      >
+        {showUpload && <Upload />}
+      </div>
     </div>
   );
 };
 
 export default Home;
 
-// Add custom CSS for fade-in animation
+// Add custom CSS for fade-in and arrow pulse animations
 const styles = `
   @keyframes fadeIn {
     from {
@@ -163,6 +205,28 @@ const styles = `
   
   .animate-fadeIn {
     animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes pulseArrow {
+    0% {
+      opacity: 0.6;
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 10px rgba(147, 51, 234, 0.7));
+    }
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+      filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    }
+  }
+
+  .animate-pulseArrow {
+    animation: pulseArrow 2s infinite ease-in-out;
   }
 `;
 
