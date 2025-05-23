@@ -1,36 +1,174 @@
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Upload from './Upload'; // Import the Upload component
 
 const Home = () => {
-  const navigate = useNavigate();
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+  const handleFindOutMore = () => {
+    setShowHowItWorks(true);
+    // Smooth scroll to the how it works section
+    setTimeout(() => {
+      const howItWorksSection = document.getElementById('how-it-works');
+      howItWorksSection?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   const handleGetStarted = () => {
-    // Add animation class to the container
-    const container = document.getElementById('home-container');
-    container.classList.add('fade-out');
-    
-    // Navigate after animation completes
+    // Smooth scroll to the upload section
     setTimeout(() => {
-      navigate('/upload');
-    }, 300);
+      const uploadSection = document.getElementById('upload-section');
+      uploadSection?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   return (
-    <div id="home-container" className="min-h-screen flex flex-col items-center justify-center p-6 transition-opacity duration-300">
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full">
-        <h1 className="text-4xl font-bold text-center text-indigo-700 mb-4">Portfolio Portal</h1>
-        <p className="text-gray-600 text-center">Upload your CV and watch your portfolio come to life
-        </p>
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-1 gap-4">
-          <button 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-            onClick={handleGetStarted}
-          >
-            Get Started
-          </button>
+    <div 
+      id="home-container" 
+      className="min-h-screen transition-opacity duration-300">
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-8">
+        <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="text-white space-y-6">
+            <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
+              Bring your
+              <br />
+              <span className="text-white">CV to life</span>
+            </h1>
+            
+            <p className="text-xl text-gray-300 max-w-lg leading-relaxed">
+              Upload your CV and let us turn it into a 3D interactive portfolio that{' '}
+              <span className="font-semibold text-white">speaks for you.</span>
+            </p>
+            
+            <button 
+              onClick={handleFindOutMore}
+              className="mt-8 bg-transparent border-2 border-white text-white font-medium py-4 px-8 rounded-full hover:bg-white hover:text-slate-900 transition-all duration-300 flex items-center space-x-2 group"
+            >
+              <span>Find out more</span>
+              <svg 
+                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Right Content - Placeholder for 3D object */}
+          <div className="hidden lg:flex items-center justify-center">
+            <div className="w-96 h-96 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-3xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+              <div className="text-white/60 text-center">
+                <div className="w-24 h-24 mx-auto mb-4 bg-purple-500/30 rounded-2xl flex items-center justify-center">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p className="text-sm">3D Portfolio Preview</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+      
+      {/* Decorative elements */}
+      <div className="absolute top-20 right-20 w-4 h-4 bg-purple-400 rounded-full opacity-60 animate-pulse"></div>
+      <div className="absolute top-40 right-32 w-6 h-6 bg-blue-400 rounded-full opacity-40 animate-pulse delay-1000"></div>
+      <div className="absolute top-32 right-16 w-3 h-3 bg-green-400 rounded-full opacity-50 animate-pulse delay-500"></div>
+      
+      {/* How it works section */}
+      {showHowItWorks && (
+        <div 
+          id="how-it-works" 
+          className="min-h-screen flex flex-col items-center justify-center px-8 py-16 animate-fadeIn"
+        >
+          <div className="max-w-4xl w-full text-center text-white space-y-12">
+            <h2 className="text-5xl lg:text-6xl font-bold mb-8">How it works</h2>
+            
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-16">
+              Portfolio Portal uses smart OCR and beautiful templates to turn 
+              your resume into a dynamic web experience — no coding required.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+              {/* Step 1 */}
+              <div className="flex flex-col items-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                  1
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">Upload</h3>
+                  <h3 className="text-2xl font-bold mb-4">your CV</h3>
+                </div>
+              </div>
+              
+              {/* Step 2 */}
+              <div className="flex flex-col items-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                  2
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">Choose a</h3>
+                  <h3 className="text-2xl font-bold mb-4">template</h3>
+                </div>
+              </div>
+              
+              {/* Step 3 */}
+              <div className="flex flex-col items-center space-y-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                  3
+                </div>
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold mb-2">Enjoy your</h3>
+                  <h3 className="text-2xl font-bold mb-4">portfolio!</h3>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              onClick={handleGetStarted}
+              className="mt-16 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium py-4 px-12 rounded-full hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+            >
+              Get Started Now
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Upload Section */}
+      {showHowItWorks && (
+        <div id="upload-section" className="min-h-screen flex items-center justify-center px-8 py-16">
+          <Upload />
+        </div>
+      )}
     </div>
   );
 };
 
 export default Home;
+
+// Add custom CSS for fade-in animation
+const styles = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.8s ease-out;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+}

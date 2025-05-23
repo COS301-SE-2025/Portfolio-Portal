@@ -10,7 +10,7 @@ html, body, #root {
   padding: 0;
   background-size: cover;
   background: #020024 !important;
-  background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(29, 29, 138, 1) 70%, rgba(36, 107, 130, 1) 100%) !important;
+  background: radial-gradient(circle, rgb(5, 3, 42) 0%, rgb(11, 11, 73) 80%, rgb(69, 95, 104) 100%) !important;
   min-height: 100vh;
 }
 

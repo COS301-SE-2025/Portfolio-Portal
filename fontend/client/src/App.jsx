@@ -1,13 +1,20 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Upload from './pages/Upload'
 import Space from './pages/Space'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Navbar from './components/Navbar' // Adjust path as needed
 
 function App() {
+  const location = useLocation()
+  
+  // Hide navbar on login and register pages
+  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/'
+
   return (
     <div>
+      {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/upload" element={<Upload />} />
