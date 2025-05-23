@@ -62,7 +62,7 @@ const Upload = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6 transition-opacity duration-500 ${isEntering ? 'opacity-0' : 'opacity-100'}`}>
+    <div className={`min-h-screen flex items-center justify-center p-6 transition-opacity duration-500 ${isEntering ? 'opacity-0' : 'opacity-100'}`}>
       <div className="bg-white rounded-xl shadow-lg max-w-md w-full mx-auto p-6">
         <h1 className="text-2xl font-bold text-indigo-700 mb-6 text-center">Upload Your CV</h1>
         

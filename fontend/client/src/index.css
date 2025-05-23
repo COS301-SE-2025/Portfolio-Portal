@@ -8,7 +8,9 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: url('../assets/Creativeportfolio.jpg');
   background-size: cover;
+  background: #020024 !important;
+  background: radial-gradient(circle, rgba(2, 0, 36, 1) 0%, rgba(29, 29, 138, 1) 70%, rgba(36, 107, 130, 1) 100%) !important;
+  min-height: 100vh;
 }
 
