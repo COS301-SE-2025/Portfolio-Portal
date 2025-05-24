@@ -4,16 +4,15 @@ const {
     extractName,
     extractLinks,
     extractAbout,
+    extractCertifications,
     extractSkills,
     extractEducation,
     extractExperience,
-    extractCertifications,
     extractReferences,
     processCV
 } = require('../cv-analyzer');
 
-
-// testing email analyzing
+// Testing email analyzing
 describe('extractEmail', () => {
     test('returns email from labeled line', () => {
         const lines = ['Email: user@example.com'];
@@ -59,10 +58,14 @@ describe('extractEmail', () => {
         const lines = ['user@example.c'];
         expect(extractEmail(lines)).toBeNull();
     });
-});
-// ==================================================================
 
-// testing phone number
+    test('extracts candidate email, not reference email', () => {
+        const lines = ['Email: candidate@example.com', 'References', 'ref@example.com'];
+        expect(extractEmail(lines)).toBe('candidate@example.com');
+    });
+});
+
+// Testing phone number
 describe('extractPhone', () => {
     test('extracts SA number with +27 format', () => {
         const lines = ['Phone: +27 82 123 4567'];
@@ -118,10 +121,14 @@ describe('extractPhone', () => {
         const lines = ['Phone: +999'];
         expect(extractPhone(lines)).toBeNull();
     });
-});
-// ==================================================================
 
-// testing name analyzing
+    test('extracts candidate phone, not reference phone', () => {
+        const lines = ['Phone: 012 345 6789', 'References', '082 999 8888'];
+        expect(extractPhone(lines)).toBe('012 345 6789');
+    });
+});
+
+// Testing name analyzing
 describe('extractName', () => {
     test('returns first line as name', () => {
         const lines = ['Piet Pogempoel', 'Email: user@example.com'];
@@ -152,10 +159,14 @@ describe('extractName', () => {
         const lines = [];
         expect(extractName(lines)).toBe('Unknown');
     });
-});
-// =================================================================
 
-// testing links
+    test('skips non-name first line', () => {
+        const lines = ['Curriculum Vitae', 'John Doe', 'Email: john@example.com'];
+        expect(extractName(lines)).toBe('John Doe');
+    });
+});
+
+// Testing links
 describe('extractLinks', () => {
     test('extract linkedin only', () => {
         const lines = [' ', 'LinkedIn: linkedin.com/in/johndoe', 'nothing herre', ''];
@@ -199,9 +210,8 @@ describe('extractLinks', () => {
         expect(extractLinks(lines).github).toBeNull();
     });
 });
-// ================================================================
 
-// testing about
+// Testing about
 describe('extractAbout', () => {
     test('"About" heading', () => {
         const lines = [
@@ -263,9 +273,8 @@ describe('extractAbout', () => {
         expect(extractAbout(lines)).toEqual([]);
     });
 });
-// =================================================================
 
-// testing skills section
+// Testing skills section
 describe('extractSkills', () => {
     test('comma-separated skills from one line', () => {
         const lines = [
@@ -310,9 +319,8 @@ describe('extractSkills', () => {
         expect(extractSkills(lines)).toEqual(['JavaScript', 'Python', 'C++', 'HTML', 'CSS', 'SQL']);
     });
 });
-// =================================================================
 
-// testing education
+// Testing education
 describe('extractEducation', () => {
     test('one education entry with degree and institution', () => {
         const lines = [
@@ -321,7 +329,6 @@ describe('extractEducation', () => {
             'Graduated: December 2025',
             'Final year project: 3D portfolio generator'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -345,7 +352,6 @@ describe('extractEducation', () => {
             'Subjects: IT, Accounting',
             'Played hockey.'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -379,7 +385,6 @@ describe('extractEducation', () => {
             'Skills',
             'A lot'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -399,7 +404,6 @@ describe('extractEducation', () => {
             'BSc Computer Science - UP',
             'Graduated: 2025'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -419,7 +423,6 @@ describe('extractEducation', () => {
             'BSc Computer Science - UP',
             'Graduated with honours'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -439,7 +442,6 @@ describe('extractEducation', () => {
             'BSc Computer Science - UP',
             'Graduated with honours'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -459,7 +461,6 @@ describe('extractEducation', () => {
             'Note: Final-year distinction Top 5% of class',
             'Graduated: 2025'
         ];
-
         expect(extractEducation(lines)).toEqual([
             {
                 degree: 'BSc CS',
@@ -477,13 +478,48 @@ describe('extractEducation', () => {
             'Experience',
             'A lot'
         ];
-
         expect(extractEducation(lines)).toEqual([]);
     });
-});
-// =================================================================
 
-// testing experience analyzing
+    test('handles MM/YYYY date format', () => {
+        const lines = [
+            'Education',
+            '06/2020 - 08/2023',
+            'BSc CS - UP'
+        ];
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc CS',
+                institution: 'UP',
+                field: '',
+                startDate: '06/2020',
+                endDate: '08/2023',
+                extra: []
+            }
+        ]);
+    });
+
+    test('handles multiple dashes in education extra', () => {
+        const lines = [
+            'Education',
+            'BSc CS - UP',
+            'Project: AI-based - real-time - analytics',
+            'Graduated: 2023'
+        ];
+        expect(extractEducation(lines)).toEqual([
+            {
+                degree: 'BSc CS',
+                institution: 'UP',
+                field: '',
+                startDate: '',
+                endDate: '2023',
+                extra: ['Project: AI-based - real-time - analytics']
+            }
+        ]);
+    });
+});
+
+// Testing experience analyzing
 describe('extractExperience', () => {
     test('single entry with title and company', () => {
         const lines = [
@@ -492,7 +528,6 @@ describe('extractExperience', () => {
             'June 2023 - August 2023',
             'Worked on search features'
         ];
-
         expect(extractExperience(lines)).toEqual([
             {
                 title: 'Software Engineer',
@@ -519,7 +554,6 @@ describe('extractExperience', () => {
             'education blah blh',
             'Jun 2024 - Dec 2024'
         ];
-
         expect(extractExperience(lines)).toEqual([
             {
                 title: 'Dev',
@@ -546,7 +580,6 @@ describe('extractExperience', () => {
             'PM - Test Corp',
             'Managed projects'
         ];
-
         expect(extractExperience(lines)).toEqual([
             {
                 title: 'PM',
@@ -565,7 +598,6 @@ describe('extractExperience', () => {
             '  Software Engineer - Google',
             'Worked on search features'
         ];
-
         expect(extractExperience(lines)).toEqual([
             {
                 title: 'Software Engineer',
@@ -583,13 +615,12 @@ describe('extractExperience', () => {
             '  Software Engineer - Google',
             'Worked on - search features'
         ];
-
         expect(extractExperience(lines)).toEqual([
             {
                 title: 'Software Engineer',
                 company: 'Google',
-                startDate: 'June 2023',
-                endDate: 'August 2023',
+                startDate: '',
+                endDate: '',
                 extra: ['Worked on - search features']
             }
         ]);
@@ -600,20 +631,34 @@ describe('extractExperience', () => {
             'Education',
             'Some Degree - Some Uni'
         ];
-
         expect(extractExperience(lines)).toEqual([]);
     });
-});
-// =================================================================
 
-// testing certificates
+    test('handles multiple dashes in experience extra', () => {
+        const lines = [
+            'Experience',
+            'Engineer - Google',
+            'Developed - real-time - analytics - system'
+        ];
+        expect(extractExperience(lines)).toEqual([
+            {
+                title: 'Engineer',
+                company: 'Google',
+                startDate: '',
+                endDate: '',
+                extra: ['Developed - real-time - analytics - system']
+            }
+        ]);
+    });
+});
+
+// Testing certificates
 describe('extractCertifications', () => {
     test('single certificate', () => {
         const lines = [
             'Certifications',
             'AWS Certified Solutions Architect'
         ];
-
         expect(extractCertifications(lines)).toEqual([
             'AWS Certified Solutions Architect'
         ]);
@@ -626,7 +671,6 @@ describe('extractCertifications', () => {
             'Google Cloud Associate Engineer',
             'Certified Ethical Hacker'
         ];
-
         expect(extractCertifications(lines)).toEqual([
             'AWS Certified Solutions Architect',
             'Google Cloud Associate Engineer',
@@ -644,7 +688,6 @@ describe('extractCertifications', () => {
             '                ',
             ''
         ];
-
         expect(extractCertifications(lines)).toEqual([
             'AWS Certified Solutions Architect',
             'Certified Scrum Master'
@@ -656,7 +699,6 @@ describe('extractCertifications', () => {
             'Experience',
             'Software Engineer - Google'
         ];
-
         expect(extractCertifications(lines)).toEqual([]);
     });
 
@@ -668,16 +710,14 @@ describe('extractCertifications', () => {
             'Experience',
             'Software Engineer - Google'
         ];
-
         expect(extractCertifications(lines)).toEqual([
             'AWS Certified Solutions Architect - 2023',
             'Certified Scrum Master - Coursera'
         ]);
     });
 });
-// =================================================================
 
-// testing references
+// Testing references
 describe('extractReferences', () => {
     test('single reference with name, phone and email (labeled)', () => {
         const lines = [
@@ -686,7 +726,6 @@ describe('extractReferences', () => {
             'Phone: 082 123 4567',
             'piet@gmail.com'
         ];
-
         expect(extractReferences(lines)).toEqual([
             {
                 name: 'Piet Pogempoel',
@@ -705,7 +744,6 @@ describe('extractReferences', () => {
             '    piet@gmail.com',
             ''
         ];
-
         expect(extractReferences(lines)).toEqual([
             {
                 name: 'Piet Pogempoel',
@@ -726,7 +764,6 @@ describe('extractReferences', () => {
             '082 222 3333',
             'jan@gmail.com'
         ];
-
         expect(extractReferences(lines)).toEqual([
             {
                 name: 'Piet Pogempoel',
@@ -746,7 +783,6 @@ describe('extractReferences', () => {
             '     References  ',
             'Piet Pogempoel',
         ];
-
         expect(extractReferences(lines)).toEqual([
             {
                 name: 'Piet Pogempoel'
@@ -759,13 +795,11 @@ describe('extractReferences', () => {
             'Experience',
             'Developer - SomeCompany'
         ];
-
         expect(extractReferences(lines)).toEqual([]);
     });
 });
-// =================================================================
 
-// test processCV
+// Test processCV
 describe('processCV', () => {
     test('extracts the CV as a whole', () => {
         const text = `
@@ -820,9 +854,7 @@ Jan Jansen
 082 123 4567
 jan@yahoo.com
         `;
-
         const result = processCV(text);
-
         expect(result.name).toBe('Johnathan D. Doe');
         expect(result.email).toBe('johndoe123@example.com');
         expect(result.phone).toBe('+27 82 123 4567');
@@ -830,19 +862,16 @@ jan@yahoo.com
             linkedIn: 'linkedin.com/in/johndoe',
             github: 'github.com/johndoe'
         });
-
         expect(result.about).toEqual([
             'I am John Doe, blah blah blah. Personal description.',
             'This is a new line, blah nla blah.'
         ]);
-
         expect(result.skills).toEqual([
             'Java', 'JavaScript', 'Python', 'C++',
             'React', 'Node.js', 'MongoDB',
             'Version Control (Git/GitHub)',
             'Strong problem-solving and debugging skills'
         ]);
-
         expect(result.education).toEqual([
             {
                 degree: 'BSc Computer Science',
@@ -864,7 +893,6 @@ jan@yahoo.com
                 extra: ['accounting, it, biology']
             }
         ]);
-
         expect(result.experience).toEqual([
             {
                 title: 'Software Engineering Intern',
@@ -887,12 +915,10 @@ jan@yahoo.com
                 ]
             }
         ]);
-
         expect(result.certifications).toEqual([
             'AWS Cloud Practitioner - 2023',
             'Google IT Automation with Python - Coursera'
         ]);
-
         expect(result.references).toEqual([
             {
                 name: 'Piet Pogempoel',
@@ -907,4 +933,3 @@ jan@yahoo.com
         ]);
     });
 });
-// =================================================================
