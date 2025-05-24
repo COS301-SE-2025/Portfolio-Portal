@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+/* Base styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-size: cover;
+  background: #020024 !important;
+  background: radial-gradient(circle, rgb(5, 3, 42) 0%, rgb(0, 0, 15) 80%, rgb(31, 3, 66) 100%) !important;
+  min-height: 100vh;
+}
+
