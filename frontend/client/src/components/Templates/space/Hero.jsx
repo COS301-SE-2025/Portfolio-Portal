@@ -95,12 +95,12 @@ const Hero = () => {
               <Suspense fallback={null}>
                 <ColoredEarth />
                 <OrbitControls 
-                  enableZoom={true}
+                  enableZoom={false}
                   enablePan={false}
                   maxPolarAngle={Math.PI / 2}
                   minPolarAngle={Math.PI / 4}
                   autoRotate={true}
-                  autoRotateSpeed={0.5}
+                  autoRotateSpeed={2}
                   dampingFactor={0.05}
                   enableDamping={true}
                 />

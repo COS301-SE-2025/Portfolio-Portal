@@ -131,7 +131,7 @@ const Home = () => {
           {/* Right Content - 3D Canvas */}
           <div className="h-96"> {/* Added container with height */}
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-              <ambientLight intensity={0.5} />
+              <ambientLight intensity={1.5} />
               <pointLight position={[10, 10, 10]} />
               <Suspense fallback={null}>
                 <Earth />

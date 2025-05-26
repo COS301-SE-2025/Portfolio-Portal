@@ -10,10 +10,11 @@ const Space = () => {
       <div className='bg-[url("/stars-bg.png")] bg-cover bg-no-repeat bg-center'>
         <Navbar />
         <Hero />
-      </div>
-      <About />
+              <About />
       <Experience />
       <Contact />
+      </div>
+
     </div>
   )
 }

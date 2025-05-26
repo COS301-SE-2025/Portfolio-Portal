@@ -4,7 +4,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-black/50 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+    <nav className=" backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
       <div className="max-w-6xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="#" className="flex items-center space-x-3">
           <span className="self-center text-2xl font-semibold text-white">{userName}</span>
