@@ -1,16 +1,20 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import Upload from './Upload'; // Import the Upload component
+
 import ThreeJSObject from '../components/Ball'; // Add this import
 import { Canvas } from '@react-three/fiber' // Fixed: Canvas with capital C
 import { OrbitControls } from '@react-three/drei' // Fixed: Added to imports
 import Earth from '../components/earth/Earth'
+import { useTheme } from '../contexts/ThemeContext';
+
 
 const Home = () => {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const howItWorksRef = useRef(null);
   const uploadRef = useRef(null);
-
+  const { theme, toggleTheme, isDark } = useTheme();
+  
   useEffect(() => {
     const observerOptions = {
       root: null, // Use viewport as root
@@ -59,25 +63,57 @@ const Home = () => {
   return (
     <div 
       id="home-container" 
-      className="min-h-screen transition-opacity duration-300">
+      className={`min-h-screen transition-all duration-300 ${
+        isDark 
+          ? 'bg-slate-900' 
+          : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
+      }`}
+    >
+        
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 group ${
+          isDark 
+            ? 'bg-white/10 border-white/20 hover:bg-white/20' 
+            : 'bg-white/80 border-gray-200 hover:bg-white shadow-lg hover:shadow-xl'
+        }`}
+        aria-label="Toggle theme"
+      >
+        {isDark ? (
+          <svg className="w-6 h-6 text-yellow-400 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6 text-slate-700 group-hover:text-slate-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        )}
+      </button>
+
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-8">
         <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="text-white space-y-6">
+          <div className={`space-y-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
             <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
               Bring your
               <br />
-              <span className="text-white">CV to life</span>
+              <span className={isDark ? 'text-white' : 'text-slate-900'}>CV to life</span>
             </h1>
             
-            <p className="text-xl text-gray-300 max-w-lg leading-relaxed">
+            <p className={`text-xl max-w-lg leading-relaxed ${
+              isDark ? 'text-gray-300' : 'text-slate-600'
+            }`}>
               Upload your CV and let us turn it into a 3D interactive portfolio that{' '}
-              <span className="font-semibold text-white">speaks for you.</span>
+              <span className={`font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>speaks for you.</span>
             </p>
             
             <button 
               onClick={handleFindOutMore}
-              className="mt-8 bg-transparent border-2 border-white text-white font-medium py-4 px-8 rounded-full hover:bg-white hover:text-slate-900 transition-all duration-300 flex items-center space-x-2 group"
+              className={`mt-8 border-2 font-medium py-4 px-8 rounded-full transition-all duration-300 flex items-center space-x-2 group ${
+                isDark 
+                  ? 'bg-transparent border-white text-white hover:bg-white hover:text-slate-900' 
+                  : 'bg-transparent border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white'
+              }`}
             >
               <span>Find out more</span>
               <svg 
@@ -91,6 +127,7 @@ const Home = () => {
             </button>
           </div>
           
+
           {/* Right Content - 3D Canvas */}
           <div className="h-96"> {/* Added container with height */}
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
@@ -101,14 +138,21 @@ const Home = () => {
                 <OrbitControls enableZoom={true} />
               </Suspense>
             </Canvas>
+
           </div>
         </div>
       </div>
       
       {/* Decorative elements */}
-      <div className="absolute top-20 right-20 w-4 h-4 bg-purple-400 rounded-full opacity-60 animate-pulse"></div>
-      <div className="absolute top-40 right-32 w-6 h-6 bg-blue-400 rounded-full opacity-40 animate-pulse delay-1000"></div>
-      <div className="absolute top-32 right-16 w-3 h-3 bg-green-400 rounded-full opacity-50 animate-pulse delay-500"></div>
+      <div className={`absolute top-20 right-20 w-4 h-4 rounded-full animate-pulse ${
+        isDark ? 'bg-purple-400 opacity-60' : 'bg-purple-300 opacity-80'
+      }`}></div>
+      <div className={`absolute top-40 right-32 w-6 h-6 rounded-full animate-pulse delay-1000 ${
+        isDark ? 'bg-blue-400 opacity-40' : 'bg-blue-300 opacity-60'
+      }`}></div>
+      <div className={`absolute top-32 right-16 w-3 h-3 rounded-full animate-pulse delay-500 ${
+        isDark ? 'bg-green-400 opacity-50' : 'bg-green-300 opacity-70'
+      }`}></div>
       
       {/* How it works section */}
       <div 
@@ -117,10 +161,14 @@ const Home = () => {
         className="min-h-screen flex flex-col items-center justify-center px-8 py-16"
       >
         {showHowItWorks && (
-          <div className="max-w-4xl w-full text-center text-white space-y-12 animate-fadeIn">
+          <div className={`max-w-4xl w-full text-center space-y-12 animate-fadeIn ${
+            isDark ? 'text-white' : 'text-slate-900'
+          }`}>
             <h2 className="text-5xl lg:text-6xl font-bold mb-8">How it works</h2>
             
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mb-16">
+            <p className={`text-xl max-w-3xl mx-auto leading-relaxed mb-16 ${
+              isDark ? 'text-gray-300' : 'text-slate-600'
+            }`}>
               Portfolio Portal uses smart OCR and beautiful templates to turn 
               your resume into a dynamic web experience — no coding required.
             </p>
@@ -128,7 +176,9 @@ const Home = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
               {/* Step 1 */}
               <div className="flex flex-col items-center space-y-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
+                  isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
+                }`}>
                   1
                 </div>
                 <div className="text-center">
@@ -139,7 +189,9 @@ const Home = () => {
               
               {/* Step 2 */}
               <div className="flex flex-col items-center space-y-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
+                  isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
+                }`}>
                   2
                 </div>
                 <div className="text-center">
@@ -150,7 +202,9 @@ const Home = () => {
               
               {/* Step 3 */}
               <div className="flex flex-col items-center space-y-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl">
+                <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
+                  isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
+                }`}>
                   3
                 </div>
                 <div className="text-center">
@@ -165,7 +219,11 @@ const Home = () => {
               className="mt-16 animate-pulseArrow"
             >
               <svg 
-                className="w-12 h-12 text-white hover:text-purple-300 transition-colors duration-300" 
+                className={`w-12 h-12 transition-colors duration-300 ${
+                  isDark 
+                    ? 'text-white hover:text-purple-300' 
+                    : 'text-slate-700 hover:text-purple-600'
+                }`}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
