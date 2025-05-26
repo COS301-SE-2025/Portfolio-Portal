@@ -6,7 +6,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Templates from './pages/Templates'
 import Navbar from './components/Navbar' // Adjust path as needed
-
+import { ThemeProvider } from './contexts/ThemeContext'
 function App() {
   const location = useLocation()
   
@@ -14,6 +14,7 @@ function App() {
   const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space'
 
   return (
+    <ThemeProvider>
     <div>
       {!hideNavbar && <Navbar />}
       <Routes>
@@ -26,6 +27,7 @@ function App() {
         <Route path="/home" element={<Home />} />
       </Routes>
     </div>
+    </ThemeProvider>
   )
 }
 
