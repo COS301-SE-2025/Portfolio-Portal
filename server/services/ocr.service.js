@@ -1,5 +1,5 @@
+const { fromPath } = require("pdf2pic");
 const tesseract = require("node-tesseract-ocr");
-const { PdfConverter } = require("pdf-poppler");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
@@ -10,32 +10,42 @@ const config = {
     psm: 3,
 };
 
-/**
- * Convert PDF to images, then run OCR
- * @param {string} pdfPath - Path to uploaded PDF
- * @returns {Promise<string>} - Full OCR text
- */
 const extractTextFromPDF = async (pdfPath) => {
-    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), "cvocr-"));
-    const converter = new PdfConverter(pdfPath);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cvocr-"));
+    const options = {
+        density: 300,
+        saveFilename: "page",
+        savePath: tempDir,
+        format: "png",
+        width: 1200,
+        height: 1600,
+    };
 
-    await converter.convert(outputDir, {
-        pngFile: true,
-        resolution: 300,
-    });
+    const convert = fromPath(pdfPath, options);
+    const pageCount = await getPDFPageCount(pdfPath);
 
-    const images = fs.readdirSync(outputDir)
-        .filter((f) => f.endsWith(".png"))
-        .map((f) => path.join(outputDir, f));
+    const imagePaths = [];
+    for (let i = 1; i <= pageCount; i++) {
+        const result = await convert(i);
+        imagePaths.push(result.path);
+    }
 
-    const ocrResults = await Promise.all(images.map(img => tesseract.recognize(img, config)));
+    const ocrResults = await Promise.all(
+        imagePaths.map(img => tesseract.recognize(img, config))
+    );
 
-    // Cleanup
-    fs.rmSync(outputDir, { recursive: true, force: true });
-
+    fs.rmSync(tempDir, { recursive: true, force: true });
     return ocrResults.join("\n\n");
 };
 
+// Helper to count pages in the PDF
+const getPDFPageCount = async (pdfPath) => {
+    const { execSync } = require("child_process");
+    const output = execSync(`pdfinfo "${pdfPath}"`).toString();
+    const match = output.match(/Pages:\s+(\d+)/);
+    return match ? parseInt(match[1], 10) : 1;
+};
+
 module.exports = {
-    extractTextFromFile: extractTextFromPDF,  // same interface expected by controller
+    extractTextFromFile: extractTextFromPDF,
 };
