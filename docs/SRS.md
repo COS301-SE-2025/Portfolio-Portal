@@ -2,7 +2,7 @@
 
 ## Requirements Specification
 
-**Version:** 1.0.0 
+**Version:** 1.0 
 **Date:** 05/2025
 
 ---
@@ -22,6 +22,9 @@
 
 ## 1️. Introduction
 
+### Purpose
+
+The purpose of this document is to document the iterative process of evaluating the client’s needs. A software engineering methodology is used to elicit, plan, and design the solution based on the requirements recorded here.
+
 ### Overview
 
-The purpose of this document is to define the functional and non-functional requirements for the PortfolioPortal 3D website system.
