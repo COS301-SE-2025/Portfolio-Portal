@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
-import Upload from './Upload'; // Import the Upload component
-
-import ThreeJSObject from '../components/Ball'; // Add this import
-import { Canvas } from '@react-three/fiber' // Fixed: Canvas with capital C
-import { OrbitControls } from '@react-three/drei' // Fixed: Added to imports
-import Earth from '../components/earth/Earth'
+import Upload from './Upload';
+import ThreeJSObject from '../components/Ball';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import Earth from '../components/earth/Earth';
 import { useTheme } from '../contexts/ThemeContext';
-
 
 const Home = () => {
   const [showHowItWorks, setShowHowItWorks] = useState(false);
@@ -17,9 +15,9 @@ const Home = () => {
   
   useEffect(() => {
     const observerOptions = {
-      root: null, // Use viewport as root
+      root: null,
       rootMargin: '0px',
-      threshold: 0.1, // Trigger when 10% of the section is visible
+      threshold: 0.1,
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -69,7 +67,6 @@ const Home = () => {
           : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'
       }`}
     >
-        
       <button
         onClick={toggleTheme}
         className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 group ${
@@ -92,7 +89,6 @@ const Home = () => {
 
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-8">
         <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Content */}
           <div className={`space-y-6 ${isDark ? 'text-white' : 'text-slate-900'}`}>
             <h1 className="text-6xl lg:text-7xl font-bold leading-tight">
               Bring your
@@ -126,10 +122,8 @@ const Home = () => {
               </svg>
             </button>
           </div>
-          
 
-          {/* Right Content - 3D Canvas */}
-          <div className="h-96"> {/* Added container with height */}
+          <div className="h-96">
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
               <ambientLight intensity={1.5} />
               <pointLight position={[10, 10, 10]} />
@@ -138,12 +132,10 @@ const Home = () => {
                 <OrbitControls enableZoom={true} autoRotate={true} />
               </Suspense>
             </Canvas>
-
           </div>
         </div>
       </div>
       
-      {/* Decorative elements */}
       <div className={`absolute top-20 right-20 w-4 h-4 rounded-full animate-pulse ${
         isDark ? 'bg-purple-400 opacity-60' : 'bg-purple-300 opacity-80'
       }`}></div>
@@ -154,7 +146,6 @@ const Home = () => {
         isDark ? 'bg-green-400 opacity-50' : 'bg-green-300 opacity-70'
       }`}></div>
       
-      {/* How it works section */}
       <div 
         id="how-it-works" 
         ref={howItWorksRef}
@@ -174,7 +165,6 @@ const Home = () => {
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
-              {/* Step 1 */}
               <div className="flex flex-col items-center space-y-6">
                 <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
                   isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
@@ -187,7 +177,6 @@ const Home = () => {
                 </div>
               </div>
               
-              {/* Step 2 */}
               <div className="flex flex-col items-center space-y-6">
                 <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
                   isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
@@ -200,7 +189,6 @@ const Home = () => {
                 </div>
               </div>
               
-              {/* Step 3 */}
               <div className="flex flex-col items-center space-y-6">
                 <div className={`w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white text-3xl font-bold ${
                   isDark ? 'shadow-2xl' : 'shadow-2xl shadow-purple-200/50'
@@ -236,7 +224,6 @@ const Home = () => {
         )}
       </div>
       
-      {/* Upload Section */}
       <div 
         id="upload-section" 
         ref={uploadRef}
@@ -250,7 +237,6 @@ const Home = () => {
 
 export default Home;
 
-// Add custom CSS for fade-in and arrow pulse animations
 const styles = `
   @keyframes fadeIn {
     from {
@@ -290,7 +276,6 @@ const styles = `
   }
 `;
 
-// Inject styles
 if (typeof document !== 'undefined') {
   const styleSheet = document.createElement("style");
   styleSheet.innerText = styles;
