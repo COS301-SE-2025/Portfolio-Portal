@@ -28,9 +28,9 @@ const templates = [
     image: '/images/forest.png',
   },
   {
-    title: 'Studio',
-    description: 'A clean, minimal space perfect for designers and creatives.',
-    image: '/images/studio.png',
+    title: 'Cafe',
+    description: 'A fun, exciting space for the busy caffeine addict.',
+    image: '/images/cafe.png',
   },
 ];
 
