@@ -16,13 +16,13 @@ const About = () => {
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center min-h-[80vh]">
             {/* Left Column - Content */}
             <div className="space-y-12 lg:pr-8">
-              <h1 className={`text-6xl lg:text-8xl xl:text-9xl font-bold leading-none ${
+              <h1 className={`text-5xl lg:text-7xl xl:text-8xl font-bold leading-none ${
                 theme === 'dark' ? 'text-white' : 'text-gray-900'
               }`}>
                 About us
               </h1>
               
-              <div className={`space-y-8 text-lg lg:text-xl leading-relaxed max-w-2xl ${
+              <div className={`space-y-8 text-base lg:text-lg leading-relaxed max-w-2xl ${
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
               }`}>
                 <p>
@@ -52,9 +52,10 @@ const About = () => {
                 <div className="w-96 h-96 lg:w-[500px] lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
                   {/* 
                     PLACE YOUR IMAGE HERE:
-                    Replace this div with:
+                    Put your image in: public/images/about-illustration.png
+                    Then replace this div with:
                     <img 
-                      src="/path/to/your/image.png" 
+                      src="/images/about-illustration.png" 
                       alt="About us illustration" 
                       className="w-full h-full object-cover"
                     />
