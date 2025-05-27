@@ -2,16 +2,37 @@ import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const About = () => {
-  const { theme } = useTheme();
+  const { theme, toggleTheme, isDark } = useTheme();
 
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        theme === 'dark'
+        isDark
           ? 'bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900'
           : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50'
       }`}
     >
+      {/* Theme Toggle Button - Same as Templates page */}
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-6 right-6 z-50 p-3 rounded-full backdrop-blur-sm border transition-all duration-300 group ${
+          isDark 
+            ? 'bg-white/10 border-white/20 hover:bg-white/20 text-white' 
+            : 'bg-gray-200/80 border-gray-300 hover:bg-gray-300/80 text-gray-700'
+        }`}
+        aria-label="Toggle theme"
+      >
+        {isDark ? (
+          <svg className="w-6 h-6 text-yellow-400 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        ) : (
+          <svg className="w-6 h-6 text-slate-700 group-hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        )}
+      </button>
+
       {/* Add top padding to account for navbar */}
       <div className="pt-20 pb-16 px-8 lg:px-16 xl:px-24">
         <div className="max-w-7xl mx-auto">
@@ -20,7 +41,7 @@ const About = () => {
             <div className="space-y-12 lg:pr-8">
               <h1
                 className={`text-5xl lg:text-7xl xl:text-8xl font-bold leading-none ${
-                  theme === 'dark' ? 'text-white' : 'text-gray-900'
+                  isDark ? 'text-white' : 'text-gray-900'
                 }`}
               >
                 About us
@@ -28,7 +49,7 @@ const About = () => {
 
               <div
                 className={`space-y-8 text-base lg:text-lg leading-relaxed max-w-2xl ${
-                  theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                  isDark ? 'text-gray-300' : 'text-gray-700'
                 }`}
               >
                 <p>
