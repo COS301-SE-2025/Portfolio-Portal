@@ -5,32 +5,32 @@ const templates = [
   {
     title: 'Office',
     description: 'Corporate and professional with a sleek modern look.',
-    image: '/placeholders/office.png',
+    image: '/images/office.png',
   },
   {
     title: 'Studio',
     description: 'A clean, minimal space perfect for designers and creatives.',
-    image: '/placeholders/studio.png',
+    image: '/images/studio.png',
   },
   {
     title: 'Gallery',
     description: 'A curated portfolio display, like a personal museum.',
-    image: '/placeholders/gallery.png',
+    image: '/images/gallery.png',
   },
   {
     title: 'Space',
     description: 'A futuristic scene that showcases innovation and ambition.',
-    image: '/placeholders/space.png',
+    image: '/images/space.png',
   },
   {
     title: 'Forest',
     description: 'Serene and natural — ideal for calm, grounded presentation.',
-    image: '/placeholders/forest.png',
+    image: '/images/forest.png',
   },
   {
     title: 'Studio',
     description: 'A clean, minimal space perfect for designers and creatives.',
-    image: '/placeholders/studio.png',
+    image: '/images/studio.png',
   },
 ];
 
