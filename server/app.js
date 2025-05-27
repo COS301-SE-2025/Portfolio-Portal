@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // File upload middleware
 const upload = multer({ dest: path.join(__dirname, "uploads/") });
-app.use("/api/ocr", upload.single("file"), ocrRoutes);
+app.use("/api/ocr", ocrRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 
 // Export app for use in server.js
