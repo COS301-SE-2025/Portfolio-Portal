@@ -38,6 +38,10 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 ## Meet the Team
 
+<p align="center">
+  <img src="frontend/client/public/assets/CtrlFreaks.png" alt="Team Photo" width="600"/>
+</p>
+
 | Name                 | Role           | Student Number | Description | LinkedIn |
 |----------------------|----------------|----------------|-------------|----------|
 | **Angelique Breedt** | Group Leader   | u23542838       | I am a BSc Computer Science student working as group leader for CTRL Freaks on the PortfolioPortal system. I am responsible for ensuring the group is on track and that tasks are accurately delegated. I am also responsible for communication with the client and AL mentor. My focus is on the backend development. | [LinkedIn](https://www.linkedin.com/in/angelique-breedt/) |
