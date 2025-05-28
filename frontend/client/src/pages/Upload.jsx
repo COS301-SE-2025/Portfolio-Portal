@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useNavigate } from 'react-router-dom'; // If using React Router
 import Plane from '../components/3DModels/Plane';
-import { Canvas } from '@react-three/fiber' // Fixed: Canvas with capital C
-import { OrbitControls } from '@react-three/drei' // Fixed: Added to imports
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import cvDataService from '../services/cvDataService';
+
 const templates = [
   {
     title: 'Office',
@@ -43,21 +46,28 @@ const Upload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cvData, setCvData] = useState(null);
   const [error, setError] = useState(null);
   const [showCvData, setShowCvData] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(3);
   const fileInputRef = useRef(null);
   const templatesRef = useRef(null);
+  const aboutRef = useRef(null);
   const { theme, toggleTheme, isDark } = useTheme();
+  
+  // For React Router (if you're using it)
+  const navigate = useNavigate(); // Remove this line if not using React Router
 
   useEffect(() => {
-    // Add entrance animation when component mounts
+    // Entrance animation
     const timer = setTimeout(() => {
       setIsEntering(false);
     }, 100);
-    
-    // IntersectionObserver for Templates section
+
+    // IntersectionObserver for Templates and About sections
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -69,20 +79,58 @@ const Upload = () => {
         if (entry.isIntersecting && entry.target.id === 'templates-section') {
           setShowTemplates(true);
         }
+        if (entry.isIntersecting && entry.target.id === 'about-section') {
+          setShowAbout(true);
+        }
       });
     }, observerOptions);
 
     if (templatesRef.current) observer.observe(templatesRef.current);
+    if (aboutRef.current) observer.observe(aboutRef.current);
 
     return () => {
       clearTimeout(timer);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
+      if (aboutRef.current) observer.unobserve(aboutRef.current);
     };
   }, []);
 
+  // Countdown effect for redirect
+  useEffect(() => {
+    let countdownTimer;
+    if (isRedirecting && redirectCountdown > 0) {
+      countdownTimer = setTimeout(() => {
+        setRedirectCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (isRedirecting && redirectCountdown === 0) {
+      // Perform the redirect
+      redirectToSpace();
+    }
+
+    return () => {
+      if (countdownTimer) {
+        clearTimeout(countdownTimer);
+      }
+    };
+  }, [isRedirecting, redirectCountdown]);
+
+  const redirectToSpace = () => {
+    // Method 1: Using React Router (if you have it set up)
+    if (navigate) {
+      navigate('/space');
+      return;
+    }
+
+    // Method 2: Using window.location (fallback)
+    window.location.href = '/space';
+    
+    // Method 3: If using Next.js router
+    // router.push('/space');
+  };
+
   const handleFileChange = (selectedFile) => {
     if (!selectedFile) return;
-    
+
     const validFormats = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!validFormats.includes(selectedFile.type)) {
       alert('Please upload a PDF or DOCX file');
@@ -94,6 +142,8 @@ const Upload = () => {
     setError(null);
     setCvData(null);
     setShowCvData(false);
+    setIsRedirecting(false);
+    setRedirectCountdown(3);
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -114,7 +164,7 @@ const Upload = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileChange(e.dataTransfer.files[0]);
     }
@@ -147,13 +197,23 @@ const Upload = () => {
       }
 
       const result = await response.json();
-      
-      // Log to console as requested
+
       console.log('CV Data:', result);
-      
+
       if (result.success) {
+        // Store the data in our service
+        cvDataService.setData(result.data);
+        
+        // Update local state for display
         setCvData(result.data);
         setShowCvData(true);
+        
+        console.log('CV data stored successfully!');
+        
+        // Start redirect countdown
+        setIsRedirecting(true);
+        setRedirectCountdown(3);
+        
       } else {
         setError('Failed to process CV');
       }
@@ -163,6 +223,15 @@ const Upload = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const cancelRedirect = () => {
+    setIsRedirecting(false);
+    setRedirectCountdown(3);
+  };
+
+  const redirectNow = () => {
+    setRedirectCountdown(0);
   };
 
   return (
@@ -190,6 +259,85 @@ const Upload = () => {
           </svg>
         )}
       </button>
+
+      {/* Success Modal with Redirect Countdown */}
+      {isRedirecting && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`max-w-md w-full p-8 rounded-2xl border shadow-2xl ${
+            isDark 
+              ? 'bg-slate-800 border-slate-600' 
+              : 'bg-white border-gray-200'
+          }`}>
+            <div className="text-center">
+              {/* Success Icon */}
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              
+              <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                CV Processed Successfully! 🎉
+              </h3>
+              
+              <p className={`mb-6 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
+                Your portfolio is ready! Redirecting to your Space template in
+              </p>
+              
+              {/* Countdown Circle */}
+              <div className="w-20 h-20 mx-auto mb-6 relative">
+                <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="35"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    className={isDark ? 'text-slate-600' : 'text-gray-200'}
+                  />
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="35"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    fill="none"
+                    strokeDasharray={`${2 * Math.PI * 35}`}
+                    strokeDashoffset={`${2 * Math.PI * 35 * (redirectCountdown / 3)}`}
+                    className="text-green-500 transition-all duration-1000 ease-linear"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {redirectCountdown}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={redirectNow}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Go Now
+                </button>
+                <button
+                  onClick={cancelRedirect}
+                  className={`flex-1 border font-medium py-2 px-4 rounded-lg transition-colors ${
+                    isDark 
+                      ? 'bg-slate-700 border-slate-600 hover:bg-slate-600 text-white' 
+                      : 'bg-white border-gray-300 hover:bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  Stay Here
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upload Section */}
       <div className={`min-h-screen flex items-center justify-center p-6 ${isEntering ? 'opacity-0' : 'opacity-100'}`}>
@@ -261,7 +409,7 @@ const Upload = () => {
               </div>
             )}
             
-            {preview && !isLoading && (
+            {preview && !isLoading && !isRedirecting && (
               <div className="mt-6 flex flex-col items-center">
                 <h2 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   Preview
@@ -300,6 +448,8 @@ const Upload = () => {
                       setCvData(null);
                       setShowCvData(false);
                       setError(null);
+                      setIsRedirecting(false);
+                      setRedirectCountdown(3);
                     }}
                   >
                     Remove
@@ -309,7 +459,7 @@ const Upload = () => {
             )}
 
             {/* CV Data Display Toggle */}
-            {cvData && (
+            {cvData && !isRedirecting && (
               <div className="mt-6">
                 <button 
                   className={`font-medium py-2 px-4 rounded-lg transition-colors ${
@@ -325,7 +475,7 @@ const Upload = () => {
             )}
           </div>
 
-<div className="hidden lg:flex items-center justify-center">
+          <div className="hidden lg:flex items-center justify-center">
             <div className="w-[32rem] h-[32rem]">
               <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
                 <ambientLight intensity={1.5} />
@@ -339,7 +489,6 @@ const Upload = () => {
           </div>
         </div>
       </div>
-
       {/* CV Data Display Section */}
       {showCvData && cvData && (
         <div className={`py-12 px-6 lg:px-20 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
@@ -445,7 +594,7 @@ const Upload = () => {
         </div>
       )}
 
-      {/* Templates Section - Updated */}
+      {/* Templates Section */}
       <div 
         id="templates-section" 
         ref={templatesRef}
@@ -468,7 +617,6 @@ const Upload = () => {
                       : 'bg-white/60 border-gray-200/50 shadow-xl hover:shadow-2xl'
                   }`}
                 >
-                  {/* Updated Image Container */}
                   <div className="w-full max-w-96 h-64 lg:h-80 mb-6 rounded-2xl overflow-hidden">
                     <img 
                       src={template.image} 
@@ -480,7 +628,6 @@ const Upload = () => {
                         e.target.nextSibling.style.display = 'flex';
                       }}
                     />
-                    {/* Fallback placeholder */}
                     <div 
                       className={`w-full h-full rounded-2xl flex-col items-center justify-center backdrop-blur-sm border transition-colors duration-300 ${
                         isDark 
@@ -520,7 +667,65 @@ const Upload = () => {
             </div>
           </div>
         )}
-        </div>
+      </div>
+
+      {/* About Section */}
+      <div 
+        id="about-section" 
+        ref={aboutRef}
+        className="min-h-screen py-12 px-6 lg:px-20"
+      >
+        {showAbout && (
+          <div className={`max-w-7xl mx-auto animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+              {/* Left Column - Content */}
+              <div className="space-y-12 lg:pr-8">
+                <h1
+                  className={`text-5xl lg:text-7xl xl:text-8xl font-bold leading-none ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  About us
+                </h1>
+
+                <div
+                  className={`space-y-8 text-base lg:text-lg leading-relaxed max-w-2xl ${
+                    isDark ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  <p>
+                    Portfolio Portal is a capstone project developed in collaboration between
+                    the University of Pretoria and EPI-USE Africa. As part of the university's
+                    final-year curriculum, this initiative reflects a strong partnership
+                    between academia and industry, aiming to create meaningful, real-world
+                    solutions through innovation and practical application.
+                  </p>
+
+                  <p>
+                    With guidance and support from EPI-USE, this project explores modern web
+                    technologies to deliver a tool that allows users to convert traditional
+                    CVs into immersive, digital portfolio experiences. The collaboration
+                    emphasizes not only technical growth for students, but also a commitment to
+                    building solutions that bridge creativity and functionality in the digital
+                    space.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Figma Style Image */}
+              <div className="flex justify-center lg:justify-end">
+                <div className="relative w-80 h-80 sm:w-96 sm:h-96 lg:w-[500px] lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 p-4">
+                  <img
+                    src="/images/about.png"
+                    alt="About us illustration"
+                    className="w-full h-full object-contain rounded-2xl"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

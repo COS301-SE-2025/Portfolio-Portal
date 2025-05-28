@@ -41,7 +41,7 @@ const Templates = () => {
     <div className={`min-h-screen py-12 px-6 lg:px-20 transition-colors duration-300 ${
       isDark 
         ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white' 
-        : 'bg-gradient-to-br from-gray-50 via-blue-50 to-gray-100 text-gray-900'
+        : 'bg-gray-200/80 border-gray-300 hover:bg-gray-300/80 text-gray-700'
     }`}>
       <button
         onClick={toggleTheme}
@@ -63,7 +63,7 @@ const Templates = () => {
         )}
       </button>
 
-      <div className="pt-16">
+      <div className="pt-16 animate-fadeIn">
         <h1 className={`text-4xl font-bold text-center mb-4 ${
           isDark ? 'text-white' : 'text-gray-900'
         }`}>
@@ -80,13 +80,12 @@ const Templates = () => {
           {templates.map((template, index) => (
             <div 
               key={index} 
-              className={`p-6 rounded-3xl border flex flex-col items-center text-center transition-all duration-300 hover:scale-105 ${
+              className={`backdrop-blur-md p-6 rounded-3xl border flex flex-col items-center text-center transition hover:scale-105 ${
                 isDark 
-                  ? 'bg-white/10 backdrop-blur-md border-white/20' 
-                  : 'bg-white/80 backdrop-blur-sm border-gray-200 shadow-lg hover:shadow-xl'
+                  ? 'bg-white/10 border-white/20' 
+                  : 'bg-white/60 border-gray-200/50 shadow-xl hover:shadow-2xl'
               }`}
             >
-              {/* Template Image */}
               <div className="w-full max-w-96 h-64 lg:h-80 mb-6 rounded-2xl overflow-hidden">
                 <img 
                   src={template.image} 
@@ -94,12 +93,10 @@ const Templates = () => {
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                   onError={(e) => {
                     console.log('Template image failed to load:', e.target.src);
-                    // Fallback if image doesn't exist
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
-                {/* Fallback placeholder */}
                 <div 
                   className={`w-full h-full rounded-2xl flex-col items-center justify-center backdrop-blur-sm border transition-colors duration-300 ${
                     isDark 
@@ -135,10 +132,10 @@ const Templates = () => {
                 {template.description}
               </p>
               
-              <button className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-200 ${
+              <button className={`px-4 py-2 rounded-full font-semibold text-sm transition ${
                 isDark 
-                  ? 'bg-white text-indigo-800 hover:bg-gray-100 hover:scale-105' 
-                  : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 shadow-md hover:shadow-lg'
+                  ? 'bg-white text-indigo-800 hover:bg-gray-100' 
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'
               }`}>
                 Explore
               </button>

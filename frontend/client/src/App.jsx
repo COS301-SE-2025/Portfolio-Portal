@@ -29,6 +29,7 @@ function App() {
           <Route path="/about" element={<About />} /> {/* Add this route */}
           <Route path="/home" element={<Home />} />
         </Routes>
+
       </div>
     </ThemeProvider>
   )

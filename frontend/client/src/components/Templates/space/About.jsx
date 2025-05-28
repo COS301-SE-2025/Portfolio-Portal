@@ -3,11 +3,12 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import Head from '../../3DModels/Head'; // Assuming you have a Head component for the 3D model
-
+import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
 
 
 
 const About = () => {
+    const { cvData } = useCvData() || {};
   return (
     <section id="about" className="py-24 relative overflow-hidden">
       {/* Starfield Background */}
@@ -118,35 +119,40 @@ const About = () => {
           <div className="w-full lg:w-1/2 space-y-6">
             <div className="space-y-6">
               <p className="text-lg lg:text-xl text-gray-300 leading-relaxed">
-                Hello! I'm a passionate developer specializing in creating beautiful, functional websites and applications. My journey in the digital universe has given me a unique perspective on blending design and functionality.
+                {cvData?.about }
               </p>
-              <p className="text-lg lg:text-xl text-gray-300 leading-relaxed">
-                With a keen eye for detail and a commitment to excellence, I approach each project as an opportunity to create something exceptional. When I'm not coding, you can find me stargazing, exploring sci-fi worlds, or learning about new technologies.
-              </p>
+
             </div>
             
             {/* Enhanced Skills Section */}
-            <div className="mt-8">
-              <h3 className="text-xl font-semibold text-gray-200 mb-4">Technologies & Skills</h3>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { name: "React", color: "from-blue-500 to-cyan-500" },
-                  { name: "JavaScript", color: "from-yellow-500 to-orange-500" },
-                  { name: "TailwindCSS", color: "from-teal-500 to-blue-500" },
-                  { name: "Node.js", color: "from-green-500 to-emerald-500" },
-                  { name: "UI/UX Design", color: "from-purple-500 to-pink-500" },
-                  { name: "Three.js", color: "from-indigo-500 to-purple-500" }
-                ].map((skill, index) => (
-                  <span
-                    key={skill.name}
-                    className={`px-4 py-2 bg-gradient-to-r ${skill.color} bg-opacity-20 border border-gray-600/50 rounded-full text-sm text-gray-300 backdrop-blur-sm hover:scale-105 transition-transform duration-200 cursor-default`}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {skill.name}
-                  </span>
-                ))}
-              </div>
-            </div>
+{/* Enhanced Skills Section */}
+<div className="mt-8">
+  <h3 className="text-xl font-semibold text-gray-200 mb-4">Technologies & Skills</h3>
+  <div className="flex flex-wrap gap-3">
+    {cvData?.skills?.map((skill, index) => {
+      // Cycle through a set of gradient classes for visual variety
+      const gradients = [
+        "from-blue-500 to-cyan-500",
+        "from-yellow-500 to-orange-500",
+        "from-teal-500 to-blue-500",
+        "from-green-500 to-emerald-500",
+        "from-purple-500 to-pink-500",
+        "from-indigo-500 to-purple-500",
+      ];
+      const gradient = gradients[index % gradients.length]; // Cycle through gradients
+
+      return (
+        <span
+          key={`skill-${index}`}
+          className={`px-4 py-2 bg-gradient-to-r ${gradient} bg-opacity-20 border border-gray-600/50 rounded-full text-sm text-gray-300 backdrop-blur-sm hover:scale-105 transition-transform duration-200 cursor-default`}
+          style={{ animationDelay: `${index * 100}ms` }}
+        >
+          {skill}
+        </span>
+      );
+    })}
+  </div>
+</div>
             
             {/* Call to action */}
             <div className="mt-8 pt-6">
