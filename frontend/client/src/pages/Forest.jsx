@@ -18,4 +18,4 @@ const Forest = () => {
   );
 };
 
-export default forest;
+export default Forest;
