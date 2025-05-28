@@ -30,7 +30,7 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 ## Documentation
 
 - [Software Requirements Specification (SRS)](docs/SRS.md)
-- [GitHub Project Board](https://github.com/CtrlFreaks/portfolio-portal/projects)
+- [GitHub Project Board](https://github.com/orgs/COS301-SE-2025/projects/118)
 - [Server README](server/README.md)
 - [Frontend README](frontend/client/README.md)
 
