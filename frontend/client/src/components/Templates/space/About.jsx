@@ -121,9 +121,7 @@ const About = () => {
               <p className="text-lg lg:text-xl text-gray-300 leading-relaxed">
                 {cvData?.about }
               </p>
-              <p className="text-lg lg:text-xl text-gray-300 leading-relaxed">
-                With a keen eye for detail and a commitment to excellence, I approach each project as an opportunity to create something exceptional. When I'm not coding, you can find me stargazing, exploring sci-fi worlds, or learning about new technologies.
-              </p>
+
             </div>
             
             {/* Enhanced Skills Section */}
