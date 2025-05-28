@@ -27,7 +27,7 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 - [Demo 1]()
 ---
 
-### Demo 1 Slide
+### Demo 1 Slides
 - https://www.canva.com/design/DAGn94hteWs/v9cFtMPz96cmCS63feuziQ/edit?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 ---
 
