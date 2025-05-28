@@ -35,3 +35,5 @@ export const useCVData = () => {
     clearData: () => cvDataService.clearData(),
   };
 };
+
+export default useCVData;

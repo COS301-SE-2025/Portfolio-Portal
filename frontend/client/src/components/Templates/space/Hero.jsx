@@ -1,10 +1,14 @@
 import { Suspense } from 'react';
-import { userName, jobTitle } from "./index"
+import { jobTitle } from "./index"
 import ColoredEarth from '../../3DModels/ColoredEarth'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
+import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
 
 const Hero = () => {
+  // Get CV data (assume it returns { userName, ... })
+  const { cvData } = useCvData() || {};
+
   return (
     <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/30">
       {/* Enhanced background with animated elements */}
@@ -29,7 +33,7 @@ const Hero = () => {
         <div className="flex-1 max-w-2xl">
           <div className="space-y-6">
             <h1 className="text-6xl lg:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 leading-tight animate-pulse">
-              {userName}
+              {cvData.name || "Bill Burr"}
             </h1>
             <p className="text-2xl lg:text-3xl font-light text-gray-200 mb-8 tracking-wide">
               {jobTitle}
