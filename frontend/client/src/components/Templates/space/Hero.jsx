@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { jobTitle } from "./index"
 import ColoredEarth from '../../3DModels/ColoredEarth'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
@@ -36,7 +35,7 @@ const Hero = () => {
               {cvData.name || "Bill Burr"}
             </h1>
             <p className="text-2xl lg:text-3xl font-light text-gray-200 mb-8 tracking-wide">
-              {jobTitle}
+              Full stack developer & designer
             </p>
             <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed max-w-lg">
               Creating digital experiences that are{' '}
