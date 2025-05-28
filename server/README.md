@@ -42,7 +42,7 @@ npm install
 node server.js
 ```
 
-The server will start on [http://localhost:5000](http://localhost:5000).
+The server will start on [http://localhost:5050](http://localhost:5050).
 
 ---
 
@@ -52,7 +52,7 @@ The server will start on [http://localhost:5000](http://localhost:5000).
 
 **Description**: Upload a PDF CV and extract raw text from it.
 
-**Request**: `multipart/form-data` with key `file`
+**Request**: `multipart/form-data` with key `cv`
 
 **Response**:
 ```json
@@ -78,13 +78,13 @@ You can test the OCR endpoint using [Postman](https://www.postman.com/):
 2. Set the method to `POST`.
 3. Enter the request URL:
    ```
-   http://localhost:5000/api/ocr/upload
+   http://localhost:5050/api/ocr/upload
    ```
 4. Go to the **Body** tab.
 5. Select **form-data**.
 6. In the **Key** field, type:
    ```
-   file
+   cv
    ```
    and set the type to **File** using the dropdown.
 7. In the **Value** field, click **Select Files** and upload your `.pdf` CV file.
