@@ -26,6 +26,7 @@ const templates = [
     title: 'Space',
     description: 'A futuristic scene that showcases innovation and ambition.',
     image: '/images/space.png',
+    href: '/space',
   },
   {
     title: 'Forest',
@@ -660,7 +661,9 @@ const Upload = () => {
                       ? 'bg-white text-indigo-800 hover:bg-gray-100' 
                       : 'bg-slate-900 text-white hover:bg-slate-800'
                   }`}>
+                    <a href={template.href || '#'}>
                     Explore
+                    </a>
                   </button>
                 </div>
               ))}

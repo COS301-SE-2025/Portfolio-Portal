@@ -137,7 +137,9 @@ const Templates = () => {
                   ? 'bg-white text-indigo-800 hover:bg-gray-100' 
                   : 'bg-indigo-600 text-white hover:bg-indigo-700'
               }`}>
-                Explore
+                                    <a href={template.href || '#'}>
+                    Explore
+                    </a>
               </button>
             </div>
           ))}
