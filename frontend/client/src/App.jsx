@@ -15,12 +15,12 @@ function App() {
   // Hide navbar on login and register pages
   const hideNavbar = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space'
 
-  return (
+  return (    
     <ThemeProvider>
       <div>
         {!hideNavbar && <Navbar />}
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Login />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/space" element={<Space />} />
           <Route path="/login" element={<Login />} />
