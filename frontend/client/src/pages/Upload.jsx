@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import Plane from '../components/3DModels/Plane';
-import { Canvas } from '@react-three/fiber' // Fixed: Canvas with capital C
-import { OrbitControls } from '@react-three/drei' // Fixed: Added to imports
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+
 const templates = [
   {
     title: 'Office',
@@ -43,21 +44,23 @@ const Upload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [cvData, setCvData] = useState(null);
   const [error, setError] = useState(null);
   const [showCvData, setShowCvData] = useState(false);
   const fileInputRef = useRef(null);
   const templatesRef = useRef(null);
+  const aboutRef = useRef(null);
   const { theme, toggleTheme, isDark } = useTheme();
 
   useEffect(() => {
-    // Add entrance animation when component mounts
+    // Entrance animation
     const timer = setTimeout(() => {
       setIsEntering(false);
     }, 100);
-    
-    // IntersectionObserver for Templates section
+
+    // IntersectionObserver for Templates and About sections
     const observerOptions = {
       root: null,
       rootMargin: '0px',
@@ -69,20 +72,25 @@ const Upload = () => {
         if (entry.isIntersecting && entry.target.id === 'templates-section') {
           setShowTemplates(true);
         }
+        if (entry.isIntersecting && entry.target.id === 'about-section') {
+          setShowAbout(true);
+        }
       });
     }, observerOptions);
 
     if (templatesRef.current) observer.observe(templatesRef.current);
+    if (aboutRef.current) observer.observe(aboutRef.current);
 
     return () => {
       clearTimeout(timer);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
+      if (aboutRef.current) observer.unobserve(aboutRef.current);
     };
   }, []);
 
   const handleFileChange = (selectedFile) => {
     if (!selectedFile) return;
-    
+
     const validFormats = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!validFormats.includes(selectedFile.type)) {
       alert('Please upload a PDF or DOCX file');
@@ -114,7 +122,7 @@ const Upload = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileChange(e.dataTransfer.files[0]);
     }
@@ -147,10 +155,9 @@ const Upload = () => {
       }
 
       const result = await response.json();
-      
-      // Log to console as requested
+
       console.log('CV Data:', result);
-      
+
       if (result.success) {
         setCvData(result.data);
         setShowCvData(true);
@@ -325,7 +332,7 @@ const Upload = () => {
             )}
           </div>
 
-<div className="hidden lg:flex items-center justify-center">
+          <div className="hidden lg:flex items-center justify-center">
             <div className="w-[32rem] h-[32rem]">
               <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
                 <ambientLight intensity={1.5} />
@@ -445,7 +452,7 @@ const Upload = () => {
         </div>
       )}
 
-      {/* Templates Section - Updated */}
+      {/* Templates Section */}
       <div 
         id="templates-section" 
         ref={templatesRef}
@@ -468,7 +475,6 @@ const Upload = () => {
                       : 'bg-white/60 border-gray-200/50 shadow-xl hover:shadow-2xl'
                   }`}
                 >
-                  {/* Updated Image Container */}
                   <div className="w-full max-w-96 h-64 lg:h-80 mb-6 rounded-2xl overflow-hidden">
                     <img 
                       src={template.image} 
@@ -480,7 +486,6 @@ const Upload = () => {
                         e.target.nextSibling.style.display = 'flex';
                       }}
                     />
-                    {/* Fallback placeholder */}
                     <div 
                       className={`w-full h-full rounded-2xl flex-col items-center justify-center backdrop-blur-sm border transition-colors duration-300 ${
                         isDark 
@@ -520,7 +525,65 @@ const Upload = () => {
             </div>
           </div>
         )}
-        </div>
+      </div>
+
+      {/* About Section */}
+      <div 
+        id="about-section" 
+        ref={aboutRef}
+        className="min-h-screen py-12 px-6 lg:px-20"
+      >
+        {showAbout && (
+          <div className={`max-w-7xl mx-auto animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+              {/* Left Column - Content */}
+              <div className="space-y-12 lg:pr-8">
+                <h1
+                  className={`text-5xl lg:text-7xl xl:text-8xl font-bold leading-none ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  About us
+                </h1>
+
+                <div
+                  className={`space-y-8 text-base lg:text-lg leading-relaxed max-w-2xl ${
+                    isDark ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
+                  <p>
+                    Portfolio Portal is a capstone project developed in collaboration between
+                    the University of Pretoria and EPI-USE Africa. As part of the university's
+                    final-year curriculum, this initiative reflects a strong partnership
+                    between academia and industry, aiming to create meaningful, real-world
+                    solutions through innovation and practical application.
+                  </p>
+
+                  <p>
+                    With guidance and support from EPI-USE, this project explores modern web
+                    technologies to deliver a tool that allows users to convert traditional
+                    CVs into immersive, digital portfolio experiences. The collaboration
+                    emphasizes not only technical growth for students, but also a commitment to
+                    building solutions that bridge creativity and functionality in the digital
+                    space.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Figma Style Image */}
+              <div className="flex justify-center lg:justify-end">
+                <div className="relative w-80 h-80 sm:w-96 sm:h-96 lg:w-[500px] lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 p-4">
+                  <img
+                    src="/images/about.png"
+                    alt="About us illustration"
+                    className="w-full h-full object-contain rounded-2xl"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
