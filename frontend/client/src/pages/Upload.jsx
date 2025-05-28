@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-
+import Plane from '../components/3DModels/Plane';
+import { Canvas } from '@react-three/fiber' // Fixed: Canvas with capital C
+import { OrbitControls } from '@react-three/drei' // Fixed: Added to imports
 const templates = [
   {
     title: 'Office',
@@ -41,6 +43,10 @@ const Upload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEntering, setIsEntering] = useState(true);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [cvData, setCvData] = useState(null);
+  const [error, setError] = useState(null);
+  const [showCvData, setShowCvData] = useState(false);
   const fileInputRef = useRef(null);
   const templatesRef = useRef(null);
   const { theme, toggleTheme, isDark } = useTheme();
@@ -85,6 +91,9 @@ const Upload = () => {
 
     setFile(selectedFile);
     setIsLoading(true);
+    setError(null);
+    setCvData(null);
+    setShowCvData(false);
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -113,6 +122,47 @@ const Upload = () => {
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
+  };
+
+  const handleSubmitCV = async () => {
+    if (!file) {
+      setError('No file selected');
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append('cv', file);
+
+    try {
+      const response = await fetch('http://localhost:5050/api/ocr/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Log to console as requested
+      console.log('CV Data:', result);
+      
+      if (result.success) {
+        setCvData(result.data);
+        setShowCvData(true);
+      } else {
+        setError('Failed to process CV');
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(`Upload failed: ${err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -202,6 +252,14 @@ const Upload = () => {
                 }`}></div>
               </div>
             )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <p className="font-medium">Error:</p>
+                <p>{error}</p>
+              </div>
+            )}
             
             {preview && !isLoading && (
               <div className="mt-6 flex flex-col items-center">
@@ -217,10 +275,18 @@ const Upload = () => {
                 </div>
                 <div className="mt-6 flex gap-3 w-full">
                   <button 
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                    onClick={() => alert('CV uploaded successfully! This is where you would process the file.')}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    onClick={handleSubmitCV}
+                    disabled={isProcessing}
                   >
-                    Submit CV
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      'Process CV'
+                    )}
                   </button>
                   <button 
                     className={`flex-1 border font-medium py-2 px-4 rounded-lg transition-colors ${
@@ -231,6 +297,9 @@ const Upload = () => {
                     onClick={() => {
                       setFile(null);
                       setPreview(null);
+                      setCvData(null);
+                      setShowCvData(false);
+                      setError(null);
                     }}
                   >
                     Remove
@@ -238,29 +307,143 @@ const Upload = () => {
                 </div>
               </div>
             )}
+
+            {/* CV Data Display Toggle */}
+            {cvData && (
+              <div className="mt-6">
+                <button 
+                  className={`font-medium py-2 px-4 rounded-lg transition-colors ${
+                    isDark 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                  onClick={() => setShowCvData(!showCvData)}
+                >
+                  {showCvData ? 'Hide' : 'Show'} Extracted Data
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Right Content - Placeholder */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className={`w-96 h-96 bg-gradient-to-br rounded-3xl flex items-center justify-center backdrop-blur-sm border ${
-              isDark 
-                ? 'from-purple-500/20 to-blue-500/20 border-white/10' 
-                : 'from-purple-100/60 to-blue-100/60 border-gray-200/50 shadow-2xl'
-            }`}>
-              <div className={`text-center ${isDark ? 'text-white/60' : 'text-slate-500'}`}>
-                <div className={`w-24 h-24 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-                  isDark ? 'bg-purple-500/30' : 'bg-purple-200/50'
-                }`}>
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <p className="text-sm">Placeholder Preview</p>
-              </div>
+<div className="hidden lg:flex items-center justify-center">
+            <div className="w-[32rem] h-[32rem]">
+              <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                <ambientLight intensity={1.5} />
+                <pointLight position={[10, 10, 10]} />
+                <Suspense fallback={null}>
+                  <Plane />
+                  <OrbitControls enableZoom={false} autoRotate={false} />
+                </Suspense>
+              </Canvas>
             </div>
           </div>
         </div>
       </div>
+
+      {/* CV Data Display Section */}
+      {showCvData && cvData && (
+        <div className={`py-12 px-6 lg:px-20 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
+          <div className="max-w-4xl mx-auto">
+            <h2 className={`text-3xl font-bold mb-8 text-center ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Extracted CV Data
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Personal Information */}
+              <div className={`p-6 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-gray-50 border-gray-200'}`}>
+                <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Name:</p>
+                    <p className={isDark ? 'text-white' : 'text-slate-900'}>{cvData.name}</p>
+                  </div>
+                  <div>
+                    <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Email:</p>
+                    <p className={isDark ? 'text-white' : 'text-slate-900'}>{cvData.email}</p>
+                  </div>
+                  <div>
+                    <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Phone:</p>
+                    <p className={isDark ? 'text-white' : 'text-slate-900'}>{cvData.phone}</p>
+                  </div>
+                  <div>
+                    <p className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Links:</p>
+                    {cvData.links?.linkedIn && (
+                      <p className={isDark ? 'text-blue-400' : 'text-blue-600'}>{cvData.links.linkedIn}</p>
+                    )}
+                    {cvData.links?.github && (
+                      <p className={isDark ? 'text-blue-400' : 'text-blue-600'}>{cvData.links.github}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills */}
+              {cvData.skills && cvData.skills.length > 0 && (
+                <div className={`p-6 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {cvData.skills.map((skill, index) => (
+                      <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Experience */}
+              {cvData.experience && cvData.experience.length > 0 && (
+                <div className={`p-6 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Experience</h3>
+                  <div className="space-y-4">
+                    {cvData.experience.map((exp, index) => (
+                      <div key={index} className="border-l-4 border-blue-500 pl-4">
+                        <h4 className={`font-medium text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{exp.title}</h4>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>{exp.company}</p>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{exp.startDate} - {exp.endDate}</p>
+                        {exp.extra && exp.extra.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {exp.extra.map((item, idx) => (
+                              <li key={idx} className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                {item.replace('¢', '•')}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Education */}
+              {cvData.education && cvData.education.length > 0 && (
+                <div className={`p-6 rounded-lg border ${isDark ? 'bg-slate-700 border-slate-600' : 'bg-gray-50 border-gray-200'}`}>
+                  <h3 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Education</h3>
+                  <div className="space-y-4">
+                    {cvData.education.map((edu, index) => (
+                      <div key={index} className="border-l-4 border-green-500 pl-4">
+                        <h4 className={`font-medium text-lg ${isDark ? 'text-white' : 'text-slate-900'}`}>{edu.degree}</h4>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>{edu.institution}</p>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Completed: {edu.endDate}</p>
+                        {edu.extra && edu.extra.length > 0 && (
+                          <ul className="mt-2 space-y-1">
+                            {edu.extra.map((item, idx) => (
+                              <li key={idx} className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                                • {item}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Templates Section - Updated */}
       <div 

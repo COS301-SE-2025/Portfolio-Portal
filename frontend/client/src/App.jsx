@@ -13,7 +13,7 @@ function App() {
   const location = useLocation()
   
   // Hide navbar on login and register pages
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space'
+  const hideNavbar = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space'
 
   return (
     <ThemeProvider>

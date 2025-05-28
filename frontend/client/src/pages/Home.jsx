@@ -129,7 +129,7 @@ const Home = () => {
               <pointLight position={[10, 10, 10]} />
               <Suspense fallback={null}>
                 <Earth />
-                <OrbitControls enableZoom={true} autoRotate={true} />
+                <OrbitControls enableZoom={false} autoRotate={true} />
               </Suspense>
             </Canvas>
           </div>
