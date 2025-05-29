@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+/* Base styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-size: cover;
+  background: #020024 !important;
+  background: radial-gradient(circle, rgb(5, 3, 42) 0%, rgb(0, 0, 15) 80%, rgb(31, 3, 66) 100%) !important;
+  min-height: 100vh;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseArrow {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 10px rgba(147, 51, 234, 0.7));
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.animate-pulseArrow {
+  animation: pulseArrow 2s infinite ease-in-out;
+}
