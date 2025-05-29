@@ -1,74 +1,76 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
+
+const navLinks = [
+  { sectionId: 'hero', label: 'Home' },
+  { sectionId: 'how-it-works', label: 'How It Works' },
+  { sectionId: 'upload-section', label: 'Upload' },
+  { sectionId: 'templates-section', label: 'Templates' },
+  { sectionId: 'about-section', label: 'About' },
+];
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { isDark } = useTheme();
+  const [activeSection, setActiveSection] = useState('hero');
 
-  const handleNavigateAndScroll = (path, sectionId) => {
-    // If already on the target page, just scroll
-    if (location.pathname === path) {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-      return;
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    navLinks.forEach((link) => {
+      const element = document.getElementById(link.sectionId);
+      if (element) observer.observe(element);
+    });
+
+    return () => {
+      navLinks.forEach((link) => {
+        const element = document.getElementById(link.sectionId);
+        if (element) observer.unobserve(element);
+      });
+    };
+  }, []);
+
+  const handleScrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setActiveSection(sectionId);
     }
-
-    // Navigate to the new page and scroll after a delay
-    navigate(path);
-    setTimeout(() => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        // Fallback: retry after a longer delay if element not found
-        setTimeout(() => {
-          const fallbackElement = document.getElementById(sectionId);
-          if (fallbackElement) {
-            fallbackElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 500);
-      }
-    }, 300); // Increased delay to ensure DOM updates
   };
 
   return (
-    <nav className="w-full px-8 py-6">
+    <nav className={`w-full px-8 py-6 fixed top-0 z-50 ${isDark ? 'bg-slate-900/80 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
       <div className="max-w-7xl mx-auto flex justify-center">
-        <ul className="flex space-x-12 text-white font-medium text-lg">
-          <li>
-            <a 
-              onClick={() => handleNavigateAndScroll('/home', 'home-container')}
-              className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
-            >
-              Home
-            </a>
-          </li>
-          <li>
-            <a 
-              onClick={() => handleNavigateAndScroll('/upload', 'upload-section')}
-              className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
-            >
-              Upload
-            </a>
-          </li>
-          <li>
-            <a 
-              onClick={() => handleNavigateAndScroll('/templates', 'templates')}
-              className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
-            >
-              Templates
-            </a>
-          </li>
-          <li>
-            <a 
-              onClick={() => handleNavigateAndScroll('/about', 'about')}
-              className="hover:text-gray-300 transition-colors duration-200 cursor-pointer"
-            >
-              About
-            </a>
-          </li>
+        <ul className="flex space-x-12 font-medium text-lg">
+          {navLinks.map((link) => (
+            <li key={link.sectionId}>
+              <button
+                onClick={() => handleScrollToSection(link.sectionId)}
+                className={`transition-colors duration-200 ${
+                  activeSection === link.sectionId
+                    ? isDark
+                      ? 'text-purple-300'
+                      : 'text-purple-600'
+                    : isDark
+                      ? 'text-white hover:text-purple-300'
+                      : 'text-slate-900 hover:text-purple-600'
+                }`}
+              >
+                {link.label}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
     </nav>
