@@ -14,7 +14,25 @@ const createUser = async (userData) => {
   return { id: userRef.key, ...userData };
 };
 
+const loginUser = async (extractEmail, password) => {
+  const snapshot = await db.ref('users').orderByChild('email').equalTo(extractEmail).once('value');
+  if (!snapshot.exists()) {
+    return null;
+  }
+  
+  const userData = snapshot.val();
+  const userId = Object.keys(userData)[0];
+  const user = userData[userId];
+
+  if (user.password === password) {
+    return { id: userId, ...user };
+  } else {
+    return null;
+  }
+}
+
 module.exports = {
   getUserById,
-  createUser
+  createUser,
+  loginUser
 };

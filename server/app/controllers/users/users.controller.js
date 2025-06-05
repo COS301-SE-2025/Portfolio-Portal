@@ -21,7 +21,21 @@ const createUser = async (req, res) => {
   }
 };
 
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await userService.loginUser(email, password);
+        if (!user) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 module.exports = {
   getUser,
-  createUser
+  createUser,
+ loginUser
 };
