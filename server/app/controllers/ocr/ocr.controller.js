@@ -1,5 +1,5 @@
-const { extractTextFromFile } = require("../services/ocr.service");
-const { processCV } = require("../utils/cv-analyzer");
+const { extractTextFromFile } = require("../../services/ocr.service");
+const { processCV } = require("../../utils/cv-analyzer");
 
 /**
  * Handle uploaded CV file, run OCR, and return structured CV data

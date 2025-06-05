@@ -16,6 +16,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.0",
     "node-tesseract-ocr": "^2.2.1",

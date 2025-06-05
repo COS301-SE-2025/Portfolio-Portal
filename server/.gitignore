@@ -1,3 +1,4 @@
 # Ignore dependencies
 node_modules/
 uploads/
+serviceAccountKey.json
