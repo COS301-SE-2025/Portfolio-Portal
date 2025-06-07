@@ -6,8 +6,8 @@
  * Handles portfolio generation operations, including template selection based on CV content
  */
 
-const templateService = require("../services/template.service");
-const Portfolio = require("../models/Portfolio");
+const templateService = require("../../services/template.service");
+const Portfolio = require("../../models/Portfolio");
 
 /**
  * Analyzes CV data and selects an appropriate template
