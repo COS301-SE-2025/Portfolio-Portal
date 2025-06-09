@@ -7,7 +7,10 @@ const bodyParser = require("body-parser");
 const ocrRoutes = require("./app/routes/ocr.routes");
 const portfolioRoutes = require("./app/routes/portfolio.routes");
 const userRoutes = require("./app/routes/users.routes");
-require("./app/config/firebase"); // Initialize Firebase
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 const app = express();
 

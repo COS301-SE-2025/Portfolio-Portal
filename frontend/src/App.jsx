@@ -5,12 +5,13 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Navbar from './components/Navbar'
 import LandingPage from './pages/Landing'
+import Profile from './pages/Profile'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
   const location = useLocation()
   
-  const hideNavbar = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space'
+  const hideNavbar = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/space' || location.pathname === '/profile'
 
   return (    
     <ThemeProvider>
@@ -22,6 +23,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
 
       </div>

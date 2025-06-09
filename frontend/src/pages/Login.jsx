@@ -5,7 +5,7 @@ import AuthLayout from '../components/AuthLayout';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password_hash: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,9 +44,9 @@ const Login = () => {
         />
         <input
           type="password"
-          name="password_hash"
+          name="password"
           placeholder="Password"
-          value={formData.password_hash}
+          value={formData.password}
           onChange={handleInputChange}
           required
           className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"

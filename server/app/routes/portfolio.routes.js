@@ -8,7 +8,7 @@
 
 const express = require("express");
 const router = express.Router();
-const portfolioController = require("../controllers//portfolio/portfolio.controller");
+const portfolioController = require("../controllers/portfolio.controller");
 
 /**
  * @route   POST /api/portfolio/select-template
