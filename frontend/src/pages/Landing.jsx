@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ChevronRight, Upload, Sparkles, Eye, Download, Users, Star, ArrowRight, Play, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [currentFeature, setCurrentFeature] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsVisible(true);
@@ -64,12 +66,11 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blak-900 to-slate-900 text-white overflow-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-2xl opacity-10 animate-pulse delay-2000"></div>
       </div>
 
       {/* Navigation */}
@@ -88,7 +89,10 @@ const LandingPage = () => {
             <button className="hidden md:block text-gray-300 hover:text-white transition-colors">
               Pricing
             </button>
-            <button className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+            <button 
+              onClick={() => navigate('/register')}
+              className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105"
+            >
               Get Started
             </button>
           </div>
@@ -110,10 +114,13 @@ const LandingPage = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <button className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg flex items-center">
-              Get Started
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </button>
+        <button 
+          onClick={() => navigate('/register')}
+          className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg flex items-center"
+        >
+          Get Started
+          <ArrowRight className="w-5 h-5 ml-2" />
+        </button>
             
             <button 
               onClick={() => setIsVideoPlaying(true)}

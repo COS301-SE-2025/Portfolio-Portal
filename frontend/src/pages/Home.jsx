@@ -6,6 +6,7 @@ import UploadSection from '../components/sections/UploadSection';
 import TemplatesSection from '../components/sections/TemplatesSection';
 import AboutSection from '../components/sections/AboutSection';
 import { useTheme } from '../contexts/ThemeContext';
+import { authService } from '../services/auth.service';
 
 const Home = () => {
   const [showHero, setShowHero] = useState(false);
@@ -61,9 +62,24 @@ const Home = () => {
     }
   };
 
+    const handleLogout = () => {
+    authService.logout();
+    window.location.href = '/login';
+  };
+
+
   return (
     <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
-      <ThemeToggleButton />
+      
+      <div className="absolute top-4 right-4 flex items-center space-x-4">
+        <ThemeToggleButton />
+        <button 
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+        >
+          Logout
+        </button>
+      </div>
       <HeroSection id="hero" ref={heroRef} show={showHero} handleScrollToSection={handleScrollToSection} />
       <HowItWorksSection id="how-it-works" ref={howItWorksRef} show={showHowItWorks} handleScrollToSection={handleScrollToSection} />
       <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
