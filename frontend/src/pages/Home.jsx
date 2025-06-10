@@ -61,9 +61,14 @@ const Home = () => {
     }
   };
 
+
   return (
     <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
-      <ThemeToggleButton />
+      
+      <div className="absolute top-4 right-4 flex items-center space-x-4">
+        <ThemeToggleButton />
+      </div>
+      
       <HeroSection id="hero" ref={heroRef} show={showHero} handleScrollToSection={handleScrollToSection} />
       <HowItWorksSection id="how-it-works" ref={howItWorksRef} show={showHowItWorks} handleScrollToSection={handleScrollToSection} />
       <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
