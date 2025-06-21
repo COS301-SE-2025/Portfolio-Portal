@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import Head from '../../3DModels/Head'; // Assuming you have a Head component for the 3D model
+import Astronaught from '../../3DModels/Astronaught';
 import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
 
 
@@ -102,9 +103,9 @@ const About = () => {
                 <Environment preset="night" />
                 
                 <Suspense fallback={null}>
-                  <Head />
+                  <Astronaught />
                   <OrbitControls
-                    enableZoom={false}
+                    enableZoom={true}
                     enablePan={false}
                     enableRotate={true}
                     autoRotate={true}
