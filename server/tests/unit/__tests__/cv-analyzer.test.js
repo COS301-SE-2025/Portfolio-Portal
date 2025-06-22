@@ -10,7 +10,7 @@ const {
     extractExperience,
     extractReferences,
     processCV
-} = require('../cv-analyzer');
+} = require('../../../app/utils/cv-analyzer');
 
 // Testing email analyzing
 describe('extractEmail', () => {
