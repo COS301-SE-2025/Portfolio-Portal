@@ -69,7 +69,7 @@ const UserInfoSection = ({ userData, editData, setEditData, isEditing }) => {
             <p className={`p-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>{userData.bio}</p>
           )}
         </div>
-      </div>
+      </div>*/
     </div>
   );
 };

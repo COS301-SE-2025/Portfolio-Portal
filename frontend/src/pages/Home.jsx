@@ -5,6 +5,7 @@ import HowItWorksSection from '../components/sections/HowItWorksSection';
 import UploadSection from '../components/sections/UploadSection';
 import TemplatesSection from '../components/sections/TemplatesSection';
 import AboutSection from '../components/sections/AboutSection';
+import ProfileSection from '../components/sections/ProfileSection';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Home = () => {
@@ -13,11 +14,13 @@ const Home = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const heroRef = useRef(null);
   const howItWorksRef = useRef(null);
   const uploadRef = useRef(null);
   const templatesRef = useRef(null);
   const aboutRef = useRef(null);
+  const profileRef = useRef(null);
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -35,6 +38,7 @@ const Home = () => {
           if (entry.target.id === 'upload-section') setShowUpload(true);
           if (entry.target.id === 'templates-section') setShowTemplates(true);
           if (entry.target.id === 'about-section') setShowAbout(true);
+          
         }
       });
     }, observerOptions);
@@ -44,13 +48,14 @@ const Home = () => {
     if (uploadRef.current) observer.observe(uploadRef.current);
     if (templatesRef.current) observer.observe(templatesRef.current);
     if (aboutRef.current) observer.observe(aboutRef.current);
-
+    if (profileRef.current) observer.observe(profileRef.current);
     return () => {
       if (heroRef.current) observer.unobserve(heroRef.current);
       if (howItWorksRef.current) observer.unobserve(howItWorksRef.current);
       if (uploadRef.current) observer.unobserve(uploadRef.current);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
       if (aboutRef.current) observer.unobserve(aboutRef.current);
+      if (profileRef.current) observer.observe(profileRef.current);
     };
   }, []);
 
@@ -74,7 +79,8 @@ const Home = () => {
       <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
       <TemplatesSection id="templates-section" ref={templatesRef} show={showTemplates} isDark={isDark} />
       <AboutSection id="about-section" ref={aboutRef} show={showAbout} />
-    </div>
+      <ProfileSection id="profile-section" ref={profileRef} show={showProfile} />
+          </div>
   );
 };
 
