@@ -23,13 +23,13 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 ## 📚 Documentation
 
-- [Software Requirements Specification (SRS) v1](Docs/SRS-v2.0.md)
-- [Software Requirements Specification (SRS) v2](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?usp=sharing)
-- [Coding Standards](Docs/CodingStandards.md)
-- [Architectural Requirements](Docs/ArchitecturalRequirements.md)
-- [User Manual](Docs/UserManual.md)
-- [Archived Documents](Docs/Archives/)
+- [Software Requirements Specification (SRS) v1 (Demo 1)](Docs/SRS-v2.0.md)
+- [Software Requirements Specification (SRS) v2 (Demo 2)](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?usp=sharing)
+- [Architectural Requirements (Demo 2)](Docs/ArchitecturalRequirements.md)
+- [User Manual Document (Demo 2)](https://www.joanramosrefusta.com/)
+- [Coding Standards Document (Demo 2)](Docs/CodingStandards.md)
 - [GitHub Project Board](https://github.com/orgs/COS301-SE-2025/projects/118)
+- [Archived Documents](Docs/Archives/)
 - [Server README](server/README.md)
 - [Frontend README](frontend/README.md)
 
