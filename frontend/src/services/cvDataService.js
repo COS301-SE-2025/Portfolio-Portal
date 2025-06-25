@@ -1,5 +1,4 @@
-// services/cvDataService.js
-
+import api from './api.service';
 class CVDataService {
   constructor() {
     this.data = null;

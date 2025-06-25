@@ -1,6 +1,11 @@
 const User = require('../models/User');
 const About = require('../models/About');
-const { Links, Skills, Education, Experience, Certifications, References } = require('../models/CVModels');
+const Links = require('../models/References');
+Skills = require('../models/References');
+Education = require('../models/References');
+Experience = require('../models/References');
+Certifications = require('../models/References');
+References  = require('../models/References');
 const supabase = require('../config/supabase');
 
 const getUserById = async (id) => {
