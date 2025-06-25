@@ -1,11 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import HeroSection from '../components/sections/HeroSection';
-import HowItWorksSection from '../components/sections/HowItWorksSection';
-import UploadSection from '../components/sections/UploadSection';
-import TemplatesSection from '../components/sections/TemplatesSection';
-import AboutSection from '../components/sections/AboutSection';
-import { useTheme } from '../contexts/ThemeContext';
+//frontend/src/pages/Home.jsx
+import { useState, useEffect, useRef } from "react";
+import ThemeToggleButton from "../components/ThemeToggleButton";
+import HeroSection from "../components/sections/HeroSection";
+import HowItWorksSection from "../components/sections/HowItWorksSection";
+import UploadSection from "../components/sections/UploadSection";
+import TemplatesSection from "../components/sections/TemplatesSection";
+import AboutSection from "../components/sections/AboutSection";
+import HelpMenu from "../components/HelpMenu";
+import { useTheme } from "../contexts/ThemeContext";
 
 const Home = () => {
   const [showHero, setShowHero] = useState(false);
@@ -23,18 +25,18 @@ const Home = () => {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '0px',
+      rootMargin: "0px",
       threshold: 0.1,
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          if (entry.target.id === 'hero') setShowHero(true);
-          if (entry.target.id === 'how-it-works') setShowHowItWorks(true);
-          if (entry.target.id === 'upload-section') setShowUpload(true);
-          if (entry.target.id === 'templates-section') setShowTemplates(true);
-          if (entry.target.id === 'about-section') setShowAbout(true);
+          if (entry.target.id === "hero") setShowHero(true);
+          if (entry.target.id === "how-it-works") setShowHowItWorks(true);
+          if (entry.target.id === "upload-section") setShowUpload(true);
+          if (entry.target.id === "templates-section") setShowTemplates(true);
+          if (entry.target.id === "about-section") setShowAbout(true);
         }
       });
     }, observerOptions);
@@ -57,23 +59,49 @@ const Home = () => {
   const handleScrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
-
   return (
-    <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
-      
+    <div
+      className={`min-h-screen transition-all duration-300 ${
+        isDark
+          ? "bg-slate-900"
+          : "bg-gradient-to-br from-blue-50 via-white to-purple-50"
+      }`}
+    >
       <div className="absolute top-4 right-4 flex items-center space-x-4">
         <ThemeToggleButton />
       </div>
-      
-      <HeroSection id="hero" ref={heroRef} show={showHero} handleScrollToSection={handleScrollToSection} />
-      <HowItWorksSection id="how-it-works" ref={howItWorksRef} show={showHowItWorks} handleScrollToSection={handleScrollToSection} />
-      <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
-      <TemplatesSection id="templates-section" ref={templatesRef} show={showTemplates} isDark={isDark} />
+
+      <HeroSection
+        id="hero"
+        ref={heroRef}
+        show={showHero}
+        handleScrollToSection={handleScrollToSection}
+      />
+      <HowItWorksSection
+        id="how-it-works"
+        ref={howItWorksRef}
+        show={showHowItWorks}
+        handleScrollToSection={handleScrollToSection}
+      />
+      <UploadSection
+        id="upload-section"
+        ref={uploadRef}
+        show={showUpload}
+        isDark={isDark}
+      />
+      <TemplatesSection
+        id="templates-section"
+        ref={templatesRef}
+        show={showTemplates}
+        isDark={isDark}
+      />
       <AboutSection id="about-section" ref={aboutRef} show={showAbout} />
+      {/* Added the HelpMenu component */}
+      <HelpMenu />
     </div>
   );
 };
