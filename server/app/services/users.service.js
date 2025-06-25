@@ -1,10 +1,10 @@
 const User = require('../models/User');
 const About = require('../models/About');
-const Links = require('../models/References');
-Skills = require('../models/References');
-Education = require('../models/References');
-Experience = require('../models/References');
-Certifications = require('../models/References');
+const Links = require('../models/Links');
+Skills = require('../models/Skills');
+Education = require('../models/Education');
+Experience = require('../models/Experience');
+Certifications = require('../models/Certifications');
 References  = require('../models/References');
 const supabase = require('../config/supabase');
 
