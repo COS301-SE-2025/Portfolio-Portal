@@ -7,6 +7,9 @@ import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
+//FOR TESTING
+import OfficePage from './pages/OfficePage';
+
 
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register'];
 
@@ -23,6 +26,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/office" element={<OfficePage />} />
+
 
           {/* Protected routes */}
 
