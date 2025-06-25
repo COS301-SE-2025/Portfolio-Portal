@@ -25,7 +25,7 @@ const HelpMenu = () => {
   const menuRef = useRef(null);
   const { isDark } = useTheme();
 
-  // Close menu when clicking outside
+  // close menu when click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -212,7 +212,7 @@ const HelpMenu = () => {
 
   return (
     <div>
-      {/* Help Button */}
+      {/* help button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 p-4 rounded-full shadow-xl z-40 transition-all duration-200 hover:scale-105 bg-gradient-to-br from-purple-500 to-blue-500 text-white"
@@ -220,7 +220,7 @@ const HelpMenu = () => {
         <HelpCircle size={24} />
       </button>
 
-      {/* Help Menu Modal */}
+      {/* help menu modal */}
       {isOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -235,7 +235,7 @@ const HelpMenu = () => {
               isDark ? "bg-slate-800 text-white" : "bg-white text-gray-900"
             }`}
           >
-            {/* Header */}
+            {/* header */}
             <div
               className={`flex items-center justify-between p-4 border-b ${
                 isDark ? "border-slate-700" : "border-gray-200"
@@ -297,7 +297,7 @@ const HelpMenu = () => {
               </div>
             </div>
 
-            {/* Menu Items */}
+            {/* menu items */}
             <div className="flex-1 overflow-y-auto">
               {filteredItems.length > 0 ? (
                 <div>
