@@ -21,8 +21,8 @@ const OfficePage = () => {
             enablePan={false}
             minPolarAngle={Math.PI / 4}
             maxPolarAngle={Math.PI / 2.2}
-            minDistance={150}          // 👈 Prevent zooming in too much
-            maxDistance={750}          // 👈 Prevent zooming out too far
+            minDistance={150}          //  Prevent zooming in too much
+            maxDistance={750}          //  Prevent zooming out too far
           />
         </Suspense>
       </Canvas>
