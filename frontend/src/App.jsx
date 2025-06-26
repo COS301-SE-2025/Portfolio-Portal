@@ -1,15 +1,13 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Space from './pages/Space';
+import OfficePage from './pages/OfficePage'; // Updated import
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
-//FOR TESTING
-import OfficePage from './pages/OfficePage';
-
 
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register'];
 
@@ -26,14 +24,12 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/office" element={<OfficePage />} />
-
+          <Route path="/office" element={<OfficePage />} /> {/* Updated route */}
 
           {/* Protected routes */}
-
-            <Route path="/home" element={<Home />} />
-            <Route path="/space" element={<Space />} />
-            <Route path="/profile" element={<Profile />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/space" element={<Space />} />
+          <Route path="/profile" element={<Profile />} />
           
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
