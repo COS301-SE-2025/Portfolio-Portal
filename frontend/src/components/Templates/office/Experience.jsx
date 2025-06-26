@@ -1,6 +1,6 @@
 import useCvData from '../../../hooks/useCVData';
 
-const ExperienceAndEducation = () => {
+const OfficeExperience = () => {
   const { cvData } = useCvData() || {};
 
   return (
@@ -11,7 +11,6 @@ const ExperienceAndEducation = () => {
         </h2>
 
         <div className="max-w-4xl mx-auto relative mb-24">
-          {/* Timeline as office bookshelf */}
           <div className="absolute left-4 top-2 bottom-2 w-1 bg-gradient-to-b from-blue-600/70 via-gray-600/50 to-gray-600/70 md:left-1/2"></div>
 
           <div className="flex flex-col gap-8 group">
@@ -23,7 +22,6 @@ const ExperienceAndEducation = () => {
                   flex flex-col md:flex group-hover:blur-sm 
                   hover:!blur-none hover:scale-[1.02]`}
               >
-                {/* Timeline marker as document tab */}
                 <div className="absolute left-4 top-7 w-4 h-8 bg-blue-600 clip-document-tab md:left-1/2 md:-ml-2 z-10"></div>
 
                 <div className="ml-12 md:ml-0 md:w-1/2 md:px-8">
@@ -88,4 +86,4 @@ const ExperienceAndEducation = () => {
   );
 };
 
-export default ExperienceAndEducation;
+export default OfficeExperience;
