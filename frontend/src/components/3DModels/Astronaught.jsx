@@ -14,8 +14,8 @@ export default function Model(props) {
   const { nodes, materials } = useGLTF('/astronaught/astronaught.gltf')
   return (
     <group {...props} dispose={null}>
-      <group scale={0.01}>
-        <mesh geometry={nodes.high_poly_default_0.geometry} material={materials['default']} rotation={[-Math.PI / 2, 0, 0]} scale={57.601} />
+      <group scale={0.03}>
+        <mesh geometry={nodes.high_poly_default_0.geometry} material={materials['default']} rotation={[-Math.PI / 3, 0, 0]} scale={57.601} />
       </group>
     </group>
   )
