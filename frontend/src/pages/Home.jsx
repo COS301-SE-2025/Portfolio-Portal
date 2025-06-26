@@ -5,7 +5,7 @@ import HowItWorksSection from '../components/sections/HowItWorksSection';
 import UploadSection from '../components/sections/UploadSection';
 import TemplatesSection from '../components/sections/TemplatesSection';
 import AboutSection from '../components/sections/AboutSection';
-import ProfileSection from '../components/sections/ProfileSection';
+import ProfileSection from './Profile';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Home = () => {
@@ -38,6 +38,7 @@ const Home = () => {
           if (entry.target.id === 'upload-section') setShowUpload(true);
           if (entry.target.id === 'templates-section') setShowTemplates(true);
           if (entry.target.id === 'about-section') setShowAbout(true);
+          if (entry.target.id === 'profile-section') setShowProfile(true);
           
         }
       });
@@ -55,7 +56,7 @@ const Home = () => {
       if (uploadRef.current) observer.unobserve(uploadRef.current);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
       if (aboutRef.current) observer.unobserve(aboutRef.current);
-      if (profileRef.current) observer.observe(profileRef.current);
+      if (profileRef.current) observer.unobserve(profileRef.current);
     };
   }, []);
 

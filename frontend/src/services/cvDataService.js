@@ -1,4 +1,5 @@
 import api from './api.service';
+
 class CVDataService {
   constructor() {
     this.data = null;
@@ -9,28 +10,10 @@ class CVDataService {
   setData(cvData) {
     this.data = cvData;
     this.notifyListeners();
-    
-    // Optional: Also store in sessionStorage for persistence during the session
-    try {
-      sessionStorage.setItem('cvData', JSON.stringify(cvData));
-    } catch (error) {
-      console.warn('Could not store data in sessionStorage:', error);
-    }
   }
 
   // Get CV data
   getData() {
-    if (!this.data) {
-      // Try to load from sessionStorage if available
-      try {
-        const storedData = sessionStorage.getItem('cvData');
-        if (storedData) {
-          this.data = JSON.parse(storedData);
-        }
-      } catch (error) {
-        console.warn('Could not load data from sessionStorage:', error);
-      }
-    }
     return this.data;
   }
 
@@ -42,11 +25,6 @@ class CVDataService {
   // Clear stored data
   clearData() {
     this.data = null;
-    try {
-      sessionStorage.removeItem('cvData');
-    } catch (error) {
-      console.warn('Could not clear sessionStorage:', error);
-    }
     this.notifyListeners();
   }
 

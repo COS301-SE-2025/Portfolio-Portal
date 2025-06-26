@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Globe, Plus, X } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 
-const PortfolioSection = ({ portfolios, setPortfolios }) => {
+const PortfolioSection = ({ portfolios = [], setPortfolios }) => {
   const { isDark } = useTheme();
   const [newPortfolio, setNewPortfolio] = useState({ name: '', url: '' });
   const [showAddPortfolio, setShowAddPortfolio] = useState(false);
