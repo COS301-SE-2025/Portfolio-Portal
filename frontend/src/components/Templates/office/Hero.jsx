@@ -1,28 +1,22 @@
-import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import OfficeModel from '../../3DModels/Office';
 import useCvData from '../../../hooks/useCVData';
 
-const Hero = () => {
+const OfficeHero = () => {
   const { cvData } = useCvData() || {};
 
   return (
-    <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
-      {/* Office-themed background elements */}
-      <div className="absolute inset-0">
-        {/* Subtle grid overlay resembling office floor tiles */}
+    <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
+        {/* Office grid pattern */}
         <div className="absolute inset-0 opacity-10" 
              style={{
-               backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
-                                 linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)`,
+               backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                                 linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)`,
                backgroundSize: '40px 40px'
              }}>
         </div>
-        
-        {/* Office window light effects */}
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-blue-500/5 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/3 bg-gradient-to-t from-amber-500/10 to-transparent"></div>
       </div>
 
       <div className="container mx-auto px-4 z-10 flex items-center justify-between h-full">
@@ -40,8 +34,7 @@ const Hero = () => {
                 precision and professionalism
               </span>
             </p>
-            
-            <div className="pt-4">
+            <div className="pt-4 flex gap-4">
               <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/15">
                 View My Work
               </button>
@@ -63,11 +56,6 @@ const Hero = () => {
                 intensity={1}
                 color="#ffffff"
                 castShadow
-              />
-              <directionalLight
-                position={[-100, 100, 100]}
-                intensity={0.3}
-                color="#4f46e5"
               />
               
               <Suspense fallback={null}>
@@ -91,4 +79,4 @@ const Hero = () => {
   )
 }
 
-export default Hero;
+export default OfficeHero;
