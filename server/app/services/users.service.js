@@ -5,66 +5,50 @@ const Skills = require('../models/Skills');
 const Education = require('../models/Education');
 const Experience = require('../models/Experience');
 const Certifications = require('../models/Certifications');
-const References  = require('../models/References');
-const supabase = require('../config/supabase');
-
+const References = require('../models/References');
+const profileUser = require('../models/profileUser')
+// Simple user services (no auth)
 const getUserById = async (id) => {
   return await User.findById(id);
 };
 
 const createUser = async (userData) => {
-  const { email, password } = userData;
-  return await User.create(email, password);
+  const { email, name, ...otherData } = userData;
+  return await User.create({ email, name, ...otherData });
 };
 
-const loginUser = async (email, password) => {
-  try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        
-    if (error || !data.session) return null;
-        
-    const userProfile = await User.findById(data.user.id);
-    if (!userProfile) return null;
-
-    return {
-      user: userProfile,
-      token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_at: data.session.expires_at
-    };
-  } catch (error) {
-    console.error('Login error:', error);
-    return null;
-  }
+const getAllUsers = async () => {
+  return await User.findAll();
 };
 
-const refreshToken = async (refreshToken) => {
-  try {
-    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-    if (error || !data.session) return null;
-
-    return {
-      token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_at: data.session.expires_at
-    };
-  } catch (error) {
-    console.error('Token refresh error:', error);
-    return null;
-  }
+const updateUser = async (id, userData) => {
+  return await User.update(id, userData);
 };
 
-const logoutUser = async (token) => {
-  try {
-    await supabase.auth.setSession({ access_token: token });
-    const { error } = await supabase.auth.signOut();
-    return !error;
-  } catch (error) {
-    console.error('Logout error:', error);
-    return false;
-  }
+const deleteUser = async (id) => {
+  return await User.delete(id);
 };
 
+const pgetUserById = async (id) => {
+  return await profileUser.findById(id);
+};
+
+const pcreateUser = async (userData) => {
+  const { email, name, ...otherData } = userData;
+  return await profileUser.create({ email, name, ...otherData });
+};
+
+const pgetAllUsers = async () => {
+  return await profileUser.findAll();
+};
+
+const pupdateUser = async (id, userData) => {
+  return await profileUser.update(id, userData);
+};
+
+const pdeleteUser = async (id) => {
+  return await profileUser.delete(id);
+};
 // Links services
 const getUserLinks = async (userId) => {
   return await Links.findByUserId(userId);
@@ -200,7 +184,7 @@ const deleteReference = async (id) => {
 const getCompletePortfolio = async (userId) => {
   try {
     const [user, links, about, skills, education, experience, certifications, references] = await Promise.all([
-      User.findById(userId),
+      profileUser.findById(userId),
       Links.findByUserId(userId),
       About.findByUserId(userId),
       Skills.findByUserId(userId),
@@ -226,12 +210,37 @@ const getCompletePortfolio = async (userId) => {
   }
 };
 
+// Get public portfolio (for viewing without auth)
+const getPublicPortfolio = async (userId) => {
+  try {
+    const portfolio = await getCompletePortfolio(userId);
+    
+    // Remove sensitive user data for public view
+    if (portfolio.user) {
+      const { password, email, ...publicUserData } = portfolio.user;
+      portfolio.user = publicUserData;
+    }
+    
+    return portfolio;
+  } catch (error) {
+    console.error('Error fetching public portfolio:', error);
+    throw error;
+  }
+};
+
 module.exports = {
+  // User management
   getUserById,
   createUser,
-  loginUser,
-  refreshToken,
-  logoutUser,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  //profileUser 
+  pgetUserById,
+  pcreateUser,
+  pgetAllUsers,
+  pupdateUser,
+  pdeleteUser,
   // Links
   getUserLinks,
   createUserLinks,
@@ -270,6 +279,7 @@ module.exports = {
   getReferenceById,
   updateReference,
   deleteReference,
-  // Complete portfolio
-  getCompletePortfolio
+  // Portfolio data
+  getCompletePortfolio,
+  getPublicPortfolio
 };

@@ -1,98 +1,173 @@
+// cvDataService.js
 import api from './api.service';
 
-class CVDataService {
-  constructor() {
-    this.data = null;
-    this.listeners = [];
-  }
+export const cvDataService = {
+  // Authentication operations
+  createUser: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => api.post('/auth/login', credentials),
+  logout: (token) => api.post('/auth/logout', { token }),
+  refreshToken: (refreshToken) => api.post('/auth/refresh', { refresh_token: refreshToken }),
 
-  // Store CV data
-  setData(cvData) {
-    this.data = cvData;
-    this.notifyListeners();
-  }
+  // User operations
+  getUser: (userId) => api.get(`/users/${userId}`),
 
-  // Get CV data
-  getData() {
-    return this.data;
-  }
+  // Links operations
+  getLinks: (userId) => api.get(`/links/user/${userId}`),
+  createLinks: (userId, linksData) => api.post('/links', { user_id: userId, ...linksData }),
+  updateLinks: (userId, linksData) => api.put(`/links/user/${userId}`, linksData),
+  deleteLinks: (userId) => api.delete(`/links/user/${userId}`),
 
-  // Check if data exists
-  hasData() {
-    return this.getData() !== null;
-  }
+  // About section operations
+  getAbout: (userId) => api.get(`/about/user/${userId}`),
+  createAbout: (userId, paragraphs) => api.post('/about', { user_id: userId, paragraphs }),
+  updateAbout: (userId, paragraphs) => api.put(`/about/user/${userId}`, { paragraphs }),
+  deleteAbout: (userId) => api.delete(`/about/user/${userId}`),
 
-  // Clear stored data
-  clearData() {
-    this.data = null;
-    this.notifyListeners();
-  }
+  // Skills operations
+  getSkills: (userId) => api.get(`/skills/user/${userId}`),
+  createSkills: (userId, skillsList) => api.post('/skills', { user_id: userId, skills_list: skillsList }),
+  updateSkills: (userId, skillsList) => api.put(`/skills/user/${userId}`, { skills_list: skillsList }),
+  deleteSkills: (userId) => api.delete(`/skills/user/${userId}`),
 
-  // Subscribe to data changes
-  subscribe(callback) {
-    this.listeners.push(callback);
-    return () => {
-      this.listeners = this.listeners.filter(listener => listener !== callback);
-    };
-  }
+  // Education operations
+  getEducation: (userId) => api.get(`/education/user/${userId}`),
+  createEducation: (userId, educationData) => api.post('/education', { user_id: userId, ...educationData }),
+  getEducationById: (id) => api.get(`/education/${id}`),
+  updateEducation: (id, educationData) => api.put(`/education/${id}`, educationData),
+  deleteEducation: (id) => api.delete(`/education/${id}`),
 
-  // Notify all listeners when data changes
-  notifyListeners() {
-    this.listeners.forEach(callback => callback(this.data));
-  }
+  // Experience operations
+  getExperience: (userId) => api.get(`/experience/user/${userId}`),
+  createExperience: (userId, experienceData) => api.post('/experience', { user_id: userId, ...experienceData }),
+  getExperienceById: (id) => api.get(`/experience/${id}`),
+  updateExperience: (id, experienceData) => api.put(`/experience/${id}`, experienceData),
+  deleteExperience: (id) => api.delete(`/experience/${id}`),
 
-  // Convenient getters for specific data
-  getName() {
-    const data = this.getData();
-    return data?.name || '';
-  }
+  // Certifications operations
+  getCertifications: (userId) => api.get(`/certifications/user/${userId}`),
+  createCertifications: (userId, certificationsList) => api.post('/certifications', { user_id: userId, certifications_list: certificationsList }),
+  updateCertifications: (userId, certificationsList) => api.put(`/certifications/user/${userId}`, { certifications_list: certificationsList }),
+  deleteCertifications: (userId) => api.delete(`/certifications/user/${userId}`),
 
-  getEmail() {
-    const data = this.getData();
-    return data?.email || '';
-  }
+  // References operations
+  getReferences: (userId) => api.get(`/references/user/${userId}`),
+  createReference: (userId, referenceData) => api.post('/references', { user_id: userId, ...referenceData }),
+  getReferenceById: (id) => api.get(`/references/${id}`),
+  updateReference: (id, referenceData) => api.put(`/references/${id}`, referenceData),
+  deleteReference: (id) => api.delete(`/references/${id}`),
 
-  getPhone() {
-    const data = this.getData();
-    return data?.phone || '';
-  }
+  // Complete portfolio operations
+  getCompletePortfolio: (userId) => api.get(`/portfolio/complete/${userId}`),
 
-  getAbout() {
-    const data = this.getData();
-    return data?.about || [];
-  }
+  // Token management helpers
+  setToken: (token) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('tokenTimestamp', Date.now().toString());
+  },
 
-  getSkills() {
-    const data = this.getData();
-    return data?.skills || [];
-  }
+  getToken: () => {
+    return localStorage.getItem('token');
+  },
 
-  getExperience() {
-    const data = this.getData();
-    return data?.experience || [];
-  }
+  getRefreshToken: () => {
+    return localStorage.getItem('refresh_token');
+  },
 
-  getEducation() {
-    const data = this.getData();
-    return data?.education || [];
-  }
+  setRefreshToken: (refreshToken) => {
+    localStorage.setItem('refresh_token', refreshToken);
+  },
 
-  getCertifications() {
-    const data = this.getData();
-    return data?.certifications || [];
-  }
+  clearTokens: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('tokenTimestamp');
+  },
 
-  getLinks() {
-    const data = this.getData();
-    return data?.links || {};
-  }
+  isTokenExpired: () => {
+    const timestamp = localStorage.getItem('tokenTimestamp');
+    if (!timestamp) return true;
+    
+    // Check if token is older than 1 hour (3600000 ms)
+    const oneHour = 60 * 60 * 1000;
+    return (Date.now() - parseInt(timestamp)) > oneHour;
+  },
 
-  getReferences() {
-    const data = this.getData();
-    return data?.references || [];
-  }
-}
+  // Auto-refresh token if needed
+  ensureValidToken: async () => {
+    const token = cvDataService.getToken();
+    const refreshToken = cvDataService.getRefreshToken();
+    
+    if (!token || !refreshToken) {
+      throw new Error('No authentication tokens found');
+    }
 
-// Create and export a singleton instance
-const cvDataService = new CVDataService();
+    if (cvDataService.isTokenExpired()) {
+      try {
+        const response = await cvDataService.refreshToken(refreshToken);
+        cvDataService.setToken(response.data.token);
+        cvDataService.setRefreshToken(response.data.refresh_token);
+        return response.data.token;
+      } catch (error) {
+        cvDataService.clearTokens();
+        throw new Error('Token refresh failed');
+      }
+    }
+
+    return token;
+  }
+};
+
+// Enhanced auth service with better token management
+export const authService = {
+  register: (userData) => cvDataService.createUser(userData),
+  
+  login: async (credentials) => {
+    try {
+      const response = await cvDataService.login(credentials);
+      const { token, refresh_token, expires_at, user } = response.data;
+      
+      cvDataService.setToken(token);
+      cvDataService.setRefreshToken(refresh_token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  logout: async () => {
+    try {
+      const token = cvDataService.getToken();
+      if (token) {
+        await cvDataService.logout(token);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      cvDataService.clearTokens();
+      localStorage.removeItem('user');
+    }
+  },
+
+  getCurrentUser: () => {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  },
+
+  isAuthenticated: () => {
+    return !!cvDataService.getToken() && !cvDataService.isTokenExpired();
+  },
+
+  refreshSession: async () => {
+    try {
+      await cvDataService.ensureValidToken();
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+};
+
+// Export default for backward compatibility
 export default cvDataService;
