@@ -182,8 +182,10 @@ const Home = () => {
           show={showAbout}
           className={isDark ? 'text-white' : 'text-gray-900'}
         />
+        {/* Added the HelpMenu component */}
+        <HelpMenu />
       </div>
-
+      
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none z-5">
         {[...Array(25)].map((_, i) => (
