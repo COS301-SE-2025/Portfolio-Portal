@@ -27,9 +27,9 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 |----------|-------------|-------------|
 | **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/SRS-v1.0.md) | _N/A_ |
 | **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/SRS-v2.0.md) | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?usp=sharing) |
-| **Architectural Requirements** | [Architecture.md](Docs/Architecture.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?usp=sharing) |
-| **User Manual** | [UserManual.md](Docs/UserManual.md) | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?usp=sharing) |
-| **Coding Standards** | [CodingStandards.md](Docs/CodingStandards.md) | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?usp=sharing) |
+| **Architectural Requirements** | [Architecture.md](Docs/ArchitectureRequirements.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0) |
+| **User Manual** | [UserManual.md](Docs/UserManual.md) | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0) |
+| **Coding Standards** | [CodingStandards.md](Docs/CodingStandards.md) | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?tab=t.0) |
 | **Archived Docs** | [Docs/Archives/](Docs/Archives/) | _N/A_ |
 | **Server README** | [server/README.md](server/README.md) | _N/A_ |
 | **Frontend README** | [frontend/README.md](frontend/README.md) | _N/A_ |
