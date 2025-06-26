@@ -1,4 +1,4 @@
-import { userName } from '../../../../pages/index';
+import { userName } from './index'; // Correct relative import from same directory
 
 const OfficeNavbar = () => {
   return (
