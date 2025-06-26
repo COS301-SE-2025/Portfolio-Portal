@@ -8,7 +8,7 @@ class profileUser {
     const { data, error } = await supabase
       .from('users')
       .insert([{
-        email,
+        email: email || null,
         name: name || null,
         bio: bio || null,
         created_at: new Date().toISOString(),

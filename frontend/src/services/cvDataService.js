@@ -2,64 +2,58 @@
 import api from './api.service';
 
 export const cvDataService = {
-  // Authentication operations
-  createUser: (userData) => api.post('/auth/register', userData),
-  login: (credentials) => api.post('/auth/login', credentials),
-  logout: (token) => api.post('/auth/logout', { token }),
-  refreshToken: (refreshToken) => api.post('/auth/refresh', { refresh_token: refreshToken }),
+  // Profile operations (updated to match your backend routes)
+  getProfile: (userId) => api.get(`/profile/${userId}`),
+  createProfile: (userData) => api.post('/profile/register', userData),
+  updateProfile: (profileData) => api.post('/profile/update', profileData),
+  deleteProfile: (userId) => api.post(`/profile/delete/${userId}`),
 
-  // User operations
-  getUser: (userId) => api.get(`/users/${userId}`),
+  // Links operations (updated to match your backend routes)
+  getUserLinks: (userId) => api.get(`/${userId}/links`),
+  createUserLinks: (userId, linksData) => api.post(`/${userId}/links`, linksData),
+  updateUserLinks: (userId, linksData) => api.put(`/${userId}/links`, linksData),
+  deleteUserLinks: (userId) => api.delete(`/${userId}/links`),
 
-  // Links operations
-  getLinks: (userId) => api.get(`/links/user/${userId}`),
-  createLinks: (userId, linksData) => api.post('/links', { user_id: userId, ...linksData }),
-  updateLinks: (userId, linksData) => api.put(`/links/user/${userId}`, linksData),
-  deleteLinks: (userId) => api.delete(`/links/user/${userId}`),
+  // About section operations (updated to match your backend routes)
+  getUserAbout: (userId) => api.get(`/${userId}/about`),
+  createUserAbout: (userId, aboutData) => api.post(`/${userId}/about`, aboutData),
+  updateUserAbout: (userId, aboutData) => api.put(`/${userId}/about`, aboutData),
+  deleteUserAbout: (userId) => api.delete(`/${userId}/about`),
 
-  // About section operations
-  getAbout: (userId) => api.get(`/about/user/${userId}`),
-  createAbout: (userId, paragraphs) => api.post('/about', { user_id: userId, paragraphs }),
-  updateAbout: (userId, paragraphs) => api.put(`/about/user/${userId}`, { paragraphs }),
-  deleteAbout: (userId) => api.delete(`/about/user/${userId}`),
+  // Skills operations (updated to match your backend routes)
+  getUserSkills: (userId) => api.get(`/${userId}/skills`),
+  createUserSkills: (userId, skillsData) => api.post(`/${userId}/skills`, skillsData),
+  updateUserSkills: (userId, skillsData) => api.put(`/${userId}/skills`, skillsData),
+  deleteUserSkills: (userId) => api.delete(`/${userId}/skills`),
 
-  // Skills operations
-  getSkills: (userId) => api.get(`/skills/user/${userId}`),
-  createSkills: (userId, skillsList) => api.post('/skills', { user_id: userId, skills_list: skillsList }),
-  updateSkills: (userId, skillsList) => api.put(`/skills/user/${userId}`, { skills_list: skillsList }),
-  deleteSkills: (userId) => api.delete(`/skills/user/${userId}`),
+  // Education operations (updated to match your backend routes)
+  getUserEducation: (userId) => api.get(`/${userId}/education`),
+  createEducation: (userId, educationData) => api.post(`/${userId}/education`, educationData),
+  getEducationById: (eduId) => api.get(`/education/${eduId}`),
+  updateEducation: (eduId, educationData) => api.put(`/education/${eduId}`, educationData),
+  deleteEducation: (eduId) => api.delete(`/education/${eduId}`),
 
-  // Education operations
-  getEducation: (userId) => api.get(`/education/user/${userId}`),
-  createEducation: (userId, educationData) => api.post('/education', { user_id: userId, ...educationData }),
-  getEducationById: (id) => api.get(`/education/${id}`),
-  updateEducation: (id, educationData) => api.put(`/education/${id}`, educationData),
-  deleteEducation: (id) => api.delete(`/education/${id}`),
+  // Experience operations (updated to match your backend routes)
+  getUserExperience: (userId) => api.get(`/${userId}/experience`),
+  createExperience: (userId, experienceData) => api.post(`/${userId}/experience`, experienceData),
+  getExperienceById: (expId) => api.get(`/experience/${expId}`),
+  updateExperience: (expId, experienceData) => api.put(`/experience/${expId}`, experienceData),
+  deleteExperience: (expId) => api.delete(`/experience/${expId}`),
 
-  // Experience operations
-  getExperience: (userId) => api.get(`/experience/user/${userId}`),
-  createExperience: (userId, experienceData) => api.post('/experience', { user_id: userId, ...experienceData }),
-  getExperienceById: (id) => api.get(`/experience/${id}`),
-  updateExperience: (id, experienceData) => api.put(`/experience/${id}`, experienceData),
-  deleteExperience: (id) => api.delete(`/experience/${id}`),
+  // Certifications operations (updated to match your backend routes)
+  getUserCertifications: (userId) => api.get(`/${userId}/certifications`),
+  createUserCertifications: (userId, certificationsData) => api.post(`/${userId}/certifications`, certificationsData),
+  updateUserCertifications: (userId, certificationsData) => api.put(`/${userId}/certifications`, certificationsData),
+  deleteUserCertifications: (userId) => api.delete(`/${userId}/certifications`),
 
-  // Certifications operations
-  getCertifications: (userId) => api.get(`/certifications/user/${userId}`),
-  createCertifications: (userId, certificationsList) => api.post('/certifications', { user_id: userId, certifications_list: certificationsList }),
-  updateCertifications: (userId, certificationsList) => api.put(`/certifications/user/${userId}`, { certifications_list: certificationsList }),
-  deleteCertifications: (userId) => api.delete(`/certifications/user/${userId}`),
+  // References operations (updated to match your backend routes)
+  getUserReferences: (userId) => api.get(`/${userId}/references`),
+  createReference: (userId, referenceData) => api.post(`/${userId}/references`, referenceData),
+  getReferenceById: (refId) => api.get(`/references/${refId}`),
+  updateReference: (refId, referenceData) => api.put(`/references/${refId}`, referenceData),
+  deleteReference: (refId) => api.delete(`/references/${refId}`),
 
-  // References operations
-  getReferences: (userId) => api.get(`/references/user/${userId}`),
-  createReference: (userId, referenceData) => api.post('/references', { user_id: userId, ...referenceData }),
-  getReferenceById: (id) => api.get(`/references/${id}`),
-  updateReference: (id, referenceData) => api.put(`/references/${id}`, referenceData),
-  deleteReference: (id) => api.delete(`/references/${id}`),
-
-  // Complete portfolio operations
-  getCompletePortfolio: (userId) => api.get(`/portfolio/complete/${userId}`),
-
-  // Token management helpers
+  // Token management helpers (keeping existing localStorage functionality)
   setToken: (token) => {
     localStorage.setItem('token', token);
     localStorage.setItem('tokenTimestamp', Date.now().toString());
@@ -90,40 +84,17 @@ export const cvDataService = {
     // Check if token is older than 1 hour (3600000 ms)
     const oneHour = 60 * 60 * 1000;
     return (Date.now() - parseInt(timestamp)) > oneHour;
-  },
-
-  // Auto-refresh token if needed
-  ensureValidToken: async () => {
-    const token = cvDataService.getToken();
-    const refreshToken = cvDataService.getRefreshToken();
-    
-    if (!token || !refreshToken) {
-      throw new Error('No authentication tokens found');
-    }
-
-    if (cvDataService.isTokenExpired()) {
-      try {
-        const response = await cvDataService.refreshToken(refreshToken);
-        cvDataService.setToken(response.data.token);
-        cvDataService.setRefreshToken(response.data.refresh_token);
-        return response.data.token;
-      } catch (error) {
-        cvDataService.clearTokens();
-        throw new Error('Token refresh failed');
-      }
-    }
-
-    return token;
   }
 };
 
-// Enhanced auth service with better token management
+// Enhanced auth service (updated to use profile endpoints)
 export const authService = {
-  register: (userData) => cvDataService.createUser(userData),
+  register: (userData) => cvDataService.createProfile(userData),
   
   login: async (credentials) => {
     try {
-      const response = await cvDataService.login(credentials);
+      // Assuming you have a login endpoint, or this might be part of profile creation
+      const response = await api.post('/auth/login', credentials);
       const { token, refresh_token, expires_at, user } = response.data;
       
       cvDataService.setToken(token);
@@ -140,7 +111,8 @@ export const authService = {
     try {
       const token = cvDataService.getToken();
       if (token) {
-        await cvDataService.logout(token);
+        // If you have a logout endpoint, add it here
+        // await api.post('/auth/logout', { token });
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -157,15 +129,6 @@ export const authService = {
 
   isAuthenticated: () => {
     return !!cvDataService.getToken() && !cvDataService.isTokenExpired();
-  },
-
-  refreshSession: async () => {
-    try {
-      await cvDataService.ensureValidToken();
-      return true;
-    } catch (error) {
-      return false;
-    }
   }
 };
 

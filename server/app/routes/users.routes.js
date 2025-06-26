@@ -27,13 +27,10 @@ router.get('/profile/:id', userController.getProfile);
 router.post('/profile/register', userController.createProfile);
 
 // Login user
-router.post('/profile/login', userController.loginProfile);
+router.post('/profile/update', userController.updateProfile);
 
 // Refresh access token
-router.post('/profile/refresh', userController.refreshProfileToken);
-
-// Logout user - requires valid access token
-router.post('/profile/logout', authMiddleware.validateToken, userController.logoutProfile);
+router.post('/profile/delete/:id', userController.deleteProfile);
 
 // Links routes
 router.get('/:id/links', userController.getUserLinks);
@@ -81,6 +78,6 @@ router.put('/references/:refId', userController.updateReference);
 router.delete('/references/:refId', userController.deleteReference);
 
 // Complete portfolio
-router.get('/:id/portfolio', userController.getCompletePortfolio);
+//router.get('/:id/portfolio', userController.getCompletePortfolio);
 
 module.exports = router;
