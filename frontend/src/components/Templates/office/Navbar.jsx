@@ -1,22 +1,39 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link } from "react-scroll";
+import { useState, useEffect } from "react";
 import { userName } from "./index";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      if (scrollTop > 100) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+        setActive("");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
+    <nav className={`w-full flex items-center py-5 fixed top-0 z-20 transition-all duration-300 ${scrolled ? "bg-gray-900/90 backdrop-blur-sm border-b border-gray-800" : "bg-transparent"}`}>
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
         <Link
-          to="/"
-          className="flex items-center gap-2"
+          to="hero"
+          smooth={true}
+          duration={500}
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => {
             setActive("");
-            window.scrollTo(0, 0);
           }}
         >
-          <p className="text-blue-400 text-[18px] font-bold cursor-pointer">
+          <p className="text-blue-400 text-[18px] font-bold">
             {userName} <span className="text-white">Portfolio</span>
           </p>
         </Link>
@@ -27,10 +44,19 @@ const Navbar = () => {
               key={item}
               className={`${
                 active === item ? "text-blue-400" : "text-white"
-              } hover:text-blue-300 text-[18px] font-medium cursor-pointer`}
-              onClick={() => setActive(item)}
+              } hover:text-blue-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
             >
-              <a href={`#${item}`}>{item}</a>
+              <Link
+                to={item}
+                smooth={true}
+                duration={500}
+                spy={true}
+                offset={-80}
+                onSetActive={() => setActive(item)}
+                className="block w-full h-full"
+              >
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </Link>
             </li>
           ))}
         </ul>
