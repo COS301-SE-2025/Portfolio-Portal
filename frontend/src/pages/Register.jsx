@@ -46,8 +46,8 @@ const Register = () => {
   };
 
   return (
-    <AuthLayout title="Get Started!" subtitle="Create your account to begin">
-      <form onSubmit={handleRegister} className="space-y-4 mb-6">
+    <AuthLayout title="Get Started!" injuring="Create your account to begin">
+      <div className="space-y-4 mb-6">
         <input
           type="text"
           name="fullName"
@@ -56,7 +56,7 @@ const Register = () => {
           onChange={handleInputChange}
           required
           minLength="2"
-          className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+          className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
         />
         <input
           type="email"
@@ -65,7 +65,7 @@ const Register = () => {
           value={formData.email}
           onChange={handleInputChange}
           required
-          className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+          className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
         />
         <input
           type="password"
@@ -75,7 +75,7 @@ const Register = () => {
           onChange={handleInputChange}
           required
           minLength="6"
-          className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+          className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
         />
         <input
           type="password"
@@ -84,33 +84,34 @@ const Register = () => {
           value={formData.confirmPassword}
           onChange={handleInputChange}
           required
-          className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-slate-700 border border-gray-300 dark:border-slate-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+          className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
         />
         
         {error && (
-          <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-100 dark:bg-red-900/30 rounded-lg py-2">
+          <div className="text-red-400 dark:text-red-400 text-sm text-center bg-red-900/30 dark:bg-red-900/30 rounded-lg py-2">
             {error}
           </div>
         )}
         
-        <button 
-          type="submit" 
-          disabled={isLoading} 
-          className={`w-full py-3 rounded-lg font-medium transition-all duration-200 ${
-            isLoading 
-              ? 'bg-gray-400 dark:bg-slate-600 cursor-not-allowed' 
-              : 'bg-purple-600 dark:bg-purple-500 text-white hover:bg-purple-700 dark:hover:bg-purple-600'
+        <button
+          type="submit"
+          disabled={isLoading}
+          onClick={handleRegister}
+          className={`w-full py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+            isLoading
+              ? 'bg-gray-400 dark:bg-slate-600 cursor-not-allowed'
+              : 'bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-500 dark:to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 dark:hover:from-purple-600 dark:hover:to-pink-600'
           }`}
         >
           {isLoading ? 'Creating account...' : 'Sign up'}
         </button>
-      </form>
+      </div>
       
-      <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+      <p className="text-center text-sm text-gray-300 dark:text-gray-300">
         Already registered?{' '}
-        <span 
-          onClick={() => navigate('/login')} 
-          className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 cursor-pointer font-medium"
+        <span
+          onClick={() => navigate('/login')}
+          className="text-purple-400 dark:text-purple-400 hover:text-purple-300 dark:hover:text-purple-300 cursor-pointer font-medium"
         >
           Sign In
         </span>

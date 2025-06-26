@@ -8,14 +8,16 @@ import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
+//FOR TESTING
+import ForestPage from "./pages/ForestPage";
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office'];
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest'];
 
 function App() {
   const location = useLocation();
   const shouldHideNavbar = HIDDEN_NAVBAR_PATHS.includes(location.pathname);
 
-  return (    
+  return (
     <ThemeProvider>
       <div className="min-h-screen">
         {!shouldHideNavbar && <Navbar />}
@@ -25,12 +27,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/office" element={<OfficePage />} />
-          
+          <Route path="/forest" element={<ForestPage />} />
+
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
           <Route path="/profile" element={<Profile />} />
-          
+
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

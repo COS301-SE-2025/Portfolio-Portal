@@ -3,8 +3,9 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import Head from '../../3DModels/Head'; // Assuming you have a Head component for the 3D model
+import Astronaught from '../../3DModels/Astronaught';
 import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
-
+import Helmet from '../../3DModels/Helmet'; // Assuming you have a Helmet component for the 3D model
 
 
 const About = () => {
@@ -102,13 +103,18 @@ const About = () => {
                 <Environment preset="night" />
                 
                 <Suspense fallback={null}>
-                  <Head />
+                  <Astronaught />
                   <OrbitControls
                     enableZoom={false}
                     enablePan={false}
                     enableRotate={true}
                     autoRotate={true}
-                    autoRotateSpeed={1}
+                    autoRotateSpeed={-0.8
+                    
+                    // move the camera around the model
+                    
+                    }
+
                   />
                 </Suspense>
               </Canvas>
