@@ -191,7 +191,7 @@ The application integrates with backend services through:
 
 ## 📝 License
 
-This project is part of a capstone project. Please refer to your institution's guidelines for usage and distribution.
+This project is part of the University of Pretoria's COS301 CAPSTONE project. 
 
 ## 🐛 Known Issues
 

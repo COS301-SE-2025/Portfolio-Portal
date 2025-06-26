@@ -32,8 +32,8 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
       countdownTimer = setTimeout(() => {
         setRedirectCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (isRedirecting && redirectCountdown === 0) {
-      window.location.href = '/space';
+    } else if (isRedirecting || redirectCountdown === 0) {
+  window.open('http://localhost:5173/space', '_blank');
     }
     return () => {
       if (countdownTimer) clearTimeout(countdownTimer);
