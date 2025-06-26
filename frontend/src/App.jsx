@@ -9,7 +9,7 @@ import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register'];
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office'];
 
 function App() {
   const location = useLocation();
