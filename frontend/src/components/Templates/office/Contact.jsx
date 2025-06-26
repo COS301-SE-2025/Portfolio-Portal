@@ -2,58 +2,68 @@ import { email } from "./index";
 
 const Contact = () => {
   return (
-    <section id="contact" className="relative w-full py-20 mx-auto">
+    <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/20">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
-          <h2 className="text-blue-400 text-4xl font-bold mb-6">
-            Let's Collaborate
-          </h2>
-          <p className="text-white mb-6">
-            Reach out at <span className="text-blue-400">{email}</span> or use the form below.
-          </p>
+        <div className="text-center mb-16">
+          <h2 className="text-blue-400 text-4xl font-bold mb-4">Let's Collaborate</h2>
+          <div className="w-20 h-1 bg-blue-400 mx-auto" />
+        </div>
 
-          <form className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="name" className="text-white">
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                className="bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
+        <div className="grid md:grid-cols-2 gap-10">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
+            <h3 className="text-white text-2xl font-bold mb-4">Get In Touch</h3>
+            <p className="text-gray-300 mb-6">
+              Have a project in mind or want to discuss opportunities? Reach out and let's create something amazing together.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <div className="w-12 h-12 rounded-full bg-blue-400/10 flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Email</p>
+                  <p className="text-white">{email}</p>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div className="flex flex-col gap-2">
-              <label htmlFor="email" className="text-white">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label htmlFor="message" className="text-white">
-                Project Details
-              </label>
-              <textarea
-                id="message"
-                rows="5"
-                className="bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Tell me about your project requirements..."
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="bg-blue-400 hover:bg-blue-500 text-gray-900 font-bold py-3 px-6 rounded-lg transition-colors duration-300 self-start"
-            >
-              Send Message
-            </button>
-          </form>
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="name" className="text-white block mb-2">Your Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  className="w-full bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="text-white block mb-2">Email Address</label>
+                <input
+                  type="email"
+                  id="email"
+                  className="w-full bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div>
+                <label htmlFor="message" className="text-white block mb-2">Project Details</label>
+                <textarea
+                  id="message"
+                  rows="5"
+                  className="w-full bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-8 py-3 bg-blue-400 hover:bg-blue-500 text-gray-900 font-bold rounded-lg transition-colors duration-300"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </section>
