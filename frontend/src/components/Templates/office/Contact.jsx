@@ -1,23 +1,14 @@
-import { motion } from "framer-motion";
-import { fadeIn } from "../../../utils/motion";
 import { email } from "./index";
 
 const Contact = () => {
   return (
     <section id="contact" className="relative w-full py-20 mx-auto">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          variants={fadeIn("up", "spring", 0.5, 1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20"
-        >
+        <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
           <h2 className="text-blue-400 text-4xl font-bold mb-6">
             Let's Collaborate
           </h2>
           <p className="text-white mb-6">
-            Have a project that needs technical expertise? Want to discuss potential opportunities?
             Reach out at <span className="text-blue-400">{email}</span> or use the form below.
           </p>
 
@@ -53,7 +44,7 @@ const Contact = () => {
                 rows="5"
                 className="bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Tell me about your project requirements..."
-              ></textarea>
+              />
             </div>
 
             <button
@@ -63,7 +54,7 @@ const Contact = () => {
               Send Message
             </button>
           </form>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
