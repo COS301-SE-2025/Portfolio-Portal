@@ -7,6 +7,7 @@ const navLinks = [
   { sectionId: 'upload-section', label: 'Upload' },
   { sectionId: 'templates-section', label: 'Templates' },
   { sectionId: 'about-section', label: 'About' },
+  {sectionId:'profile-section', label:'Profile'},
 ];
 
 const Navbar = () => {
