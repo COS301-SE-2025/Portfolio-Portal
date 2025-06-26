@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Space from './pages/Space';
-import OfficePage from './pages/OfficePage'; // Updated import
+import OfficePage from './pages/OfficePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
@@ -24,8 +24,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/office" element={<OfficePage />} /> {/* Updated route */}
-
+          <Route path="/office" element={<OfficePage />} />
+          
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
