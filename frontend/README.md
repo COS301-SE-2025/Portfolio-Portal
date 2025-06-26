@@ -16,7 +16,8 @@ A modern React-based portfolio generation application featuring interactive 3D m
 - **Framework**: React 18
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS
-- **3D Graphics**: Three.js
+- **3D Graphics**: Three.js | Blender
+- **Testing**: Cypress
 - **State Management**: React Context API
 - **Routing**: React Router
 - **Linting**: ESLint
@@ -159,6 +160,19 @@ The application integrates with backend services through:
 - `api.js` - Base API configuration
 - `cvDataService.js` - CV processing endpoints
 - `portfolio.js` - Portfolio management endpoints
+
+
+## Testing
+
+The application provides unit and integration tests using Cypress:
+
+Option 1 -Cypress GUI:
+- cd Portfolio-Portal/frontend
+- npm install cypress --save-dev
+- npx cypress open
+
+Option 2 - Run in Headless Mode (terminal only):
+- npx cypress run --spec "cypress/integrationTests/login.cy.js" // replace login.cy.js with any tes file name
 
 ## 🎭 State Management
 
