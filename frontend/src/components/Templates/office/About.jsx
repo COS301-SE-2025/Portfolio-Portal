@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
-import DeskSetup from '../../3DModels/DeskSetup';
+import Head from '../../3DModels/Head';
 import useCvData from '../../../hooks/useCVData';
 
 const OfficeAbout = () => {
@@ -17,7 +18,7 @@ const OfficeAbout = () => {
           <div className="w-full lg:w-1/2 relative">
             <div className="h-96 lg:h-[500px] relative">
               <Canvas
-                camera={{ position: [0, 1, 5], fov: 50 }}
+                camera={{ position: [0, 1, 4], fov: 50 }}
                 shadows
                 gl={{ antialias: true, alpha: true }}
                 dpr={[1, 2]}
@@ -25,7 +26,7 @@ const OfficeAbout = () => {
                 <ambientLight intensity={0.5} />
                 <directionalLight
                   position={[5, 5, 5]}
-                  intensity={1}
+                  intensity={0.8}
                   castShadow
                 />
                 <pointLight position={[-5, 3, -5]} intensity={0.5} color="#3b82f6" />
@@ -33,7 +34,7 @@ const OfficeAbout = () => {
                 <Environment preset="apartment" />
                 
                 <Suspense fallback={null}>
-                  <DeskSetup />
+                  <Head />
                   <OrbitControls
                     enableZoom={false}
                     enablePan={false}
