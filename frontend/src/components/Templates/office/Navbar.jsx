@@ -4,25 +4,9 @@ import { userName } from "./index";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      if (scrollTop > 100) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-        setActive("");
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
-    <nav className={`w-full flex items-center py-5 fixed top-0 z-20 transition-all duration-300 ${scrolled ? "bg-gray-900/90 backdrop-blur-sm border-b border-gray-800" : "bg-transparent"}`}>
+    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
         <Link
           to="hero"
