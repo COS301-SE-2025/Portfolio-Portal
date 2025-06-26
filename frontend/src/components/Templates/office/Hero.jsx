@@ -1,76 +1,63 @@
-import { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment } from '@react-three/drei';
-import Office from '../../3DModels/Office';
-import useCvData from '../../../hooks/useCVData';
+import { motion } from "framer-motion";
+import { fadeIn } from "../../../utils/motion";
+import { userName, jobTitle } from "./index";
 
-const OfficeHero = () => {
-  const { cvData } = useCvData() || {};
-
+const Hero = () => {
   return (
-    <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
-        <div className="absolute inset-0 opacity-10" 
-             style={{
-               backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
-                                 linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-               backgroundSize: '40px 40px'
-             }}>
+    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
+      <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto px-6 flex flex-row items-start gap-5">
+        <div className="flex flex-col justify-center items-center mt-5">
+          <div className="w-5 h-5 rounded-full bg-blue-400" />
+          <div className="w-1 sm:h-80 h-40 blue-gradient" />
+        </div>
+
+        <div>
+          <motion.h1
+            variants={fadeIn("up", "spring", 0.5, 1)}
+            initial="hidden"
+            animate="show"
+            className="text-white font-black text-5xl sm:text-6xl lg:text-7xl"
+          >
+            Hi, I'm <span className="text-blue-400">{userName}</span>
+          </motion.h1>
+          <motion.p
+            variants={fadeIn("up", "spring", 0.7, 1)}
+            initial="hidden"
+            animate="show"
+            className="text-gray-300 mt-4 text-lg sm:text-xl max-w-3xl"
+          >
+            Professional {jobTitle} creating digital solutions with precision and efficiency.
+          </motion.p>
+          <motion.div
+            variants={fadeIn("up", "spring", 0.9, 1)}
+            initial="hidden"
+            animate="show"
+            className="mt-8"
+          >
+            <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105">
+              View My Work
+            </button>
+          </motion.div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 z-10 flex items-center justify-between h-full">
-        <div className="flex-1 max-w-2xl">
-          <div className="space-y-6">
-            <h1 className="text-5xl lg:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-gray-300 leading-tight">
-              {cvData?.name || "John Doe"}
-            </h1>
-            <p className="text-xl lg:text-2xl font-light text-gray-300 mb-8 tracking-wide">
-              Professional {cvData?.jobTitle || "Full Stack Developer"}
-            </p>
-            <div className="pt-4 flex gap-4">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/15">
-                View My Work
-              </button>
-            </div>
+      <div className="absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center">
+        <a href="#about">
+          <div className="w-[35px] h-[64px] rounded-3xl border-4 border-blue-400 flex justify-center items-start p-2">
+            <motion.div
+              animate={{ y: [0, 24, 0] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
+              className="w-3 h-3 rounded-full bg-blue-400 mb-1"
+            />
           </div>
-        </div>
-
-        <div className="flex-1 h-full max-w-2xl relative z-20">
-          <div className="w-full h-full min-h-[600px] relative">
-            <Canvas 
-              camera={{ position: [0, 100, 300], fov: 45 }}
-              className="w-full h-full"
-              gl={{ antialias: true, alpha: true }}
-              dpr={[1, 2]}
-            >
-              <ambientLight intensity={0.5} color="#ffffff" />
-              <directionalLight
-                position={[100, 100, 100]}
-                intensity={1}
-                color="#ffffff"
-                castShadow
-              />
-              
-              <Suspense fallback={null}>
-                <Office />
-                <OrbitControls 
-                  enableZoom={true}
-                  enablePan={false}
-                  minPolarAngle={Math.PI / 4}
-                  maxPolarAngle={Math.PI / 2}
-                  autoRotate={true}
-                  autoRotateSpeed={1}
-                  minDistance={150}
-                  maxDistance={750}
-                />
-              </Suspense>
-            </Canvas>
-          </div>
-        </div>
+        </a>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default OfficeHero;
+export default Hero;
