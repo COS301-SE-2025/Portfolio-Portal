@@ -1,140 +1,94 @@
 import { Suspense } from 'react';
-import ColoredEarth from '../../3DModels/ColoredEarth'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment } from '@react-three/drei'
-import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment } from '@react-three/drei';
+import OfficeModel from '../../3DModels/Office';
+import useCvData from '../../../hooks/useCVData';
 
 const Hero = () => {
-  // Get CV data (assume it returns { userName, ... })
   const { cvData } = useCvData() || {};
 
   return (
-    <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/30">
-      {/* Enhanced background with animated elements */}
+    <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
+      {/* Office-themed background elements */}
       <div className="absolute inset-0">
-        {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/20 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/10 blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/4 w-48 h-48 rounded-full bg-gradient-to-r from-indigo-500/15 to-purple-500/10 blur-3xl animate-pulse delay-2000"></div>
-        
-        {/* Subtle grid overlay */}
-        <div className="absolute inset-0 opacity-5" 
+        {/* Subtle grid overlay resembling office floor tiles */}
+        <div className="absolute inset-0 opacity-10" 
              style={{
-               backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
-               backgroundSize: '50px 50px'
+               backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
+                                 linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)`,
+               backgroundSize: '40px 40px'
              }}>
         </div>
+        
+        {/* Office window light effects */}
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-blue-500/5 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-1/3 bg-gradient-to-t from-amber-500/10 to-transparent"></div>
       </div>
 
-      {/* Content Container */}
       <div className="container mx-auto px-4 z-10 flex items-center justify-between h-full">
-        {/* Left Content */}
         <div className="flex-1 max-w-2xl">
           <div className="space-y-6">
-            <h1 className="text-6xl lg:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 leading-tight animate-pulse">
-              {cvData.name || "Bill Burr"}
+            <h1 className="text-5xl lg:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-gray-300 leading-tight">
+              {cvData?.name || "John Doe"}
             </h1>
-            <p className="text-2xl lg:text-3xl font-light text-gray-200 mb-8 tracking-wide">
-              Full stack developer & designer
+            <p className="text-xl lg:text-2xl font-light text-gray-300 mb-8 tracking-wide">
+              Professional {cvData?.jobTitle || "Full Stack Developer"}
             </p>
-            <p className="text-lg lg:text-xl text-gray-300 mb-8 leading-relaxed max-w-lg">
-              Creating digital experiences that are{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 font-semibold">
-                out of this world
+            <p className="text-lg text-gray-300 mb-8 leading-relaxed max-w-lg">
+              Crafting digital solutions with{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-gray-300 font-semibold">
+                precision and professionalism
               </span>
             </p>
             
-            {/* Call to action button */}
             <div className="pt-4">
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25">
-                Explore My Work
+              <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/15">
+                View My Work
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right Content - Enhanced 3D Canvas */}
         <div className="flex-1 h-full max-w-2xl relative z-20">
           <div className="w-full h-full min-h-[600px] relative">
             <Canvas 
-              camera={{ position: [0, 0, 5], fov: 45 }}
+              camera={{ position: [0, 100, 300], fov: 45 }}
               className="w-full h-full"
               gl={{ antialias: true, alpha: true }}
               dpr={[1, 2]}
             >
-              {/* Enhanced Lighting Setup */}
-              <ambientLight intensity={0.4} color="#ffffff" />
-              
-              {/* Key light - main illumination */}
+              <ambientLight intensity={0.5} color="#ffffff" />
               <directionalLight
-                position={[10, 10, 5]}
-                intensity={1.2}
+                position={[100, 100, 100]}
+                intensity={1}
                 color="#ffffff"
                 castShadow
               />
-              
-              {/* Fill light - softer secondary light */}
               <directionalLight
-                position={[-5, 5, 5]}
-                intensity={0.6}
+                position={[-100, 100, 100]}
+                intensity={0.3}
                 color="#4f46e5"
               />
               
-              {/* Rim light - creates edge highlighting */}
-              <directionalLight
-                position={[0, -10, -5]}
-                intensity={0.8}
-                color="#ec4899"
-              />
-              
-              {/* Point lights for colorful accents */}
-              <pointLight position={[5, 0, 5]} intensity={0.5} color="#06b6d4" />
-              <pointLight position={[-5, 0, 5]} intensity={0.5} color="#8b5cf6" />
-              <pointLight position={[0, 5, -5]} intensity={0.3} color="#f59e0b" />
-              
-              {/* Environment for realistic reflections */}
-              <Environment preset="city" />
-              
               <Suspense fallback={null}>
-                <ColoredEarth />
+                <OfficeModel />
                 <OrbitControls 
-                  enableZoom={false}
+                  enableZoom={true}
                   enablePan={false}
-                  maxPolarAngle={Math.PI / 2}
                   minPolarAngle={Math.PI / 4}
+                  maxPolarAngle={Math.PI / 2}
                   autoRotate={true}
-                  autoRotateSpeed={2}
-                  dampingFactor={0.05}
-                  enableDamping={true}
+                  autoRotateSpeed={1}
+                  minDistance={150}
+                  maxDistance={750}
                 />
               </Suspense>
             </Canvas>
-            
-            {/* Glow effect overlay */}
-            <div className="absolute inset-0 pointer-events-none z-10">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
-            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Floating particles effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
-            }}
-          />
-        ))}
       </div>
     </section>
   )
 }
 
-export default Hero
+export default Hero;
