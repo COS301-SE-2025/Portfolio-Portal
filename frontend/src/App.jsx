@@ -9,7 +9,7 @@ import LandingPage from "./pages/Landing";
 import Profile from "./pages/Profile";
 import { ThemeProvider } from "./contexts/ThemeContext";
 //FOR TESTING
-import OfficePage from "./pages/OfficePage";
+// import OfficePage from "./pages/OfficePage";
 import ForestPage from "./pages/ForestPage";
 
 const HIDDEN_NAVBAR_PATHS = ["/", "/login", "/register", "/forest", "/office"];
@@ -27,7 +27,6 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/office" element={<OfficePage />} />
           <Route path="/forest" element={<ForestPage />} />
 
           {/* Protected routes */}
