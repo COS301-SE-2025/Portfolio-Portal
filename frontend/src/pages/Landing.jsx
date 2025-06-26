@@ -38,7 +38,7 @@ const LandingPage = () => {
   ];
 
   const stats = [
-    { number: "50K+", label: "CVs Transformed" },
+{ number: "3x", label: "Increased Likelihood of Employment" },
     { number: "100%", label: "Success Rate" },
     { number: "5.0★", label: "User Rating" },
     { number: "24/7", label: "Support" }
@@ -85,9 +85,6 @@ const LandingPage = () => {
           <div className="flex items-center space-x-6">
             <button className="hidden md:block text-gray-300 hover:text-white transition-colors">
               Features
-            </button>
-            <button className="hidden md:block text-gray-300 hover:text-white transition-colors">
-              Pricing
             </button>
             <button 
               onClick={() => navigate('/register')}

@@ -9,10 +9,10 @@ import LandingPage from "./pages/Landing";
 import Profile from "./pages/Profile";
 import { ThemeProvider } from "./contexts/ThemeContext";
 //FOR TESTING
-// import OfficePage from "./pages/OfficePage";
 import ForestPage from "./pages/ForestPage";
 
-const HIDDEN_NAVBAR_PATHS = ["/", "/login", "/register", "/forest", "/office"];
+
+const HIDDEN_NAVBAR_PATHS = ["/", "/login", "/register", "/forest"];
 
 function App() {
   const location = useLocation();

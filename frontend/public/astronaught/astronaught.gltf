@@ -1,0 +1,165 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 36490,
+      "max": [0.4520527720451355, 0.7482258081436157, 0.8790432810783386],
+      "min": [-0.38130372762680054, -0.7472076416015625, -0.857029139995575],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 437880,
+      "componentType": 5126,
+      "count": 36490,
+      "max": [0.9999955296516418, 0.999977171421051, 0.9998016357421875],
+      "min": [-0.9999912977218628, -0.9999969601631165, -0.9999845623970032],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 36490,
+      "max": [0.996561586856842, 0.9966482520103455],
+      "min": [0.0033517437987029552, 0.003351747989654541],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 149631,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "WA7KVI (https://sketchfab.com/WA7KVI)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/astronaught-641b4b2e30fe4fc7898c5dee37b8598b",
+      "title": "Astronaught"
+    },
+    "generator": "Sketchfab-15.55.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 598524,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 291920,
+      "byteOffset": 598524,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 875760,
+      "byteOffset": 890444,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 1766204,
+      "uri": "astronaught.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/default_baseColor.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "default",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "high_poly_default_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [1],
+      "matrix": [
+        1.0, 0.0, 0.0, 0.0, 0.0, 2.220446049250313e-16, -1.0, 0.0, 0.0, 1.0,
+        2.220446049250313e-16, 0.0, 0.0, 0.0, 0.0, 1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [2],
+      "matrix": [
+        0.009999999776482582, 0.0, 0.0, 0.0, 0.0, 0.0, 0.009999999776482582,
+        0.0, 0.0, -0.009999999776482582, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0
+      ],
+      "name": "model.fbx"
+    },
+    {
+      "children": [3],
+      "name": "RootNode"
+    },
+    {
+      "children": [4],
+      "matrix": [
+        57.60128402709961, 0.0, 0.0, 0.0, 0.0, -2.5178321942436613e-6,
+        -57.60128402709955, 0.0, 0.0, 57.60128402709955, -2.5178321942436613e-6,
+        0.0, 0.0, 0.0, 0.0, 1.0
+      ],
+      "name": "high_poly"
+    },
+    {
+      "mesh": 0,
+      "name": "high_poly_default_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [0]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    }
+  ]
+}
