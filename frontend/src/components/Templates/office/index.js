@@ -1,3 +1,7 @@
+export const userName = "John Doe";
+export const jobTitle = "Full Stack Developer";
+export const email = "nabegh@example.com";
+
 export { default as Navbar } from './Navbar';
 export { default as Hero } from './Hero';
 export { default as About } from './About';
