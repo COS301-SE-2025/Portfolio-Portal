@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
-import OfficeModel from '../../3DModels/Office';
+import Office from '../../3DModels/Office';
 import useCvData from '../../../hooks/useCVData';
 
 const OfficeHero = () => {
@@ -9,7 +10,6 @@ const OfficeHero = () => {
   return (
     <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900">
-        {/* Office grid pattern */}
         <div className="absolute inset-0 opacity-10" 
              style={{
                backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
@@ -27,12 +27,6 @@ const OfficeHero = () => {
             </h1>
             <p className="text-xl lg:text-2xl font-light text-gray-300 mb-8 tracking-wide">
               Professional {cvData?.jobTitle || "Full Stack Developer"}
-            </p>
-            <p className="text-lg text-gray-300 mb-8 leading-relaxed max-w-lg">
-              Crafting digital solutions with{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-gray-300 font-semibold">
-                precision and professionalism
-              </span>
             </p>
             <div className="pt-4 flex gap-4">
               <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/15">
@@ -59,7 +53,7 @@ const OfficeHero = () => {
               />
               
               <Suspense fallback={null}>
-                <OfficeModel />
+                <Office />
                 <OrbitControls 
                   enableZoom={true}
                   enablePan={false}
