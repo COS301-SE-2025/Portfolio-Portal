@@ -1,60 +1,182 @@
-import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggleButton from '../components/ThemeToggleButton';
+import { Sparkles } from 'lucide-react';
 
-const AuthLayout = ({ children, title, subtitle }) => {
-  const [isDark, setIsDark] = useState(true);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    setIsDark(savedTheme ? savedTheme === 'dark' : true);
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
+const AuthLayout = ({ title, subtitle, children }) => {
+  const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 transition-colors duration-500 ${
-      isDark 
-        ? 'bg-slate-900' 
-        : 'bg-gradient-to-br from-blue-50 via-gray-50 to-blue-100'
-    }`}>
-      <button
-        onClick={toggleTheme}
-        className={`fixed top-4 right-4 sm:top-6 sm:right-6 z-50 p-2 rounded-full backdrop-blur-md border transition-all duration-300 group ${
-          isDark 
-            ? 'bg-white/10 border-white/20 hover:bg-white/20 text-white' 
-            : 'bg-gray-100/80 border-gray-200 hover:bg-gray-200/80 text-gray-800'
-        }`}
-        aria-label="Toggle theme"
-      >
-        {isDark ? (
-          <svg className="w-5 h-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5 text-gray-800 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        )}
-      </button>
-      
-      <div className="w-full max-w-md bg-white/90 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl shadow-xl p-6 sm:p-8 transition-all duration-300">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className={`text-3xl sm:text-4xl font-bold mb-3 ${
-            isDark ? 'text-gray' : 'text-gray-900'
-          } transition-colors duration-300`}>
-            {title}
-          </h1>
-          <p className={`text-base sm:text-lg ${
-            isDark ? 'text-gray' : 'text-gray-600'
-          } transition-colors duration-300`}>
-            {subtitle}
-          </p>
-        </div>
-        {children}
+    <div
+      className={`min-h-screen transition-all duration-300 ${
+        isDark
+          ? 'bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white'
+          : 'bg-gradient-to-br from-gray-100 via-white to-gray-100 text-gray-900'
+      }`}
+    >
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+          className={`absolute -top-40 -right-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse ${
+            isDark ? 'bg-purple-500' : 'bg-purple-300'
+          }`}
+        ></div>
+        <div
+          className={`absolute -bottom-40 -left-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000 ${
+            isDark ? 'bg-blue-500' : 'bg-blue-300'
+          }`}
+        ></div>
+        <div
+          className={`absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-3xl animate-pulse opacity-70 ${
+            isDark
+              ? 'bg-gradient-to-r from-purple-500/10 to-blue-500/5'
+              : 'bg-gradient-to-r from-purple-300/20 to-blue-300/10'
+          }`}
+        ></div>
       </div>
+
+      {/* Starfield Background */}
+      <div className="fixed inset-0 -z-10">
+        <div
+          className={`absolute inset-0 bg-gradient-to-b ${
+            isDark ? 'from-gray-900 via-blue-900/20 to-black' : 'from-gray-200 via-blue-100/20 to-gray-100'
+          }`}
+        ></div>
+        {[...Array(100)].map((_, i) => (
+          <div
+            key={`star-${i}`}
+            className={`absolute w-px h-px rounded-full ${isDark ? 'bg-white' : 'bg-gray-400'}`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              opacity: Math.random() * 0.8 + 0.2,
+              animation: `twinkle ${2 + Math.random() * 3}s infinite`,
+            }}
+          />
+        ))}
+        {[...Array(2)].map((_, i) => (
+          <div
+            key={`shooting-${i}`}
+            className={`absolute w-px h-px rounded-full ${isDark ? 'bg-white' : 'bg-gray-400'}`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 30}%`,
+              animation: `shootingStar ${3 + Math.random() * 4}s infinite`,
+              animationDelay: `${Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Theme Toggle Button */}
+      <div className="absolute top-4 right-4 z-50">
+        <div
+          className={`rounded-full p-2 transition-all ${
+            isDark
+              ? 'bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20'
+              : 'bg-gray-200/50 backdrop-blur-sm border border-gray-300/50 hover:bg-gray-300/50'
+          }`}
+        >
+          <ThemeToggleButton />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="relative z-10 container mx-auto px-6 py-6">
+        <div className="flex items-center">
+          <Sparkles className="w-8 h-8 text-purple-400" />
+          <span
+            className={`text-2xl font-bold bg-clip-text text-transparent ${
+              isDark ? 'bg-gradient-to-r from-purple-400 to-pink-400' : 'bg-gradient-to-r from-purple-600 to-pink-600'
+            }`}
+          >
+            Portfolio Portal
+          </span>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="relative z-10 container mx-auto px-6 py-20 flex items-center justify-center">
+        <div
+          className={`w-full max-w-md rounded-2xl p-8 transition-all duration-200 ${
+            isDark
+              ? 'bg-white/5 backdrop-blur-sm border border-white/10'
+              : 'bg-gray-100/80 backdrop-blur-sm border border-gray-500'
+          }`}
+        >
+          <h1 className="text-3xl font-bold text-center mb-2">{title}</h1>
+          <p className="text-center text-gray-300 dark:text-gray-300 mb-8">{subtitle}</p>
+          {children}
+        </div>
+      </div>
+
+      {/* Floating Particles */}
+      <div className="absolute inset-0 pointer-events-none z-5">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={`particle-${i}`}
+            className={`absolute w-1 h-1 rounded fetal ${
+              isDark ? 'bg-gradient-to-r from-blue-400 to-purple-400' : 'bg-gradient-to-r from-blue-600 to-purple-600'
+            }`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${3 + Math.random() * 4}s infinite ease-in-out`,
+              animationDelay: `${Math.random() * 5}s`,
+              opacity: 0.6 + Math.random() * 0.4,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes twinkle {
+          0%,
+          100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes shootingStar {
+          0% {
+            transform: translateX(-100px) translateY(100px);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(100vw) translateY(-100px);
+            opacity: 0;
+          }
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.8;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-15px);
+            opacity: 1;
+          }
+          75% {
+            transform: translateY(-25px) translateX(5px);
+            opacity: 0.6;
+          }
+        }
+      `}</style>
     </div>
   );
 };
