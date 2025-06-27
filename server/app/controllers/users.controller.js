@@ -135,73 +135,159 @@ const logoutUser = async (req, res) => {
   }
 };
 
-const generateCrud = (entity) => {
-  const cap = entity;
-  return {
-    [`getUser${cap}`]: async (req, res) => {
+
+const getUserLinks = async (req, res) => {
       try {
-        const data = await userService[`getUser${cap}`](req.params.id);
+        const data = await userService[`getUserLinks`](req.params.id);
         res.json(data || {});
       } catch (error) {
-        handleError(res, error, `Failed to get user ${entity}`);
+        handleError(res, error, `Failed to get user Links`);
       }
-    },
-    [`createUser${cap}`]: async (req, res) => {
+    };
+
+  
+  const createUserLinks = async (req, res) => {
       try {
-        const data = await userService[`createUser${cap}`](req.params.id, req.body);
+        const data = await userService[`createUserLinks`](req.params.id, req.body);
         res.status(201).json(data);
       } catch (error) {
-        handleError(res, error, `Failed to create user ${entity}`);
+        handleError(res, error, `Failed to create user Links`);
       }
-    },
-    [`updateUser${cap}`]: async (req, res) => {
+    };
+  const updateUserLinks = async (req, res) => {
       try {
-        const data = await userService[`updateUser${cap}`](req.params.id, req.body);
-        if (!data) return res.status(404).json({ error: `${cap} not found` });
+        const data = await userService[`updateUserLinks`](req.params.id, req.body);
+        if (!data) return res.status(404).json({ error: `Links not found` });
         res.json(data);
       } catch (error) {
-        handleError(res, error, `Failed to update user ${entity}`);
+        handleError(res, error, `Failed to update user Links`);
       }
-    },
-    [`deleteUser${cap}`]: async (req, res) => {
+    };
+  
+  const deleteUserLinks = async (req, res) => {
       try {
-        const result = await userService[`deleteUser${cap}`](req.params.id);
-        if (!result) return res.status(404).json({ error: `${cap} not found` });
+        const result = await userService[`deleteUserLinks`](req.params.id);
+        if (!result) return res.status(404).json({ error: `Links not found` });
         res.status(204).send();
       } catch (error) {
-        handleError(res, error, `Failed to delete user ${entity}`);
+        handleError(res, error, `Failed to delete user Links`);
+      }
+    };
+ 
+const getUserAbout = async (req, res) => {
+      try {
+        const data = await userService[`getUserAbout`](req.params.id);
+        res.json(data || {});
+      } catch (error) {
+        handleError(res, error, `Failed to get user About`);
       }
     }
-  };
-};
 
-const {
-  getUserLinks,
-  createUserLinks,
-  updateUserLinks,
-  deleteUserLinks
-} = generateCrud('Links');
+  
+ const createUserAbout = async (req, res) => {
+      try {
+        const data = await userService[`createUserAbout`](req.params.id, req.body);
+        res.status(201).json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to create user About`);
+      }
+    }
+  const updateUserAbout = async (req, res) => {
+      try {
+        const data = await userService[`updateUserAbout`](req.params.id, req.body);
+        if (!data) return res.status(404).json({ error: `About not found` });
+        res.json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to update user About`);
+      }
+    }
 
-const {
-  getUserAbout,
-  createUserAbout,
-  updateUserAbout,
-  deleteUserAbout
-} = generateCrud('About');
 
-const {
-  getUserSkills,
-  createUserSkills,
-  updateUserSkills,
-  deleteUserSkills
-} = generateCrud('Skills');
+  const deleteUserAbout = async (req, res) => {
+      try {
+        const result = await userService[`deleteUserAbout`](req.params.id);
+        if (!result) return res.status(404).json({ error: `About not found` });
+        res.status(204).send();
+      } catch (error) {
+        handleError(res, error, `Failed to delete user About`);
+      }
+    };
 
-const {
-  getUserCertifications,
-  createUserCertifications,
-  updateUserCertifications,
-  deleteUserCertifications
-} = generateCrud('Certifications');
+const getUserSkills =  async (req, res) => {
+      try {
+        const data = await userService[`getUserSkills`](req.params.id);
+        res.json(data || {});
+      } catch (error) {
+        handleError(res, error, `Failed to get user Skills`);
+      }
+    }
+
+  const createUserSkills = async (req, res) => {
+      try {
+        const data = await userService[`createUserSkills`](req.params.id, req.body);
+        res.status(201).json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to create user Skills`);
+      }
+    }
+  const updateUserSkills = async (req, res) => {
+      try {
+        const data = await userService[`updateUserSkills`](req.params.id, req.body);
+        if (!data) return res.status(404).json({ error: `Skills not found` });
+        res.json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to update user Skills`);
+      }
+    }
+
+  const deleteUserSkills = async (req, res) => {
+      try {
+        const result = await userService[`deleteUserSkills`](req.params.id);
+        if (!result) return res.status(404).json({ error: `Skills not found` });
+        res.status(204).send();
+      } catch (error) {
+        handleError(res, error, `Failed to delete user Skills`);
+      }
+    };
+
+const getUserCertifications =  async (req, res) => {
+      try {
+        const data = await userService[`getUserCertifications`](req.params.id);
+        res.json(data || {});
+      } catch (error) {
+        handleError(res, error, `Failed to get user Certifications`);
+      }
+    }
+
+  const createUserCertifications = async (req, res) => {
+      try {
+        const data = await userService[`createUserCertifications`](req.params.id, req.body);
+        res.status(201).json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to create user Certifications`);
+      }
+    }
+
+  const updateUserCertifications = async (req, res) => {
+      try {
+        const data = await userService[`updateUserCertifications`](req.params.id, req.body);
+        if (!data) return res.status(404).json({ error: `Certifications not found` });
+        res.json(data);
+      } catch (error) {
+        handleError(res, error, `Failed to update user Certifications`);
+      }
+    }
+
+  const deleteUserCertifications = async (req, res) => {
+      try {
+        const result = await userService[`deleteUserCertifications`](req.params.id);
+        if (!result) return res.status(404).json({ error: `Certifications not found` });
+        res.status(204).send();
+      } catch (error) {
+        handleError(res, error, `Failed to delete user Certifications`);
+      }
+    };
+
 
 // ---------------------- Education ----------------------
 
@@ -355,9 +441,9 @@ const deleteReference = async (req, res) => {
 
 // ---------------------- Portfolio ----------------------
 
-const getCompletePortfolio = async (req, res) => {
+const getCompleteProfile = async (req, res) => {
   try {
-    const portfolio = await userService.getCompletePortfolio(req.params.id);
+    const portfolio = await userService.getCompleteProfile(req.params.id);
     if (!portfolio.user) return res.status(404).json({ error: 'User not found' });
     res.json(portfolio);
   } catch (error) {
@@ -408,5 +494,5 @@ module.exports = {
   getReferenceById,
   updateReference,
   deleteReference,
-  getCompletePortfolio
+  getCompleteProfile
 };

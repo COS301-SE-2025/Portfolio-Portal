@@ -1,3 +1,4 @@
+const supabase = require('../config/supabase');
 class About {
   static async create(userId, paragraphs) {
     const { data, error } = await supabase
@@ -96,3 +97,4 @@ class Skills {
     if (error) throw new Error(error.message);
   }
 }
+module.exports = About;

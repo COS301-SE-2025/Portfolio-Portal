@@ -1,3 +1,4 @@
+const supabase = require('../config/supabase');
 class Links {
   static async create(userId, linksData) {
     const { data, error } = await supabase
@@ -58,3 +59,4 @@ class Links {
     if (error) throw new Error(error.message);
   }
 }
+module.exports = Links;

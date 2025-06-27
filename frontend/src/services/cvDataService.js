@@ -3,56 +3,59 @@ import api from './api.service';
 
 export const cvDataService = {
   // Profile operations (updated to match your backend routes)
-  getProfile: (userId) => api.get(`/profile/${userId}`),
-  createProfile: (userData) => api.post('/profile/register', userData),
-  updateProfile: (profileData) => api.post('/profile/update', profileData),
-  deleteProfile: (userId) => api.post(`/profile/delete/${userId}`),
+  getProfile: (userId) => api.get(`/users/profile/${userId}`),
+  createProfile: (userData) => api.post('/users/profile/register', userData),
+  updateProfile: (userId, profileData) => api.put(`/users/profile/update/${userId}`, profileData),
+  deleteProfile: (userId) => api.delete(`/users/profile/delete/${userId}`),
 
   // Links operations (updated to match your backend routes)
-  getUserLinks: (userId) => api.get(`/${userId}/links`),
-  createUserLinks: (userId, linksData) => api.post(`/${userId}/links`, linksData),
-  updateUserLinks: (userId, linksData) => api.put(`/${userId}/links`, linksData),
-  deleteUserLinks: (userId) => api.delete(`/${userId}/links`),
+  getUserLinks: (userId) => api.get(`users/${userId}/links`),
+  createUserLinks: (userId, linksData) => api.post(`/users/${userId}/links`, linksData),
+  updateUserLinks: (userId, linksData) => api.put(`/users/${userId}/links`, linksData),
+  deleteUserLinks: (userId) => api.delete(`/users/${userId}/links`),
 
   // About section operations (updated to match your backend routes)
-  getUserAbout: (userId) => api.get(`/${userId}/about`),
-  createUserAbout: (userId, aboutData) => api.post(`/${userId}/about`, aboutData),
-  updateUserAbout: (userId, aboutData) => api.put(`/${userId}/about`, aboutData),
-  deleteUserAbout: (userId) => api.delete(`/${userId}/about`),
+  getUserAbout: (userId) => api.get(`/users/${userId}/about`),
+  createUserAbout: (userId, aboutData) => api.post(`/users/${userId}/about`, aboutData),
+  updateUserAbout: (userId, aboutData) => api.put(`/users/${userId}/about`, aboutData),
+  deleteUserAbout: (userId) => api.delete(`/users/${userId}/about`),
 
   // Skills operations (updated to match your backend routes)
-  getUserSkills: (userId) => api.get(`/${userId}/skills`),
-  createUserSkills: (userId, skillsData) => api.post(`/${userId}/skills`, skillsData),
-  updateUserSkills: (userId, skillsData) => api.put(`/${userId}/skills`, skillsData),
-  deleteUserSkills: (userId) => api.delete(`/${userId}/skills`),
+  getUserSkills: (userId) => api.get(`/users/${userId}/skills`),
+  createUserSkills: (userId, skillsData) => api.post(`/users/${userId}/skills`, skillsData),
+  updateUserSkills: (userId, skillsData) => api.put(`/users/${userId}/skills`, skillsData),
+  deleteUserSkills: (userId) => api.delete(`/users/${userId}/skills`),
 
   // Education operations (updated to match your backend routes)
-  getUserEducation: (userId) => api.get(`/${userId}/education`),
-  createEducation: (userId, educationData) => api.post(`/${userId}/education`, educationData),
-  getEducationById: (eduId) => api.get(`/education/${eduId}`),
-  updateEducation: (eduId, educationData) => api.put(`/education/${eduId}`, educationData),
-  deleteEducation: (eduId) => api.delete(`/education/${eduId}`),
+  getUserEducation: (userId) => api.get(`/users/${userId}/education`),
+  createEducation: (userId, educationData) => api.post(`/users/${userId}/education`, educationData),
+  getEducationById: (eduId) => api.get(`/users/education/${eduId}`),
+  updateEducation: (eduId, educationData) => api.put(`/users/education/${eduId}`, educationData),
+  deleteEducation: (eduId) => api.delete(`/users/education/${eduId}`),
 
   // Experience operations (updated to match your backend routes)
-  getUserExperience: (userId) => api.get(`/${userId}/experience`),
-  createExperience: (userId, experienceData) => api.post(`/${userId}/experience`, experienceData),
-  getExperienceById: (expId) => api.get(`/experience/${expId}`),
-  updateExperience: (expId, experienceData) => api.put(`/experience/${expId}`, experienceData),
-  deleteExperience: (expId) => api.delete(`/experience/${expId}`),
+  getUserExperience: (userId) => api.get(`/users/${userId}/experience`),
+  createExperience: (userId, experienceData) => api.post(`/users/${userId}/experience`, experienceData),
+  getExperienceById: (expId) => api.get(`/users/experience/${expId}`),
+  updateExperience: (expId, experienceData) => api.put(`/users/experience/${expId}`, experienceData),
+  deleteExperience: (expId) => api.delete(`/users/experience/${expId}`),
 
   // Certifications operations (updated to match your backend routes)
-  getUserCertifications: (userId) => api.get(`/${userId}/certifications`),
-  createUserCertifications: (userId, certificationsData) => api.post(`/${userId}/certifications`, certificationsData),
-  updateUserCertifications: (userId, certificationsData) => api.put(`/${userId}/certifications`, certificationsData),
-  deleteUserCertifications: (userId) => api.delete(`/${userId}/certifications`),
+  getUserCertifications: (userId) => api.get(`/users/${userId}/certifications`),
+  createUserCertifications: (userId, certificationsData) => api.post(`/users/${userId}/certifications`, certificationsData),
+  updateUserCertifications: (userId, certificationsData) => api.put(`/users/${userId}/certifications`, certificationsData),
+  deleteUserCertifications: (userId) => api.delete(`/users/${userId}/certifications`),
 
   // References operations (updated to match your backend routes)
-  getUserReferences: (userId) => api.get(`/${userId}/references`),
-  createReference: (userId, referenceData) => api.post(`/${userId}/references`, referenceData),
-  getReferenceById: (refId) => api.get(`/references/${refId}`),
-  updateReference: (refId, referenceData) => api.put(`/references/${refId}`, referenceData),
-  deleteReference: (refId) => api.delete(`/references/${refId}`),
-
+  getUserReferences: (userId) => api.get(`/users/${userId}/references`),
+  createReference: (userId, referenceData) => api.post(`/users/${userId}/references`, referenceData),
+  getReferenceById: (refId) => api.get(`/users/references/${refId}`),
+  updateReference: (refId, referenceData) => api.put(`/users/references/${refId}`, referenceData),
+  deleteReference: (refId) => api.delete(`/users/references/${refId}`),
+  
+  // Complete profile operation
+  getCompleteProfile: (userId) => api.get(`/users/${userId}/profile`),
+  
   // Token management helpers (keeping existing localStorage functionality)
   setToken: (token) => {
     localStorage.setItem('token', token);

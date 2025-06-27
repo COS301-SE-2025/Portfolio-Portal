@@ -1,3 +1,4 @@
+const supabase = require('../config/supabase');
 const User = require('../models/User');
 const About = require('../models/About');
 const Links = require('../models/Links');
@@ -7,7 +8,55 @@ const Experience = require('../models/Experience');
 const Certifications = require('../models/Certifications');
 const References = require('../models/References');
 const profileUser = require('../models/profileUser')
-// Simple user services (no auth)
+
+const loginUser = async (email, password) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error || !data.session) return null;
+    
+    const userProfile = await User.findById(data.user.id);
+    if (!userProfile) return null;
+
+    return {
+      user: userProfile,
+      token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_at: data.session.expires_at
+    };
+  } catch (error) {
+    console.error('Login error:', error);
+    return null;
+  }
+};
+
+const refreshToken = async (refreshToken) => {
+  try {
+    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+    if (error || !data.session) return null;
+
+    return {
+      token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_at: data.session.expires_at
+    };
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    return null;
+  }
+};
+
+const logoutUser = async (token) => {
+  try {
+    await supabase.auth.setSession({ access_token: token });
+    const { error } = await supabase.auth.signOut();
+    return !error;
+  } catch (error) {
+    console.error('Logout error:', error);
+    return false;
+  }
+};
+
 const getUserById = async (id) => {
   return await User.findById(id);
 };
@@ -181,7 +230,7 @@ const deleteReference = async (id) => {
 };
 
 // Complete portfolio data getter
-const getCompletePortfolio = async (userId) => {
+const getCompleteProfile = async (userId) => {
   try {
     const [user, links, about, skills, education, experience, certifications, references] = await Promise.all([
       profileUser.findById(userId),
@@ -230,6 +279,9 @@ const getPublicPortfolio = async (userId) => {
 
 module.exports = {
   // User management
+  loginUser,
+  logoutUser,
+  refreshToken,
   getUserById,
   createUser,
   getAllUsers,
@@ -280,6 +332,6 @@ module.exports = {
   updateReference,
   deleteReference,
   // Portfolio data
-  getCompletePortfolio,
+  getCompleteProfile,
   getPublicPortfolio
 };

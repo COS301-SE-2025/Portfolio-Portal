@@ -1,3 +1,4 @@
+const supabase = require('../config/supabase');
 class References {
   static async create(userId, referenceData) {
     const { data, error } = await supabase
@@ -70,3 +71,4 @@ class References {
     if (error) throw new Error(error.message);
   }
 }
+module.exports = References;

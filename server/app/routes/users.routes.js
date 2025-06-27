@@ -27,10 +27,10 @@ router.get('/profile/:id', userController.getProfile);
 router.post('/profile/register', userController.createProfile);
 
 // Login user
-router.post('/profile/update', userController.updateProfile);
+router.put('/profile/update/:id', userController.updateProfile);
 
 // Refresh access token
-router.post('/profile/delete/:id', userController.deleteProfile);
+router.delete('/profile/delete/:id', userController.deleteProfile);
 
 // Links routes
 router.get('/:id/links', userController.getUserLinks);
@@ -78,6 +78,6 @@ router.put('/references/:refId', userController.updateReference);
 router.delete('/references/:refId', userController.deleteReference);
 
 // Complete portfolio
-//router.get('/:id/portfolio', userController.getCompletePortfolio);
+router.get('/:id/profile', userController.getCompleteProfile);
 
 module.exports = router;
