@@ -59,7 +59,7 @@ const Profile = () => {
         setIsLoading(true);
         
         // Use in-memory user ID instead of localStorage (not supported in artifacts)
-        const userId = localStorage.getItem('userId');
+        const userId = 1;
         
         if (!userId) {
           console.error('No user ID found');
@@ -125,12 +125,12 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    if (!currentUser?.id) return;
+    //if (!currentUser?.id) return;
     
     try {
       // Use cvDataService.updateProfile when you have the backend set up
       if (cvDataService && typeof cvDataService.updateProfile === 'function') {
-        await cvDataService.updateProfile(userId,editData);
+        await cvDataService.updateProfile(1,editData);
       }
       
       setUserData(editData);
