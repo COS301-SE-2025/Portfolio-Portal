@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import cvDataService from '../services/cvDataService';
-
 const Profile = () => {
   const { isDark } = useTheme();
   const [currentUser, setCurrentUser] = useState(null);
@@ -51,7 +50,7 @@ const Profile = () => {
     const loadProfileData = async () => {
       try {
         setIsLoading(true);
-        const userId = 1;
+        const userId = localStorage.getItem('userId');
 
         if (!userId) {
           console.error('No user ID found');
@@ -86,7 +85,7 @@ const Profile = () => {
           setEditData(newUserData);
         }
 
-        setLinks(profileData.links || []);
+setLinks(Array.isArray(profileData.links) ? profileData.links : []);
         setAbout(profileData.about || []);
         setSkills(profileData.skills || []);
 
