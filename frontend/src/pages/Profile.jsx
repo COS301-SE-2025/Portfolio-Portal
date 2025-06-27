@@ -1,11 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import ProfileHeader from '../components/profile/ProfileHeader';
-import UserInfoSection from '../components/profile/UserInfoSection';
-import CVSection from '../components/profile/CVSection';
-import PortfolioSection from '../components/profile/PortfolioSection';
-import  cvDataService  from '../services/cvDataService';
-
+import cvDataService from '../services/cvDataService';
 const Profile = () => {
   const { isDark } = useTheme();
   const [currentUser, setCurrentUser] = useState(null);
@@ -25,7 +20,6 @@ const Profile = () => {
 
   const mockGetCompleteProfile = async (userId) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     return {
       data: {
         user: {
@@ -52,28 +46,22 @@ const Profile = () => {
     };
   };
 
-  // Load user and profile data on component mount
   useEffect(() => {
     const loadProfileData = async () => {
       try {
         setIsLoading(true);
-        
-        // Use in-memory user ID instead of localStorage (not supported in artifacts)
-        const userId = 1;
-        
+        const userId = localStorage.getItem('userId');
+
         if (!userId) {
           console.error('No user ID found');
           return;
         }
-        
+
         setCurrentUser({ id: userId });
-        
-        // Try to use the actual service, fall back to mock if there's an error
+
         let response;
         try {
-          // Access the function from cvDataService object
           if (cvDataService && typeof cvDataService.getCompleteProfile === 'function') {
-            console.log('Using cvDataService.getCompleteProfile');
             response = await cvDataService.getCompleteProfile(userId);
           } else {
             console.warn('cvDataService.getCompleteProfile not found, using mock data');
@@ -83,11 +71,9 @@ const Profile = () => {
           console.warn('Service error, falling back to mock data:', serviceError.message);
           response = await mockGetCompleteProfile(userId);
         }
-        
-        // Extract data from response (API responses typically have a data property)
+
         const profileData = response.data || response;
-        
-        // Set user data
+
         if (profileData.user) {
           const newUserData = {
             name: profileData.user.name || '',
@@ -99,16 +85,13 @@ const Profile = () => {
           setEditData(newUserData);
         }
 
-        // Set other profile sections
-        setLinks(profileData.links || []);
+setLinks(Array.isArray(profileData.links) ? profileData.links : []);
         setAbout(profileData.about || []);
         setSkills(profileData.skills || []);
-        
-        // Set CV URL if exists
+
         if (profileData.user?.cv_url) {
           setCvFile({ url: profileData.user.cv_url });
         }
-        
       } catch (error) {
         console.error('Error loading profile data:', error);
       } finally {
@@ -125,19 +108,14 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    //if (!currentUser?.id) return;
-    
     try {
-      // Use cvDataService.updateProfile when you have the backend set up
       if (cvDataService && typeof cvDataService.updateProfile === 'function') {
-        await cvDataService.updateProfile(1,editData);
+        await cvDataService.updateProfile(currentUser.id, editData);
       }
-      
       setUserData(editData);
       setIsEditing(false);
     } catch (error) {
       console.error('Error saving profile:', error);
-      // Handle error - show toast notification
     }
   };
 
@@ -148,7 +126,6 @@ const Profile = () => {
 
   const handleLinksUpdate = async (newLinks) => {
     if (!currentUser?.id) return;
-    
     try {
       if (cvDataService && typeof cvDataService.updateUserLinks === 'function') {
         if (links.length > 0) {
@@ -167,7 +144,6 @@ const Profile = () => {
 
   const handleAboutUpdate = async (newAbout) => {
     if (!currentUser?.id) return;
-    
     try {
       if (cvDataService && typeof cvDataService.updateUserAbout === 'function') {
         if (about.length > 0) {
@@ -186,7 +162,6 @@ const Profile = () => {
 
   const handleSkillsUpdate = async (newSkills) => {
     if (!currentUser?.id) return;
-    
     try {
       if (cvDataService && typeof cvDataService.updateUserSkills === 'function') {
         if (skills.length > 0) {
@@ -205,7 +180,7 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
+      <div className={`min-h-screen flex items-center justify-center pt-20 ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Loading profile...</p>
@@ -215,40 +190,217 @@ const Profile = () => {
   }
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${isDark ? 'bg-slate-900' : 'bg-gradient-to-br from-blue-50 via-white to-purple-50'}`}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          
-          <ProfileHeader
-            isEditing={isEditing}
-            onEdit={handleEdit}
-            onSave={handleSave}
-            onCancel={handleCancel}
-          />
+    <div className={`min-h-screen w-full transition-all duration-300 ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-100 text-slate-900'}`}>
+      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
+        {/* Header Section */}
+        <div className="border-b pb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">{userData.name}</h1>
+              <p className="text-xl text-gray-500">{userData.title}</p>
+            </div>
+            <div className="space-x-2">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleEdit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Edit Profile
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
-          <UserInfoSection
-            userData={userData}
-            editData={editData}
-            setEditData={setEditData}
-            isEditing={isEditing}
-            about={about}
-            onAboutUpdate={handleAboutUpdate}
-            skills={skills}
-            onSkillsUpdate={handleSkillsUpdate}
-            links={links}
-            onLinksUpdate={handleLinksUpdate}
-          />
+        {/* User Info Section */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Personal Information</h2>
+            {isEditing ? (
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  placeholder="Name"
+                />
+                <input
+                  type="email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  placeholder="Email"
+                />
+                <input
+                  type="text"
+                  value={editData.title}
+                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  placeholder="Title"
+                />
+                <textarea
+                  value={editData.bio}
+                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
+                  className="w-full p-2 border rounded"
+                  placeholder="Bio"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p><strong>Name:</strong> {userData.name}</p>
+                <p><strong>Email:</strong> {userData.email}</p>
+                <p><strong>Title:</strong> {userData.title}</p>
+                <p><strong>Bio:</strong> {userData.bio}</p>
+              </div>
+            )}
+          </div>
 
-          <CVSection
-            cvFile={cvFile}
-            setCvFile={setCvFile}
-            userId={currentUser?.id}
-          />
+          {/* About Section */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">About</h2>
+            {isEditing ? (
+              <textarea
+                value={about[0]?.content || ''}
+                onChange={(e) => handleAboutUpdate([{ id: 1, content: e.target.value }])}
+                className="w-full p-2 border rounded"
+                placeholder="About"
+              />
+            ) : (
+              <p>{about[0]?.content || 'No about information provided.'}</p>
+            )}
+          </div>
 
-          <PortfolioSection
-            links={links}
-            onLinksUpdate={handleLinksUpdate}
-          />
+          {/* Skills Section */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Skills</h2>
+            {isEditing ? (
+              <div className="space-y-2">
+                {skills.map((skill, index) => (
+                  <div key={skill.id} className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={skill.name}
+                      onChange={(e) => {
+                        const newSkills = [...skills];
+                        newSkills[index].name = e.target.value;
+                        handleSkillsUpdate(newSkills);
+                      }}
+                      className="w-1/2 p-2 border rounded"
+                      placeholder="Skill"
+                    />
+                    <input
+                      type="text"
+                      value={skill.level}
+                      onChange={(e) => {
+                        const newSkills = [...skills];
+                        newSkills[index].level = e.target.value;
+                        handleSkillsUpdate(newSkills);
+                      }}
+                      className="w-1/2 p-2 border rounded"
+                      placeholder="Level"
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={() => handleSkillsUpdate([...skills, { id: skills.length + 1, name: '', level: '' }])}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Add Skill
+                </button>
+              </div>
+            ) : (
+              <ul className="list-disc pl-5">
+                {skills.map((skill) => (
+                  <li key={skill.id}>{skill.name} - {skill.level}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Links Section */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Links</h2>
+            {isEditing ? (
+              <div className="space-y-2">
+                {links.map((link, index) => (
+                  <div key={link.id} className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={link.platform}
+                      onChange={(e) => {
+                        const newLinks = [...links];
+                        newLinks[index].platform = e.target.value;
+                        handleLinksUpdate(newLinks);
+                      }}
+                      className="w-1/2 p-2 border rounded"
+                      placeholder="Platform"
+                    />
+                    <input
+                      type="url"
+                      value={link.url}
+                      onChange={(e) => {
+                        const newLinks = [...links];
+                        newLinks[index].url = e.target.value;
+                        handleLinksUpdate(newLinks);
+                      }}
+                      className="w-1/2 p-2 border rounded"
+                      placeholder="URL"
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={() => handleLinksUpdate([...links, { id: links.length + 1, platform: '', url: '' }])}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Add Link
+                </button>
+              </div>
+            ) : (
+              <ul className="list-disc pl-5">
+                {links.map((link) => (
+                  <li key={link.id}>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {link.platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* CV Section */}
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">CV</h2>
+            {isEditing ? (
+              <input
+                type="file"
+                onChange={(e) => setCvFile(e.target.files[0])}
+                className="p-2 border rounded"
+              />
+            ) : cvFile ? (
+              <a href={cvFile.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                View CV
+              </a>
+            ) : (
+              <p>No CV uploaded.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
