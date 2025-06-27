@@ -23,15 +23,16 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 ## 📚 Documentation
 
-- [Software Requirements Specification (SRS) v1 (Demo 1)](Docs/SRS-v2.0.md)
-- [Software Requirements Specification (SRS) v2 (Demo 2)](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?usp=sharing)
-- [Architectural Requirements (Demo 2)](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?usp=sharing)
-- [User Manual Document (Demo 2)](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?usp=sharing)
-- [Coding Standards Document (Demo 2)](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?usp=sharing)
-- [GitHub Project Board](https://github.com/orgs/COS301-SE-2025/projects/118)
-- [Archived Documents](Docs/Archives/)
-- [Server README](server/README.md)
-- [Frontend README](frontend/README.md)
+| Document | GitHub (MD) | Google Docs |
+|----------|-------------|-------------|
+| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/SRS-v1.0.md) | _N/A_ |
+| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/SRS-v2.0.md) | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?usp=sharing) |
+| **Architectural Requirements** | [Architecture.md](Docs/ArchitectureRequirements.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0) |
+| **User Manual** | [UserManual.md](Docs/UserManual.md) | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0) |
+| **Coding Standards** | [CodingStandards.md](Docs/CodingStandards.md) | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?tab=t.0) |
+| **Archived Docs** | [Docs/Archives/](Docs/Archives/) | _N/A_ |
+| **Server README** | [server/README.md](server/README.md) | _N/A_ |
+| **Frontend README** | [frontend/README.md](frontend/README.md) | _N/A_ |
 
 ---
 
@@ -61,6 +62,10 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
   <a href="https://www.figma.com/" title="Figma">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma" width="60" />
   </a>
+  &nbsp;&nbsp;
+  <a href="https://www.cypress.io/" title="Cypress">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cypressio/cypressio-original.svg" alt="Cypress" width="60" />
+  </a>
 </p>
 
 ---
@@ -78,6 +83,10 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
   &nbsp;&nbsp;
   <a href="https://jestjs.io/" title="Jest">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jest/jest-plain.svg" alt="Jest" width="60" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://supabase.com/" title="Supabase">
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg" alt="Supabase" width="60" />
   </a>
 </p>
 

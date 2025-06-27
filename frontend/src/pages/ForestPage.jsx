@@ -16,7 +16,7 @@ const ForestPage = () => {
       <div className="fixed top-0 left-0 w-full h-screen -z-10">
         <Canvas
           camera={{
-            position: [0, 5, 30], // larger z-val to move camera further back
+            position: [-30, 5, 0], // negative x-val to position on the left side
             fov: 45, // field of view
             near: 0.1, // near clipping plane
             far: 1000, // far clipping plane
