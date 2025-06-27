@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies (frontend)
+      - name: Install frontend dependencies
         run: |
           cd frontend
           npm install
@@ -38,10 +38,29 @@ jobs:
           cd frontend
           npm install cypress --save-dev
 
+      - name: Install backend dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Start frontend and backend servers
+        run: |
+          npm run dev --prefix frontend &
+          node server/server.js &
+        shell: bash
+
+      - name: Wait for frontend to be ready
+        uses: jakejarvis/wait-action@v1
+        with:
+          url: http://localhost:5173
+          timeout: 60
+
       - name: Run Cypress integration tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
+          start: npm run dev
+          wait-on: http://localhost:5173
           spec: |
             cypress/integrationTests/home.cy.js
             cypress/integrationTests/login.cy.js

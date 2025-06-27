@@ -33,7 +33,13 @@ jobs:
           cd server
           npm install
 
-      - name: Run Jest unit tests
+      - name: Run Jest unit tests with coverage
         run: |
           cd server
-          npm test
+          npm test -- --coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage-report
+          path: server/coverage
