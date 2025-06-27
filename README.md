@@ -4,10 +4,11 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/coverage-pending-lightgrey" alt="Coverage Badge">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Badge">
   <img src="https://img.shields.io/badge/requirements-met-blue" alt="Requirements Badge">
-  <img src="https://img.shields.io/github/issues/CtrlFreaks/portfolio-portal" alt="Issues Badge">
+  <img src="https://img.shields.io/github/issues/COS301-SE-2025/Portfolio-Portal" alt="GitHub Issues Badge">
   <img src="https://img.shields.io/badge/uptime-100%25-brightgreen" alt="Uptime Badge">
+  <img src="https://github.com/COS301-SE-2025/Portfolio-Portal/actions/workflows/unit-tests.yml/badge.svg" alt="Unit Tests Badge">
+  <img src="https://github.com/COS301-SE-2025/Portfolio-Portal/actions/workflows/integration-tests.yml/badge.svg" alt="Integration Tests Badge">
 </p>
 
 ---
