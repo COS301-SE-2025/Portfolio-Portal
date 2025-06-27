@@ -15,9 +15,35 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [cvData, setCvData] = useState(null);
   const [error, setError] = useState(null);
   const [showCvData, setShowCvData] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(3);
+  const [showTemplateSelection, setShowTemplateSelection] = useState(false);
   const fileInputRef = useRef(null);
+
+  const templates = [
+    {
+      id: 'space',
+      name: 'Space',
+      description: 'A futuristic, cosmic-themed portfolio with stellar animations',
+    image: '/images/space.png',
+      color: 'from-purple-600 to-blue-600',
+      preview: 'bg-gradient-to-br from-purple-900 to-blue-900'
+    },
+    {
+      id: 'office',
+      name: 'Office',
+      description: 'Clean, professional design perfect for corporate environments',
+    image: '/images/office.png',
+      color: 'from-gray-600 to-slate-600',
+      preview: 'bg-gradient-to-br from-gray-100 to-slate-200'
+    },
+    {
+      id: 'forest',
+      name: 'Forest',
+      description: 'Nature-inspired design with organic elements and earth tones',
+    image: '/images/forest.png',
+      color: 'from-green-600 to-emerald-600',
+      preview: 'bg-gradient-to-br from-green-800 to-emerald-900'
+    }
+  ];
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -25,20 +51,6 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    let countdownTimer;
-    if (isRedirecting && redirectCountdown > 0) {
-      countdownTimer = setTimeout(() => {
-        setRedirectCountdown((prev) => prev - 1);
-      }, 1000);
-    } else if (isRedirecting || redirectCountdown === 0) {
-  window.open('http://localhost:5173/space', '_blank');
-    }
-    return () => {
-      if (countdownTimer) clearTimeout(countdownTimer);
-    };
-  }, [isRedirecting, redirectCountdown]);
 
   const handleFileChange = (selectedFile) => {
     if (!selectedFile) return;
@@ -54,8 +66,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     setError(null);
     setCvData(null);
     setShowCvData(false);
-    setIsRedirecting(false);
-    setRedirectCountdown(3);
+    setShowTemplateSelection(false);
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -116,9 +127,8 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
         cvDataService.setData(result.data);
         setCvData(result.data);
         setShowCvData(true);
+        setShowTemplateSelection(true);
         console.log('CV data stored successfully!');
-        setIsRedirecting(true);
-        setRedirectCountdown(3);
       } else {
         setError('Failed to process CV');
       }
@@ -130,13 +140,8 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     }
   };
 
-  const cancelRedirect = () => {
-    setIsRedirecting(false);
-    setRedirectCountdown(3);
-  };
-
-  const redirectNow = () => {
-    setRedirectCountdown(0);
+  const handleTemplateSelect = (templateId) => {
+    window.open(`http://localhost:5173/${templateId}`, '_blank');
   };
 
   return (
@@ -189,7 +194,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 <p>{error}</p>
               </div>
             )}
-            {preview && !isLoading && !isRedirecting && (
+            {preview && !isLoading && !showTemplateSelection && (
               <div className="mt-6 flex flex-col items-center">
                 <h2 className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>Preview</h2>
                 <div className="w-full h-96 border border-gray-200 rounded bg-white">
@@ -218,8 +223,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                       setCvData(null);
                       setShowCvData(false);
                       setError(null);
-                      setIsRedirecting(false);
-                      setRedirectCountdown(3);
+                      setShowTemplateSelection(false);
                     }}
                   >
                     Remove
@@ -227,7 +231,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 </div>
               </div>
             )}
-            {cvData && !isRedirecting && (
+            {cvData && !showTemplateSelection && (
               <div className="mt-6">
                 <button
                   className={`font-medium py-2 px-4 rounded-lg transition-colors ${isDark ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white'}`}
@@ -250,57 +254,68 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
               </Canvas>
             </div>
           </div>
-          {isRedirecting && (
+          {showTemplateSelection && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className={`max-w-md w-full p-8 rounded-2xl border shadow-2xl ${isDark ? 'bg-slate-800 border-slate-600' : 'bg-white border-gray-200'}`}>
-                <div className="text-center">
+              <div className={`max-w-4xl w-full p-8 rounded-2xl border shadow-2xl ${isDark ? 'bg-slate-800 border-slate-600' : 'bg-white border-gray-200'}`}>
+                <div className="text-center mb-8">
                   <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     CV Processed Successfully! 🎉
                   </h3>
-                  <p className={`mb-6 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-                    Your portfolio is ready! Redirecting to your Space template in
+                  <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
+                    Choose your portfolio template to get started
                   </p>
-                  <div className="w-20 h-20 mx-auto mb-6 relative">
-                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
-                      <circle cx="40" cy="40" r="35" stroke="currentColor" strokeWidth="6" fill="none" className={isDark ? 'text-slate-600' : 'text-gray-200'} />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="35"
-                        stroke="currentColor"
-                        strokeWidth="6"
-                        fill="none"
-                        strokeDasharray={`${2 * Math.PI * 35}`}
-                        strokeDashoffset={`${2 * Math.PI * 35 * (redirectCountdown / 3)}`}
-                        className="text-green-500 transition-all duration-1000 ease-linear"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        {redirectCountdown}
-                      </span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {templates.map((template) => (
+                    <div
+                      key={template.id}
+                      className={`relative overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                        isDark ? 'border-slate-600 hover:border-slate-400' : 'border-gray-200 hover:border-gray-400'
+                      }`}
+                      onClick={() => handleTemplateSelect(template.id)}
+                    >
+                      <div className={`h-32 ${template.preview} flex items-center justify-center`}>
+                        <img src={template.image}></img>
+                      </div>
+                      <div className={`p-4 ${isDark ? 'bg-slate-700' : 'bg-white'}`}>
+                        <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {template.name}
+                        </h4>
+                        <div className={`mt-3 w-full py-2 px-4 rounded-lg text-center font-medium transition-colors bg-gradient-to-r ${template.color} text-white hover:opacity-90`}>
+                          Select Template
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={redirectNow}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                    >
-                      Go Now
-                    </button>
-                    <button
-                      onClick={cancelRedirect}
-                      className={`flex-1 border font-medium py-2 px-4 rounded-lg transition-colors ${isDark ? 'bg-slate-700 border-slate-600 hover:bg-slate-600 text-white' : 'bg-white border-gray-300 hover:bg-gray-50 text-gray-700'}`}
-                    >
-                      Stay Here
-                    </button>
-                  </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-center gap-3">
+                  <button
+                    onClick={() => setShowCvData(!showCvData)}
+                    className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                      isDark 
+                        ? 'bg-slate-600 hover:bg-slate-500 text-white' 
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {showCvData ? 'Hide' : 'Show'} Extracted Data
+                  </button>
+                  <button
+                    onClick={() => setShowTemplateSelection(false)}
+                    className={`px-6 py-2 rounded-lg font-medium border transition-colors ${
+                      isDark 
+                        ? 'bg-slate-700 border-slate-600 hover:bg-slate-600 text-white' 
+                        : 'bg-white border-gray-300 hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
             </div>

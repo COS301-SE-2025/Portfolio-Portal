@@ -3,6 +3,7 @@ const templates = [
     title: 'Office',
     description: 'Corporate and professional with a sleek modern look.',
     image: '/images/office.png',
+    href: '/office',
   },
   {
     title: 'Studio',
@@ -24,6 +25,7 @@ const templates = [
     title: 'Forest',
     description: 'Serene and natural — ideal for calm, grounded presentation.',
     image: '/images/forest.png',
+    href: '/forest',
   },
   {
     title: 'Cafe',

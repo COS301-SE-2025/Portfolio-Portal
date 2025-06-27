@@ -133,6 +133,15 @@ const Hero = () => {
           />
         ))}
       </div>
+
+            {/* Scroll Down Mouse Icon */}
+      <div className="absolute bottom-10 w-full flex justify-center">
+        <a href="#about" className="animate-bounce">
+          <div className="w-10 h-16 border-4 border-purple-400 rounded-full flex justify-center items-start p-2">
+            <div className="w-3 h-3 rounded-full bg-purple-400" />
+          </div>
+        </a>
+      </div>
     </section>
   )
 }
