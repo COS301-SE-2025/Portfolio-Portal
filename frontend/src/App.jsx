@@ -11,7 +11,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest'];
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space'];
 
 function App() {
   const location = useLocation();

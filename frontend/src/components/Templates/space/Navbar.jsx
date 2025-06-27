@@ -1,43 +1,52 @@
-import { useState } from 'react';
-import { userName } from './index';
+import { Link } from "react-scroll";
+import { useState, useEffect } from "react";
+import { userName } from "./index";
+
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [active, setActive] = useState("");
 
   return (
-    <nav className=" backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
-      <div className="max-w-6xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <a href="#" className="flex items-center space-x-3">
-          <span className="self-center text-2xl font-semibold text-white">{userName}</span>
-        </a>
-        
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-300 rounded-lg md:hidden hover:bg-gray-700 focus:outline-none"
-          aria-controls="navbar-default" 
-          aria-expanded={isOpen}
+    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
+      <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
+        <Link
+          to="hero"
+          smooth={true}
+          duration={500}
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => {
+            setActive("");
+          }}
         >
-          <span className="sr-only">Toggle menu</span>
-          <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
-          </svg>
-        </button>
-        
-        <div className={`${isOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-default">
-          <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-black/50 md:bg-transparent">
-            <li>
-              <a href="#about" className="block py-2 px-3 text-white rounded hover:bg-gray-700 md:hover:bg-transparent md:border-0 md:hover:text-blue-400 md:p-0">About</a>
+          <p className="text-purple-400 text-[18px] font-bold">
+            {userName} <span className="text-white">Portfolio</span>
+          </p>
+        </Link>
+
+        <ul className="list-none hidden sm:flex flex-row gap-10">
+          {["about", "experience", "contact"].map((item) => (
+            <li
+              key={item}
+              className={`${
+                active === item ? "text-purple-400" : "text-white"
+              } hover:text-purple-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
+            >
+              <Link
+                to={item}
+                smooth={true}
+                duration={500}
+                spy={true}
+                offset={-80}
+                onSetActive={() => setActive(item)}
+                className="block w-full h-full"
+              >
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </Link>
             </li>
-            <li>
-              <a href="#experience" className="block py-2 px-3 text-white rounded hover:bg-gray-700 md:hover:bg-transparent md:border-0 md:hover:text-blue-400 md:p-0">Experience & Education</a>
-            </li>
-            <li>
-              <a href="#contact" className="block py-2 px-3 text-white rounded hover:bg-gray-700 md:hover:bg-transparent md:border-0 md:hover:text-blue-400 md:p-0">Contact</a>
-            </li>
-          </ul>
-        </div>
+          ))}
+        </ul>
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
