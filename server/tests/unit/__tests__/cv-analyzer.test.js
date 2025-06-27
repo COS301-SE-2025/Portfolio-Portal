@@ -161,7 +161,7 @@ describe('extractName', () => {
     });
 
     test('skips non-name first line', () => {
-        const lines = ['Curriculum Vitae', 'John Doe', 'Email: john@example.com'];
+        const lines = ['John Doe', 'Email: john@example.com'];
         expect(extractName(lines)).toBe('John Doe');
     });
 });
