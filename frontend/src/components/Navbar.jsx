@@ -1,46 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { Link, useLocation } from 'react-router-dom';
 
 const navLinks = [
-  { sectionId: 'hero', label: 'Home' },
-  { sectionId: 'how-it-works', label: 'How It Works' },
-  { sectionId: 'upload-section', label: 'Upload' },
-  { sectionId: 'templates-section', label: 'Templates' },
-  { sectionId: 'about-section', label: 'About' },
-  {sectionId:'profile-section', label:'Profile'},
+  { sectionId: 'hero', label: 'Home', isRoute: false },
+  { sectionId: 'how-it-works', label: 'How It Works', isRoute: false },
+  { sectionId: 'upload-section', label: 'Upload', isRoute: false },
+  { sectionId: 'templates-section', label: 'Templates', isRoute: false },
+  { sectionId: 'about-section', label: 'About', isRoute: false },
+  { sectionId: 'profile', label: 'Profile', isRoute: true, path: '/profile' },
 ];
 
 const Navbar = () => {
   const { isDark } = useTheme();
   const [activeSection, setActiveSection] = useState('hero');
+  const location = useLocation();
 
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: '-50% 0px -50% 0px',
-      threshold: 0,
-    };
+    // Only handle section scrolling for non-route links on the main page
+    if (location.pathname === '/') {
+      const observerOptions = {
+        root: null,
+        rootMargin: '-50% 0px -50% 0px',
+        threshold: 0,
+      };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    }, observerOptions);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      }, observerOptions);
 
-    navLinks.forEach((link) => {
-      const element = document.getElementById(link.sectionId);
-      if (element) observer.observe(element);
-    });
+      navLinks
+        .filter((link) => !link.isRoute)
+        .forEach((link) => {
+          const element = document.getElementById(link.sectionId);
+          if (element) observer.observe(element);
+        });
 
-    return () => {
-      navLinks.forEach((link) => {
-        const element = document.getElementById(link.sectionId);
-        if (element) observer.unobserve(element);
-      });
-    };
-  }, []);
+      return () => {
+        navLinks
+          .filter((link) => !link.isRoute)
+          .forEach((link) => {
+            const element = document.getElementById(link.sectionId);
+            if (element) observer.unobserve(element);
+          });
+      };
+    }
+  }, [location.pathname]);
 
   const handleScrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -56,20 +65,37 @@ const Navbar = () => {
         <ul className="flex space-x-12 font-medium text-lg">
           {navLinks.map((link) => (
             <li key={link.sectionId}>
-              <button
-                onClick={() => handleScrollToSection(link.sectionId)}
-                className={`transition-colors duration-200 ${
-                  activeSection === link.sectionId
-                    ? isDark
-                      ? 'text-purple-300'
-                      : 'text-purple-600'
-                    : isDark
-                      ? 'text-white hover:text-purple-300'
-                      : 'text-slate-900 hover:text-purple-600'
-                }`}
-              >
-                {link.label}
-              </button>
+              {link.isRoute ? (
+                <Link
+                  to={link.path}
+                  className={`transition-colors duration-200 ${
+                    location.pathname === link.path
+                      ? isDark
+                        ? 'text-purple-300'
+                        : 'text-purple-600'
+                      : isDark
+                        ? 'text-white hover:text-purple-300'
+                        : 'text-slate-900 hover:text-purple-600'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handleScrollToSection(link.sectionId)}
+                  className={`transition-colors duration-200 ${
+                    activeSection === link.sectionId && location.pathname === '/'
+                      ? isDark
+                        ? 'text-purple-300'
+                        : 'text-purple-600'
+                      : isDark
+                        ? 'text-white hover:text-purple-300'
+                        : 'text-slate-900 hover:text-purple-600'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              )}
             </li>
           ))}
         </ul>
