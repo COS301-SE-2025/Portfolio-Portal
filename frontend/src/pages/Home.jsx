@@ -6,6 +6,7 @@ import UploadSection from '../components/sections/UploadSection';
 import TemplatesSection from '../components/sections/TemplatesSection';
 import AboutSection from '../components/sections/AboutSection';
 import ProfileSection from './Profile';
+import HelpMenu from '../components/HelpMenu';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Home = () => {
@@ -39,8 +40,6 @@ const Home = () => {
           if (entry.target.id === 'templates-section') setShowTemplates(true);
           if (entry.target.id === 'about-section') setShowAbout(true);
           if (entry.target.id === 'profile-section') setShowProfile(true);
-          
-
         }
       });
     }, observerOptions);
@@ -51,6 +50,7 @@ const Home = () => {
     if (templatesRef.current) observer.observe(templatesRef.current);
     if (aboutRef.current) observer.observe(aboutRef.current);
     if (profileRef.current) observer.observe(profileRef.current);
+    
     return () => {
       if (heroRef.current) observer.unobserve(heroRef.current);
       if (howItWorksRef.current) observer.unobserve(howItWorksRef.current);
@@ -187,17 +187,16 @@ const Home = () => {
           show={showAbout}
           className={isDark ? 'text-white' : 'text-gray-900'}
         />
+        <ProfileSection 
+          id="profile-section" 
+          ref={profileRef} 
+          show={showProfile}
+          className={isDark ? 'text-white' : 'text-gray-900'}
+        />
         {/* Added the HelpMenu component */}
         <HelpMenu />
       </div>
-      
-      <HeroSection id="hero" ref={heroRef} show={showHero} handleScrollToSection={handleScrollToSection} />
-      <HowItWorksSection id="how-it-works" ref={howItWorksRef} show={showHowItWorks} handleScrollToSection={handleScrollToSection} />
-      <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
-      <TemplatesSection id="templates-section" ref={templatesRef} show={showTemplates} isDark={isDark} />
-      <AboutSection id="about-section" ref={aboutRef} show={showAbout} />
-      <ProfileSection id="profile-section" ref={profileRef} show={showProfile} />
-          </div>
+    </div>
   );
 };
 
