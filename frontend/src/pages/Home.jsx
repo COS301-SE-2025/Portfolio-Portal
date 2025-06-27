@@ -1,13 +1,12 @@
-//frontend/src/pages/Home.jsx
-import { useState, useEffect, useRef } from "react";
-import ThemeToggleButton from "../components/ThemeToggleButton";
-import HeroSection from "../components/sections/HeroSection";
-import HowItWorksSection from "../components/sections/HowItWorksSection";
-import UploadSection from "../components/sections/UploadSection";
-import TemplatesSection from "../components/sections/TemplatesSection";
-import AboutSection from "../components/sections/AboutSection";
-import HelpMenu from "../components/HelpMenu";
-import { useTheme } from "../contexts/ThemeContext";
+import { useState, useEffect, useRef } from 'react';
+import ThemeToggleButton from '../components/ThemeToggleButton';
+import HeroSection from '../components/sections/HeroSection';
+import HowItWorksSection from '../components/sections/HowItWorksSection';
+import UploadSection from '../components/sections/UploadSection';
+import TemplatesSection from '../components/sections/TemplatesSection';
+import AboutSection from '../components/sections/AboutSection';
+import ProfileSection from './Profile';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Home = () => {
   const [showHero, setShowHero] = useState(false);
@@ -15,11 +14,13 @@ const Home = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const heroRef = useRef(null);
   const howItWorksRef = useRef(null);
   const uploadRef = useRef(null);
   const templatesRef = useRef(null);
   const aboutRef = useRef(null);
+  const profileRef = useRef(null);
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -32,11 +33,14 @@ const Home = () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          if (entry.target.id === "hero") setShowHero(true);
-          if (entry.target.id === "how-it-works") setShowHowItWorks(true);
-          if (entry.target.id === "upload-section") setShowUpload(true);
-          if (entry.target.id === "templates-section") setShowTemplates(true);
-          if (entry.target.id === "about-section") setShowAbout(true);
+          if (entry.target.id === 'hero') setShowHero(true);
+          if (entry.target.id === 'how-it-works') setShowHowItWorks(true);
+          if (entry.target.id === 'upload-section') setShowUpload(true);
+          if (entry.target.id === 'templates-section') setShowTemplates(true);
+          if (entry.target.id === 'about-section') setShowAbout(true);
+          if (entry.target.id === 'profile-section') setShowProfile(true);
+          
+
         }
       });
     }, observerOptions);
@@ -46,13 +50,14 @@ const Home = () => {
     if (uploadRef.current) observer.observe(uploadRef.current);
     if (templatesRef.current) observer.observe(templatesRef.current);
     if (aboutRef.current) observer.observe(aboutRef.current);
-
+    if (profileRef.current) observer.observe(profileRef.current);
     return () => {
       if (heroRef.current) observer.unobserve(heroRef.current);
       if (howItWorksRef.current) observer.unobserve(howItWorksRef.current);
       if (uploadRef.current) observer.unobserve(uploadRef.current);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
       if (aboutRef.current) observer.unobserve(aboutRef.current);
+      if (profileRef.current) observer.unobserve(profileRef.current);
     };
   }, []);
 
@@ -186,77 +191,13 @@ const Home = () => {
         <HelpMenu />
       </div>
       
-      {/* Floating Particles */}
-      <div className="absolute inset-0 pointer-events-none z-5">
-        {[...Array(25)].map((_, i) => (
-          <div
-            key={`particle-${i}`}
-            className={`absolute w-1 h-1 rounded-full ${
-              isDark
-                ? 'bg-gradient-to-r from-blue-400 to-purple-400'
-                : 'bg-gradient-to-r from-blue-600 to-purple-600'
-            }`}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${3 + Math.random() * 4}s infinite ease-in-out`,
-              animationDelay: `${Math.random() * 5}s`,
-              opacity: 0.6 + Math.random() * 0.4,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes twinkle {
-          0%,
-          100% {
-            opacity: 0.2;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
-
-        @keyframes shootingStar {
-          0% {
-            transform: translateX(-100px) translateY(100px);
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(100vw) translateY(-100px);
-            opacity: 0;
-          }
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) translateX(0px);
-            opacity: 0.3;
-          }
-          25% {
-            transform: translateY(-20px) translateX(10px);
-            opacity: 0.8;
-          }
-          50% {
-            transform: translateY(-10px) translateX(-15px);
-            opacity: 1;
-          }
-          75% {
-            transform: translateY(-25px) translateX(5px);
-            opacity: 0.6;
-          }
-        }
-      `}</style>
-    </div>
+      <HeroSection id="hero" ref={heroRef} show={showHero} handleScrollToSection={handleScrollToSection} />
+      <HowItWorksSection id="how-it-works" ref={howItWorksRef} show={showHowItWorks} handleScrollToSection={handleScrollToSection} />
+      <UploadSection id="upload-section" ref={uploadRef} show={showUpload} isDark={isDark} />
+      <TemplatesSection id="templates-section" ref={templatesRef} show={showTemplates} isDark={isDark} />
+      <AboutSection id="about-section" ref={aboutRef} show={showAbout} />
+      <ProfileSection id="profile-section" ref={profileRef} show={showProfile} />
+          </div>
   );
 };
 

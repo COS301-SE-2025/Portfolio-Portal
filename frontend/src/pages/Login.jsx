@@ -22,6 +22,7 @@ const Login = () => {
     try {
       const { data } = await authService.login(formData);
       localStorage.setItem('token', data.token);
+      localStorage.setItem('userId', 1);
       navigate('/home');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
