@@ -1,0 +1,46 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies (frontend)
+        run: |
+          cd frontend
+          npm install
+
+      - name: Install Cypress
+        run: |
+          cd frontend
+          npm install cypress --save-dev
+
+      - name: Run Cypress integration tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: frontend
+          spec: |
+            cypress/integrationTests/home.cy.js
+            cypress/integrationTests/login.cy.js
+            cypress/integrationTests/register.cy.js
