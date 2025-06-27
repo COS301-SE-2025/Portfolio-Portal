@@ -4,7 +4,7 @@ import ProfileHeader from '../components/profile/ProfileHeader';
 import UserInfoSection from '../components/profile/UserInfoSection';
 import CVSection from '../components/profile/CVSection';
 import PortfolioSection from '../components/profile/PortfolioSection';
-import { cvDataService } from '../services/cvDataService';
+import  cvDataService  from '../services/cvDataService';
 
 const Profile = () => {
   const { isDark } = useTheme();
