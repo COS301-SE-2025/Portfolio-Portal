@@ -36,7 +36,7 @@ const Hero = () => {
               <pointLight position={[-50, -50, -50]} intensity={0.4} />
               <Office scale={[0.3, 0.3, 0.3]} position={[0, -50, 0]} />
               <OrbitControls
-                enableZoom={true}
+                enableZoom={false}
                 enablePan={false}
                 autoRotate={false}
                 maxDistance={500}
