@@ -1,3 +1,6 @@
+const multer = require('multer');
+const memoryStorage = multer.memoryStorage();
+const upload = multer({ storage: memoryStorage });
 const express = require('express');
 const userController = require('../controllers/users.controller');
 const authMiddleware = require('../middleware/auth'); // Add authentication middleware
@@ -7,9 +10,11 @@ const router = express.Router();
 // Get user by id
 router.get('/:id', userController.getUser);
 
-// Create a new user (register)
-router.post('/register', userController.createUser);
-
+router.post(
+  '/register', 
+  upload.single('profilePhoto'),
+  userController.createUser
+);
 // Login user
 router.post('/login', userController.loginUser);
 

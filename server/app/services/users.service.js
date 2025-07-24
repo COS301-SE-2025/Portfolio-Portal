@@ -61,11 +61,27 @@ const getUserById = async (id) => {
   return await User.findById(id);
 };
 
-const createUser = async (userData) => {
-  const { email, name, ...otherData } = userData;
-  return await User.create({ email, name, ...otherData });
-};
+const profileService = require('./profile.service');
 
+const createUser = async (userData) => {
+  const { email, name, password, profilePhoto } = userData;
+  
+  // Create user without profile photo
+  const user = await User.create(email, password, name);
+
+  // Upload profile photo if exists
+  if (profilePhoto) {
+    try {
+      const url = await profileService.uploadProfilePicture(user.id, profilePhoto);
+      await User.setProfilePictureUrl(user.id, url);
+      return await User.findById(user.id); // Return updated user
+    } catch (uploadError) {
+      console.error('Profile photo upload failed:', uploadError);
+    }
+  }
+
+  return user;
+};
 const getAllUsers = async () => {
   return await User.findAll();
 };

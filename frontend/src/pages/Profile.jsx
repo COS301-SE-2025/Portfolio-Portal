@@ -1,405 +1,214 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import cvDataService from '../services/cvDataService';
-const Profile = () => {
-  const { isDark } = useTheme();
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    name: '',
-    email: '',
-    title: '',
-    bio: ''
-  });
-  const [editData, setEditData] = useState(userData);
-  const [cvFile, setCvFile] = useState(null);
-  const [links, setLinks] = useState([]);
-  const [about, setAbout] = useState([]);
-  const [skills, setSkills] = useState([]);
+import React, { useState, useEffect } from 'react';
+import { User, FileText, ExternalLink, Calendar, Globe } from 'lucide-react';
 
-  const mockGetCompleteProfile = async (userId) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return {
-      data: {
-        user: {
-          id: userId,
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          title: 'Software Developer',
-          bio: 'Passionate developer with expertise in React and Node.js',
-          cv_url: null
-        },
-        links: [
-          { id: 1, platform: 'LinkedIn', url: 'https://linkedin.com/in/johndoe' },
-          { id: 2, platform: 'GitHub', url: 'https://github.com/johndoe' }
-        ],
-        about: [
-          { id: 1, content: 'I am a full-stack developer with 5 years of experience.' }
-        ],
-        skills: [
-          { id: 1, name: 'JavaScript', level: 'Advanced' },
-          { id: 2, name: 'React', level: 'Advanced' },
-          { id: 3, name: 'Node.js', level: 'Intermediate' }
-        ]
-      }
-    };
-  };
+const Profile = () => {
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadProfileData = async () => {
-      try {
-        setIsLoading(true);
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-          console.error('No user ID found');
-          return;
-        }
-
-        setCurrentUser({ id: userId });
-
-        let response;
-        try {
-          if (cvDataService && typeof cvDataService.getCompleteProfile === 'function') {
-            response = await cvDataService.getCompleteProfile(userId);
-          } else {
-            console.warn('cvDataService.getCompleteProfile not found, using mock data');
-            response = await mockGetCompleteProfile(userId);
-          }
-        } catch (serviceError) {
-          console.warn('Service error, falling back to mock data:', serviceError.message);
-          response = await mockGetCompleteProfile(userId);
-        }
-
-        const profileData = response.data || response;
-
-        if (profileData.user) {
-          const newUserData = {
-            name: profileData.user.name || '',
-            email: profileData.user.email || '',
-            title: profileData.user.title || '',
-            bio: profileData.user.bio || ''
-          };
-          setUserData(newUserData);
-          setEditData(newUserData);
-        }
-
-setLinks(Array.isArray(profileData.links) ? profileData.links : []);
-        setAbout(profileData.about || []);
-        setSkills(profileData.skills || []);
-
-        if (profileData.user?.cv_url) {
-          setCvFile({ url: profileData.user.cv_url });
-        }
-      } catch (error) {
-        console.error('Error loading profile data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfileData();
+    fetchProfileData();
   }, []);
 
-  const handleEdit = () => {
-    setEditData(userData);
-    setIsEditing(true);
-  };
-
-  const handleSave = async () => {
+  const fetchProfileData = async () => {
     try {
-      if (cvDataService && typeof cvDataService.updateProfile === 'function') {
-        await cvDataService.updateProfile(currentUser.id, editData);
-      }
-      setUserData(editData);
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditData(userData);
-    setIsEditing(false);
-  };
-
-  const handleLinksUpdate = async (newLinks) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserLinks === 'function') {
-        if (links.length > 0) {
-          await cvDataService.updateUserLinks(currentUser.id, newLinks);
-        } else if (typeof cvDataService.createUserLinks === 'function') {
-          await cvDataService.createUserLinks(currentUser.id, newLinks);
+      setLoading(true);
+      const token = localStorage.getItem('authToken'); // Assuming JWT is stored here
+      
+      const response = await fetch('/api/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      } else {
-        console.warn('Link update functions not available in cvDataService');
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data');
       }
-      setLinks(newLinks);
-    } catch (error) {
-      console.error('Error updating links:', error);
+
+      const data = await response.json();
+      setProfileData(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAboutUpdate = async (newAbout) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserAbout === 'function') {
-        if (about.length > 0) {
-          await cvDataService.updateUserAbout(currentUser.id, newAbout);
-        } else if (typeof cvDataService.createUserAbout === 'function') {
-          await cvDataService.createUserAbout(currentUser.id, newAbout);
-        }
-      } else {
-        console.warn('About update functions not available in cvDataService');
-      }
-      setAbout(newAbout);
-    } catch (error) {
-      console.error('Error updating about:', error);
-    }
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  const handleSkillsUpdate = async (newSkills) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserSkills === 'function') {
-        if (skills.length > 0) {
-          await cvDataService.updateUserSkills(currentUser.id, newSkills);
-        } else if (typeof cvDataService.createUserSkills === 'function') {
-          await cvDataService.createUserSkills(currentUser.id, newSkills);
-        }
-      } else {
-        console.warn('Skills update functions not available in cvDataService');
-      }
-      setSkills(newSkills);
-    } catch (error) {
-      console.error('Error updating skills:', error);
-    }
+  const handlePortfolioClick = (portfolioUrl) => {
+    window.open(portfolioUrl, '_blank');
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center pt-20 ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Loading profile...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+          <h3 className="text-red-800 font-medium mb-2">Error loading profile</h3>
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={fetchProfileData}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen w-full transition-all duration-300 ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-100 text-slate-900'}`}>
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        {/* Header Section */}
-        <div className="border-b pb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">{userData.name}</h1>
-              <p className="text-xl text-gray-500">{userData.title}</p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="bg-blue-100 rounded-full p-3">
+              <User className="h-8 w-8 text-blue-600" />
             </div>
-            <div className="space-x-2">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={handleEdit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Edit Profile
-                </button>
-              )}
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{profileData?.user?.name}</h1>
+              <p className="text-gray-600">{profileData?.user?.email}</p>
+              <p className="text-sm text-gray-500">
+                Member since {formatDate(profileData?.user?.created_at)}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* User Info Section */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Personal Information</h2>
-            {isEditing ? (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Name"
-                />
-                <input
-                  type="email"
-                  value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Email"
-                />
-                <input
-                  type="text"
-                  value={editData.title}
-                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Title"
-                />
-                <textarea
-                  value={editData.bio}
-                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Bio"
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p><strong>Name:</strong> {userData.name}</p>
-                <p><strong>Email:</strong> {userData.email}</p>
-                <p><strong>Title:</strong> {userData.title}</p>
-                <p><strong>Bio:</strong> {userData.bio}</p>
-              </div>
-            )}
-          </div>
-
-          {/* About Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">About</h2>
-            {isEditing ? (
-              <textarea
-                value={about[0]?.content || ''}
-                onChange={(e) => handleAboutUpdate([{ id: 1, content: e.target.value }])}
-                className="w-full p-2 border rounded"
-                placeholder="About"
-              />
-            ) : (
-              <p>{about[0]?.content || 'No about information provided.'}</p>
-            )}
-          </div>
-
-          {/* Skills Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Skills</h2>
-            {isEditing ? (
-              <div className="space-y-2">
-                {skills.map((skill, index) => (
-                  <div key={skill.id} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={skill.name}
-                      onChange={(e) => {
-                        const newSkills = [...skills];
-                        newSkills[index].name = e.target.value;
-                        handleSkillsUpdate(newSkills);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Skill"
-                    />
-                    <input
-                      type="text"
-                      value={skill.level}
-                      onChange={(e) => {
-                        const newSkills = [...skills];
-                        newSkills[index].level = e.target.value;
-                        handleSkillsUpdate(newSkills);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Level"
-                    />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* CV Status */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <FileText className="h-6 w-6 text-gray-600" />
+              <h2 className="text-xl font-semibold text-gray-900">CV Status</h2>
+            </div>
+            
+            {profileData?.cv ? (
+              <div className="space-y-3">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-green-800 font-medium">CV Uploaded</span>
                   </div>
-                ))}
-                <button
-                  onClick={() => handleSkillsUpdate([...skills, { id: skills.length + 1, name: '', level: '' }])}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Add Skill
-                </button>
+                </div>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p><strong>File:</strong> {profileData.cv.filename}</p>
+                  <p><strong>Uploaded:</strong> {formatDate(profileData.cv.uploaded_at)}</p>
+                  <p><strong>Size:</strong> {profileData.cv.file_size ? `${(profileData.cv.file_size / 1024).toFixed(1)} KB` : 'N/A'}</p>
+                </div>
               </div>
             ) : (
-              <ul className="list-disc pl-5">
-                {skills.map((skill) => (
-                  <li key={skill.id}>{skill.name} - {skill.level}</li>
-                ))}
-              </ul>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-yellow-800 font-medium">No CV uploaded</span>
+                </div>
+                <p className="text-yellow-700 text-sm mt-2">
+                  Upload your CV to generate a portfolio website
+                </p>
+              </div>
             )}
           </div>
 
-          {/* Links Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Links</h2>
-            {isEditing ? (
-              <div className="space-y-2">
-                {links.map((link, index) => (
-                  <div key={link.id} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={link.platform}
-                      onChange={(e) => {
-                        const newLinks = [...links];
-                        newLinks[index].platform = e.target.value;
-                        handleLinksUpdate(newLinks);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Platform"
-                    />
-                    <input
-                      type="url"
-                      value={link.url}
-                      onChange={(e) => {
-                        const newLinks = [...links];
-                        newLinks[index].url = e.target.value;
-                        handleLinksUpdate(newLinks);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="URL"
-                    />
+          {/* Portfolio Status */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <Globe className="h-6 w-6 text-gray-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Portfolio Website</h2>
+            </div>
+
+            {profileData?.portfolio ? (
+              <div 
+                className="cursor-pointer group"
+                onClick={() => handlePortfolioClick(profileData.portfolio.portfolio_url)}
+              >
+                <div className="border border-gray-200 rounded-lg overflow-hidden hover:border-blue-300 transition-colors">
+                  {/* Preview Thumbnail */}
+                  <div className="bg-gradient-to-br from-blue-500 to-purple-600 h-32 flex items-center justify-center">
+                    <Globe className="h-12 w-12 text-white opacity-80" />
                   </div>
-                ))}
-                <button
-                  onClick={() => handleLinksUpdate([...links, { id: links.length + 1, platform: '', url: '' }])}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Add Link
-                </button>
+                  
+                  {/* Portfolio Info */}
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {profileData.user.name}'s Portfolio
+                      </h3>
+                      <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Generated on {formatDate(profileData.portfolio.created_at)}
+                    </p>
+                    <div className="bg-blue-50 border border-blue-100 rounded px-3 py-2">
+                      <p className="text-xs text-blue-700 font-mono truncate">
+                        {profileData.portfolio.portfolio_url}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Click to visit your portfolio website
+                </p>
               </div>
             ) : (
-              <ul className="list-disc pl-5">
-                {links.map((link) => (
-                  <li key={link.id}>
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {link.platform}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
+                <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-gray-900 font-medium mb-2">No Portfolio Generated</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Your portfolio website will appear here once generated from your CV
+                </p>
+                {profileData?.cv && (
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    Generate Portfolio
+                  </button>
+                )}
+              </div>
             )}
           </div>
+        </div>
 
-          {/* CV Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">CV</h2>
-            {isEditing ? (
-              <input
-                type="file"
-                onChange={(e) => setCvFile(e.target.files[0])}
-                className="p-2 border rounded"
-              />
-            ) : cvFile ? (
-              <a href={cvFile.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                View CV
-              </a>
-            ) : (
-              <p>No CV uploaded.</p>
-            )}
+        {/* Additional Stats */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mt-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <Calendar className="h-6 w-6 text-gray-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Account Age</p>
+              <p className="font-semibold text-gray-900">
+                {Math.floor((new Date() - new Date(profileData?.user?.created_at)) / (1000 * 60 * 60 * 24))} days
+              </p>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <FileText className="h-6 w-6 text-gray-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">CV Status</p>
+              <p className="font-semibold text-gray-900">
+                {profileData?.cv ? 'Uploaded' : 'Pending'}
+              </p>
+            </div>
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <Globe className="h-6 w-6 text-gray-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Portfolio</p>
+              <p className="font-semibold text-gray-900">
+                {profileData?.portfolio ? 'Active' : 'Not Generated'}
+              </p>
+            </div>
           </div>
         </div>
       </div>

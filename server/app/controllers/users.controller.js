@@ -70,11 +70,12 @@ const getUser = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    
-    // Enhanced validation
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    const { fullName, email, password } = req.body;
+    const profilePhoto = req.file;
+
+    // Validation
+    if (!email || !password || !fullName) {
+      return res.status(400).json({ error: 'Full name, email and password are required' });
     }
     
     if (!/\S+@\S+\.\S+/.test(email)) {
@@ -84,8 +85,14 @@ const createUser = async (req, res) => {
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
-    
-    const user = await userService.createUser({ email, password });
+
+    const user = await userService.createUser({ 
+      email, 
+      name: fullName, 
+      password, 
+      profilePhoto 
+    });
+
     res.status(201).json(user);
   } catch (error) {
     handleError(res, error, 'Failed to create user');

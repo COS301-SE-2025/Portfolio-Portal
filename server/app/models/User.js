@@ -1,7 +1,7 @@
 const supabase = require('../config/supabase');
 
 class User {
-static async create(email, password) {
+static async create(email, password, name) {
   // First create auth user
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -10,12 +10,13 @@ static async create(email, password) {
 
   if (authError) throw new Error(authError.message);
 
-  // Then insert profile using service role
+  // Then insert profile
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .insert([{
       id: authData.user.id,
       email: authData.user.email,
+      name: name,  // Add name to profile
       created_at: new Date().toISOString()
     }])
     .select()
