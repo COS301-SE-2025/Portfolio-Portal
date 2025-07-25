@@ -51,7 +51,7 @@ const extractLinks = (lines) => {
 
 /**
  * Extracts the candidate's name from the CV.
- * Prioritizes labeled "name" or "full name," then checks for capitalized name patterns, then takes first non-empty line.
+ * Prioritizes labeled "name" or " name," then checks for capitalized name patterns, then takes first non-empty line.
  * @param {string[]} lines - Array of lines from the OCR-scanned CV
  * @returns {string} The extracted name or "Unknown" if not found
  */
@@ -61,7 +61,7 @@ const extractName = (lines) => {
         const trimmed = line.trim();
         if (trimmed.length === 0) continue;
         if (!firstNonEmpty) firstNonEmpty = trimmed;
-        const match = trimmed.match(/^(name|full name)[\s:–-]+(.+)$/i);
+        const match = trimmed.match(/^(name| name)[\s:–-]+(.+)$/i);
         if (match) return match[2].trim();
         if (trimmed.match(/^[A-Z][a-z]+\s+[A-Z][a-z]+/)) return trimmed;
     }

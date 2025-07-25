@@ -1,103 +1,45 @@
+// models/User.js
 const supabase = require('../config/supabase');
 
 class User {
-static async create(email, password, name) {
-  // First create auth user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  static async create(email, password, name) {
+    try {
+      // Sign up user in Supabase auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
+      });
+      if (error) {
+        console.error('Supabase signUp error:', error.message);
+        throw new Error(error.message);
+      }
 
-  if (authError) throw new Error(authError.message);
+      // Insert into users table
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .insert({ auth_id: data.user.id, name, email })
+        .select()
+        .single();
+      if (userError) {
+        console.error('User insert error:', userError.message);
+        throw new Error(userError.message);
+      }
 
-  // Then insert profile
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .insert([{
-      id: authData.user.id,
-      email: authData.user.email,
-      name: name,  // Add name to profile
-      created_at: new Date().toISOString()
-    }])
-    .select()
-    .single();
-
-  if (profileError) throw new Error(profileError.message);
-
-  return profileData;
-}
-  static async findByEmail(email) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
-      throw new Error(error.message);
+      return { id: data.user.id, email, name, token: data.session?.access_token };
+    } catch (error) {
+      console.error('User.create error:', error.message);
+      throw error;
     }
-
-    return data;
   }
 
   static async findById(id) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', id)
-      .single();
-
+    const { data, error } = await supabase.from('users').select('*').eq('auth_id', id).single();
     if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
+      console.error('FindById error:', error.message);
       throw new Error(error.message);
     }
-
     return data;
-  }
-
-  static async updateProfile(userId, data) {
-    const allowedFields = ['name', 'bio'];
-    const updates = {};
-    
-    for (const key in data) {
-      if (allowedFields.includes(key)) {
-        updates[key] = data[key];
-      }
-    }
-
-    if (Object.keys(updates).length > 0) {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', userId);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-    }
-  }
-
-  static async setCvUrl(userId, url) {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ cv_url: url })
-      .eq('id', userId);
-
-    if (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  static async setProfilePictureUrl(userId, url) {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ profile_picture_url: url })
-      .eq('id', userId);
-
-    if (error) {
-      throw new Error(error.message);
-    }
   }
 }
 
