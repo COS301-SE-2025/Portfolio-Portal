@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
-import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
@@ -32,7 +31,6 @@ function App() {
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
-          <Route path="/profile" element={<Profile />} />
 
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />

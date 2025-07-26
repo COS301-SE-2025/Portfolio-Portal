@@ -21,8 +21,9 @@ const Login = () => {
 
     try {
       const { data } = await authService.login(formData);
+      console.log(data);
       localStorage.setItem('token', data.token);
-      localStorage.setItem('userId', data.userId);
+      localStorage.setItem('userId', data.user.id);
 
       navigate('/home');
     } catch (err) {
