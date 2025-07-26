@@ -125,7 +125,7 @@ const UserInfoSection = ({
               type="text"
               value={editData.name || ''}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter your full name"
+              placeholder="Enter your name"
               className={`w-full p-3 rounded-lg border transition-colors ${
                 isDark 
                   ? 'bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500' 

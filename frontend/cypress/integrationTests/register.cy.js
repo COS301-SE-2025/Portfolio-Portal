@@ -7,7 +7,7 @@ describe("Register Page", () => {
   //---------------------------------------------------------
 
   it("Renders all input fields & the Sign up button", () => {
-    cy.get('input[name="fullName"]').should("exist");
+    cy.get('input[name="name"]').should("exist");
     cy.get('input[name="email"]').should("exist");
     cy.get('input[name="password"]').should("exist");
     cy.get('input[name="confirmPassword"]').should("exist");
@@ -17,7 +17,7 @@ describe("Register Page", () => {
   //---------------------------------------------------------
 
   it("Shows error if passwords do not match", () => {
-    cy.get('input[name="fullName"]').type("Test User");
+    cy.get('input[name="name"]').type("Test User");
     cy.get('input[name="email"]').type("test@example.com");
     cy.get('input[name="password"]').type("primary123");
     cy.get('input[name="confirmPassword"]').type("different456");
@@ -38,7 +38,7 @@ describe("Register Page", () => {
     cy.visit("/register");
 
     // fill the registration form w. valid data
-    cy.get('input[name="fullName"]').type("Test User");
+    cy.get('input[name="name"]').type("Test User");
     cy.get('input[name="email"]').type("testuser@example.com");
     cy.get('input[name="password"]').type("testpassword");
     cy.get('input[name="confirmPassword"]').type("testpassword");
@@ -63,7 +63,7 @@ describe("Register Page", () => {
 
     cy.visit("/register");
 
-    cy.get('input[name="fullName"]').type("New User");
+    cy.get('input[name="name"]').type("New User");
     cy.get('input[name="email"]').type("new@example.com");
     cy.get('input[name="password"]').type("securepass");
     cy.get('input[name="confirmPassword"]').type("securepass");
@@ -84,7 +84,7 @@ describe("Register Page", () => {
 
     cy.visit("/register");
 
-    cy.get('input[name="fullName"]').type("New User");
+    cy.get('input[name="name"]').type("New User");
     cy.get('input[name="email"]').type("new@example.com");
     cy.get('input[name="password"]').type("securepass");
     cy.get('input[name="confirmPassword"]').type("securepass");

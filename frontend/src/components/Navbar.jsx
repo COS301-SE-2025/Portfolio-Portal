@@ -1,6 +1,7 @@
+// frontend/src/components/Navbar.jsx
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const navLinks = [
   { sectionId: 'hero', label: 'Home', isRoute: false },
@@ -8,7 +9,7 @@ const navLinks = [
   { sectionId: 'upload-section', label: 'Upload', isRoute: false },
   { sectionId: 'templates-section', label: 'Templates', isRoute: false },
   { sectionId: 'about-section', label: 'About', isRoute: false },
-  { sectionId: 'profile', label: 'Profile', isRoute: true, path: '/profile' },
+  { sectionId: 'profile-section', label: 'Profile', isRoute: false },
 ];
 
 const Navbar = () => {
@@ -65,37 +66,20 @@ const Navbar = () => {
         <ul className="flex space-x-12 font-medium text-lg">
           {navLinks.map((link) => (
             <li key={link.sectionId}>
-              {link.isRoute ? (
-                <Link
-                  to={link.path}
-                  className={`transition-colors duration-200 ${
-                    location.pathname === link.path
-                      ? isDark
-                        ? 'text-purple-300'
-                        : 'text-purple-600'
-                      : isDark
-                        ? 'text-white hover:text-purple-300'
-                        : 'text-slate-900 hover:text-purple-600'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handleScrollToSection(link.sectionId)}
-                  className={`transition-colors duration-200 ${
-                    activeSection === link.sectionId && location.pathname === '/'
-                      ? isDark
-                        ? 'text-purple-300'
-                        : 'text-purple-600'
-                      : isDark
-                        ? 'text-white hover:text-purple-300'
-                        : 'text-slate-900 hover:text-purple-600'
-                  }`}
-                >
-                  {link.label}
-                </button>
-              )}
+              <button
+                onClick={() => handleScrollToSection(link.sectionId)}
+                className={`transition-colors duration-200 ${
+                  activeSection === link.sectionId && location.pathname === '/'
+                    ? isDark
+                      ? 'text-purple-300'
+                      : 'text-purple-600'
+                    : isDark
+                      ? 'text-white hover:text-purple-300'
+                      : 'text-slate-900 hover:text-purple-600'
+                }`}
+              >
+                {link.label}
+              </button>
             </li>
           ))}
         </ul>

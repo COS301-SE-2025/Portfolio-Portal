@@ -1,407 +1,604 @@
-import { useState, useEffect } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import cvDataService from '../services/cvDataService';
-const Profile = () => {
-  const { isDark } = useTheme();
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState({
-    name: '',
-    email: '',
-    title: '',
-    bio: ''
-  });
-  const [editData, setEditData] = useState(userData);
-  const [cvFile, setCvFile] = useState(null);
-  const [links, setLinks] = useState([]);
-  const [about, setAbout] = useState([]);
-  const [skills, setSkills] = useState([]);
+import React, { useState, useEffect } from 'react';
+import { User, Mail, Calendar, ExternalLink, Award, Code, FileText, Edit3, Save, X, Github, Linkedin } from 'lucide-react';
 
-  const mockGetCompleteProfile = async (userId) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return {
-      data: {
-        user: {
-          id: userId,
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          title: 'Software Developer',
-          bio: 'Passionate developer with expertise in React and Node.js',
-          cv_url: null
-        },
-        links: [
-          { id: 1, platform: 'LinkedIn', url: 'https://linkedin.com/in/johndoe' },
-          { id: 2, platform: 'GitHub', url: 'https://github.com/johndoe' }
-        ],
-        about: [
-          { id: 1, content: 'I am a full-stack developer with 5 years of experience.' }
-        ],
-        skills: [
-          { id: 1, name: 'JavaScript', level: 'Advanced' },
-          { id: 2, name: 'React', level: 'Advanced' },
-          { id: 3, name: 'Node.js', level: 'Intermediate' }
-        ]
-      }
-    };
-  };
+const Profile = () => {
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState(null);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    const loadProfileData = async () => {
-      try {
-        setIsLoading(true);
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-          console.error('No user ID found');
-          return;
-        }
-
-        setCurrentUser({ id: userId });
-
-        let response;
-        try {
-          if (cvDataService && typeof cvDataService.getCompleteProfile === 'function') {
-            response = await cvDataService.getCompleteProfile(userId);
-          } else {
-            console.warn('cvDataService.getCompleteProfile not found, using mock data');
-            response = await mockGetCompleteProfile(userId);
-          }
-        } catch (serviceError) {
-          console.warn('Service error, falling back to mock data:', serviceError.message);
-          response = await mockGetCompleteProfile(userId);
-        }
-
-        const profileData = response.data || response;
-
-        if (profileData.user) {
-          const newUserData = {
-            name: profileData.user.name || '',
-            email: profileData.user.email || '',
-            title: profileData.user.title || '',
-            bio: profileData.user.bio || ''
-          };
-          setUserData(newUserData);
-          setEditData(newUserData);
-        }
-
-setLinks(Array.isArray(profileData.links) ? profileData.links : []);
-        setAbout(profileData.about || []);
-        setSkills(profileData.skills || []);
-
-        if (profileData.user?.cv_url) {
-          setCvFile({ url: profileData.user.cv_url });
-        }
-      } catch (error) {
-        console.error('Error loading profile data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfileData();
+    fetchProfileData();
   }, []);
 
-  const handleEdit = () => {
-    setEditData(userData);
-    setIsEditing(true);
+  useEffect(() => {
+    if (profileData) {
+      fetchProfileStats();
+    }
+  }, [profileData]);
+
+  const fetchProfileData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch('/api/users/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile data');
+      }
+
+      const data = await response.json();
+      setProfileData(data);
+      setEditForm({
+        name: data.name || '',
+        bio: data.bio || '',
+        about_paragraphs: data.about_paragraphs || [''],
+        skills: data.skills || [],
+        certifications: data.certifications || [],
+        linkedin: data.linkedin || '',
+        github: data.github || '',
+        cv_url: data.cv_url || ''
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSave = async () => {
+  const fetchProfileStats = async () => {
     try {
-      if (cvDataService && typeof cvDataService.updateProfile === 'function') {
-        await cvDataService.updateProfile(currentUser.id, editData);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/users/me/stats', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+        const statsData = await response.json();
+        setStats(statsData);
+      } else {
+        // Stats endpoint not available, calculate basic completion locally
+        calculateLocalStats();
       }
-      setUserData(editData);
+    } catch (err) {
+      console.log('Stats endpoint not available, calculating locally');
+      calculateLocalStats();
+    }
+  };
+
+  const calculateLocalStats = () => {
+    if (!profileData) return;
+    
+    const fields = [
+      'name', 'email', 'bio', 'linkedin', 'github', 'cv_url'
+    ];
+    
+    let completedFields = [];
+    let totalFields = fields.length;
+    
+    // Check basic fields
+    fields.forEach(field => {
+      if (profileData[field] && profileData[field].trim()) {
+        completedFields.push(field.charAt(0).toUpperCase() + field.slice(1));
+      }
+    });
+    
+    // Check array fields
+    if (profileData.skills && profileData.skills.length > 0) {
+      completedFields.push('Skills');
+      totalFields++;
+    } else {
+      totalFields++;
+    }
+    
+    if (profileData.certifications && profileData.certifications.length > 0) {
+      completedFields.push('Certifications');
+      totalFields++;
+    } else {
+      totalFields++;
+    }
+    
+    if (profileData.about_paragraphs && profileData.about_paragraphs.length > 0 && profileData.about_paragraphs.some(p => p.trim())) {
+      completedFields.push('About');
+      totalFields++;
+    } else {
+      totalFields++;
+    }
+    
+    const completionPercentage = Math.round((completedFields.length / totalFields) * 100);
+    
+    setStats({
+      profileComplete: completedFields.length,
+      totalFields: totalFields,
+      completionPercentage: completionPercentage,
+      completedFields: completedFields
+    });
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch('/api/users/me/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(editForm)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update profile');
+      }
+
+      const updatedData = await response.json();
+      setProfileData({ ...profileData, ...updatedData });
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    }
-  };
-
-  const handleCancel = () => {
-    setEditData(userData);
-    setIsEditing(false);
-  };
-
-  const handleLinksUpdate = async (newLinks) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserLinks === 'function') {
-        if (links.length > 0) {
-          await cvDataService.updateUserLinks(currentUser.id, newLinks);
-        } else if (typeof cvDataService.createUserLinks === 'function') {
-          await cvDataService.createUserLinks(currentUser.id, newLinks);
+      // Recalculate stats after update
+      setTimeout(() => {
+        if (stats) {
+          fetchProfileStats();
         }
-      } else {
-        console.warn('Link update functions not available in cvDataService');
-      }
-      setLinks(newLinks);
-    } catch (error) {
-      console.error('Error updating links:', error);
+      }, 100);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const handleAboutUpdate = async (newAbout) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserAbout === 'function') {
-        if (about.length > 0) {
-          await cvDataService.updateUserAbout(currentUser.id, newAbout);
-        } else if (typeof cvDataService.createUserAbout === 'function') {
-          await cvDataService.createUserAbout(currentUser.id, newAbout);
-        }
-      } else {
-        console.warn('About update functions not available in cvDataService');
-      }
-      setAbout(newAbout);
-    } catch (error) {
-      console.error('Error updating about:', error);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const addSkill = () => {
+    if (editForm.skills.length < 50) {
+      setEditForm({ ...editForm, skills: [...editForm.skills, ''] });
     }
   };
 
-  const handleSkillsUpdate = async (newSkills) => {
-    if (!currentUser?.id) return;
-    try {
-      if (cvDataService && typeof cvDataService.updateUserSkills === 'function') {
-        if (skills.length > 0) {
-          await cvDataService.updateUserSkills(currentUser.id, newSkills);
-        } else if (typeof cvDataService.createUserSkills === 'function') {
-          await cvDataService.createUserSkills(currentUser.id, newSkills);
-        }
-      } else {
-        console.warn('Skills update functions not available in cvDataService');
-      }
-      setSkills(newSkills);
-    } catch (error) {
-      console.error('Error updating skills:', error);
+  const removeSkill = (index) => {
+    setEditForm({
+      ...editForm,
+      skills: editForm.skills.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateSkill = (index, value) => {
+    const newSkills = [...editForm.skills];
+    newSkills[index] = value;
+    setEditForm({ ...editForm, skills: newSkills });
+  };
+
+  const addCertification = () => {
+    if (editForm.certifications.length < 20) {
+      setEditForm({ ...editForm, certifications: [...editForm.certifications, ''] });
     }
   };
 
-  if (isLoading) {
+  const removeCertification = (index) => {
+    setEditForm({
+      ...editForm,
+      certifications: editForm.certifications.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateCertification = (index, value) => {
+    const newCertifications = [...editForm.certifications];
+    newCertifications[index] = value;
+    setEditForm({ ...editForm, certifications: newCertifications });
+  };
+
+  const addAboutParagraph = () => {
+    if (editForm.about_paragraphs.length < 10) {
+      setEditForm({ ...editForm, about_paragraphs: [...editForm.about_paragraphs, ''] });
+    }
+  };
+
+  const removeAboutParagraph = (index) => {
+    setEditForm({
+      ...editForm,
+      about_paragraphs: editForm.about_paragraphs.filter((_, i) => i !== index)
+    });
+  };
+
+  const updateAboutParagraph = (index, value) => {
+    const newParagraphs = [...editForm.about_paragraphs];
+    newParagraphs[index] = value;
+    setEditForm({ ...editForm, about_paragraphs: newParagraphs });
+  };
+
+  if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center pt-20 ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Loading profile...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
+          <h3 className="text-red-800 font-medium mb-2">Error loading profile</h3>
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={fetchProfileData}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen w-full transition-all duration-300 ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-100 text-slate-900'}`}>
-      <div className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        {/* Header Section */}
-        <div className="border-b pb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">{userData.name}</h1>
-              <p className="text-xl text-gray-500">{userData.title}</p>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-blue-100 rounded-full p-3">
+                <User className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{profileData?.name}</h1>
+                <div className="flex items-center space-x-2 text-gray-600 mt-1">
+                  <Mail className="h-4 w-4" />
+                  <span>{profileData?.email}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                  <Calendar className="h-4 w-4" />
+                  <span>Member since {formatDate(profileData?.created_at)}</span>
+                </div>
+              </div>
             </div>
-            <div className="space-x-2">
-              {isEditing ? (
-                <>
-                  <button
-                    onClick={handleSave}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {isEditing ? <X className="h-4 w-4" /> : <Edit3 className="h-4 w-4" />}
+              <span>{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Profile Completion Stats */}
+        {stats && (
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Completion</h2>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1 bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${stats.completionPercentage}%` }}
+                ></div>
+              </div>
+              <span className="text-sm font-medium text-gray-900">
+                {stats.completionPercentage}% Complete
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mt-2">
+              {stats.profileComplete} of {stats.totalFields} fields completed
+            </p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Basic Information */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+            
+            {isEditing ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    maxLength={100}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                  <textarea
+                    value={editForm.bio}
+                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    maxLength={500}
+                    placeholder="Tell us about yourself..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">{editForm.bio.length}/500 characters</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Name:</span>
+                  <p className="text-gray-900">{profileData?.name || 'Not specified'}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Bio:</span>
+                  <p className="text-gray-900">{profileData?.bio || 'No bio added yet'}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Social Links */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Social Links</h2>
+            
+            {isEditing ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                  <input
+                    type="url"
+                    value={editForm.linkedin}
+                    onChange={(e) => setEditForm({ ...editForm, linkedin: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://linkedin.com/in/yourprofile"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                  <input
+                    type="url"
+                    value={editForm.github}
+                    onChange={(e) => setEditForm({ ...editForm, github: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://github.com/yourusername"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">CV URL</label>
+                  <input
+                    type="url"
+                    value={editForm.cv_url}
+                    onChange={(e) => setEditForm({ ...editForm, cv_url: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com/your-cv.pdf"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {profileData?.linkedin && (
+                  <a
+                    href={profileData.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-800"
                   >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                    <Linkedin className="h-4 w-4" />
+                    <span>LinkedIn Profile</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+                {profileData?.github && (
+                  <a
+                    href={profileData.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-gray-800 hover:text-gray-600"
                   >
-                    Cancel
+                    <Github className="h-4 w-4" />
+                    <span>GitHub Profile</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+                {profileData?.cv_url && (
+                  <a
+                    href={profileData.cv_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-2 text-green-600 hover:text-green-800"
+                  >
+                    <FileText className="h-4 w-4" />
+                    <span>View CV</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+                {!profileData?.linkedin && !profileData?.github && !profileData?.cv_url && (
+                  <p className="text-gray-500 text-sm">No social links added yet</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* About Section */}
+        <div className="bg-white rounded-lg shadow-sm border p-6 mt-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">About</h2>
+          
+          {isEditing ? (
+            <div className="space-y-4">
+              {editForm.about_paragraphs.map((paragraph, index) => (
+                <div key={index} className="flex space-x-2">
+                  <textarea
+                    value={paragraph}
+                    onChange={(e) => updateAboutParagraph(index, e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    rows={3}
+                    maxLength={1000}
+                    placeholder={`About paragraph ${index + 1}...`}
+                  />
+                  <button
+                    onClick={() => removeAboutParagraph(index)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <X className="h-4 w-4" />
                   </button>
-                </>
-              ) : (
+                </div>
+              ))}
+              {editForm.about_paragraphs.length < 10 && (
                 <button
-                  onClick={handleEdit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={addAboutParagraph}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
                 >
-                  Edit Profile
+                  + Add paragraph
                 </button>
               )}
             </div>
+          ) : (
+            <div className="space-y-4">
+              {profileData?.about_paragraphs && profileData.about_paragraphs.length > 0 ? (
+                profileData.about_paragraphs.map((paragraph, index) => (
+                  <p key={index} className="text-gray-700 leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm">No about information added yet</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          {/* Skills */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <Code className="h-6 w-6 text-blue-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Skills</h2>
+            </div>
+            
+            {isEditing ? (
+              <div className="space-y-2">
+                {editForm.skills.map((skill, index) => (
+                  <div key={index} className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={skill}
+                      onChange={(e) => updateSkill(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      maxLength={50}
+                      placeholder="Enter skill..."
+                    />
+                    <button
+                      onClick={() => removeSkill(index)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                {editForm.skills.length < 50 && (
+                  <button
+                    onClick={addSkill}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    + Add skill
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {profileData?.skills && profileData.skills.length > 0 ? (
+                  profileData.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">No skills added yet</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Certifications */}
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <Award className="h-6 w-6 text-green-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Certifications</h2>
+            </div>
+            
+            {isEditing ? (
+              <div className="space-y-2">
+                {editForm.certifications.map((cert, index) => (
+                  <div key={index} className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={cert}
+                      onChange={(e) => updateCertification(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      maxLength={200}
+                      placeholder="Enter certification..."
+                    />
+                    <button
+                      onClick={() => removeCertification(index)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                {editForm.certifications.length < 20 && (
+                  <button
+                    onClick={addCertification}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    + Add certification
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {profileData?.certifications && profileData.certifications.length > 0 ? (
+                  profileData.certifications.map((cert, index) => (
+                    <div
+                      key={index}
+                      className="bg-green-50 border border-green-200 rounded-lg p-3"
+                    >
+                      <span className="text-green-800 text-sm">{cert}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">No certifications added yet</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* User Info Section */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Personal Information</h2>
-            {isEditing ? (
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Name"
-                />
-                <input
-                  type="email"
-                  value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Email"
-                />
-                <input
-                  type="text"
-                  value={editData.title}
-                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Title"
-                />
-                <textarea
-                  value={editData.bio}
-                  onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                  className="w-full p-2 border rounded"
-                  placeholder="Bio"
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p><strong>Name:</strong> {userData.name}</p>
-                <p><strong>Email:</strong> {userData.email}</p>
-                <p><strong>Title:</strong> {userData.title}</p>
-                <p><strong>Bio:</strong> {userData.bio}</p>
-              </div>
-            )}
+        {/* Save Button */}
+        {isEditing && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleSaveProfile}
+              className="flex items-center space-x-2 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Save className="h-4 w-4" />
+              <span>Save Changes</span>
+            </button>
           </div>
-
-          {/* About Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">About</h2>
-            {isEditing ? (
-              <textarea
-                value={about[0]?.content || ''}
-                onChange={(e) => handleAboutUpdate([{ id: 1, content: e.target.value }])}
-                className="w-full p-2 border rounded"
-                placeholder="About"
-              />
-            ) : (
-              <p>{about[0]?.content || 'No about information provided.'}</p>
-            )}
-          </div>
-
-          {/* Skills Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Skills</h2>
-            {isEditing ? (
-              <div className="space-y-2">
-                {skills.map((skill, index) => (
-                  <div key={skill.id} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={skill.name}
-                      onChange={(e) => {
-                        const newSkills = [...skills];
-                        newSkills[index].name = e.target.value;
-                        handleSkillsUpdate(newSkills);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Skill"
-                    />
-                    <input
-                      type="text"
-                      value={skill.level}
-                      onChange={(e) => {
-                        const newSkills = [...skills];
-                        newSkills[index].level = e.target.value;
-                        handleSkillsUpdate(newSkills);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Level"
-                    />
-                  </div>
-                ))}
-                <button
-                  onClick={() => handleSkillsUpdate([...skills, { id: skills.length + 1, name: '', level: '' }])}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Add Skill
-                </button>
-              </div>
-            ) : (
-              <ul className="list-disc pl-5">
-                {skills.map((skill) => (
-                  <li key={skill.id}>{skill.name} - {skill.level}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Links Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Links</h2>
-            {isEditing ? (
-              <div className="space-y-2">
-                {links.map((link, index) => (
-                  <div key={link.id} className="flex space-x-2">
-                    <input
-                      type="text"
-                      value={link.platform}
-                      onChange={(e) => {
-                        const newLinks = [...links];
-                        newLinks[index].platform = e.target.value;
-                        handleLinksUpdate(newLinks);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="Platform"
-                    />
-                    <input
-                      type="url"
-                      value={link.url}
-                      onChange={(e) => {
-                        const newLinks = [...links];
-                        newLinks[index].url = e.target.value;
-                        handleLinksUpdate(newLinks);
-                      }}
-                      className="w-1/2 p-2 border rounded"
-                      placeholder="URL"
-                    />
-                  </div>
-                ))}
-                <button
-                  onClick={() => handleLinksUpdate([...links, { id: links.length + 1, platform: '', url: '' }])}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Add Link
-                </button>
-              </div>
-            ) : (
-              <ul className="list-disc pl-5">
-                {links.map((link) => (
-                  <li key={link.id}>
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {link.platform}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* CV Section */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">CV</h2>
-            {isEditing ? (
-              <input
-                type="file"
-                onChange={(e) => setCvFile(e.target.files[0])}
-                className="p-2 border rounded"
-              />
-            ) : cvFile ? (
-              <a href={cvFile.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                View CV
-              </a>
-            ) : (
-              <p>No CV uploaded.</p>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

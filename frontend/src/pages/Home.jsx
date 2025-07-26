@@ -1,5 +1,5 @@
-//frontend/src/pages/Home.jsx
-import { useState, useEffect, useRef } from "react";
+// frontend/src/pages/Home.jsx
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import ThemeToggleButton from "../components/ThemeToggleButton";
 import HeroSection from "../components/sections/HeroSection";
 import HowItWorksSection from "../components/sections/HowItWorksSection";
@@ -9,17 +9,22 @@ import AboutSection from "../components/sections/AboutSection";
 import HelpMenu from "../components/HelpMenu";
 import { useTheme } from "../contexts/ThemeContext";
 
+// Lazy load ProfileSection
+const ProfileSection = lazy(() => import("../components/sections/ProfileSection"));
+
 const Home = () => {
   const [showHero, setShowHero] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const heroRef = useRef(null);
   const howItWorksRef = useRef(null);
   const uploadRef = useRef(null);
   const templatesRef = useRef(null);
   const aboutRef = useRef(null);
+  const profileRef = useRef(null);
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -37,6 +42,7 @@ const Home = () => {
           if (entry.target.id === "upload-section") setShowUpload(true);
           if (entry.target.id === "templates-section") setShowTemplates(true);
           if (entry.target.id === "about-section") setShowAbout(true);
+          if (entry.target.id === "profile-section") setShowProfile(true);
         }
       });
     }, observerOptions);
@@ -46,6 +52,7 @@ const Home = () => {
     if (uploadRef.current) observer.observe(uploadRef.current);
     if (templatesRef.current) observer.observe(templatesRef.current);
     if (aboutRef.current) observer.observe(aboutRef.current);
+    if (profileRef.current) observer.observe(profileRef.current);
 
     return () => {
       if (heroRef.current) observer.unobserve(heroRef.current);
@@ -53,6 +60,7 @@ const Home = () => {
       if (uploadRef.current) observer.unobserve(uploadRef.current);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
       if (aboutRef.current) observer.unobserve(aboutRef.current);
+      if (profileRef.current) observer.unobserve(profileRef.current);
     };
   }, []);
 
@@ -182,10 +190,19 @@ const Home = () => {
           show={showAbout}
           className={isDark ? 'text-white' : 'text-gray-900'}
         />
-        {/* Added the HelpMenu component */}
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>}>
+          <ProfileSection
+            id="profile-section"
+            ref={profileRef}
+            show={showProfile}
+            className={isDark ? 'text-white' : 'text-gray-900'}
+          />
+        </Suspense>
         <HelpMenu />
       </div>
-      
+
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none z-5">
         {[...Array(25)].map((_, i) => (

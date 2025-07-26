@@ -1,101 +1,239 @@
+// models/User.js
 const supabase = require('../config/supabase');
 
 class User {
-static async create(email, password) {
-  // First create auth user
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  static async create(email, password, name) {
+    try {
+      // Sign up user in Supabase auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
+      });
+      if (error) {
+        console.error('Supabase signUp error:', error.message);
+        throw new Error(error.message);
+      }
 
-  if (authError) throw new Error(authError.message);
+      // Insert into users table with all available fields
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .insert({ 
+          auth_id: data.user.id, 
+          name, 
+          email,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (userError) {
+        console.error('User insert error:', userError.message);
+        throw new Error(userError.message);
+      }
 
-  // Then insert profile using service role
-  const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .insert([{
-      id: authData.user.id,
-      email: authData.user.email,
-      created_at: new Date().toISOString()
-    }])
-    .select()
-    .single();
-
-  if (profileError) throw new Error(profileError.message);
-
-  return profileData;
-}
-  static async findByEmail(email) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
-      throw new Error(error.message);
+      return { 
+        id: data.user.id, 
+        email, 
+        name, 
+        token: data.session?.access_token,
+        user_profile: user
+      };
+    } catch (error) {
+      console.error('User.create error:', error.message);
+      throw error;
     }
-
-    return data;
   }
 
   static async findById(id) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No rows returned
-      throw new Error(error.message);
-    }
-
-    return data;
-  }
-
-  static async updateProfile(userId, data) {
-    const allowedFields = ['name', 'bio'];
-    const updates = {};
-    
-    for (const key in data) {
-      if (allowedFields.includes(key)) {
-        updates[key] = data[key];
-      }
-    }
-
-    if (Object.keys(updates).length > 0) {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', userId);
-
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('auth_id', id)
+        .single();
+      
       if (error) {
+        if (error.code === 'PGRST116') { // No rows returned
+          return null;
+        }
+        console.error('FindById error:', error.message);
         throw new Error(error.message);
       }
+      return data;
+    } catch (error) {
+      console.error('User.findById error:', error.message);
+      throw error;
     }
   }
 
-  static async setCvUrl(userId, url) {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ cv_url: url })
-      .eq('id', userId);
-
-    if (error) {
-      throw new Error(error.message);
+  static async findByEmail(email) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') { // No rows returned
+          return null;
+        }
+        console.error('FindByEmail error:', error.message);
+        throw new Error(error.message);
+      }
+      return data;
+    } catch (error) {
+      console.error('User.findByEmail error:', error.message);
+      throw error;
     }
   }
 
-  static async setProfilePictureUrl(userId, url) {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ profile_picture_url: url })
-      .eq('id', userId);
+  static async updateProfile(authId, updateData) {
+    try {
+      // Validate and sanitize update data
+      const allowedFields = [
+        'name', 'bio', 'cv_url', 'profile_picture_url', 
+        'about_paragraphs', 'certifications', 'skills', 
+        'linkedin', 'github'
+      ];
+      
+      const sanitizedData = {};
+      Object.keys(updateData).forEach(key => {
+        if (allowedFields.includes(key) && updateData[key] !== undefined) {
+          sanitizedData[key] = updateData[key];
+        }
+      });
 
-    if (error) {
-      throw new Error(error.message);
+      // Add updated timestamp
+      sanitizedData.updated_at = new Date().toISOString();
+
+      const { data, error } = await supabase
+        .from('users')
+        .update(sanitizedData)
+        .eq('auth_id', authId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('UpdateProfile error:', error.message);
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('User.updateProfile error:', error.message);
+      throw error;
+    }
+  }
+
+  static async uploadProfilePicture(authId, fileBuffer, fileName, contentType) {
+    try {
+      // Generate unique filename
+      const fileExt = fileName.split('.').pop();
+      const uniqueFileName = `${authId}/profile-${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('profile-pictures')
+        .upload(uniqueFileName, fileBuffer, {
+          contentType,
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Profile picture upload error:', uploadError.message);
+        throw new Error(uploadError.message);
+      }
+
+      // Get public URL
+      const { data: publicUrl } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(uniqueFileName);
+
+      // Update user profile with new picture URL
+      await this.updateProfile(authId, { 
+        profile_picture_url: publicUrl.publicUrl 
+      });
+
+      return publicUrl.publicUrl;
+    } catch (error) {
+      console.error('User.uploadProfilePicture error:', error.message);
+      throw error;
+    }
+  }
+
+  static async deleteProfilePicture(authId) {
+    try {
+      // Get current user to find existing profile picture
+      const user = await this.findById(authId);
+      if (user && user.profile_picture_url) {
+        // Extract filename from URL
+        const urlParts = user.profile_picture_url.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        const filePath = `${authId}/${fileName}`;
+
+        // Delete from storage
+        const { error: deleteError } = await supabase.storage
+          .from('profile-pictures')
+          .remove([filePath]);
+
+        if (deleteError) {
+          console.warn('Profile picture deletion warning:', deleteError.message);
+        }
+      }
+
+      // Remove URL from database
+      await this.updateProfile(authId, { profile_picture_url: null });
+      return true;
+    } catch (error) {
+      console.error('User.deleteProfilePicture error:', error.message);
+      throw error;
+    }
+  }
+
+  static async searchUsers(query, limit = 10, offset = 0) {
+    try {
+      const searchTerm = `%${query}%`;
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, bio, profile_picture_url, skills')
+        .or(`name.ilike.${searchTerm},email.ilike.${searchTerm},bio.ilike.${searchTerm}`)
+        .limit(limit)
+        .offset(offset)
+        .order('name');
+
+      if (error) {
+        console.error('SearchUsers error:', error.message);
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('User.searchUsers error:', error.message);
+      throw error;
+    }
+  }
+
+  static async getUsersBySkills(skills, limit = 10) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, bio, profile_picture_url, skills')
+        .overlaps('skills', skills)
+        .limit(limit)
+        .order('name');
+
+      if (error) {
+        console.error('GetUsersBySkills error:', error.message);
+        throw new Error(error.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('User.getUsersBySkills error:', error.message);
+      throw error;
     }
   }
 }

@@ -1,83 +1,69 @@
+// routes/users.routes.js
 const express = require('express');
+const multer = require('multer');
 const userController = require('../controllers/users.controller');
-const authMiddleware = require('../middleware/auth'); // Add authentication middleware
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Get user by id
-router.get('/:id', userController.getUser);
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
 
-// Create a new user (register)
+// Public routes (no authentication required)
 router.post('/register', userController.createUser);
-
-// Login user
 router.post('/login', userController.loginUser);
-
-// Refresh access token
 router.post('/refresh', userController.refreshToken);
 
-// Logout user - requires valid access token
-router.post('/logout', authMiddleware.validateToken, userController.logoutUser);
+// Public profile routes
+router.get('/search', userController.searchUsers);
+router.get('/skills', userController.getUsersBySkills);
+router.get('/profile/:identifier', userController.getPublicProfile);
 
-//profileUser
-// Get user by id
-router.get('/profile/:id', userController.getProfile);
+// Protected routes (authentication required)
+router.use(authMiddleware.validateToken); // All routes below require authentication
 
-// Create a new user (register)
-router.post('/profile/register', userController.createProfile);
+// Current user routes
+router.get('/me', userController.getCurrentUser);
+router.put('/me/profile', userController.updateProfile);
+router.get('/me/stats', userController.getProfileStats);
 
-// Login user
-router.put('/profile/update/:id', userController.updateProfile);
+// Profile picture management
+router.post('/me/profile-picture', upload.single('profilePicture'), userController.uploadProfilePicture);
+router.delete('/me/profile-picture', userController.deleteProfilePicture);
 
-// Refresh access token
-router.delete('/profile/delete/:id', userController.deleteProfile);
+// Logout (requires authentication)
+router.post('/logout', userController.logoutUser);
 
-// Links routes
-router.get('/:id/links', userController.getUserLinks);
-router.post('/:id/links', userController.createUserLinks);
-router.put('/:id/links', userController.updateUserLinks);
-router.delete('/:id/links', userController.deleteUserLinks);
+// Admin or specific user routes (with ID parameter)
+router.get('/:id', userController.getUser);
 
-// About routes
-router.get('/:id/about', userController.getUserAbout);
-router.post('/:id/about', userController.createUserAbout);
-router.put('/:id/about', userController.updateUserAbout);
-router.delete('/:id/about', userController.deleteUserAbout);
-
-// Skills routes
-router.get('/:id/skills', userController.getUserSkills);
-router.post('/:id/skills', userController.createUserSkills);
-router.put('/:id/skills', userController.updateUserSkills);
-router.delete('/:id/skills', userController.deleteUserSkills);
-
-// Education routes
-router.get('/:id/education', userController.getUserEducation);
-router.post('/:id/education', userController.createEducation);
-router.get('/education/:eduId', userController.getEducationById);
-router.put('/education/:eduId', userController.updateEducation);
-router.delete('/education/:eduId', userController.deleteEducation);
-
-// Experience routes
-router.get('/:id/experience', userController.getUserExperience);
-router.post('/:id/experience', userController.createExperience);
-router.get('/experience/:expId', userController.getExperienceById);
-router.put('/experience/:expId', userController.updateExperience);
-router.delete('/experience/:expId', userController.deleteExperience);
-
-// Certifications routes
-router.get('/:id/certifications', userController.getUserCertifications);
-router.post('/:id/certifications', userController.createUserCertifications);
-router.put('/:id/certifications', userController.updateUserCertifications);
-router.delete('/:id/certifications', userController.deleteUserCertifications);
-
-// References routes
-router.get('/:id/references', userController.getUserReferences);
-router.post('/:id/references', userController.createReference);
-router.get('/references/:refId', userController.getReferenceById);
-router.put('/references/:refId', userController.updateReference);
-router.delete('/references/:refId', userController.deleteReference);
-
-// Complete portfolio
-router.get('/:id/profile', userController.getCompleteProfile);
+// Error handling middleware for multer
+router.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'File size too large. Maximum size is 5MB' });
+    }
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ error: 'Unexpected file field' });
+    }
+  }
+  if (error.message === 'Only image files are allowed') {
+    return res.status(400).json({ error: 'Only image files are allowed' });
+  }
+  next(error);
+});
 
 module.exports = router;
