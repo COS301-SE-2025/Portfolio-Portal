@@ -71,3 +71,26 @@ body.modal-open .navbar {
 input, textarea {
   color: #000; /* Black text for visibility */
 }
+
+.profile-image-container {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+}
+
+.profile-image-upload-btn {
+  position: absolute;
+  bottom: -0.5rem;
+  right: -0.5rem;
+  background: #2563eb;
+  color: white;
+  border-radius: 9999px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.profile-image-upload-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}

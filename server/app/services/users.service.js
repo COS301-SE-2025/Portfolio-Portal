@@ -135,7 +135,7 @@ const updateUserProfile = async (userId, updateData) => {
   }
 };
 
-const uploadProfilePicture = async (userId, file) => {
+const uploadProfilePicture = async (userId, file, token) => {
   try {
     if (!file) {
       throw new Error('No file provided');
@@ -148,16 +148,21 @@ const uploadProfilePicture = async (userId, file) => {
     }
 
     // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (file.buffer.length > maxSize) {
       throw new Error('File size too large. Maximum size is 5MB');
     }
 
+    // Delete existing profile picture first
+    await User.deleteProfilePicture(userId);
+
+    // Upload new picture
     return await User.uploadProfilePicture(
       userId, 
       file.buffer, 
       file.originalname, 
-      file.mimetype
+      file.mimetype,
+      token
     );
   } catch (error) {
     console.error('UploadProfilePicture service error:', error.message);
