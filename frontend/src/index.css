@@ -51,3 +51,23 @@ html, body, #root {
 .animate-pulseArrow {
   animation: pulseArrow 2s infinite ease-in-out;
 }
+
+body.modal-open {
+  overflow: hidden;
+}
+
+body.modal-open .navbar {
+  display: none;
+}
+
+/* Adjust the form container to prevent overlap with the navbar and remove bottom white space */
+.form-container {
+  padding-top: 60px; /* Adjust this value if your navbar height differs */
+  margin-bottom: 50px;
+  padding-bottom: 0;
+}
+
+/* Make text visible in input fields by setting a dark font color */
+input, textarea {
+  color: #000; /* Black text for visibility */
+}

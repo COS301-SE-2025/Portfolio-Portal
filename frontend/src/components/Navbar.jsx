@@ -61,7 +61,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className={`w-full px-8 py-6 fixed top-0 z-50 ${isDark ? 'bg-slate-900/80 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
+    <nav className={`navbar w-full px-8 py-6 fixed top-0 z-50 ${isDark ? 'bg-slate-900/80 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm'}`}>
       <div className="max-w-7xl mx-auto flex justify-center">
         <ul className="flex space-x-12 font-medium text-lg">
           {navLinks.map((link) => (
