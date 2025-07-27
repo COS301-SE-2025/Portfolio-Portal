@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import { ThemeProvider } from './contexts/ThemeContext';
+
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 

@@ -2,10 +2,181 @@ import React, { useEffect, useState } from 'react';
 import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 
+// Modal Component
+const Modal = ({ isOpen, onClose, children }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    // Cleanup to remove the class when the component unmounts or isOpen changes
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+        <button onClick={onClose} className="float-right text-gray-500 hover:text-gray-700">
+          Close
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Profile Edit Form Component
+const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
+  const [name, setName] = useState(profile.name || '');
+  const [bio, setBio] = useState(profile.bio || '');
+  const [about, setAbout] = useState(Array.isArray(profile.about_paragraphs) ? profile.about_paragraphs.join('\n\n') : '');
+  const [skills, setSkills] = useState(Array.isArray(profile.skills) ? profile.skills.join(', ') : '');
+  const [certifications, setCertifications] = useState(Array.isArray(profile.certifications) ? profile.certifications.join(', ') : '');
+  const [linkedin, setLinkedin] = useState(profile.linkedin || '');
+  const [github, setGithub] = useState(profile.github || '');
+  const [cvUrl, setCvUrl] = useState(profile.cv_url || '');
+  const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors([]);
+
+    const updatedData = {
+      name: name.trim(),
+      bio: bio.trim(),
+      about_paragraphs: about.split('\n\n').map(p => p.trim()).filter(p => p !== ''),
+      skills: skills.split(',').map(s => s.trim()).filter(s => s !== ''),
+      certifications: certifications.split(',').map(c => c.trim()).filter(c => c !== ''),
+      linkedin: linkedin.trim(),
+      github: github.trim(),
+      cv_url: cvUrl.trim(),
+    };
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await profileService.updateProfile(token, updatedData);
+
+      if (response.status >= 200 && response.status < 300) {
+        onUpdate(response.data);
+      } else {
+        setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
+      }
+    } catch (err) {
+      setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {errors.length > 0 && (
+        <div className="bg-red-100 p-4 rounded mb-4">
+          <p className="text-red-700">Please fix the following errors:</p>
+          <ul className="list-disc ml-5">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
+        <textarea
+          id="bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          rows={3}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="about" className="block text-sm font-medium text-gray-700">About (each paragraph separated by a blank line)</label>
+        <textarea
+          id="about"
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
+          rows={10}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="skills" className="block text-sm font-medium text-gray-700">Skills (comma-separated)</label>
+        <input
+          id="skills"
+          value={skills}
+          onChange={(e) => setSkills(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="certifications" className="block text-sm font-medium text-gray-700">Certifications (comma-separated)</label>
+        <input
+          id="certifications"
+          value={certifications}
+          onChange={(e) => setCertifications(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+        <input
+          id="linkedin"
+          value={linkedin}
+          onChange={(e) => setLinkedin(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="github" className="block text-sm font-medium text-gray-700">GitHub URL</label>
+        <input
+          id="github"
+          value={github}
+          onChange={(e) => setGithub(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="cvUrl" className="block text-sm font-medium text-gray-700">CV URL</label>
+        <input
+          id="cvUrl"
+          value={cvUrl}
+          onChange={(e) => setCvUrl(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div className="flex justify-end space-x-4">
+        <button type="button" onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
+          Cancel
+        </button>
+        <button onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
+          {isLoading ? 'Saving...' : 'Save'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const ProfileSection = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -18,7 +189,6 @@ const ProfileSection = () => {
     const fetchProfile = async () => {
       try {
         const response = await profileService.getProfile(token);
-        console.log(response);
         setProfile(response.data);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to load profile');
@@ -44,6 +214,13 @@ const ProfileSection = () => {
       .map(word => word.charAt(0))
       .join('')
       .toUpperCase();
+  };
+
+  const handleEditClick = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+  const handleUpdateProfile = (updatedProfile) => {
+    setProfile(updatedProfile);
+    setIsModalOpen(false);
   };
 
   if (loading) {
@@ -92,7 +269,7 @@ const ProfileSection = () => {
 
           {/* Edit Button */}
           <div className="flex justify-end pt-4">
-            <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button onClick={handleEditClick} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <Edit className="w-4 h-4 mr-2" />
               Edit Profile
             </button>
@@ -111,6 +288,11 @@ const ProfileSection = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for Editing Profile */}
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+        <ProfileEditForm profile={profile} onUpdate={handleUpdateProfile} onClose={handleCloseModal} />
+      </Modal>
 
       {/* Contact Information */}
       <div className="bg-white rounded-xl shadow-lg p-6">
@@ -268,7 +450,7 @@ const ProfileSection = () => {
           <div className="text-center py-8">
             <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500">No about information added yet.</p>
-            <button className="mt-3 text-blue-600 hover:underline text-sm">
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
               Add about section
             </button>
           </div>
@@ -284,7 +466,7 @@ const ProfileSection = () => {
           <div className="text-center py-8">
             <Code className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500">No skills added yet.</p>
-            <button className="mt-3 text-blue-600 hover:underline text-sm">
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
               Add skills
             </button>
           </div>
@@ -300,7 +482,7 @@ const ProfileSection = () => {
           <div className="text-center py-8">
             <Award className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500">No certifications added yet.</p>
-            <button className="mt-3 text-blue-600 hover:underline text-sm">
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
               Add certifications
             </button>
           </div>
