@@ -24,6 +24,7 @@ const Login = () => {
       console.log(data);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.user.id);
+      localStorage.setItem('imageURL', data.user.profile_picture_url)
 
       navigate('/home');
     } catch (err) {

@@ -1,4 +1,5 @@
 // models/User.js
+const { createClient } = require('@supabase/supabase-js');
 const supabase = require('../config/supabase');
 
 class User {
@@ -128,38 +129,52 @@ class User {
     }
   }
 
-  static async uploadProfilePicture(authId, fileBuffer, fileName, contentType) {
+  static async uploadProfilePicture(authId, fileBuffer, fileName, contentType, token) {
     try {
-      // Generate unique filename
-      const fileExt = fileName.split('.').pop();
-      const uniqueFileName = `${authId}/profile-${Date.now()}.${fileExt}`;
+      // Create authenticated client
+      const supabase = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_KEY,
+        {
+          global: {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        }
+      );
 
-      // Upload to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const fileExt = fileName.split('.').pop();
+      const filePath = `${authId}/profile.${fileExt}`; // Consistent filename
+
+      // Upload file
+      const { error: uploadError } = await supabase.storage
         .from('profile-pictures')
-        .upload(uniqueFileName, fileBuffer, {
+        .upload(filePath, fileBuffer, {
           contentType,
-          upsert: true
+          upsert: true,
+          cacheControl: '3600'
         });
 
-      if (uploadError) {
-        console.error('Profile picture upload error:', uploadError.message);
-        throw new Error(uploadError.message);
-      }
+      if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data: publicUrl } = supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('profile-pictures')
-        .getPublicUrl(uniqueFileName);
+        .getPublicUrl(filePath);
 
-      // Update user profile with new picture URL
+      // Update user profile
       await this.updateProfile(authId, { 
-        profile_picture_url: publicUrl.publicUrl 
+        profile_picture_url: publicUrl 
       });
 
-      return publicUrl.publicUrl;
+      return publicUrl;
     } catch (error) {
-      console.error('User.uploadProfilePicture error:', error.message);
+      console.error('Upload error details:', {
+        error: error.message,
+        authId,
+        fileName
+      });
       throw error;
     }
   }

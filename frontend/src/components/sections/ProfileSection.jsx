@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2 } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 
 // Modal Component
@@ -18,7 +18,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
         <button onClick={onClose} className="float-right text-gray-500 hover:text-gray-700">
           Close
@@ -177,28 +177,44 @@ const ProfileSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [profilePictureError, setProfilePictureError] = useState(null);
+  const [profilePic, setProfilePic] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError("User not logged in");
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    setError("User not logged in");
+    setLoading(false);
+    return;
+  }
+
+  // Priority 1: Use cached image URL from localStorage (fastest)
+  const cachedImageUrl = localStorage.getItem('imageURL');
+  if (cachedImageUrl) {
+    setProfile(prev => ({ ...prev, profile_picture_url: cachedImageUrl }));
+  }
+
+  // Priority 2: Fetch fresh profile data (fallback)
+  const fetchProfile = async () => {
+    try {
+      const response = await profileService.getProfile(token);
+      const publicImageUrl = response.data.profile_picture_url?.replace('/sign/', '/public/');
+      
+      // Update localStorage and state
+      localStorage.setItem('imageURL', publicImageUrl);
+      setProfile(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to load profile');
+    } finally {
       setLoading(false);
-      return;
     }
+  };
 
-    const fetchProfile = async () => {
-      try {
-        const response = await profileService.getProfile(token);
-        setProfile(response.data);
-      } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
+  fetchProfile();
+}, []);
 
-    fetchProfile();
-  }, []);
+  
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -214,6 +230,73 @@ const ProfileSection = () => {
       .map(word => word.charAt(0))
       .join('')
       .toUpperCase();
+  };
+
+  const handleProfilePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setProfilePictureError("User not logged in");
+      return;
+    }
+    console.log(token);
+
+    try {
+      setUploading(true);
+      setProfilePictureError(null);
+      
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB');
+      }
+
+      const response = await profileService.uploadProfilePicture(token, file);
+      
+      if (response.status >= 200 && response.status < 300) {
+        setProfile({
+          ...profile,
+          profile_picture_url: response.data.profile_picture_url
+        });
+      } else {
+        throw new Error(response.data?.error || 'Failed to upload profile picture');
+      }
+    } catch (err) {
+      setProfilePictureError(err.message || 'Failed to upload profile picture');
+    } finally {
+      setUploading(false);
+      // Reset the input
+      e.target.value = null;
+    }
+  };
+
+  const handleDeleteProfilePicture = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setProfilePictureError("User not logged in");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setProfilePictureError(null);
+      await profileService.deleteProfilePicture(token);
+      setProfile({
+        ...profile,
+        profile_picture_url: null
+      });
+    } catch (err) {
+      setProfilePictureError(err.message || 'Failed to delete profile picture');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleEditClick = () => setIsModalOpen(true);
@@ -246,48 +329,85 @@ const ProfileSection = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header Section */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32"></div>
-        <div className="relative px-6 pb-6">
-          {/* Profile Picture */}
-          <div className="absolute -top-16 left-6">
-            <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center">
-              {profile.profile_picture_url ? (
-                <img
-                  src={profile.profile_picture_url}
-                  alt={profile.name}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-                  {getInitials(profile.name)}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Edit Button */}
-          <div className="flex justify-end pt-4">
-            <button onClick={handleEditClick} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Profile
-            </button>
-          </div>
-
-          {/* Name and Bio */}
-          <div className="mt-6 ml-40">
-            <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
-            {profile.bio && (
-              <p className="text-lg text-gray-600 mt-2">{profile.bio}</p>
-            )}
-            <div className="flex items-center text-sm text-gray-500 mt-2">
-              <Calendar className="w-4 h-4 mr-1" />
-              Member since {formatDate(profile.created_at)}
-            </div>
-          </div>
+      {/* Profile picture error toast */}
+      {profilePictureError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          <span className="block sm:inline">{profilePictureError}</span>
+          <button 
+            className="absolute top-0 right-0 px-2 py-1" 
+            onClick={() => setProfilePictureError(null)}
+          >
+            ×
+          </button>
         </div>
+      )}
+
+      {/* Header Section */}
+<div className="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
+    {/* Profile Picture Container - Now properly positioned */}
+    <div className="absolute -bottom-16 left-6">
+      <div className="relative group">
+        {/* Profile Image with proper sizing and spacing */}
+        <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
+          {profile.profile_picture_url ? (
+<img
+  src={profile?.profile_picture_url || '/default-profile.jpg'}
+  alt="Profile"
+  onError={(e) => {
+    e.target.src = '/default-profile.jpg'; // Fallback if image fails to load
+  }}
+/>
+          ) : (
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+              {getInitials(profile.name)}
+            </div>
+          )}
+        </div>
+
+        {/* Upload Button - Better positioned */}
+        <label 
+          htmlFor="profile-picture-upload"
+          className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition-all duration-200 shadow-md"
+          title="Change profile picture"
+        >
+          <Edit className="w-4 h-4" />
+          <input
+            id="profile-picture-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleProfilePictureUpload}
+          />
+        </label>
       </div>
+    </div>
+  </div>
+
+  {/* Name and Bio Section - Adjusted spacing */}
+  <div className="pt-20 px-6 pb-6"> {/* Increased pt-20 to accommodate profile picture */}
+    <div className="flex justify-end">
+      <button 
+        onClick={handleEditClick} 
+        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <Edit className="w-4 h-4 mr-2" />
+        Edit Profile
+      </button>
+    </div>
+
+    <div className="mt-4"> {/* Reduced mt-6 to mt-4 for better spacing */}
+      <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
+      {profile.bio && (
+        <p className="text-lg text-gray-600 mt-2">{profile.bio}</p>
+      )}
+      <div className="flex items-center text-sm text-gray-500 mt-2">
+        <Calendar className="w-4 h-4 mr-1" />
+        Member since {formatDate(profile.created_at)}
+      </div>
+    </div>
+  </div>
+</div>
 
       {/* Modal for Editing Profile */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
