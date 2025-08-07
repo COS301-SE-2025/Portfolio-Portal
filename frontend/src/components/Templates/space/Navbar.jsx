@@ -1,9 +1,10 @@
 import { Link } from "react-scroll";
-import { useState, useEffect } from "react";
-import { userName } from "./index";
+import { useState } from "react";
+import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
 
 const Navbar = () => {
   const [active, setActive] = useState("");
+    const { name } = useCvData() || {};
 
   return (
     <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
@@ -18,7 +19,7 @@ const Navbar = () => {
           }}
         >
           <p className="text-purple-400 text-[18px] font-bold">
-            {userName} <span className="text-white">Portfolio</span>
+            {name}'s <span className="text-white">Portfolio</span>
           </p>
         </Link>
 

@@ -137,16 +137,18 @@ class CVDataService {
   }
 
   // Convenience Getters
-  getName = () => this.getData()?.name || '';
-  getEmail = () => this.getData()?.email || '';
-  getPhone = () => this.getData()?.phone || '';
-  getAbout = () => this.getData()?.about || [];
-  getSkills = () => this.getData()?.skills || [];
-  getExperience = () => this.getData()?.experience || [];
-  getEducation = () => this.getData()?.education || [];
-  getCertifications = () => this.getData()?.certifications || [];
-  getLinks = () => this.getData()?.links || {};
-  getReferences = () => this.getData()?.references || [];
+getName = () => this.getData()?.name || '';
+getDescription = () => this.getData()?.description || '';
+getSummary = () => this.getData()?.summary || '';
+getEmail = () => this.getData()?.email || '';
+getPhone = () => this.getData()?.phone || '';
+getAbout = () => this.getData()?.about || '';
+getSkills = () => this.getData()?.skills || [];
+getExperience = () => this.getData()?.experience || [];
+getEducation = () => this.getData()?.education || [];
+getCertifications = () => this.getData()?.certifications || [];
+getLinks = () => this.getData()?.links || {};
+getReferences = () => this.getData()?.references || [];
 }
 
 // Singleton instance
