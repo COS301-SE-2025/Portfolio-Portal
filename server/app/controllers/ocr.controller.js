@@ -1,5 +1,4 @@
-const { extractTextFromFile } = require("../services/ocr.service");
-const { processCV } = require("../utils/cv-analyzer");
+const { processCVWithAI } = require("../services/ocr.service");
 
 /**
  * Handle uploaded CV file, run OCR, and return structured CV data
@@ -14,8 +13,7 @@ const handleUpload = async (req, res) => {
             return res.status(400).json({ success: false, message: "No file uploaded" });
         }
 
-        const rawText = await extractTextFromFile(file.path);
-        const structuredCV = processCV(rawText);
+        const structuredCV = await processCVWithAI(file.path, file.mimetype);
 
         return res.status(200).json({
             success: true,
@@ -28,6 +26,11 @@ const handleUpload = async (req, res) => {
             message: "Failed to process uploaded CV",
             error: error.message
         });
+    } finally {
+        // Clean up uploaded file
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
     }
 };
 

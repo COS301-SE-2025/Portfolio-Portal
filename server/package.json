@@ -21,11 +21,14 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
+    "groq": "^3.99.0",
+    "groq-sdk": "^0.30.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
     "node-tesseract-ocr": "^2.2.1",
-    "pdf2pic": "^3.1.4",
+    "pdf2pic": "^3.2.0",
+    "tesseract.js": "^6.0.1",
     "validator": "^13.15.15"
   }
 }
