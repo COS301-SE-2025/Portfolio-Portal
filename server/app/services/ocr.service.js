@@ -77,10 +77,12 @@ const convertToStructuredCV = async (rawText) => {
     const prompt = `
     Please convert the following CV/Resume text into a structured JSON format. 
     Extract and organize the information into these categories:
+    for the description field, please assume the user's Occupation based on other data
     
     {
         "personal_info": {
             "name": "",
+            "description": "",
             "email": "",
             "phone": "",
             "address": "",

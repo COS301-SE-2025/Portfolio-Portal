@@ -1,38 +1,58 @@
 // hooks/useCVData.js
-import { useState, useEffect } from 'react';
+import { useState, useEffec, useMemo } from 'react';
 import cvDataService from '../services/cvDataService';
 
 export const useCVData = () => {
   const [cvData, setCvData] = useState(cvDataService.getData());
-
-  useEffect(() => {
-    // Subscribe to data changes
-    const unsubscribe = cvDataService.subscribe(setCvData);
+  
+  // Transform the data structure
+  const transformedData = useMemo(() => {
+    if (!cvData) return null;
     
-    // Cleanup subscription on unmount
-    return unsubscribe;
-  }, []);
+    return {
+      name: cvData.personal_info?.name || '',
+      description: cvData.personal_info?.description || '',
+      email: cvData.personal_info?.email || '',
+      summary: cvData.summary || '',
+      phone: cvData.personal_info?.phone || '',
+      about: cvData.summary || '',
+      skills: cvData.skills || [],
+      experience: (cvData.experience || []).map(exp => ({
+        title: exp.position,
+        company: exp.company,
+        startDate: exp.duration?.split(' - ')[0] || '',
+        endDate: exp.duration?.split(' - ')[1] || 'Present',
+        extra: exp.description ? [exp.description] : []
+      })),
+      education: (cvData.education || []).map(edu => ({
+        institution: edu.institution,
+        degree: edu.degree,
+        field: edu.field,
+        endDate: edu.year || '',
+        gpa: edu.gpa || ''
+      })),
+      certifications: cvData.certifications || [],
+      links: {
+        linkedin: cvData.personal_info?.linkedin || '',
+        website: cvData.personal_info?.website || ''
+      }
+    };
+  }, [cvData]);
 
   return {
-    // Raw data
-    cvData,
-    
-    // Convenience getters
-    name: cvDataService.getName(),
-    email: cvDataService.getEmail(),
-    phone: cvDataService.getPhone(),
-    about: cvDataService.getAbout(),
-    skills: cvDataService.getSkills(),
-    experience: cvDataService.getExperience(),
-    education: cvDataService.getEducation(),
-    certifications: cvDataService.getCertifications(),
-    links: cvDataService.getLinks(),
-    references: cvDataService.getReferences(),
-    
-    // Utility functions
-    hasData: cvDataService.hasData(),
-    setData: (data) => cvDataService.setData(data),
-    clearData: () => cvDataService.clearData(),
+    cvData: transformedData,
+    name: transformedData?.name || '',
+    description: transformedData?.description || '',
+    summary: transformedData?.summary || '',
+    email: transformedData?.email || '',
+    phone: transformedData?.phone || '',
+    about: transformedData?.about || '',
+    skills: transformedData?.skills || [],
+    experience: transformedData?.experience || [],
+    education: transformedData?.education || [],
+    certifications: transformedData?.certifications || [],
+    links: transformedData?.links || {},
+    references: transformedData?.references || [],
   };
 };
 
