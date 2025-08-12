@@ -11,7 +11,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space'];
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/lab'];
 
 function App() {
   const location = useLocation();
@@ -28,6 +28,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/office" element={<OfficePage />} />
           <Route path="/forest" element={<ForestPage />} />
+          <Route path="/lab" element={<LabPage />} />
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
