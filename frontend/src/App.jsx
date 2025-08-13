@@ -10,6 +10,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
+import LabPage from "./pages/LabPage";
 
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/lab'];
 
