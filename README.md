@@ -36,7 +36,7 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 | **Server README**                                | [server/README.md](server/README.md)                | _N/A_                                                                                                          |
 | **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_                                                                                                          |
 
-### Demo 1
+## 🎥 Demo 1
 
 - [Demo 1 Video](https://youtu.be/gwhL0oYh90Y)
 - [Demo 1 Presentation](https://www.canva.com/design/DAGn94hteWs/_gTECzG006hoJGb7K9oaGQ/view?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hee3bb8a8c2)
@@ -47,6 +47,13 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 - [Demo 2 Video](https://youtu.be/SGc-FlTARXQ)
 - [Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+---
+
+## 🎥 Demo 3
+
+- [Demo 3 Video](https://youtu.be/SGc-FlTARXQ)
+- [Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 
