@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2, ExternalLink, X, Camera, MapPin, Briefcase } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
+import './ProfileSection.css';
 
-// Modal Component
+// Modal Component with improved animations
 const Modal = ({ isOpen, onClose, children }) => {
   useEffect(() => {
     document.body.classList.toggle('modal-open', isOpen);
@@ -11,10 +12,22 @@ const Modal = ({ isOpen, onClose, children }) => {
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-        <button onClick={onClose} className="float-right text-gray-500 hover:text-gray-700">Close</button>
-        {children}
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform animate-slideUp">
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold text-gray-900">Edit Profile</h3>
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -76,38 +89,73 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {errors.length > 0 && (
-        <div className="bg-red-100 p-4 rounded mb-4">
-          <p className="text-red-700">Please fix the following errors:</p>
-          <ul className="list-disc ml-5">{errors.map((error, i) => <li key={i}>{error}</li>)}</ul>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center mb-2">
+            <X className="w-5 h-5 text-red-500 mr-2" />
+            <p className="text-red-700 font-semibold">Please fix the following errors:</p>
+          </div>
+          <ul className="list-disc ml-7 space-y-1">
+            {errors.map((error, i) => (
+              <li key={i} className="text-red-600 text-sm">{error}</li>
+            ))}
+          </ul>
         </div>
       )}
-      {inputFields.map(({ id, label, type, rows }) => (
-        <div key={id}>
-          <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
-          {type === 'textarea' ? (
-            <textarea
-              id={id}
-              value={formData[id]}
-              onChange={handleChange(id)}
-              rows={rows}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
+      
+      <div className="grid gap-6">
+        {inputFields.map(({ id, label, type, rows }) => (
+          <div key={id} className="space-y-2">
+            <label htmlFor={id} className="block text-sm font-semibold text-gray-700 mb-2">
+              {label}
+            </label>
+            {type === 'textarea' ? (
+              <textarea
+                id={id}
+                value={formData[id]}
+                onChange={handleChange(id)}
+                rows={rows}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+                placeholder={`Enter your ${label.toLowerCase()}...`}
+              />
+            ) : (
+              <input
+                id={id}
+                value={formData[id]}
+                onChange={handleChange(id)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                placeholder={`Enter your ${label.toLowerCase()}...`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex justify-end space-x-4 pt-6 border-t border-gray-100">
+        <button 
+          type="button" 
+          onClick={onClose} 
+          className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-all duration-200 transform hover:scale-105"
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleSubmit} 
+          disabled={isLoading} 
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
+        >
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+              Saving...
+            </>
           ) : (
-            <input
-              id={id}
-              value={formData[id]}
-              onChange={handleChange(id)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
+            <>
+              <Edit className="w-4 h-4 mr-2" />
+              Save Changes
+            </>
           )}
-        </div>
-      ))}
-      <div className="flex justify-end space-x-4">
-        <button type="button" onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
-        <button onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50">
-          {isLoading ? 'Saving...' : 'Save'}
         </button>
       </div>
     </div>
@@ -193,212 +241,293 @@ const ProfileSection = () => {
 
   const portfolioPlaceholders = [
     {
-      title: "E-commerce Platform",
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=200&fit=crop",
+      title: "Space themed Portfolio",
+      image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
       description: "Full-stack e-commerce solution"
     },
     {
-      title: "Task Management App", 
-      image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=300&h=200&fit=crop",
+      title: "Forest themed Portfolio", 
+      image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
       description: "React-based productivity tool"
     },
     {
-      title: "Data Visualization Dashboard",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop", 
+      title: "Office themed Portfolio",
+      image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
       description: "Interactive analytics platform"
-    },
-    {
-      title: "Mobile Banking App",
-      image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=300&h=200&fit=crop",
-      description: "Secure financial application"
     }
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {profilePictureError && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
-          <span>{profilePictureError}</span>
-          <button className="absolute top-0 right-0 px-2 py-1" onClick={() => setProfilePictureError(null)}>×</button>
-        </div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
+      <div className="max-w-7xl mx-auto p-6">
+        {profilePictureError && (
+          <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-slideIn">
+            <div className="flex items-center space-x-3">
+              <div className="flex-shrink-0">
+                <X className="w-5 h-5" />
+              </div>
+              <span className="font-medium">{profilePictureError}</span>
+              <button 
+                className="ml-4 hover:bg-red-600 rounded-full p-1 transition-colors" 
+                onClick={() => setProfilePictureError(null)}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Main Profile */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Profile Header */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
-              <div className="absolute -bottom-16 left-6">
-                <div className="relative group">
-                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
-                    {profile.profile_picture_url ? (
-                      <img 
-                        src={profile.profile_picture_url || '/default-profile.jpg'} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover"
-                        onError={(e) => e.target.src = '/default-profile.jpg'} 
-                      />
-                    ) : (
-                      <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-                        {getInitials(profile.name)}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Profile */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Profile Header */}
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
+              <div className="relative">
+                <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 h-40 relative">
+                  <div className="absolute inset-0 bg-black/10"></div>
+                  <div className="absolute -bottom-20 left-8">
+                    <div className="relative group">
+                      <div className="w-40 h-40 rounded-full border-6 border-white shadow-2xl bg-gray-100 overflow-hidden transform hover:scale-105 transition-all duration-300">
+                        {profile.profile_picture_url ? (
+                          <img 
+                            src={profile.profile_picture_url || '/default-profile.jpg'} 
+                            alt="Profile" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => e.target.src = '/default-profile.jpg'} 
+                          />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+                            {getInitials(profile.name)}
+                          </div>
+                        )}
+                        {uploading && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <label htmlFor="profile-picture-upload" className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition-all duration-200 shadow-md" title="Change profile picture">
-                    <Edit className="w-4 h-4" />
-                    <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div className="pt-20 px-6 pb-6">
-              <div className="flex justify-end mb-4">
-                <button onClick={() => setIsModalOpen(true)} className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <Edit className="w-4 h-4 mr-2" /> Edit Profile
-                </button>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
-                {profile.bio && <p className="text-lg text-gray-600 mt-2">{profile.bio}</p>}
-                <div className="flex items-center text-sm text-gray-500 mt-2">
-                  <Calendar className="w-4 h-4 mr-1" /> Member since {formatDate(profile.created_at)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Mail className="w-5 h-5 mr-2 text-blue-600" /> Contact Information
-            </h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {[
-                { icon: Mail, label: 'Email', value: profile.email, href: `mailto:${profile.email}`, text: 'View Profile' },
-                { icon: Github, label: 'GitHub', value: profile.github, href: profile.github, text: 'View Profile' },
-                { icon: Linkedin, label: 'LinkedIn', value: profile.linkedin, href: profile.linkedin, text: 'View Profile' },
-                { icon: FileText, label: 'Resume/CV', value: profile.cv_url, href: profile.cv_url, text: 'Download CV' }
-              ].filter(item => item.value).map(({ icon: Icon, label, value, href, text }) => (
-                <div key={label} className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 ${
-                    label === 'GitHub' ? 'bg-gray-100' : 
-                    label === 'Resume/CV' ? 'bg-green-100' : 
-                    'bg-blue-100'
-                  } rounded-lg flex items-center justify-center`}>
-                    <Icon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-500">{label}</p>
-                    <a 
-                      href={href} 
-                      target={label !== 'Email' ? '_blank' : undefined} 
-                      rel={label !== 'Email' ? 'noopener noreferrer' : undefined} 
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      {text}
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* About Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <User className="w-5 h-5 mr-2 text-blue-600" /> About
-            </h2>
-            {profile.about_paragraphs && profile.about_paragraphs.length > 0 ? (
-              <div className="space-y-3">
-                {profile.about_paragraphs.map((paragraph, index) => (
-                  <p key={index} className="text-gray-700 leading-relaxed">{paragraph}</p>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No about information added yet.</p>
-                <button onClick={() => setIsModalOpen(true)} className="mt-3 text-blue-600 hover:underline text-sm">
-                  Add about information
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Skills Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Code className="w-5 h-5 mr-2 text-blue-600" /> Skills
-            </h2>
-            {profile.skills && profile.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {profile.skills.map((skill, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Code className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No skills added yet.</p>
-                <button onClick={() => setIsModalOpen(true)} className="mt-3 text-blue-600 hover:underline text-sm">
-                  Add skills
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Certifications Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-              <Award className="w-5 h-5 mr-2 text-blue-600" /> Certifications
-            </h2>
-            {profile.certifications && profile.certifications.length > 0 ? (
-              <div className="space-y-3">
-                {profile.certifications.map((cert, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                    <p className="font-medium text-gray-900">{cert}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Award className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No certifications added yet.</p>
-                <button onClick={() => setIsModalOpen(true)} className="mt-3 text-blue-600 hover:underline text-sm">
-                  Add certifications
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column - Portfolio */}
-        <div className="space-y-6">
-          {/* Portfolio Websites */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Your portfolio Websites</h2>
-            <div className="grid gap-4">
-              {portfolioPlaceholders.map((project, index) => (
-                <div key={index} className="group cursor-pointer">
-                  <div className="relative overflow-hidden rounded-lg bg-gray-100">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <ExternalLink className="w-6 h-6 text-white" />
+                      <label htmlFor="profile-picture-upload" className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-3 cursor-pointer hover:bg-blue-700 hover:scale-110 transition-all duration-200 shadow-lg group-hover:shadow-xl" title="Change profile picture">
+                        <Camera className="w-5 h-5" />
+                        <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
+                      </label>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <h3 className="font-medium text-gray-900 text-sm">{project.title}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{project.description}</p>
+                </div>
+                <div className="pt-24 px-8 pb-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                    <div className="flex-1">
+                      <h1 className="text-4xl font-bold text-gray-900 mb-2">{profile.name}</h1>
+                      {profile.bio && (
+                        <p className="text-xl text-gray-600 mb-3 leading-relaxed">{profile.bio}</p>
+                      )}
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Calendar className="w-4 h-4 mr-2" /> 
+                        <span>Member since {formatDate(profile.created_at)}</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 sm:mt-0">
+                      <button 
+                        onClick={() => setIsModalOpen(true)} 
+                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                      >
+                        <Edit className="w-5 h-5 mr-2" /> 
+                        Edit Profile
+                      </button>
+                    </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+
+          {/* Contact Information */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                  <Mail className="w-4 h-4 text-white" />
+                </div>
+                Contact Information
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  { icon: Mail, label: 'Email', value: profile.email, href: `mailto:${profile.email}`, text: 'Send Email', color: 'from-blue-500 to-blue-600' },
+                  { icon: Github, label: 'GitHub', value: profile.github, href: profile.github, text: 'View Profile', color: 'from-gray-700 to-gray-800' },
+                  { icon: Linkedin, label: 'LinkedIn', value: profile.linkedin, href: profile.linkedin, text: 'Connect', color: 'from-blue-600 to-blue-700' },
+                  { icon: FileText, label: 'Resume/CV', value: profile.cv_url, href: profile.cv_url, text: 'Download CV', color: 'from-green-500 to-green-600' }
+                ].filter(item => item.value).map(({ icon: Icon, label, value, href, text, color }) => (
+                  <div key={label} className="group">
+                    <div className="flex items-center space-x-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                      <div className={`w-12 h-12 bg-gradient-to-r ${color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{label}</p>
+                        <a 
+                          href={href} 
+                          target={label !== 'Email' ? '_blank' : undefined} 
+                          rel={label !== 'Email' ? 'noopener noreferrer' : undefined} 
+                          className="text-gray-900 hover:text-blue-600 font-medium transition-colors duration-200 flex items-center group"
+                        >
+                          {text}
+                          <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* About Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                About Me
+              </h2>
+              {profile.about_paragraphs && profile.about_paragraphs.length > 0 ? (
+                <div className="space-y-4">
+                  {profile.about_paragraphs.map((paragraph, index) => (
+                    <p key={index} className="text-gray-700 leading-relaxed text-lg">{paragraph}</p>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <User className="w-10 h-10 text-purple-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg mb-4">Share your story with the world</p>
+                  <button 
+                    onClick={() => setIsModalOpen(true)} 
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Add About Information
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Skills Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center mr-3">
+                  <Code className="w-4 h-4 text-white" />
+                </div>
+                Skills & Technologies
+              </h2>
+              {profile.skills && profile.skills.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {profile.skills.map((skill, index) => (
+                    <span 
+                      key={index} 
+                      className="px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 rounded-full text-sm font-semibold hover:from-blue-200 hover:to-purple-200 transition-all duration-200 transform hover:scale-105 cursor-default"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gradient-to-r from-green-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Code className="w-10 h-10 text-green-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg mb-4">Showcase your technical expertise</p>
+                  <button 
+                    onClick={() => setIsModalOpen(true)} 
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl hover:from-green-600 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    <Code className="w-4 h-4 mr-2" />
+                    Add Skills
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Certifications Section */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center mr-3">
+                  <Award className="w-4 h-4 text-white" />
+                </div>
+                Certifications & Awards
+              </h2>
+              {profile.certifications && profile.certifications.length > 0 ? (
+                <div className="space-y-4">
+                  {profile.certifications.map((cert, index) => (
+                    <div key={index} className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-l-4 border-yellow-400 hover:shadow-md transition-shadow duration-200">
+                      <div className="flex items-center">
+                        <Award className="w-5 h-5 text-yellow-600 mr-3" />
+                        <p className="font-semibold text-gray-900">{cert}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-20 h-20 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Award className="w-10 h-10 text-yellow-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg mb-4">Display your achievements and certifications</p>
+                  <button 
+                    onClick={() => setIsModalOpen(true)} 
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    <Award className="w-4 h-4 mr-2" />
+                    Add Certifications
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Portfolio */}
+          <div className="space-y-8">
+            {/* Portfolio Websites */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                    <Briefcase className="w-4 h-4 text-white" />
+                  </div>
+                  Portfolio Websites
+                </h2>
+                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  {portfolioPlaceholders.length} Templates
+                </span>
+              </div>
+              <div className="grid gap-6">
+                {portfolioPlaceholders.map((project, index) => (
+                  <div key={index} className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+                    <div className="relative overflow-hidden rounded-xl bg-gray-100 shadow-lg">
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="flex items-center justify-between text-white">
+                            <div>
+                              <h3 className="font-bold text-lg">{project.title}</h3>
+                              <p className="text-sm opacity-90">{project.description}</p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                              <ExternalLink className="w-5 h-5" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 px-2">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                        {project.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">{project.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
