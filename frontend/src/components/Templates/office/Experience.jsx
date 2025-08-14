@@ -1,50 +1,7 @@
 import useCvData from "../../../hooks/useCVData";
 
-// Mock data for when CV data is not available
-const mockExperienceData = [
-  {
-    title: "Senior Full Stack Developer",
-    company: "TechCorp Solutions",
-    startDate: "2022",
-    endDate: "Present",
-    extra: [
-      "Led development of microservices architecture serving 1M+ users",
-      "Implemented CI/CD pipelines reducing deployment time by 60%",
-      "Mentored junior developers and conducted code reviews",
-      "Collaborated with cross-functional teams to deliver projects on time"
-    ]
-  },
-  {
-    title: "Full Stack Developer",
-    company: "Digital Innovations Inc.",
-    startDate: "2020",
-    endDate: "2022",
-    extra: [
-      "Developed responsive web applications using React and Node.js",
-      "Optimized database queries improving application performance by 40%",
-      "Integrated third-party APIs and payment systems",
-      "Maintained and updated legacy systems"
-    ]
-  },
-  {
-    title: "Frontend Developer",
-    company: "StartupXYZ",
-    startDate: "2018",
-    endDate: "2020",
-    extra: [
-      "Built modern user interfaces with React and TypeScript",
-      "Implemented responsive designs and improved mobile experience",
-      "Collaborated with UX/UI designers to create intuitive interfaces",
-      "Participated in agile development processes"
-    ]
-  }
-];
-
 const Experience = () => {
   const { cvData } = useCvData() || {};
-
-  // Use CV data if available, otherwise fall back to mock data
-  const experienceData = cvData?.experience?.length > 0 ? cvData.experience : mockExperienceData;
 
   return (
     <section id="experience" className="relative w-full py-20 mx-auto bg-gray-900/10">
@@ -55,7 +12,7 @@ const Experience = () => {
         </div>
 
         <div className="space-y-8">
-          {experienceData.map((exp, index) => (
+          {cvData?.experience?.map((exp, index) => (
             <div 
               key={index}
               className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 hover:border-blue-400/50 transition-all duration-300"
