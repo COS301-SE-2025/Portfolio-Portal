@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import Earth from "../3DModels/Earth";
 import { useTheme } from '../../contexts/ThemeContext';
-
+import { Sparkles } from 'lucide-react';
 const HeroSection = forwardRef(({ id, show, handleScrollToSection }, ref) => {
   const { isDark } = useTheme();
 
@@ -48,8 +48,22 @@ const HeroSection = forwardRef(({ id, show, handleScrollToSection }, ref) => {
       }`}></div>
 
       {show && (
+        
         <div className={`relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
+          
           <div className="space-y-6 relative">
+                        <nav className="relative z-10 container mx-auto px-6 py-6">
+        <div className="flex items-center">
+          <Sparkles className={`w-8 h-8 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
+          <span
+            className={`text-2xl font-bold bg-clip-text text-transparent ${
+              isDark ? 'bg-gradient-to-r from-purple-400 to-pink-400' : 'bg-gradient-to-r from-purple-600 to-pink-600'
+            }`}
+          >
+            Portfolio Portal
+          </span>
+        </div>
+      </nav>
             {/* Glowing accent */}
             <div className={`absolute -left-4 top-0 w-1 h-32 rounded-full ${
               isDark ? 'bg-gradient-to-b from-blue-400 to-indigo-500' : 'bg-gradient-to-b from-purple-500 to-blue-600'
