@@ -243,17 +243,21 @@ const ProfileSection = () => {
     {
       title: "Space themed Portfolio",
       image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
-      description: "Full-stack e-commerce solution"
+      description: "Full-stack e-commerce solution",
+      link: "http://localhost:5173/space"
     },
     {
       title: "Forest themed Portfolio", 
       image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
-      description: "React-based productivity tool"
+      description: "React-based productivity tool",
+      link: "http://localhost:5173/forest"
+
     },
     {
       title: "Office themed Portfolio",
       image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
-      description: "Interactive analytics platform"
+      description: "Interactive analytics platform",
+      link: "http://localhost:5173/office"
     }
   ];
 
@@ -498,7 +502,13 @@ const ProfileSection = () => {
               </div>
               <div className="grid gap-6">
                 {portfolioPlaceholders.map((project, index) => (
-                  <div key={index} className="group cursor-pointer transform hover:scale-105 transition-all duration-300">
+                  <a 
+                    key={index} 
+                    href={project.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group cursor-pointer transform hover:scale-105 transition-all duration-300 block"
+                  >
                     <div className="relative overflow-hidden rounded-xl bg-gray-100 shadow-lg">
                       <img 
                         src={project.image} 
@@ -525,7 +535,7 @@ const ProfileSection = () => {
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">{project.description}</p>
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
