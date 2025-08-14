@@ -1,106 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2 } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 
-// Custom Hooks
-const useProfile = () => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError("User not logged in");
-        setLoading(false);
-        return;
-      }
-
-      // Use cached image URL if available
-      const cachedImageUrl = localStorage.getItem('imageURL');
-      if (cachedImageUrl) {
-        setProfile(prev => ({ ...prev, profile_picture_url: cachedImageUrl }));
-      }
-
-      try {
-        const response = await profileService.getProfile(token);
-        const publicImageUrl = response.data.profile_picture_url?.replace('/sign/', '/public/');
-        
-        localStorage.setItem('imageURL', publicImageUrl);
-        setProfile(response.data);
-      } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  return { profile, setProfile, loading, error };
-};
-
-const useProfilePicture = (profile, setProfile) => {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleUpload = async (file) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setError("User not logged in");
-      return;
-    }
-
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!validTypes.includes(file.type)) {
-      setError('Only JPEG, PNG, WebP, and GIF images are allowed');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size too large. Maximum size is 5MB');
-      return;
-    }
-
-    try {
-      setUploading(true);
-      setError(null);
-      
-      const response = await profileService.uploadProfilePicture(token, file);
-      
-      if (response.status >= 200 && response.status < 300) {
-        setProfile({ ...profile, profile_picture_url: response.data.profile_picture_url });
-      } else {
-        throw new Error(response.data?.error || 'Failed to upload profile picture');
-      }
-    } catch (err) {
-      setError(err.message || 'Failed to upload profile picture');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return { uploading, error, setError, handleUpload };
-};
-
-// Utility Functions
-const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', {
-  year: 'numeric', month: 'long', day: 'numeric'
-});
-
-const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
-
-// Reusable Components
+// Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
   useEffect(() => {
-    document.body.classList.toggle('modal-open', isOpen);
-    return () => document.body.classList.remove('modal-open');
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    // Cleanup to remove the class when the component unmounts or isOpen changes
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
@@ -113,106 +29,18 @@ const Modal = ({ isOpen, onClose, children }) => {
   );
 };
 
-const ErrorToast = ({ error, onClose }) => {
-  if (!error) return null;
-
-  return (
-    <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
-      <span className="block sm:inline">{error}</span>
-      <button className="absolute top-0 right-0 px-2 py-1" onClick={onClose}>×</button>
-    </div>
-  );
-};
-
-const ProfilePicture = ({ profile, onUpload }) => (
-  <div className="absolute -bottom-16 left-6">
-    <div className="relative group">
-      <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
-        {profile.profile_picture_url ? (
-          <img
-            src={profile.profile_picture_url || '/default-profile.jpg'}
-            alt="Profile"
-            onError={(e) => { e.target.src = '/default-profile.jpg'; }}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-            {getInitials(profile.name)}
-          </div>
-        )}
-      </div>
-      <label 
-        htmlFor="profile-picture-upload"
-        className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition-all duration-200 shadow-md"
-        title="Change profile picture"
-      >
-        <Edit className="w-4 h-4" />
-        <input
-          id="profile-picture-upload"
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => e.target.files[0] && onUpload(e.target.files[0])}
-        />
-      </label>
-    </div>
-  </div>
-);
-
-const ContactItem = ({  label, value, href, isEmail = false }) => (
-  <div className="flex items-center space-x-3">
-    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-      <Icon className="w-5 h-5 text-blue-600" />
-    </div>
-    <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <a 
-        href={isEmail ? `mailto:${value}` : href || value} 
-        target={isEmail ? undefined : "_blank"}
-        rel={isEmail ? undefined : "noopener noreferrer"}
-        className="text-blue-600 hover:underline"
-      >
-        {isEmail ? value : 'View Profile'}
-      </a>
-    </div>
-  </div>
-);
-
-const Section = ({ title, children, isEmpty, onEdit, emptyMessage }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6">
-    <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-      <Icon className="w-5 h-5 mr-2 text-blue-600" />
-      {title}
-    </h2>
-    {isEmpty ? (
-      <div className="text-center py-8">
-        <Icon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-500">{emptyMessage}</p>
-        <button onClick={onEdit} className="mt-3 text-blue-600 hover:underline text-sm">
-          Add {title.toLowerCase()}
-        </button>
-      </div>
-    ) : children}
-  </div>
-);
-
+// Profile Edit Form Component
 const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
-  const [formData, setFormData] = useState({
-    name: profile.name || '',
-    bio: profile.bio || '',
-    about: Array.isArray(profile.about_paragraphs) ? profile.about_paragraphs.join('\n\n') : '',
-    skills: Array.isArray(profile.skills) ? profile.skills.join(', ') : '',
-    certifications: Array.isArray(profile.certifications) ? profile.certifications.join(', ') : '',
-    linkedin: profile.linkedin || '',
-    github: profile.github || '',
-    cvUrl: profile.cv_url || '',
-  });
+  const [name, setName] = useState(profile.name || '');
+  const [bio, setBio] = useState(profile.bio || '');
+  const [about, setAbout] = useState(Array.isArray(profile.about_paragraphs) ? profile.about_paragraphs.join('\n\n') : '');
+  const [skills, setSkills] = useState(Array.isArray(profile.skills) ? profile.skills.join(', ') : '');
+  const [certifications, setCertifications] = useState(Array.isArray(profile.certifications) ? profile.certifications.join(', ') : '');
+  const [linkedin, setLinkedin] = useState(profile.linkedin || '');
+  const [github, setGithub] = useState(profile.github || '');
+  const [cvUrl, setCvUrl] = useState(profile.cv_url || '');
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -220,14 +48,14 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
     setErrors([]);
 
     const updatedData = {
-      name: formData.name.trim(),
-      bio: formData.bio.trim(),
-      about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(p => p !== ''),
-      skills: formData.skills.split(',').map(s => s.trim()).filter(s => s !== ''),
-      certifications: formData.certifications.split(',').map(c => c.trim()).filter(c => c !== ''),
-      linkedin: formData.linkedin.trim(),
-      github: formData.github.trim(),
-      cv_url: formData.cvUrl.trim(),
+      name: name.trim(),
+      bio: bio.trim(),
+      about_paragraphs: about.split('\n\n').map(p => p.trim()).filter(p => p !== ''),
+      skills: skills.split(',').map(s => s.trim()).filter(s => s !== ''),
+      certifications: certifications.split(',').map(c => c.trim()).filter(c => c !== ''),
+      linkedin: linkedin.trim(),
+      github: github.trim(),
+      cv_url: cvUrl.trim(),
     };
 
     try {
@@ -246,17 +74,6 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
     }
   };
 
-  const formFields = [
-    { key: 'name', label: 'Name', type: 'input' },
-    { key: 'bio', label: 'Bio', type: 'textarea', rows: 3 },
-    { key: 'about', label: 'About (each paragraph separated by a blank line)', type: 'textarea', rows: 10 },
-    { key: 'skills', label: 'Skills (comma-separated)', type: 'input' },
-    { key: 'certifications', label: 'Certifications (comma-separated)', type: 'input' },
-    { key: 'linkedin', label: 'LinkedIn URL', type: 'input' },
-    { key: 'github', label: 'GitHub URL', type: 'input' },
-    { key: 'cvUrl', label: 'CV URL', type: 'input' },
-  ];
-
   return (
     <div className="space-y-4">
       {errors.length > 0 && (
@@ -269,29 +86,80 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
           </ul>
         </div>
       )}
-      
-      {formFields.map(({ key, label, type, rows }) => (
-        <div key={key}>
-          <label htmlFor={key} className="block text-sm font-medium text-gray-700">{label}</label>
-          {type === 'textarea' ? (
-            <textarea
-              id={key}
-              value={formData[key]}
-              onChange={(e) => handleChange(key, e.target.value)}
-              rows={rows}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          ) : (
-            <input
-              id={key}
-              value={formData[key]}
-              onChange={(e) => handleChange(key, e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          )}
-        </div>
-      ))}
-      
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="bio" className="block text-sm font-medium text-gray-700">Bio</label>
+        <textarea
+          id="bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          rows={3}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="about" className="block text-sm font-medium text-gray-700">About (each paragraph separated by a blank line)</label>
+        <textarea
+          id="about"
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
+          rows={10}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="skills" className="block text-sm font-medium text-gray-700">Skills (comma-separated)</label>
+        <input
+          id="skills"
+          value={skills}
+          onChange={(e) => setSkills(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="certifications" className="block text-sm font-medium text-gray-700">Certifications (comma-separated)</label>
+        <input
+          id="certifications"
+          value={certifications}
+          onChange={(e) => setCertifications(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">LinkedIn URL</label>
+        <input
+          id="linkedin"
+          value={linkedin}
+          onChange={(e) => setLinkedin(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="github" className="block text-sm font-medium text-gray-700">GitHub URL</label>
+        <input
+          id="github"
+          value={github}
+          onChange={(e) => setGithub(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
+      <div>
+        <label htmlFor="cvUrl" className="block text-sm font-medium text-gray-700">CV URL</label>
+        <input
+          id="cvUrl"
+          value={cvUrl}
+          onChange={(e) => setCvUrl(e.target.value)}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+      </div>
       <div className="flex justify-end space-x-4">
         <button type="button" onClick={onClose} className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
           Cancel
@@ -305,9 +173,131 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
 };
 
 const ProfileSection = () => {
-  const { profile, setProfile, loading, error } = useProfile();
-  const { uploading, error: pictureError, setError: setPictureError, handleUpload } = useProfilePicture(profile, setProfile);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [profilePictureError, setProfilePictureError] = useState(null);
+  const [profilePic, setProfilePic] = useState('');
+
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    setError("User not logged in");
+    setLoading(false);
+    return;
+  }
+
+  // Priority 1: Use cached image URL from localStorage (fastest)
+  const cachedImageUrl = localStorage.getItem('imageURL');
+  if (cachedImageUrl) {
+    setProfile(prev => ({ ...prev, profile_picture_url: cachedImageUrl }));
+  }
+
+  // Priority 2: Fetch fresh profile data (fallback)
+  const fetchProfile = async () => {
+    try {
+      const response = await profileService.getProfile(token);
+      const publicImageUrl = response.data.profile_picture_url?.replace('/sign/', '/public/');
+      
+      // Update localStorage and state
+      localStorage.setItem('imageURL', publicImageUrl);
+      setProfile(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || err.message || 'Failed to load profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProfile();
+}, []);
+
+  
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getInitials = (name) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
+
+  const handleProfilePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setProfilePictureError("User not logged in");
+      return;
+    }
+    console.log(token);
+
+    try {
+      setUploading(true);
+      setProfilePictureError(null);
+      
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB');
+      }
+
+      const response = await profileService.uploadProfilePicture(token, file);
+      
+      if (response.status >= 200 && response.status < 300) {
+        setProfile({
+          ...profile,
+          profile_picture_url: response.data.profile_picture_url
+        });
+      } else {
+        throw new Error(response.data?.error || 'Failed to upload profile picture');
+      }
+    } catch (err) {
+      setProfilePictureError(err.message || 'Failed to upload profile picture');
+    } finally {
+      setUploading(false);
+      // Reset the input
+      e.target.value = null;
+    }
+  };
+
+  const handleDeleteProfilePicture = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setProfilePictureError("User not logged in");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setProfilePictureError(null);
+      await profileService.deleteProfilePicture(token);
+      setProfile({
+        ...profile,
+        profile_picture_url: null
+      });
+    } catch (err) {
+      setProfilePictureError(err.message || 'Failed to delete profile picture');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleEditClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -337,45 +327,89 @@ const ProfileSection = () => {
 
   if (!profile) return null;
 
-  const contactItems = [
-    { icon: Mail, label: 'Email', value: profile.email, isEmail: true },
-    profile.github && { icon: Github, label: 'GitHub', value: profile.github },
-    profile.linkedin && { icon: Linkedin, label: 'LinkedIn', value: profile.linkedin },
-    profile.cv_url && { icon: FileText, label: 'Resume/CV', value: profile.cv_url },
-  ].filter(Boolean);
-
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <ErrorToast error={pictureError} onClose={() => setPictureError(null)} />
+      {/* Profile picture error toast */}
+      {profilePictureError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+          <span className="block sm:inline">{profilePictureError}</span>
+          <button 
+            className="absolute top-0 right-0 px-2 py-1" 
+            onClick={() => setProfilePictureError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Header Section */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
-          <ProfilePicture profile={profile} onUpload={handleUpload} uploading={uploading} />
-        </div>
-
-        <div className="pt-20 px-6 pb-6">
-          <div className="flex justify-end">
-            <button 
-              onClick={handleEditClick} 
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Profile
-            </button>
-          </div>
-
-          <div className="mt-4">
-            <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
-            {profile.bio && <p className="text-lg text-gray-600 mt-2">{profile.bio}</p>}
-            <div className="flex items-center text-sm text-gray-500 mt-2">
-              <Calendar className="w-4 h-4 mr-1" />
-              Member since {formatDate(profile.created_at)}
+<div className="bg-white rounded-xl shadow-lg overflow-hidden">
+  <div className="bg-gradient-to-r from-blue-600 to-purple-600 h-32 relative">
+    {/* Profile Picture Container - Now properly positioned */}
+    <div className="absolute -bottom-16 left-6">
+      <div className="relative group">
+        {/* Profile Image with proper sizing and spacing */}
+        <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
+          {profile.profile_picture_url ? (
+<img
+  src={profile?.profile_picture_url || '/default-profile.jpg'}
+  alt="Profile"
+  onError={(e) => {
+    e.target.src = '/default-profile.jpg'; // Fallback if image fails to load
+  }}
+/>
+          ) : (
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+              {getInitials(profile.name)}
             </div>
-          </div>
+          )}
         </div>
-      </div>
 
+        {/* Upload Button - Better positioned */}
+        <label 
+          htmlFor="profile-picture-upload"
+          className="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition-all duration-200 shadow-md"
+          title="Change profile picture"
+        >
+          <Edit className="w-4 h-4" />
+          <input
+            id="profile-picture-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleProfilePictureUpload}
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  {/* Name and Bio Section - Adjusted spacing */}
+  <div className="pt-20 px-6 pb-6"> {/* Increased pt-20 to accommodate profile picture */}
+    <div className="flex justify-end">
+      <button 
+        onClick={handleEditClick} 
+        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        <Edit className="w-4 h-4 mr-2" />
+        Edit Profile
+      </button>
+    </div>
+
+    <div className="mt-4"> {/* Reduced mt-6 to mt-4 for better spacing */}
+      <h1 className="text-3xl font-bold text-gray-900">{profile.name}</h1>
+      {profile.bio && (
+        <p className="text-lg text-gray-600 mt-2">{profile.bio}</p>
+      )}
+      <div className="flex items-center text-sm text-gray-500 mt-2">
+        <Calendar className="w-4 h-4 mr-1" />
+        Member since {formatDate(profile.created_at)}
+      </div>
+    </div>
+  </div>
+</div>
+
+      {/* Modal for Editing Profile */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <ProfileEditForm profile={profile} onUpdate={handleUpdateProfile} onClose={handleCloseModal} />
       </Modal>
@@ -387,76 +421,193 @@ const ProfileSection = () => {
           Contact Information
         </h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {contactItems.map((item, index) => (
-            <ContactItem key={index} {...item} />
-          ))}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Mail className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Email</p>
+              <a href={`mailto:${profile.email}`} className="text-blue-600 hover:underline">
+                {profile.email}
+              </a>
+            </div>
+          </div>
+
+          {profile.github && (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <Github className="w-5 h-5 text-gray-700" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">GitHub</p>
+                <a 
+                  href={profile.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View Profile
+                </a>
+              </div>
+            </div>
+          )}
+
+          {profile.linkedin && (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Linkedin className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">LinkedIn</p>
+                <a 
+                  href={profile.linkedin} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  View Profile
+                </a>
+              </div>
+            </div>
+          )}
+
+          {profile.cv_url && (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Resume/CV</p>
+                <a 
+                  href={profile.cv_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  Download CV
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* About Section */}
-      <Section 
-        title="About" 
-        icon={User} 
-        isEmpty={!profile.about_paragraphs} 
-        onEdit={handleEditClick}
-        emptyMessage="No about information added yet."
-      >
-        <div className="prose text-gray-700">
-          {Array.isArray(profile.about_paragraphs) ? (
-            profile.about_paragraphs.map((paragraph, index) => (
-              <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
-            ))
-          ) : (
-            <p>{profile.about_paragraphs}</p>
-          )}
+      {profile.about_paragraphs && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <User className="w-5 h-5 mr-2 text-blue-600" />
+            About
+          </h2>
+          <div className="prose text-gray-700">
+            {Array.isArray(profile.about_paragraphs) ? (
+              profile.about_paragraphs.map((paragraph, index) => (
+                <p key={index} className="mb-4 last:mb-0">{paragraph}</p>
+              ))
+            ) : (
+              <p>{profile.about_paragraphs}</p>
+            )}
+          </div>
         </div>
-      </Section>
+      )}
 
       {/* Skills Section */}
-      <Section 
-        title="Skills" 
-        icon={Code} 
-        isEmpty={!profile.skills} 
-        onEdit={handleEditClick}
-        emptyMessage="No skills added yet."
-      >
-        <div className="flex flex-wrap gap-2">
-          {Array.isArray(profile.skills) ? (
-            profile.skills.map((skill, index) => (
-              <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                {skill}
+      {profile.skills && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Code className="w-5 h-5 mr-2 text-blue-600" />
+            Skills
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {Array.isArray(profile.skills) ? (
+              profile.skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                >
+                  {skill}
+                </span>
+              ))
+            ) : (
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                {profile.skills}
               </span>
-            ))
-          ) : (
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-              {profile.skills}
-            </span>
-          )}
+            )}
+          </div>
         </div>
-      </Section>
+      )}
 
       {/* Certifications Section */}
-      <Section 
-        title="Certifications" 
-        icon={Award} 
-        isEmpty={!profile.certifications} 
-        onEdit={handleEditClick}
-        emptyMessage="No certifications added yet."
-      >
-        <div className="space-y-3">
-          {Array.isArray(profile.certifications) ? (
-            profile.certifications.map((cert, index) => (
-              <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                <p className="font-medium text-gray-900">{cert}</p>
+      {profile.certifications && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Award className="w-5 h-5 mr-2 text-blue-600" />
+            Certifications
+          </h2>
+          <div className="space-y-3">
+            {Array.isArray(profile.certifications) ? (
+              profile.certifications.map((cert, index) => (
+                <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                  <p className="font-medium text-gray-900">{cert}</p>
+                </div>
+              ))
+            ) : (
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="font-medium text-gray-900">{profile.certifications}</p>
               </div>
-            ))
-          ) : (
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="font-medium text-gray-900">{profile.certifications}</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </Section>
+      )}
+
+      {/* Empty State Sections */}
+      {!profile.about_paragraphs && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <User className="w-5 h-5 mr-2 text-blue-600" />
+            About
+          </h2>
+          <div className="text-center py-8">
+            <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No about information added yet.</p>
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
+              Add about section
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!profile.skills && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Code className="w-5 h-5 mr-2 text-blue-600" />
+            Skills
+          </h2>
+          <div className="text-center py-8">
+            <Code className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No skills added yet.</p>
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
+              Add skills
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!profile.certifications && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+            <Award className="w-5 h-5 mr-2 text-blue-600" />
+            Certifications
+          </h2>
+          <div className="text-center py-8">
+            <Award className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No certifications added yet.</p>
+            <button onClick={handleEditClick} className="mt-3 text-blue-600 hover:underline text-sm">
+              Add certifications
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
