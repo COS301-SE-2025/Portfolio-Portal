@@ -60,16 +60,14 @@ body.modal-open .navbar {
   display: none;
 }
 
-/* Adjust the form container to prevent overlap with the navbar and remove bottom white space */
 .form-container {
-  padding-top: 60px; /* Adjust this value if your navbar height differs */
+  padding-top: 60px; 
   margin-bottom: 50px;
   padding-bottom: 0;
 }
 
-/* Make text visible in input fields by setting a dark font color */
 input, textarea {
-  color: #000; /* Black text for visibility */
+  color: #000;
 }
 
 .profile-image-container {
