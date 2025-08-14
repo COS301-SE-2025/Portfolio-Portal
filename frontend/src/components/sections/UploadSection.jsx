@@ -110,8 +110,12 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     formData.append('cv', file);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5050/api/ocr/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
       });
 
