@@ -10,7 +10,6 @@ import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
-import CavePage from "./pages/CavePage";
 
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space'];
 
@@ -29,8 +28,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/office" element={<OfficePage />} />
           <Route path="/forest" element={<ForestPage />} />
-          <Route path="/cave" element={<CavePage />} />
-          
+
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
