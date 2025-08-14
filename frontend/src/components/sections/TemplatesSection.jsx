@@ -3,7 +3,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import TemplateCard from '../TemplateCard';
 import templates from '../../data/Templates';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -105,12 +105,17 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
 
             {/* Carousel */}
             <Swiper
-              modules={[Navigation, Pagination]}
+              modules={[Navigation, Pagination, Autoplay]}
               grabCursor={true}
               centeredSlides={true}
               loop={true}
               slidesPerView={3}
               spaceBetween={30}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
               navigation={{
                 prevEl: '.swiper-button-prev-custom',
                 nextEl: '.swiper-button-next-custom',
