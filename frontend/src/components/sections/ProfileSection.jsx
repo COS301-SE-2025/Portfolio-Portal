@@ -124,7 +124,7 @@ const ErrorToast = ({ error, onClose }) => {
   );
 };
 
-const ProfilePicture = ({ profile, onUpload, uploading }) => (
+const ProfilePicture = ({ profile, onUpload }) => (
   <div className="absolute -bottom-16 left-6">
     <div className="relative group">
       <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-100 overflow-hidden">
@@ -159,7 +159,7 @@ const ProfilePicture = ({ profile, onUpload, uploading }) => (
   </div>
 );
 
-const ContactItem = ({ icon: Icon, label, value, href, isEmail = false }) => (
+const ContactItem = ({  label, value, href, isEmail = false }) => (
   <div className="flex items-center space-x-3">
     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
       <Icon className="w-5 h-5 text-blue-600" />
@@ -178,7 +178,7 @@ const ContactItem = ({ icon: Icon, label, value, href, isEmail = false }) => (
   </div>
 );
 
-const Section = ({ title, icon: Icon, children, isEmpty, onEdit, emptyMessage }) => (
+const Section = ({ title, children, isEmpty, onEdit, emptyMessage }) => (
   <div className="bg-white rounded-xl shadow-lg p-6">
     <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
       <Icon className="w-5 h-5 mr-2 text-blue-600" />
