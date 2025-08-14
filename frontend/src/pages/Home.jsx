@@ -1,6 +1,5 @@
 // frontend/src/pages/Home.jsx
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
-import ThemeToggleButton from "../components/ThemeToggleButton";
+import { useState, useEffect, useRef } from "react";
 import HeroSection from "../components/sections/HeroSection";
 import HowItWorksSection from "../components/sections/HowItWorksSection";
 import UploadSection from "../components/sections/UploadSection";
@@ -8,9 +7,7 @@ import TemplatesSection from "../components/sections/TemplatesSection";
 import AboutSection from "../components/sections/AboutSection";
 import HelpMenu from "../components/HelpMenu";
 import { useTheme } from "../contexts/ThemeContext";
-
-// Lazy load ProfileSection
-const ProfileSection = lazy(() => import("../components/sections/ProfileSection"));
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const [showHero, setShowHero] = useState(false);
@@ -18,13 +15,11 @@ const Home = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const heroRef = useRef(null);
   const howItWorksRef = useRef(null);
   const uploadRef = useRef(null);
   const templatesRef = useRef(null);
   const aboutRef = useRef(null);
-  const profileRef = useRef(null);
   const { isDark } = useTheme();
 
   useEffect(() => {
@@ -42,7 +37,6 @@ const Home = () => {
           if (entry.target.id === "upload-section") setShowUpload(true);
           if (entry.target.id === "templates-section") setShowTemplates(true);
           if (entry.target.id === "about-section") setShowAbout(true);
-          if (entry.target.id === "profile-section") setShowProfile(true);
         }
       });
     }, observerOptions);
@@ -52,7 +46,6 @@ const Home = () => {
     if (uploadRef.current) observer.observe(uploadRef.current);
     if (templatesRef.current) observer.observe(templatesRef.current);
     if (aboutRef.current) observer.observe(aboutRef.current);
-    if (profileRef.current) observer.observe(profileRef.current);
 
     return () => {
       if (heroRef.current) observer.unobserve(heroRef.current);
@@ -60,7 +53,6 @@ const Home = () => {
       if (uploadRef.current) observer.unobserve(uploadRef.current);
       if (templatesRef.current) observer.unobserve(templatesRef.current);
       if (aboutRef.current) observer.unobserve(aboutRef.current);
-      if (profileRef.current) observer.unobserve(profileRef.current);
     };
   }, []);
 
@@ -141,19 +133,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Theme Toggle Button */}
-      <div className="absolute top-4 right-4 flex items-center space-x-4 z-50">
-        <div
-          className={`rounded-full p-2 transition-all ${
-            isDark
-              ? 'bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20'
-              : 'bg-gray-200/50 backdrop-blur-sm border border-gray-300/50 hover:bg-gray-300/50'
-          }`}
-        >
-          <ThemeToggleButton />
-        </div>
-      </div>
-
       {/* Sections */}
       <div className="relative z-10">
         <HeroSection
@@ -190,16 +169,6 @@ const Home = () => {
           show={showAbout}
           className={isDark ? 'text-white' : 'text-gray-900'}
         />
-        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>}>
-          <ProfileSection
-            id="profile-section"
-            ref={profileRef}
-            show={showProfile}
-            className={isDark ? 'text-white' : 'text-gray-900'}
-          />
-        </Suspense>
         <HelpMenu />
       </div>
 

@@ -1,5 +1,4 @@
 import { useTheme } from '../contexts/ThemeContext';
-import ThemeToggleButton from '../components/ThemeToggleButton';
 import { Sparkles } from 'lucide-react';
 
 const AuthLayout = ({ title, subtitle, children }) => {
@@ -65,19 +64,6 @@ const AuthLayout = ({ title, subtitle, children }) => {
             }}
           />
         ))}
-      </div>
-
-      {/* Theme Toggle Button */}
-      <div className="absolute top-4 right-4 z-50">
-        <div
-          className={`rounded-full p-2 transition-all ${
-            isDark
-              ? 'bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20'
-              : 'bg-gray-200/50 backdrop-blur-sm border border-gray-300/50 hover:bg-gray-300/50'
-          }`}
-        >
-          <ThemeToggleButton />
-        </div>
       </div>
 
       {/* Navigation */}
