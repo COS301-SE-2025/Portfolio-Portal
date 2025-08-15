@@ -301,19 +301,16 @@ const handleProfilePictureUpload = async (e) => {
     {
       title: "Space themed Portfolio",
       image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
-      description: "Full-stack e-commerce solution",
       link: "http://localhost:5173/space"
     },
     {
       title: "Forest themed Portfolio", 
       image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
-      description: "React-based productivity tool",
       link: "http://localhost:5173/forest"
     },
     {
       title: "Office themed Portfolio",
       image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
-      description: "Interactive analytics platform",
       link: "http://localhost:5173/office"
     }
   ];
@@ -702,7 +699,6 @@ const handleProfilePictureUpload = async (e) => {
                           <div className="flex items-center justify-between text-white">
                             <div>
                               <h3 className="font-bold text-lg">{project.title}</h3>
-                              <p className="text-sm opacity-90">{project.description}</p>
                             </div>
                             <div className={`rounded-full p-2 ${
                               isDark ? 'bg-white/20' : 'bg-white/20'
