@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
 
+
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 import CavePage from "./pages/CavePage";
