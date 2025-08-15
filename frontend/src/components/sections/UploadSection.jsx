@@ -6,32 +6,6 @@ import cvDataService from '../../services/cvDataService';
 import Robot from '../3DModels/Robot';
 import SectionWrapper from './SectionWrapper';
 
-const templates = [
-  {
-    id: 'space',
-    name: 'Space',
-    description: 'A futuristic, cosmic-themed portfolio with stellar animations',
-    image: '/images/space.png',
-    color: 'from-purple-600 to-blue-600',
-    preview: 'bg-gradient-to-br from-purple-900 to-blue-900'
-  },
-  {
-    id: 'office',
-    name: 'Office',
-    description: 'Clean, professional design perfect for corporate environments',
-    image: '/images/office.png',
-    color: 'from-gray-600 to-slate-600',
-    preview: 'bg-gradient-to-br from-gray-100 to-slate-200'
-  },
-  {
-    id: 'forest',
-    name: 'Forest',
-    description: 'Nature-inspired design with organic elements and earth tones',
-    image: '/images/forest.png',
-    color: 'from-green-600 to-emerald-600',
-    preview: 'bg-gradient-to-br from-green-800 to-emerald-900'
-  }
-];
 
 const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [file, setFile] = useState(null);
@@ -40,22 +14,36 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [showTemplateSelection, setShowTemplateSelection] = useState(false);
+  const [showCvData, setShowCvData] = useState(false);
   const fileInputRef = useRef(null);
+
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsEntering(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleFileChange = (selectedFile) => {
     if (!selectedFile) return;
 
-    const validFormats = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const validFormats = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
     if (!validFormats.includes(selectedFile.type)) {
-      alert('Please upload a PDF or DOCX file');
+      alert("Please upload a PDF or DOCX file");
       return;
     }
 
     setFile(selectedFile);
     setIsLoading(true);
     setError(null);
-    setShowTemplateSelection(false);
+
+    setCvData(null);
+    setShowCvData(false);
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -80,40 +68,51 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const triggerFileInput = () => fileInputRef.current.click();
 
   const handleSubmitCV = async () => {
-    if (!file) return setError('No file selected');
+
+    if (!file) {
+      setError("No file selected");
+      return;
+    }
 
     setIsProcessing(true);
     setError(null);
 
     const formData = new FormData();
-    formData.append('cv', file);
+    formData.append("cv", file);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5050/api/ocr/upload', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5050/api/ocr/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const result = await response.json();
+      
+      console.log("CV rocessing Result:", result);
       if (result.success) {
         cvDataService.setData(result.data);
-        setShowTemplateSelection(true);
+
+        // immediately redirect to the selected template
+        const template = result.template || "space"; // default to space if none selected
+        console.log("Redirecting to template:", template);
+        window.location.href = `/${template}`;
       } else {
-        setError('Failed to process CV');
+        setError("Failed to process CV");
       }
     } catch (err) {
+
+      console.error("Upload error:", err);
       setError(`Upload failed: ${err.message}`);
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handleTemplateSelect = (templateId) => {
-    window.open(`http://localhost:5173/${templateId}`, '_blank');
   };
 
   return (
@@ -363,3 +362,4 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
 });
 
 export default UploadSection;
+
