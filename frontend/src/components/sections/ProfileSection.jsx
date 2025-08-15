@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2, ExternalLink, X, Camera, MapPin, Briefcase } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, ExternalLink, X, Camera, Briefcase } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 import { useTheme } from '../../contexts/ThemeContext';
 import './ProfileSection.css';
 
-// Modal Component with improved animations
+// Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
   const { isDark } = useTheme();
 
@@ -14,6 +14,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
+  
   return (
     <div className={`fixed inset-0 ${isDark ? 'bg-black/70' : 'bg-black/60'} backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn`}>
       <div className={`rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform animate-slideUp ${
@@ -186,38 +187,17 @@ const ProfileSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profilePictureError, setProfilePictureError] = useState(null);
-  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
-  const [pictureLoading, setPictureLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
 
-    const fetchProfilePicture = async (userId) => {
-    try {
-      setPictureLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/users/me/profile-picture`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch profile picture');
-      
-      const data = await response.json();
-      return data.profile_picture_url;
-    } catch (error) {
-      console.error('Profile picture fetch error:', error);
-      return null;
-    } finally {
-      setPictureLoading(false);
+  // Initialize profile image from localStorage
+  useEffect(() => {
+    const imageUrl = localStorage.getItem('imageURL');
+    if (imageUrl) {
+      setProfileImage(imageUrl);
     }
-  };
-    useEffect(() => {
-      const imageUrl = localStorage.getItem('imageURL');
-      if (imageUrl) {
-        setProfileImage(imageUrl);
-      }
-    }, []);
+  }, []);
 
+  // Fetch profile data
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -230,12 +210,6 @@ const ProfileSection = () => {
       try {
         const response = await profileService.getProfile(token);
         setProfile(response.data);
-        
-        // Fetch signed URL for profile picture
-        if (response.data.id) {
-          const url = await fetchProfilePicture(response.data.id);
-          setProfilePictureUrl(url);
-        }
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to load profile');
       } finally {
@@ -245,40 +219,42 @@ const ProfileSection = () => {
     fetchProfile();
   }, []);
 
-  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 
-const handleProfilePictureUpload = async (e) => {
+  const handleProfilePictureUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const token = localStorage.getItem('token');
     if (!token) return setProfilePictureError("User not logged in");
 
+    let tempUrl = null;
     try {
       setUploading(true);
       setProfilePictureError(null);
       
       // Create temporary URL for immediate preview
-      const tempUrl = URL.createObjectURL(file);
-      setProfilePictureUrl(tempUrl);
+      tempUrl = URL.createObjectURL(file);
+      setProfileImage(tempUrl);
       
-      // Validate file type
+      // Validate file
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
       if (!allowedTypes.includes(file.type)) {
         throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
       }
       
-      // Validate file size
       if (file.size > 5 * 1024 * 1024) {
         throw new Error('File size too large. Maximum size is 5MB');
       }
 
-      // Create FormData and append file
-      const formData = new FormData();
-      formData.append('profilePicture', file);  // Must match backend field name
-
       // Upload to backend
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+      
       const response = await profileService.uploadProfilePicture(formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -286,34 +262,36 @@ const handleProfilePictureUpload = async (e) => {
         }
       });
 
-      if (response) {
-        // Refresh with new signed URL
-        const newUrl = await fetchProfilePicture(profile.id);
-        if (newUrl) {
-          setProfilePictureUrl(newUrl);
-        }
+      // Save new URL to localStorage and state
+      if (response.data && response.data.profile_picture_url) {
+        const newUrl = response.data.profile_picture_url;
+        localStorage.setItem('imageURL', newUrl);
+        setProfileImage(newUrl);
+      } else {
+        throw new Error('Failed to get new profile picture URL');
       }
     } catch (err) {
       setProfilePictureError(err.message || 'Failed to upload profile picture');
+      
       // Revert to previous image on error
-      if (profile?.profile_picture_url) {
-        setProfilePictureUrl(profile.profile_picture_url);
-      } else {
-        setProfilePictureUrl(null);
-      }
+      const oldUrl = localStorage.getItem('imageURL');
+      setProfileImage(oldUrl);
     } finally {
       setUploading(false);
+      
+      // Clean up temporary URL
+      if (tempUrl) URL.revokeObjectURL(tempUrl);
+      
       e.target.value = null;
     }
   };
-
-
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
   );
+  
   if (error) return (
     <div className="max-w-7xl mx-auto p-6">
       <div className={`border rounded-lg p-4 ${isDark ? 'bg-red-900/50 border-red-700' : 'bg-red-50 border-red-200'}`}>
@@ -322,6 +300,7 @@ const handleProfilePictureUpload = async (e) => {
       </div>
     </div>
   );
+  
   if (!profile) return null;
 
   const portfolioPlaceholders = [
@@ -400,41 +379,41 @@ const handleProfilePictureUpload = async (e) => {
                   <div className="absolute inset-0 bg-black/10"></div>
                   <div className="absolute -bottom-20 left-8">
                     <div className="relative group">
-        <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
-          isDark ? 'bg-slate-700' : 'bg-gray-100'
-        }`}>
-          {profileImage ? (
-            <img 
-              src={profileImage} 
-              alt="Profile" 
-              className="w-full h-full rounded-full object-cover"
-              onError={() => { setProfileImage(null);
-              }} 
-            />
-          ) : (
-            <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
-              isDark 
-                ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' 
-                : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
-            }`}>
-            </div>
-          )}
-        </div>
-        <label htmlFor="profile-picture-upload" className={`absolute -bottom-2 -right-2 rounded-full p-3 cursor-pointer hover:scale-110 transition-all duration-200 shadow-lg group-hover:shadow-xl ${
-          isDark 
-            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500' 
-            : 'bg-blue-600 hover:bg-blue-700'
-        }`} title="Change profile picture">
-          <Camera className="w-5 h-5 text-white" />
-          <input 
-            id="profile-picture-upload" 
-            type="file" 
-            accept="image/*" 
-            className="hidden" 
-            onChange={handleProfilePictureUpload} 
-          />
-        </label>
-      </div>
+                      <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
+                        isDark ? 'bg-slate-700' : 'bg-gray-100'
+                      }`}>
+                        {profileImage ? (
+                          <img 
+                            src={profileImage} 
+                            alt="Profile" 
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
+                            isDark 
+                              ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' 
+                              : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
+                          }`}>
+                            {profile.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                        )}
+                      </div>
+                      <label htmlFor="profile-picture-upload" className={`absolute -bottom-2 -right-2 rounded-full p-3 cursor-pointer hover:scale-110 transition-all duration-200 shadow-lg group-hover:shadow-xl ${
+                        isDark 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500' 
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      }`} title="Change profile picture">
+                        <Camera className="w-5 h-5 text-white" />
+                        <input 
+                          id="profile-picture-upload" 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleProfilePictureUpload} 
+                          disabled={uploading}
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="pt-24 px-8 pb-8">
