@@ -1,6 +1,6 @@
 import { Link } from "react-scroll";
 import { useState } from "react";
-import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
+import useCvData from '../../../hooks/useCVData' 
 
 const Navbar = () => {
   const [active, setActive] = useState("");

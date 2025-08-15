@@ -18,6 +18,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [showCvData, setShowCvData] = useState(false);
   const fileInputRef = useRef(null);
 
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsEntering(false);
@@ -42,6 +43,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     setError(null);
     setCvData(null);
     setShowCvData(false);
+
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -108,6 +110,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
         const template = result.template || "space"; // default to space if none selected
         console.log("Redirecting to template:", template);
         window.location.href = `/${template}`;
+
       } else {
         setError("Failed to process CV");
       }
@@ -142,7 +145,9 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
             >
               Supported formats: PDF, DOCX. Our system will read your CV and
               start building your portfolio
+
             </p>
+            
             <div
               className={`border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${
                 isDark
@@ -155,11 +160,15 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                         : "bg-white/50 hover:bg-white/80"
                     } shadow-lg`
               }`}
+
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={triggerFileInput}
             >
+              {/* Button glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/10 to-indigo-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-xl"></div>
+              
               <input
                 type="file"
                 ref={fileInputRef}
@@ -187,9 +196,11 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                   strokeWidth="2"
                   d="M15 12v5m-3-3h6"
                 ></path>
+
               </svg>
-              <p className="text-xl">Drag & Drop</p>
+              <p className="relative z-10 text-xl font-medium">Drag & Drop</p>
             </div>
+            
             {!file && !isLoading && (
               <button
                 className={`mt-6 font-medium py-3 px-6 rounded-full transition-colors ${
@@ -197,11 +208,16 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                     ? "bg-white text-indigo-900 hover:bg-gray-200"
                     : "bg-slate-900 text-white hover:bg-slate-800"
                 }`}
+
                 onClick={triggerFileInput}
               >
-                Upload CV
+                {/* Button glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-indigo-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-full"></div>
+                
+                <span className="relative z-10">Upload CV</span>
               </button>
             )}
+            
             {isLoading && (
               <div className="mt-6 flex justify-center">
                 <div
@@ -211,8 +227,13 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 ></div>
               </div>
             )}
+            
             {error && (
-              <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+              <div className={`mt-4 p-4 rounded-xl border ${
+                isDark 
+                  ? 'bg-red-900/30 border-red-500/50 text-red-300' 
+                  : 'bg-red-50 border-red-200 text-red-700'
+              }`}>
                 <p className="font-medium">Error:</p>
                 <p>{error}</p>
               </div>
@@ -232,17 +253,28 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                     className="w-full h-full rounded"
                     title="PDF Preview"
                   ></iframe>
+
                 </div>
-                <div className="mt-6 flex gap-3 w-full">
+                <div className="flex gap-3 w-full">
                   <button
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className={`relative flex-1 font-medium py-3 px-6 rounded-xl transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 group overflow-hidden ${
+                      isProcessing
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : isDark 
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-lg hover:shadow-blue-500/25' 
+                          : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 shadow-lg hover:shadow-purple-500/30'
+                    } transform hover:scale-105`}
                     onClick={handleSubmitCV}
                     disabled={isProcessing}
                   >
+                    {!isProcessing && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-indigo-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-xl"></div>
+                    )}
+                    
                     {isProcessing ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Processing...
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>Processing...</span>
                       </>
                     ) : (
                       "Process CV"
@@ -253,12 +285,12 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                       isDark
                         ? "bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
                         : "bg-white border-gray-300 hover:bg-gray-50 text-gray-700"
+
                     }`}
                     onClick={() => {
                       setFile(null);
                       setPreview(null);
                       setCvData(null);
-                      setShowCvData(false);
                       setError(null);
                     }}
                   >
@@ -281,9 +313,16 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 </button>
               </div>
             )}
+
           </div>
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="w-[32rem] h-[32rem]">
+          
+          <div className="hidden lg:flex items-center justify-center relative">
+            {/* Canvas container with glow */}
+            <div className={`absolute inset-0 rounded-xl ${
+              isDark ? 'bg-gradient-to-br from-slate-800/30 to-blue-900/20' : 'bg-gradient-to-br from-purple-100/50 to-blue-100/50'
+            } backdrop-blur-sm`}></div>
+            
+            <div className="w-[32rem] h-[32rem] relative">
               <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
                 <ambientLight intensity={1.5} />
                 <pointLight position={[10, 10, 10]} />
@@ -293,9 +332,24 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 </Suspense>
               </Canvas>
             </div>
+            
+            {/* Floating accent elements around canvas */}
+            <div className={`absolute -top-4 -right-4 w-8 h-8 rounded-full animate-bounce-slow ${
+              isDark ? 'bg-gradient-to-br from-blue-400 to-indigo-500' : 'bg-gradient-to-br from-purple-500 to-blue-600'
+            } shadow-lg`}></div>
+            <div className={`absolute -bottom-4 -left-4 w-6 h-6 rounded-full animate-float-medium ${
+              isDark ? 'bg-gradient-to-br from-indigo-400 to-purple-500' : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+            } shadow-lg`}></div>
           </div>
+
         </div>
       )}
+
+      {/* Enhanced floating particles */}
+      <div className={`absolute top-20 right-20 w-4 h-4 rounded-full animate-pulse ${isDark ? 'bg-blue-400 opacity-60' : 'bg-purple-500 opacity-70'} shadow-lg`}></div>
+      <div className={`absolute top-40 right-32 w-6 h-6 rounded-full animate-pulse delay-1000 ${isDark ? 'bg-indigo-400 opacity-40' : 'bg-blue-500 opacity-60'} shadow-lg`}></div>
+      <div className={`absolute top-32 right-16 w-3 h-3 rounded-full animate-pulse delay-500 ${isDark ? 'bg-slate-300 opacity-50' : 'bg-green-500 opacity-70'} shadow-lg`}></div>
+      <div className={`absolute bottom-32 left-16 w-5 h-5 rounded-full animate-pulse delay-700 ${isDark ? 'bg-purple-500 opacity-45' : 'bg-indigo-500 opacity-65'} shadow-lg`}></div>
     </div>
   );
 });
@@ -314,8 +368,87 @@ const styles = `
     }
   }
 
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(180deg);
+    }
+  }
+
+  @keyframes float-medium {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-15px) rotate(90deg);
+    }
+  }
+
+  @keyframes float-fast {
+    0%, 100% {
+      transform: translateY(0px) scale(1);
+    }
+    50% {
+      transform: translateY(-10px) scale(1.1);
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-10px) scale(1.05);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
   .animate-fadeIn {
     animation: fadeIn 0.8s ease-out;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+
+  .animate-float-medium {
+    animation: float-medium 4s ease-in-out infinite;
+  }
+
+  .animate-float-fast {
+    animation: float-fast 3s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
   }
 `;
 
