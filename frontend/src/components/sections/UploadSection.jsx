@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import Plane from '../3DModels/Plane';
 import cvDataService from '../../services/cvDataService';
 import { forwardRef } from 'react';
-
+import Graduation from '../3DModels/Graduation';
 const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -353,8 +352,8 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                 <ambientLight intensity={1.5} />
                 <pointLight position={[10, 10, 10]} />
                 <Suspense fallback={null}>
-                  <Plane />
-                  <OrbitControls enableZoom={false} autoRotate={false} />
+                  <Graduation />
+                  <OrbitControls enableZoom={false} autoRotate={true} />
                 </Suspense>
               </Canvas>
             </div>
