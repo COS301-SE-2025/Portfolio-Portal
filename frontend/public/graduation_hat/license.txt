@@ -1,0 +1,11 @@
+Model Information:
+* title:	Graduation Hat
+* source:	https://sketchfab.com/3d-models/graduation-hat-b0a7e821403b4c8cb8e1d32ea4075eac
+* author:	Delo (https://sketchfab.com/DevFaisal)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Graduation Hat" (https://sketchfab.com/3d-models/graduation-hat-b0a7e821403b4c8cb8e1d32ea4075eac) by Delo (https://sketchfab.com/DevFaisal) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

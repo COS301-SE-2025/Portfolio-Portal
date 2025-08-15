@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, Trash2, ExternalLink, X, Camera, MapPin, Briefcase } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, ExternalLink, X, Camera, Briefcase } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 import { useTheme } from '../../contexts/ThemeContext';
 import './ProfileSection.css';
 
-// Modal Component with improved animations
+// Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
   const { isDark } = useTheme();
 
@@ -14,6 +14,7 @@ const Modal = ({ isOpen, onClose, children }) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
+  
   return (
     <div className={`fixed inset-0 ${isDark ? 'bg-black/70' : 'bg-black/60'} backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn`}>
       <div className={`rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform animate-slideUp ${
@@ -54,32 +55,44 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors([]);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setErrors([]);
 
-    const updatedData = {
-      ...formData,
-      about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
-      skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
-      certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
-    };
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await profileService.updateProfile(token, updatedData);
-      if (response.status >= 200 && response.status < 300) {
-        onUpdate(response.data);
-      } else {
-        setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
-      }
-    } catch (err) {
-      setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
-    } finally {
-      setIsLoading(false);
-    }
+  const updatedData = {
+    ...formData,
+    about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
+    skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
+    certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
   };
+
+  // Remove empty or unchanged fields
+  const cleanedData = {};
+  Object.keys(updatedData).forEach(key => {
+    if (updatedData[key] && (Array.isArray(updatedData[key]) ? updatedData[key].length > 0 : updatedData[key] !== '')) {
+      cleanedData[key] = updatedData[key];
+    }
+  });
+
+  console.log('CleanedData:', cleanedData);
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await profileService.updateProfile(token, cleanedData);
+    console.log('Response:', response.data);
+    if (response.status >= 200 && response.status < 300) {
+      onUpdate(response.data);
+    } else {
+      setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
+    }
+  } catch (err) {
+    console.error('Update error:', err.response?.data || err.message);
+    setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleChange = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
 
@@ -186,7 +199,17 @@ const ProfileSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profilePictureError, setProfilePictureError] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
+  // Initialize profile image from localStorage
+  useEffect(() => {
+    const imageUrl = localStorage.getItem('imageURL');
+    if (imageUrl) {
+      setProfileImage(imageUrl);
+    }
+  }, []);
+
+  // Fetch profile data
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -195,14 +218,9 @@ const ProfileSection = () => {
       return;
     }
 
-    const cachedImageUrl = localStorage.getItem('imageURL');
-    if (cachedImageUrl) setProfile(prev => ({ ...prev, profile_picture_url: cachedImageUrl }));
-
     const fetchProfile = async () => {
       try {
         const response = await profileService.getProfile(token);
-        const publicImageUrl = response.data.profile_picture_url?.replace('/sign/', '/public/');
-        localStorage.setItem('imageURL', publicImageUrl);
         setProfile(response.data);
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to load profile');
@@ -213,43 +231,73 @@ const ProfileSection = () => {
     fetchProfile();
   }, []);
 
-  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
 
-  const handleProfilePictureUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const handleProfilePictureUpload = async (e) => {
+  const file = e.target.files[0];
+  console.log('Selected file:', file); // Debug
+  if (!file) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) return setProfilePictureError("User not logged in");
+  const token = localStorage.getItem('token');
+  if (!token) return setProfilePictureError("User not logged in");
 
-    try {
-      setUploading(true);
-      setProfilePictureError(null);
-      if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
-        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
-      }
-      if (file.size > 5 * 1024 * 1024) throw new Error('File size too large. Maximum size is 5MB');
+  let tempUrl = null;
+  try {
+    setUploading(true);
+    setProfilePictureError(null);
 
-      const response = await profileService.uploadProfilePicture(token, file);
-      if (response.status >= 200 && response.status < 300) {
-        setProfile({ ...profile, profile_picture_url: response.data.profile_picture_url });
-      } else {
-        throw new Error(response.data?.error || 'Failed to upload profile picture');
-      }
-    } catch (err) {
-      setProfilePictureError(err.message || 'Failed to upload profile picture');
-    } finally {
-      setUploading(false);
-      e.target.value = null;
+    tempUrl = URL.createObjectURL(file);
+    setProfileImage(tempUrl);
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
     }
-  };
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('File size too large. Maximum size is 5MB');
+    }
+
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+    console.log('FormData:', [...formData.entries()]); // Debug
+
+    const response = await profileService.uploadProfilePicture(formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Response:', response.data); // Debug
+    if (response.data && response.data.profile_picture_url) {
+      const newUrl = response.data.profile_picture_url;
+      localStorage.setItem('imageURL', newUrl);
+      setProfileImage(newUrl);
+    } else {
+      throw new Error('Failed to get new profile picture URL');
+    }
+  } catch (err) {
+    console.error('Upload error:', err.response?.data || err.message);
+    setProfilePictureError(err.message || 'Failed to upload profile picture');
+    const oldUrl = localStorage.getItem('imageURL');
+    setProfileImage(oldUrl);
+  } finally {
+    setUploading(false);
+    if (tempUrl) URL.revokeObjectURL(tempUrl);
+    e.target.value = null;
+  }
+};
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
   );
+  
   if (error) return (
     <div className="max-w-7xl mx-auto p-6">
       <div className={`border rounded-lg p-4 ${isDark ? 'bg-red-900/50 border-red-700' : 'bg-red-50 border-red-200'}`}>
@@ -258,25 +306,23 @@ const ProfileSection = () => {
       </div>
     </div>
   );
+  
   if (!profile) return null;
 
   const portfolioPlaceholders = [
     {
       title: "Space themed Portfolio",
       image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
-      description: "Full-stack e-commerce solution",
       link: "http://localhost:5173/space"
     },
     {
       title: "Forest themed Portfolio", 
       image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
-      description: "React-based productivity tool",
       link: "http://localhost:5173/forest"
     },
     {
       title: "Office themed Portfolio",
       image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
-      description: "Interactive analytics platform",
       link: "http://localhost:5173/office"
     }
   ];
@@ -339,12 +385,11 @@ const ProfileSection = () => {
                       <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
                         isDark ? 'bg-slate-700' : 'bg-gray-100'
                       }`}>
-                        {profile.profile_picture_url ? (
+                        {profileImage ? (
                           <img 
-                            src={profile.profile_picture_url || '/default-profile.jpg'} 
+                            src={profileImage} 
                             alt="Profile" 
-                            className="w-full h-full object-cover"
-                            onError={(e) => e.target.src = '/default-profile.jpg'} 
+                            className="w-full h-full rounded-full object-cover"
                           />
                         ) : (
                           <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
@@ -352,12 +397,7 @@ const ProfileSection = () => {
                               ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' 
                               : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
                           }`}>
-                            {getInitials(profile.name)}
-                          </div>
-                        )}
-                        {uploading && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
+                            {profile.name.split(' ').map(n => n[0]).join('')}
                           </div>
                         )}
                       </div>
@@ -367,7 +407,14 @@ const ProfileSection = () => {
                           : 'bg-blue-600 hover:bg-blue-700'
                       }`} title="Change profile picture">
                         <Camera className="w-5 h-5 text-white" />
-                        <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
+                        <input 
+                          id="profile-picture-upload" 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleProfilePictureUpload} 
+                          disabled={uploading}
+                        />
                       </label>
                     </div>
                   </div>
@@ -664,7 +711,6 @@ const ProfileSection = () => {
                           <div className="flex items-center justify-between text-white">
                             <div>
                               <h3 className="font-bold text-lg">{project.title}</h3>
-                              <p className="text-sm opacity-90">{project.description}</p>
                             </div>
                             <div className={`rounded-full p-2 ${
                               isDark ? 'bg-white/20' : 'bg-white/20'

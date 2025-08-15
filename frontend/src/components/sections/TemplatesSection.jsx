@@ -112,7 +112,7 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
               slidesPerView={3}
               spaceBetween={30}
               autoplay={{
-                delay: 3000,
+                delay: 2000,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
               }}

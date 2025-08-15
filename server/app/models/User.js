@@ -1,4 +1,3 @@
-// models/User.js
 const { createClient } = require('@supabase/supabase-js');
 const supabase = require('../config/supabase');
 
@@ -97,7 +96,7 @@ class User {
       const allowedFields = [
         'name', 'bio', 'cv_url', 'profile_picture_url', 
         'about_paragraphs', 'certifications', 'skills', 
-        'linkedin', 'github'
+        'linkedin', 'github', 'profile_picture_path'
       ];
       
       const sanitizedData = {};
@@ -132,7 +131,7 @@ class User {
   static async uploadProfilePicture(authId, fileBuffer, fileName, contentType, token) {
     try {
       // Create authenticated client
-      const supabase = createClient(
+      const supabaseAuth = createClient(
         process.env.SUPABASE_URL,
         process.env.SUPABASE_KEY,
         {
@@ -144,11 +143,14 @@ class User {
         }
       );
 
+      // Delete existing profile picture first
+      await this.deleteProfilePicture(authId);
+
       const fileExt = fileName.split('.').pop();
-      const filePath = `${authId}/profile.${fileExt}`; // Consistent filename
+      const filePath = `${authId}/profile.${fileExt}`;
 
       // Upload file
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAuth.storage
         .from('profile-pictures')
         .upload(filePath, fileBuffer, {
           contentType,
@@ -158,20 +160,24 @@ class User {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      // Generate signed URL (1 hour expiration)
+      const { data: signedUrlData, error: signedUrlError } = await supabaseAuth.storage
         .from('profile-pictures')
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 3600);
 
-      // Update user profile
+      if (signedUrlError) throw signedUrlError;
+      const signedUrl = signedUrlData.signedUrl;
+
+      // Update user profile with path and URL
       await this.updateProfile(authId, { 
-        profile_picture_url: publicUrl 
+        profile_picture_url: signedUrl,
+        profile_picture_path: filePath
       });
 
-      return publicUrl;
+      return signedUrl;
     } catch (error) {
-      console.error('Upload error details:', {
-        error: error.message,
+      console.error('UploadProfilePicture error:', {
+        message: error.message,
         authId,
         fileName
       });
@@ -183,24 +189,22 @@ class User {
     try {
       // Get current user to find existing profile picture
       const user = await this.findById(authId);
-      if (user && user.profile_picture_url) {
-        // Extract filename from URL
-        const urlParts = user.profile_picture_url.split('/');
-        const fileName = urlParts[urlParts.length - 1];
-        const filePath = `${authId}/${fileName}`;
-
-        // Delete from storage
+      if (user && user.profile_picture_path) {
+        // Delete from storage using path
         const { error: deleteError } = await supabase.storage
           .from('profile-pictures')
-          .remove([filePath]);
+          .remove([user.profile_picture_path]);
 
         if (deleteError) {
           console.warn('Profile picture deletion warning:', deleteError.message);
         }
       }
 
-      // Remove URL from database
-      await this.updateProfile(authId, { profile_picture_url: null });
+      // Remove URL and path from database
+      await this.updateProfile(authId, { 
+        profile_picture_url: null,
+        profile_picture_path: null 
+      });
       return true;
     } catch (error) {
       console.error('User.deleteProfilePicture error:', error.message);
