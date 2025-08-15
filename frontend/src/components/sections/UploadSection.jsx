@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import cvDataService from '../../services/cvDataService';
 import { forwardRef } from 'react';
-import Graduation from '../3DModels/Graduation';
+import Robot from '../3DModels/Robot'; 
 const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -348,14 +348,21 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
             } backdrop-blur-sm`}></div>
             
             <div className="w-[32rem] h-[32rem] relative">
-              <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-                <ambientLight intensity={1.5} />
-                <pointLight position={[10, 10, 10]} />
-                <Suspense fallback={null}>
-                  <Graduation />
-                  <OrbitControls enableZoom={false} autoRotate={true} />
-                </Suspense>
-              </Canvas>
+<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+  <ambientLight intensity={1.5} />
+  <pointLight position={[10, 10, 10]} />
+  <Suspense fallback={null}>
+    <group position={[0, -0.5, 0]}>
+      <Robot scale={1} />
+    </group>
+    <OrbitControls
+      enableZoom={false}
+      autoRotate={true}
+      target={[0, 0, 0]} 
+    />
+  </Suspense>
+</Canvas>
+
             </div>
             
             {/* Floating accent elements around canvas */}
