@@ -186,6 +186,37 @@ const ProfileSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profilePictureError, setProfilePictureError] = useState(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
+  const [pictureLoading, setPictureLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+
+    const fetchProfilePicture = async (userId) => {
+    try {
+      setPictureLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/users/me/profile-picture`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch profile picture');
+      
+      const data = await response.json();
+      return data.profile_picture_url;
+    } catch (error) {
+      console.error('Profile picture fetch error:', error);
+      return null;
+    } finally {
+      setPictureLoading(false);
+    }
+  };
+    useEffect(() => {
+      const imageUrl = localStorage.getItem('imageURL');
+      if (imageUrl) {
+        setProfileImage(imageUrl);
+      }
+    }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -195,15 +226,16 @@ const ProfileSection = () => {
       return;
     }
 
-    const cachedImageUrl = localStorage.getItem('imageURL');
-    if (cachedImageUrl) setProfile(prev => ({ ...prev, profile_picture_url: cachedImageUrl }));
-
     const fetchProfile = async () => {
       try {
         const response = await profileService.getProfile(token);
-        const publicImageUrl = response.data.profile_picture_url?.replace('/sign/', '/public/');
-        localStorage.setItem('imageURL', publicImageUrl);
         setProfile(response.data);
+        
+        // Fetch signed URL for profile picture
+        if (response.data.id) {
+          const url = await fetchProfilePicture(response.data.id);
+          setProfilePictureUrl(url);
+        }
       } catch (err) {
         setError(err.response?.data?.error || err.message || 'Failed to load profile');
       } finally {
@@ -216,7 +248,7 @@ const ProfileSection = () => {
   const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const getInitials = (name) => name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
 
-  const handleProfilePictureUpload = async (e) => {
+const handleProfilePictureUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -226,24 +258,56 @@ const ProfileSection = () => {
     try {
       setUploading(true);
       setProfilePictureError(null);
-      if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+      
+      // Create temporary URL for immediate preview
+      const tempUrl = URL.createObjectURL(file);
+      setProfilePictureUrl(tempUrl);
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
         throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
       }
-      if (file.size > 5 * 1024 * 1024) throw new Error('File size too large. Maximum size is 5MB');
+      
+      // Validate file size
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB');
+      }
 
-      const response = await profileService.uploadProfilePicture(token, file);
-      if (response.status >= 200 && response.status < 300) {
-        setProfile({ ...profile, profile_picture_url: response.data.profile_picture_url });
-      } else {
-        throw new Error(response.data?.error || 'Failed to upload profile picture');
+      // Create FormData and append file
+      const formData = new FormData();
+      formData.append('profilePicture', file);  // Must match backend field name
+
+      // Upload to backend
+      const response = await profileService.uploadProfilePicture(formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response) {
+        // Refresh with new signed URL
+        const newUrl = await fetchProfilePicture(profile.id);
+        if (newUrl) {
+          setProfilePictureUrl(newUrl);
+        }
       }
     } catch (err) {
       setProfilePictureError(err.message || 'Failed to upload profile picture');
+      // Revert to previous image on error
+      if (profile?.profile_picture_url) {
+        setProfilePictureUrl(profile.profile_picture_url);
+      } else {
+        setProfilePictureUrl(null);
+      }
     } finally {
       setUploading(false);
       e.target.value = null;
     }
   };
+
+
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-64">
@@ -336,40 +400,41 @@ const ProfileSection = () => {
                   <div className="absolute inset-0 bg-black/10"></div>
                   <div className="absolute -bottom-20 left-8">
                     <div className="relative group">
-                      <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
-                        isDark ? 'bg-slate-700' : 'bg-gray-100'
-                      }`}>
-                        {profile.profile_picture_url ? (
-                          <img 
-                            src={profile.profile_picture_url || '/default-profile.jpg'} 
-                            alt="Profile" 
-                            className="w-full h-full object-cover"
-                            onError={(e) => e.target.src = '/default-profile.jpg'} 
-                          />
-                        ) : (
-                          <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
-                            isDark 
-                              ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' 
-                              : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
-                          }`}>
-                            {getInitials(profile.name)}
-                          </div>
-                        )}
-                        {uploading && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent"></div>
-                          </div>
-                        )}
-                      </div>
-                      <label htmlFor="profile-picture-upload" className={`absolute -bottom-2 -right-2 rounded-full p-3 cursor-pointer hover:scale-110 transition-all duration-200 shadow-lg group-hover:shadow-xl ${
-                        isDark 
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500' 
-                          : 'bg-blue-600 hover:bg-blue-700'
-                      }`} title="Change profile picture">
-                        <Camera className="w-5 h-5 text-white" />
-                        <input id="profile-picture-upload" type="file" accept="image/*" className="hidden" onChange={handleProfilePictureUpload} />
-                      </label>
-                    </div>
+        <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
+          isDark ? 'bg-slate-700' : 'bg-gray-100'
+        }`}>
+          {profileImage ? (
+            <img 
+              src={profileImage} 
+              alt="Profile" 
+              className="w-full h-full rounded-full object-cover"
+              onError={() => { setProfileImage(null);
+              }} 
+            />
+          ) : (
+            <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
+              isDark 
+                ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white' 
+                : 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
+            }`}>
+            </div>
+          )}
+        </div>
+        <label htmlFor="profile-picture-upload" className={`absolute -bottom-2 -right-2 rounded-full p-3 cursor-pointer hover:scale-110 transition-all duration-200 shadow-lg group-hover:shadow-xl ${
+          isDark 
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500' 
+            : 'bg-blue-600 hover:bg-blue-700'
+        }`} title="Change profile picture">
+          <Camera className="w-5 h-5 text-white" />
+          <input 
+            id="profile-picture-upload" 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            onChange={handleProfilePictureUpload} 
+          />
+        </label>
+      </div>
                   </div>
                 </div>
                 <div className="pt-24 px-8 pb-8">
