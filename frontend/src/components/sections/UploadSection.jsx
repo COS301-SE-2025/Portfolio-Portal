@@ -1,4 +1,4 @@
-import { useState, useRef, forwardRef } from 'react';
+import { useState, useRef, forwardRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
@@ -12,9 +12,9 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [preview, setPreview] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEntering, setIsEntering] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [showCvData, setShowCvData] = useState(false);
   const fileInputRef = useRef(null);
 
 
@@ -41,9 +41,6 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     setFile(selectedFile);
     setIsLoading(true);
     setError(null);
-
-    setCvData(null);
-    setShowCvData(false);
 
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreview(objectUrl);
@@ -211,7 +208,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
             </div>
           )}
           
-          {preview && !isLoading && !showTemplateSelection && (
+          {preview && !isLoading &&(
             <div className="mt-6 flex flex-col items-center space-y-6">
               <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>Preview</h2>
               <div className={`w-full h-96 rounded-xl overflow-hidden shadow-lg ${
@@ -253,7 +250,6 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
                   onClick={() => {
                     setFile(null);
                     setPreview(null);
-                    setShowTemplateSelection(false);
                   }}
                 >
                   Remove
@@ -281,85 +277,9 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
             </Canvas>
           </div>
         </div>
-        
-        {showTemplateSelection && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className={`max-w-4xl w-full p-8 rounded-2xl border shadow-2xl relative overflow-hidden ${
-              isDark ? 'bg-gray-800/90 border-gray-600 backdrop-blur-sm' : 'bg-white/90 border-gray-200 backdrop-blur-sm'
-            }`}>
-              <div className={`absolute inset-0 ${
-                isDark 
-                  ? 'bg-gradient-to-br from-slate-800/20 to-blue-900/20' 
-                  : 'bg-gradient-to-br from-purple-50/50 to-blue-50/50'
-              }`}></div>
-              
-              <div className="relative z-10">
-                <div className="text-center mb-8">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                    isDark 
-                      ? 'bg-gradient-to-br from-green-600 to-emerald-600' 
-                      : 'bg-gradient-to-br from-green-500 to-emerald-500'
-                  } shadow-lg`}>
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    CV Processed Successfully! 🎉
-                  </h3>
-                  <p className={`text-lg ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-                    Choose your portfolio template to get started
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {templates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`relative overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group ${
-                        isDark ? 'border-gray-600 hover:border-gray-400' : 'border-gray-200 hover:border-gray-400'
-                      }`}
-                      onClick={() => handleTemplateSelect(template.id)}
-                    >
-                      <div className={`h-32 ${template.preview} flex items-center justify-center relative overflow-hidden`}>
-                        <div className="absolute inset-0 bg-gradient-to-r from-pink-400/0 via-white/10 to-gray-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                        <img src={template.image} alt={template.name} className="relative z-10" />
-                      </div>
-                      <div className={`p-4 ${isDark ? 'bg-gray-700' : 'bg-white'}`}>
-                        <h4 className={`font-bold text-lg mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                          {template.name}
-                        </h4>
-                        <p className={`text-sm mb-3 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                          {template.description}
-                        </p>
-                        <div className={`mt-3 w-full py-2 px-4 rounded-lg text-center font-medium transition-colors bg-gradient-to-r ${template.color} text-white hover:opacity-90`}>
-                          Select Template
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setShowTemplateSelection(false)}
-                    className={`px-6 py-2 rounded-lg font-medium border transition-all duration-300 transform hover:scale-105 ${
-                      isDark 
-                        ? 'bg-gray-700/50 border-gray-600 hover:bg-gray-600/50 text-white backdrop-blur-sm' 
-                        : 'bg-white/80 border-gray-300 hover:bg-gray-50 text-gray-700 backdrop-blur-sm shadow-lg hover:shadow-xl'
-                    }`}
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </SectionWrapper>
   );
 });
 
 export default UploadSection;
-
