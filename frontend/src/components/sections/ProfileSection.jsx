@@ -1,9 +1,183 @@
 import React, { useEffect, useState } from 'react';
-import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, ExternalLink, X, Camera } from 'lucide-react';
+import { User, Mail, Github, Linkedin, FileText, Award, Code, Calendar, Edit, ExternalLink, X, Camera, Briefcase } from 'lucide-react';
 import { profileService } from '../../services/profile.service';
 import { useTheme } from '../../contexts/ThemeContext';
-import Modal from './Modal';
-import ProfileEditForm from './ProfileEditForm';
+import './ProfileSection.css';
+
+// Modal Component
+const Modal = ({ isOpen, onClose, children }) => {
+  const { isDark } = useTheme();
+
+  useEffect(() => {
+    document.body.classList.toggle('modal-open', isOpen);
+    return () => document.body.classList.remove('modal-open');
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+  
+  return (
+    <div className={`fixed inset-0 ${isDark ? 'bg-black/70' : 'bg-black/60'} backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn`}>
+      <div className={`rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transform animate-slideUp ${
+        isDark ? 'bg-slate-900 text-white' : 'bg-white text-gray-900'
+      }`}>
+        <div className={`sticky top-0 border-b ${isDark ? 'bg-slate-900 border-gray-700' : 'bg-white border-gray-100'} px-6 py-4 rounded-t-2xl`}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-semibold">Edit Profile</h3>
+            <button 
+              onClick={onClose} 
+              className={`p-2 rounded-full transition-colors duration-200 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Profile Edit Form Component
+const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
+  const { isDark } = useTheme();
+  const [formData, setFormData] = useState({
+    name: profile.name || '',
+    bio: profile.bio || '',
+    about: Array.isArray(profile.about_paragraphs) ? profile.about_paragraphs.join('\n\n') : '',
+    skills: Array.isArray(profile.skills) ? profile.skills.join(', ') : '',
+    certifications: Array.isArray(profile.certifications) ? profile.certifications.join(', ') : '',
+    linkedin: profile.linkedin || '',
+    github: profile.github || '',
+    cv_url: profile.cv_url || ''
+  });
+  const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors([]);
+
+    const updatedData = {
+      ...formData,
+      about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
+      skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
+      certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
+    };
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await profileService.updateProfile(token, updatedData);
+      if (response.status >= 200 && response.status < 300) {
+        onUpdate(response.data);
+      } else {
+        setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
+      }
+    } catch (err) {
+      setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
+
+  const inputFields = [
+    { id: 'name', label: 'Name', type: 'text' },
+    { id: 'bio', label: 'Bio', type: 'textarea', rows: 3 },
+    { id: 'about', label: 'About (each paragraph separated by a blank line)', type: 'textarea', rows: 10 },
+    { id: 'skills', label: 'Skills (comma-separated)', type: 'text' },
+    { id: 'certifications', label: 'Certifications (comma-separated)', type: 'text' },
+    { id: 'linkedin', label: 'LinkedIn URL', type: 'text' },
+    { id: 'github', label: 'GitHub URL', type: 'text' },
+    { id: 'cv_url', label: 'CV URL', type: 'text' }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {errors.length > 0 && (
+        <div className={`border rounded-xl p-4 ${isDark ? 'bg-red-900/50 border-red-700' : 'bg-red-50 border-red-200'}`}>
+          <div className="flex items-center mb-2">
+            <X className="w-5 h-5 text-red-500 mr-2" />
+            <p className={`font-semibold ${isDark ? 'text-red-300' : 'text-red-700'}`}>Please fix the following errors:</p>
+          </div>
+          <ul className="list-disc ml-7 space-y-1">
+            {errors.map((error, i) => (
+              <li key={i} className={`text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      <div className="grid gap-6">
+        {inputFields.map(({ id, label, type, rows }) => (
+          <div key={id} className="space-y-2">
+            <label htmlFor={id} className={`block text-sm font-semibold ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              {label}
+            </label>
+            {type === 'textarea' ? (
+              <textarea
+                id={id}
+                value={formData[id]}
+                onChange={handleChange(id)}
+                rows={rows}
+                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none ${
+                  isDark ? 'bg-slate-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                }`}
+                placeholder={`Enter your ${label.toLowerCase()}...`}
+              />
+            ) : (
+              <input
+                id={id}
+                value={formData[id]}
+                onChange={handleChange(id)}
+                className={`w-full px-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                  isDark ? 'bg-slate-800 border-gray-700 text-white' : 'bg-white border-gray-300 text-gray-900'
+                }`}
+                placeholder={`Enter your ${label.toLowerCase()}...`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex justify-end space-x-4 pt-6 border-t border-gray-700">
+        <button 
+          type="button" 
+          onClick={onClose} 
+          className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 ${
+            isDark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={handleSubmit} 
+          disabled={isLoading} 
+          className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center ${
+            isDark 
+              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed' 
+              : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+          }`}
+        >
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+              Saving...
+            </>
+          ) : (
+            <>
+              <Edit className="w-4 h-4 mr-2" />
+              Save Changes
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ProfileSection = () => {
   const { isDark } = useTheme();
@@ -15,10 +189,16 @@ const ProfileSection = () => {
   const [profilePictureError, setProfilePictureError] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
 
+  // Initialize profile image from localStorage
   useEffect(() => {
     const imageUrl = localStorage.getItem('imageURL');
-    if (imageUrl) setProfileImage(imageUrl);
+    if (imageUrl) {
+      setProfileImage(imageUrl);
+    }
+  }, []);
 
+  // Fetch profile data
+  useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       setError("User not logged in");
@@ -57,13 +237,21 @@ const ProfileSection = () => {
       setUploading(true);
       setProfilePictureError(null);
       
+      // Create temporary URL for immediate preview
       tempUrl = URL.createObjectURL(file);
       setProfileImage(tempUrl);
       
+      // Validate file
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
-      if (file.size > 5 * 1024 * 1024) throw new Error('File size too large. Maximum size is 5MB');
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB');
+      }
 
+      // Upload to backend
       const formData = new FormData();
       formData.append('profilePicture', file);
       
@@ -74,7 +262,8 @@ const ProfileSection = () => {
         }
       });
 
-      if (response.data?.profile_picture_url) {
+      // Save new URL to localStorage and state
+      if (response.data && response.data.profile_picture_url) {
         const newUrl = response.data.profile_picture_url;
         localStorage.setItem('imageURL', newUrl);
         setProfileImage(newUrl);
@@ -83,11 +272,16 @@ const ProfileSection = () => {
       }
     } catch (err) {
       setProfilePictureError(err.message || 'Failed to upload profile picture');
+      
+      // Revert to previous image on error
       const oldUrl = localStorage.getItem('imageURL');
       setProfileImage(oldUrl);
     } finally {
       setUploading(false);
+      
+      // Clean up temporary URL
       if (tempUrl) URL.revokeObjectURL(tempUrl);
+      
       e.target.value = null;
     }
   };
@@ -136,13 +330,28 @@ const ProfileSection = () => {
         ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950' 
         : 'bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100'
     }`}>
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className={`absolute top-20 right-10 w-32 h-32 rounded-full blur-xl animate-float-slow ${
+          isDark ? 'bg-blue-500/15' : 'bg-purple-300/30'
+        }`}></div>
+        <div className={`absolute top-60 left-20 w-24 h-24 rounded-full blur-lg animate-float-medium ${
+          isDark ? 'bg-indigo-500/20' : 'bg-blue-300/35'
+        }`}></div>
+        <div className={`absolute bottom-40 right-40 w-20 h-20 rounded-full blur-lg animate-float-fast ${
+          isDark ? 'bg-purple-500/25' : 'bg-indigo-300/40'
+        }`}></div>
+      </div>
+
       <div className="max-w-7xl mx-auto p-6">
         {profilePictureError && (
           <div className={`fixed top-4 right-4 rounded-lg shadow-lg z-50 animate-slideIn ${
             isDark ? 'bg-red-900/80 text-red-200' : 'bg-red-500 text-white'
           } px-6 py-4`}>
             <div className="flex items-center space-x-3">
-              <X className="w-5 h-5" />
+              <div className="flex-shrink-0">
+                <X className="w-5 h-5" />
+              </div>
               <span className="font-medium">{profilePictureError}</span>
               <button 
                 className={`rounded-full p-1 transition-colors ${isDark ? 'hover:bg-red-800' : 'hover:bg-red-600'}`} 
@@ -167,13 +376,18 @@ const ProfileSection = () => {
                     ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600' 
                     : 'bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500'
                 }`}>
+                  <div className="absolute inset-0 bg-black/10"></div>
                   <div className="absolute -bottom-20 left-8">
                     <div className="relative group">
                       <div className={`w-40 h-40 rounded-full border-6 border-white shadow-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 ${
                         isDark ? 'bg-slate-700' : 'bg-gray-100'
                       }`}>
                         {profileImage ? (
-                          <img src={profileImage} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                          <img 
+                            src={profileImage} 
+                            alt="Profile" 
+                            className="w-full h-full rounded-full object-cover"
+                          />
                         ) : (
                           <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-bold ${
                             isDark 
@@ -447,6 +661,7 @@ const ProfileSection = () => {
 
           {/* Right Column - Portfolio */}
           <div className="space-y-8">
+            {/* Portfolio Websites */}
             <div className={`rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300 ${
               isDark ? 'bg-slate-800' : 'bg-white'
             }`}>
