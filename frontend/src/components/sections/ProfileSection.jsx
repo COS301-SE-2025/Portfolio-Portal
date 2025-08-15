@@ -55,32 +55,44 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
   const [errors, setErrors] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrors([]);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setErrors([]);
 
-    const updatedData = {
-      ...formData,
-      about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
-      skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
-      certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
-    };
-
-    try {
-      const token = localStorage.getItem('token');
-      const response = await profileService.updateProfile(token, updatedData);
-      if (response.status >= 200 && response.status < 300) {
-        onUpdate(response.data);
-      } else {
-        setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
-      }
-    } catch (err) {
-      setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
-    } finally {
-      setIsLoading(false);
-    }
+  const updatedData = {
+    ...formData,
+    about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
+    skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
+    certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
   };
+
+  // Remove empty or unchanged fields
+  const cleanedData = {};
+  Object.keys(updatedData).forEach(key => {
+    if (updatedData[key] && (Array.isArray(updatedData[key]) ? updatedData[key].length > 0 : updatedData[key] !== '')) {
+      cleanedData[key] = updatedData[key];
+    }
+  });
+
+  console.log('CleanedData:', cleanedData);
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await profileService.updateProfile(token, cleanedData);
+    console.log('Response:', response.data);
+    if (response.status >= 200 && response.status < 300) {
+      onUpdate(response.data);
+    } else {
+      setErrors(response.data?.details || [response.data?.error || 'Failed to update profile']);
+    }
+  } catch (err) {
+    console.error('Update error:', err.response?.data || err.message);
+    setErrors([err.response?.data?.error || err.message || 'Failed to update profile']);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleChange = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
 
