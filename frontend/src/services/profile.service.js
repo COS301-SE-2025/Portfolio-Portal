@@ -5,11 +5,13 @@ export const profileService = {
   
   updateProfile: (data) => api.put('/users/me/profile', data),
   
-  uploadProfilePicture: (file) => {
-    const formData = new FormData();
-    formData.append('profilePicture', file);
+  uploadProfilePicture: (formData, config = {}) => {
+    console.log('Sending FormData:', [...formData.entries()]); // Debug
     return api.post('/users/me/profile-picture', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: {
+        ...config.headers,
+        // Ensure Authorization is included if not set by api.service
+      }
     });
   },
   

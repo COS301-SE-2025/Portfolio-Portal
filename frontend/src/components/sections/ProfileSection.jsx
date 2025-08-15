@@ -225,66 +225,60 @@ const ProfileSection = () => {
     day: 'numeric' 
   });
 
-  const handleProfilePictureUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const handleProfilePictureUpload = async (e) => {
+  const file = e.target.files[0];
+  console.log('Selected file:', file); // Debug
+  if (!file) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) return setProfilePictureError("User not logged in");
+  const token = localStorage.getItem('token');
+  if (!token) return setProfilePictureError("User not logged in");
 
-    let tempUrl = null;
-    try {
-      setUploading(true);
-      setProfilePictureError(null);
-      
-      // Create temporary URL for immediate preview
-      tempUrl = URL.createObjectURL(file);
-      setProfileImage(tempUrl);
-      
-      // Validate file
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
-      }
-      
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('File size too large. Maximum size is 5MB');
-      }
+  let tempUrl = null;
+  try {
+    setUploading(true);
+    setProfilePictureError(null);
 
-      // Upload to backend
-      const formData = new FormData();
-      formData.append('profilePicture', file);
-      
-      const response = await profileService.uploadProfilePicture(formData, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+    tempUrl = URL.createObjectURL(file);
+    setProfileImage(tempUrl);
 
-      // Save new URL to localStorage and state
-      if (response.data && response.data.profile_picture_url) {
-        const newUrl = response.data.profile_picture_url;
-        localStorage.setItem('imageURL', newUrl);
-        setProfileImage(newUrl);
-      } else {
-        throw new Error('Failed to get new profile picture URL');
-      }
-    } catch (err) {
-      setProfilePictureError(err.message || 'Failed to upload profile picture');
-      
-      // Revert to previous image on error
-      const oldUrl = localStorage.getItem('imageURL');
-      setProfileImage(oldUrl);
-    } finally {
-      setUploading(false);
-      
-      // Clean up temporary URL
-      if (tempUrl) URL.revokeObjectURL(tempUrl);
-      
-      e.target.value = null;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed');
     }
-  };
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('File size too large. Maximum size is 5MB');
+    }
+
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+    console.log('FormData:', [...formData.entries()]); // Debug
+
+    const response = await profileService.uploadProfilePicture(formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    console.log('Response:', response.data); // Debug
+    if (response.data && response.data.profile_picture_url) {
+      const newUrl = response.data.profile_picture_url;
+      localStorage.setItem('imageURL', newUrl);
+      setProfileImage(newUrl);
+    } else {
+      throw new Error('Failed to get new profile picture URL');
+    }
+  } catch (err) {
+    console.error('Upload error:', err.response?.data || err.message);
+    setProfilePictureError(err.message || 'Failed to upload profile picture');
+    const oldUrl = localStorage.getItem('imageURL');
+    setProfileImage(oldUrl);
+  } finally {
+    setUploading(false);
+    if (tempUrl) URL.revokeObjectURL(tempUrl);
+    e.target.value = null;
+  }
+};
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-64">

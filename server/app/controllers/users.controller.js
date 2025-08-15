@@ -152,14 +152,14 @@ const updateProfile = async (req, res) => {
 const uploadProfilePicture = async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
+    console.log('req.file:', req.file);
     if (!token) {
       return res.status(401).json({ error: 'Authorization token required' });
     }
 
-    // Pass correct parameters to service
     const profilePictureUrl = await userService.uploadProfilePicture(
       req.user.id, 
-      req.file, // Pass entire file object
+      req.file,
       token
     );
     
