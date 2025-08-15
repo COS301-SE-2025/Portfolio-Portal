@@ -13,13 +13,10 @@ const Contact = () => {
           viewport={{ once: true }}
           className="bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20"
         >
-          <h2 className="text-green-400 text-4xl font-bold mb-6">
-            Join the Movement
-          </h2>
+          <h2 className="text-green-400 text-4xl font-bold mb-6">Contact Me</h2>
           <p className="text-white mb-6">
-            Have a conservation project that needs digital storytelling? Want to
-            collaborate on environmental tech initiatives? Reach out - let's
-            protect our planet together.
+            Interested in collaborating? Contact me and let's create something
+            great together!
           </p>
 
           <form className="flex flex-col gap-6">
@@ -47,7 +44,7 @@ const Contact = () => {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="message" className="text-white">
-                Your Conservation Vision
+                Your ideas or comments
               </label>
               <textarea
                 id="message"
