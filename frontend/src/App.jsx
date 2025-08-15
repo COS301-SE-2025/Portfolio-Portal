@@ -12,7 +12,7 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
-
+import CavePage from "./pages/CavePage";
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile'];
 const HIDDEN_THEME_BUTTON_PATHS = []; // Add any paths where you don't want the theme button
 
@@ -33,7 +33,7 @@ function App() {
           <Route path="/office" element={<OfficePage />} />
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/profile" element={<Profile />} />
-
+          <Route path="/cave" element={<CavePage />} />
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
