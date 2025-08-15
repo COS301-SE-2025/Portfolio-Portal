@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import { Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import FloatingCrystal from '../3DModels/FloatingCrystal';
+import FloatingCrystal from '../../3DModels/FloatingCrystal';
 
 const Hero = ({ cvData, onNavigate }) => {
   const heroRef = useRef();

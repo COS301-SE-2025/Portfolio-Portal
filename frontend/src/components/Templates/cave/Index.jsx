@@ -5,7 +5,7 @@ import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Import components - FIXED PATHS
-import CaveEnvironment from '../components/3DModels/CaveEnvironment';
+import CaveEnvironment from '../../3DModels/CaveEnvironment';
 import Hero from './Hero';           
 import About from './About';        
 import Experience from './Experience';
@@ -13,7 +13,7 @@ import Contact from './Contact';
 import LoadingScreen from './LoadingScreen'; 
 
 // Import hook
-import useCvData from '../../hooks/useCVData';
+import useCvData from '../../../hooks/useCVData';
 
 // Styles
 import './index.css';

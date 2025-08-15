@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Html } from '@react-three/drei';
-import FloatingCrystal from '../3DModels/FloatingCrystal';
+import FloatingCrystal from '../../3DModels/FloatingCrystal';
 
 const Contact = ({ cvData, onBack }) => {
   return (
