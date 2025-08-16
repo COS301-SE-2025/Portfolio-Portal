@@ -35,6 +35,7 @@ function App() {
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
+          
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />

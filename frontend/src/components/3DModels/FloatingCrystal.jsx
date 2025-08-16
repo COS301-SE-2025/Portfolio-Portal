@@ -11,7 +11,7 @@ import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export default function Model(props) {
-  const { nodes, materials } = useGLTF('floatingcrystal/floatingCrystal.gltf')
+  const { nodes, materials } = useGLTF('/FloatingCrystal/floatingCrystal.gltf')
   return (
     <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, 0]} scale={0.103}>
@@ -25,4 +25,4 @@ export default function Model(props) {
   )
 }
 
-useGLTF.preload('floatingCrystal/floatingCrystal.gltf')
+useGLTF.preload('/FloatingCrystal/floatingCrystal.gltf')

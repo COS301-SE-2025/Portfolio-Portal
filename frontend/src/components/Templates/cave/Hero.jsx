@@ -14,6 +14,7 @@ const Hero = ({ cvData, onNavigate }) => {
   });
 
   return (
+    
     <group position={[0, 0, 0]} ref={heroRef}>
       <Html
         position={[0, 2, 0]}
@@ -30,6 +31,7 @@ const Hero = ({ cvData, onNavigate }) => {
           color: 'white'
         }}
       >
+        
         <h1 style={{ 
           fontSize: '2.5rem', 
           marginBottom: '10px',
@@ -92,8 +94,7 @@ const Hero = ({ cvData, onNavigate }) => {
         </div>
       </Html>
       
-      <FloatingCrystal position={[-3, 3, -2]} color="#ff6b35" scale={0.8} />
-      <FloatingCrystal position={[3, 3, -2]} color="#4facfe" scale={0.8} />
+      
     </group>
   );
 };
