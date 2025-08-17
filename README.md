@@ -24,23 +24,20 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 ## 📚 Documentation
 
+| Document                                         | GitHub (MD)                                         | Google Docs                                                                                                    | PDF |
+| ------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --- |
+| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/SRS-v1.0.md)              | [Google Doc](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/edit?usp=sharing) | 📄 [PDF](link-here) |
+| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/SRS-v2.0.md)                       | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?tab=t.0)     | 📄 [PDF](link-here) |
+| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS-v3.0.md)                       | [Google Doc](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/edit?usp=sharing) | 📄 [PDF](link-here) |
+| **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0)    | 📄 [PDF](link-here) |
+| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0)     | 📄 [PDF](link-here) |
+| **Technical Installation Manual**                | [TechInstallManual.md](Docs/UserManual.md)          | [Google Doc](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/edit?usp=sharing) | 📄 [PDF](link-here) |
+| **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?tab=t.0)     | 📄 [PDF](link-here) |
+| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_                                                                                                          | _N/A_ |
+| **Server README**                                | [server/README.md](server/README.md)                | _N/A_                                                                                                          | _N/A_ |
+| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_                                                                                                          | _N/A_ |
+| **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_                                                                                                          | _N/A_ |
 
-| Document                                         | GitHub (MD)                                         | Google Docs                                                                                                    |
-| ------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/SRS-v1.0.md)              | [Google Doc](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/edit?usp=sharing) |
-| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/SRS-v2.0.md)                       | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?tab=t.0) |
-| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS-v3.0.md)                       | [Google Doc](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/edit?usp=sharing) | 
-| **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0)    | 
-| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0)     |
-| **Technical Installation Manual**                | [TechInstallManual.md](Docs/UserManual.md)          | [Google Doc](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/edit?usp=sharing) | 
-| **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?tab=t.0)     |
-| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_                                                                                                          |
-| **Server README**                                | [server/README.md](server/README.md)                | _N/A_                                                                                                          |
-| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_                                                                                                          |
-| **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_                                                                                  |
-
-
-https://github.com/orgs/COS301-SE-2025/projects/118
 ## 🎥 Demo 1
 
 - [Demo 1 Video](https://youtu.be/gwhL0oYh90Y)
