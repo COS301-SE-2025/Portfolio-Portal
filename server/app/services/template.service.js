@@ -1,330 +1,268 @@
-// server/services/template.service.js
+//  server/services/template.service.js
 
 /**
  * Template Selection Algorithm Service
  *
- * This service analyzes CV content and determines the most appropriate template
- * based on factors like industry, experience level, skills, and interests.
+ * This service analyzes CV content & determines the most appropriate template
+ * based on factors like skills, job titles, education, and interests.
  */
 
-const templateCriteria = {
-  // Office template is suitable for corporate, business, finance professionals
-  office: {
-    keywords: [
-      "management",
-      "business",
-      "finance",
-      "accounting",
-      "marketing",
-      "sales",
-      "administration",
-      "executive",
-      "director",
-      "analyst",
-      "consultant",
-      "project manager",
-      "human resources",
-      "hr",
-    ],
-    industries: [
-      "finance",
-      "banking",
-      "consulting",
-      "insurance",
-      "real estate",
-      "law",
-      "business",
-      "corporate",
-      "management",
-    ],
-  },
+const CVData = require("../models/CVData");
 
-  // Space template is suitable for tech, innovation, forward-thinking professionals
+// template keywords with weights
+const TEMPLATE_KEYWORDS = {
   space: {
-    keywords: [
-      "developer",
-      "engineer",
-      "software",
-      "technology",
-      "IT",
-      "technical",
-      "innovation",
-      "programming",
-      "research",
-      "science",
-      "data science",
-      "artificial intelligence",
-      "machine learning",
-      "AI",
-      "ML",
-      "cloud",
-      "DevOps",
-      "full-stack",
-      "frontend",
-      "backend",
-      "web development",
+    skills: [
+      { keyword: "software development", weight: 3 },
+      { keyword: "engineering", weight: 3 },
+      { keyword: "programming", weight: 3 },
+      { keyword: "codimg", weight: 2 },
+      { keyword: "software", weight: 2 },
+      { keyword: "astronomy", weight: 5 },
+      { keyword: "astrophysics", weight: 5 },
+      { keyword: "physics", weight: 3 },
+      { keyword: "mathematics", weight: 2 },
+      { keyword: "technology", weight: 2 },
+      { keyword: "ai", weight: 3 },
+      { keyword: "machine learning", weight: 3 },
+      { keyword: "data science", weight: 3 },
+      { keyword: "cybersecurity", weight: 3 },
+      { keyword: "ui/ux", weight: 2 },
+      { keyword: "C++", weight: 3 },
+      { keyword: "Java", weight: 3 },
+      { keyword: "Python", weight: 3 },
+      { keyword: "C++", weight: 3 },
+      { keyword: "C#", weight: 2 },
+      { keyword: "JavaScrpt", weight: 3 },
+      { keyword: "PHP", weight: 3 },
+      { keyword: "HTML", weight: 3 },
+      { keyword: "CSS", weight: 3 },
+      { keyword: "React.js", weight: 3 },
+      { keyword: "Three.js", weight: 3 },
+      { keyword: "GitHub", weight: 3 },
+      { keyword: "Git", weight: 3 },
+      { keyword: "OpenGL", weight: 3 },
+
+      { keyword: "quantum", weight: 4 },
     ],
-    industries: [
-      "technology",
-      "software",
-      "IT",
-      "telecommunications",
-      "aerospace",
-      "research",
-      "science",
-      "engineering",
-      "gaming",
-      "startups",
+    jobTitles: [
+      { keyword: "developer", weight: 3 },
+      { keyword: "software developer", weight: 3 },
+      { keyword: "engineer", weight: 3 },
+      { keyword: "software engineer", weight: 3 },
+      { keyword: "computer scientist", weight: 3 },
+      { keyword: "computer engineer", weight: 3 },
+      { keyword: "programmer", weight: 3 },
+      { keyword: "coder", weight: 3 },
+      { keyword: "scientist", weight: 4 },
+      { keyword: "researcher", weight: 3 },
+      { keyword: "analyst", weight: 2 },
+      { keyword: "astronomer", weight: 5 },
+      { keyword: "astrologer", weight: 5 },
+      { keyword: "physicist", weight: 4 },
+      { keyword: "technologist", weight: 3 },
+    ],
+    education: [
+      { keyword: "computer science", weight: 3 },
+      { keyword: "computer engineering", weight: 3 },
+      { keyword: "engineering", weight: 3 },
+      { keyword: "physics", weight: 4 },
+      { keyword: "astronomy", weight: 5 },
+      { keyword: "mathematics", weight: 3 },
+      { keyword: "technology", weight: 2 },
     ],
   },
-
-  // Forest template is suitable for creative, nature-focused, sustainability professionals
   forest: {
-    keywords: [
-      "designer",
-      "creative",
-      "artist",
-      "content creator",
-      "writer",
-      "environment",
-      "sustainability",
-      "biology",
-      "ecology",
-      "conservation",
-      "natural",
-      "organic",
-      "photography",
-      "teaching",
-      "education",
+    skills: [
+      { keyword: "design", weight: 4 },
+      { keyword: "art", weight: 4 },
+      { keyword: "gardening", weight: 4 },
+      { keyword: "creative", weight: 3 },
+      { keyword: "photography", weight: 3 },
+      { keyword: "illustration", weight: 3 },
+      { keyword: "graphic", weight: 3 },
+      { keyword: "animation", weight: 3 },
+      { keyword: "writing", weight: 2 },
+      { keyword: "environment", weight: 2 },
+      { keyword: "sustainability", weight: 2 },
+      { keyword: "biology", weight: 2 },
+      { keyword: "ecology", weight: 2 },
     ],
-    industries: [
-      "design",
-      "art",
-      "education",
-      "environment",
-      "non-profit",
-      "sustainability",
-      "healthcare",
-      "pharmacy",
-      "agriculture",
-      "food",
-      "hospitality",
+    jobTitles: [
+      { keyword: "designer", weight: 4 },
+      { keyword: "artist", weight: 4 },
+      { keyword: "florist", weight: 4 },
+      { keyword: "creative", weight: 3 },
+      { keyword: "photographer", weight: 3 },
+      { keyword: "illustrator", weight: 3 },
+      { keyword: "writer", weight: 2 },
+      { keyword: "ecologist", weight: 3 },
+      { keyword: "biologist", weight: 3 },
+    ],
+    education: [
+      { keyword: "design", weight: 4 },
+      { keyword: "art", weight: 4 },
+      { keyword: "fine arts", weight: 4 },
+      { keyword: "photography", weight: 3 },
+      { keyword: "biology", weight: 3 },
+      { keyword: "environmental", weight: 3 },
+      { keyword: "literature", weight: 2 },
+    ],
+  },
+  office: {
+    skills: [
+      { keyword: "management", weight: 4 },
+      { keyword: "business", weight: 4 },
+      { keyword: "finance", weight: 4 },
+      { keyword: "marketing", weight: 3 },
+      { keyword: "sales", weight: 3 },
+      { keyword: "hr", weight: 3 },
+      { keyword: "leadership", weight: 3 },
+      { keyword: "strategy", weight: 3 },
+      { keyword: "communication", weight: 2 },
+      { keyword: "administration", weight: 2 },
+      { keyword: "economics", weight: 2 },
+      { keyword: "accounting", weight: 2 },
+    ],
+    jobTitles: [
+      { keyword: "manager", weight: 2 },
+      { keyword: "director", weight: 2 },
+      { keyword: "executive", weight: 4 },
+      { keyword: "business", weight: 4 },
+      { keyword: "finance", weight: 4 },
+      { keyword: "marketing", weight: 3 },
+      { keyword: "sales", weight: 2 },
+      { keyword: "consultant", weight: 3 },
+      { keyword: "analyst", weight: 2 },
+    ],
+    education: [
+      { keyword: "business", weight: 4 },
+      { keyword: "mba", weight: 4 },
+      { keyword: "finance", weight: 4 },
+      { keyword: "economics", weight: 4 },
+      { keyword: "marketing", weight: 4 },
+      { keyword: "management", weight: 2 },
+      { keyword: "administration", weight: 3 },
     ],
   },
 };
 
+// default template if no clear winner
+const DEFAULT_TEMPLATE = "space";
+
 /**
- * Analyzes CV content and selects the most appropriate template
- * @param {Object} cvData - The extracted and processed CV data
- * @returns {Object} Selected template and customization options
+ * calculate score for a given template based on CV data
+ * @param {string} template - template name (space, forest, office)
+ * @param {object} cvData - structured CV data
+ * @returns {number} calculated score
  */
-const selectTemplate = (cvData) => {
-  try {
-    // Extract relevant information from CV data
-    const {
-      skills = [],
-      experience = [],
-      education = [],
-      summary = "",
-    } = cvData;
+const calculateTemplateScore = (template, cvData) => {
+  let score = 0;
+  const templateKeywords = TEMPLATE_KEYWORDS[template];
 
-    // Concatenate all text for keyword analysis
-    const allText = [
-      summary,
-      ...experience.map(
-        (exp) => `${exp.title} ${exp.company} ${exp.description}`
-      ),
-      ...education.map(
-        (edu) => `${edu.degree} ${edu.institution} ${edu.fieldOfStudy}`
-      ),
-      ...skills,
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    // Initialize scores for each template
-    const scores = {
-      office: 0,
-      space: 0,
-      forest: 0,
-    };
-
-    // Calculate scores based on keyword matches
-    Object.entries(templateCriteria).forEach(([template, criteria]) => {
-      // Check for industry keywords
-      criteria.industries.forEach((industry) => {
-        if (allText.includes(industry.toLowerCase())) {
-          scores[template] += 2; // Industry matches are weighted higher
-        }
-      });
-
-      // Check for skill/role keywords
-      criteria.keywords.forEach((keyword) => {
-        if (allText.includes(keyword.toLowerCase())) {
-          scores[template] += 1;
+  // score skills section
+  if (cvData.skills && Array.isArray(cvData.skills)) {
+    cvData.skills.forEach((skill) => {
+      templateKeywords.skills.forEach(({ keyword, weight }) => {
+        if (skill.toLowerCase().includes(keyword.toLowerCase())) {
+          score += weight;
         }
       });
     });
+  }
 
-    // Determine the template with the highest score
-    let selectedTemplate = "office"; // Default template
-    let highestScore = scores.office;
+  // score job titles in experience
+  if (cvData.experience && Array.isArray(cvData.experience)) {
+    cvData.experience.forEach((exp) => {
+      if (exp.position) {
+        templateKeywords.jobTitles.forEach(({ keyword, weight }) => {
+          if (exp.position.toLowerCase().includes(keyword.toLowerCase())) {
+            score += weight;
+          }
+        });
+      }
+    });
+  }
 
-    if (scores.space > highestScore) {
-      selectedTemplate = "space";
-      highestScore = scores.space;
+  // score education
+  if (cvData.education && Array.isArray(cvData.education)) {
+    cvData.education.forEach((edu) => {
+      if (edu.degree) {
+        templateKeywords.education.forEach(({ keyword, weight }) => {
+          if (edu.degree.toLowerCase().includes(keyword.toLowerCase())) {
+            score += weight;
+          }
+        });
+      }
+      if (edu.field) {
+        templateKeywords.education.forEach(({ keyword, weight }) => {
+          if (edu.field.toLowerCase().includes(keyword.toLowerCase())) {
+            score += weight;
+          }
+        });
+      }
+    });
+  }
+
+  return score;
+};
+
+/**
+ * select most appropriate template based on CV content
+ * @param {object} cvData - structured CV data from OCR
+ * @returns {string} selected template name (space, forest, or office)
+ */
+const selectTemplate = (cvData) => {
+  if (!cvData) return DEFAULT_TEMPLATE;
+
+  // calculate scores for each template
+  const scores = {
+    space: calculateTemplateScore("space", cvData),
+    forest: calculateTemplateScore("forest", cvData),
+    office: calculateTemplateScore("office", cvData),
+  };
+
+  // find template with highest score
+  let selectedTemplate = DEFAULT_TEMPLATE;
+  let maxScore = 0;
+
+  for (const [template, score] of Object.entries(scores)) {
+    if (score > maxScore) {
+      maxScore = score;
+      selectedTemplate = template;
     }
+  }
 
-    if (scores.forest > highestScore) {
-      selectedTemplate = "forest";
-      highestScore = scores.forest;
-    }
+  // if scores are close (within 10%), use default template
+  const scoreValues = Object.values(scores);
+  const scoreRange = Math.max(...scoreValues) - Math.min(...scoreValues);
+  if (scoreRange < maxScore * 0.1) {
+    return DEFAULT_TEMPLATE;
+  }
 
-    // Generate customization suggestions based on CV content
-    const customizations = generateCustomizationOptions(
-      cvData,
-      selectedTemplate
-    );
+  return selectedTemplate;
+};
 
-    console.log(
-      `Selected template: ${selectedTemplate} with score: ${highestScore}`
-    );
+/**
+ * get template selection for a user
+ * @param {string} authId - user's auth ID
+ * @returns {Promise<string>} selected template name
+ */
+const getTemplateForUser = async (authId) => {
+  try {
+    const cvData = await CVData.findByAuthId(authId);
+    if (!cvData) return DEFAULT_TEMPLATE;
 
-    return {
-      template: selectedTemplate,
-      score: highestScore,
-      confidence: calculateConfidence(highestScore, scores),
-      customizations,
-    };
+    return selectTemplate(cvData);
   } catch (error) {
-    console.error("Error selecting template:", error);
-    return {
-      template: "office", // Fallback to office template
-      score: 0,
-      confidence: 0,
-      customizations: {},
-      error: error.message,
-    };
+    console.error("Error getting template for user:", error);
+    return DEFAULT_TEMPLATE;
   }
 };
-
-/**
- * Calculate confidence score (how strong the template match is)
- * @param {Number} highestScore - Score of the selected template
- * @param {Object} scores - All template scores
- * @returns {Number} Confidence score (0-1)
- */
-const calculateConfidence = (highestScore, scores) => {
-  const totalScore = Object.values(scores).reduce(
-    (sum, score) => sum + score,
-    0
-  );
-  return totalScore > 0 ? highestScore / totalScore : 0;
-};
-
-/**
- * Generate customization options based on CV content and selected template
- * @param {Object} cvData - The extracted CV data
- * @param {String} template - The selected template
- * @returns {Object} Customization options
- */
-const generateCustomizationOptions = (cvData, template) => {
-  const { name, title, experience = [], skills = [] } = cvData;
-
-  // Extract relevant information for customization
-  const experienceYears = calculateExperienceYears(experience);
-  const topSkills = skills.slice(0, 5); // Get top 5 skills
-
-  // Basic customization options for all templates
-  const customizations = {
-    name: name || "Portfolio User",
-    title: title || "Professional",
-    color: determineColorScheme(cvData, template),
-    focusArea: determineFocusArea(cvData),
-  };
-
-  // Template-specific customizations
-  switch (template) {
-    case "office":
-      customizations.deskItems = suggestDeskItems(cvData);
-      customizations.windowView = suggestWindowView(cvData);
-      break;
-
-    case "space":
-      customizations.spaceObjects = suggestSpaceObjects(cvData);
-      customizations.technology = suggestTechnology(cvData);
-      break;
-
-    case "forest":
-      customizations.natureElements = suggestNatureElements(cvData);
-      customizations.timeOfDay = suggestTimeOfDay(cvData);
-      break;
-  }
-
-  return customizations;
-};
-
-/**
- * Calculate total years of professional experience
- * @param {Array} experience - Array of experience objects
- * @returns {Number} Total years of experience
- */
-const calculateExperienceYears = (experience) => {
-  let totalMonths = 0;
-
-  experience.forEach((job) => {
-    if (job.startDate && job.endDate) {
-      // Simple calculation (can be improved for more accuracy)
-      const start = new Date(job.startDate);
-      const end =
-        job.endDate === "Present" ? new Date() : new Date(job.endDate);
-      const months =
-        (end.getFullYear() - start.getFullYear()) * 12 +
-        (end.getMonth() - start.getMonth());
-      totalMonths += months;
-    }
-  });
-
-  return Math.round(totalMonths / 12);
-};
-
-/**
- * Determine color scheme based on CV content and template
- * @param {Object} cvData - The extracted CV data
- * @param {String} template - The selected template
- * @returns {String} Color scheme suggestion
- */
-const determineColorScheme = (cvData, template) => {
-  // Simple color scheme selection based on template
-  // In a real implementation, this would analyze CV data more thoroughly
-  const colorSchemes = {
-    office: ["professional", "modern", "elegant"],
-    space: ["futuristic", "tech", "innovative"],
-    forest: ["natural", "organic", "earthy"],
-  };
-
-  return colorSchemes[template][0]; // Default to first option
-};
-
-/**
- * Determine the main focus area based on CV content
- * @param {Object} cvData - The extracted CV data
- * @returns {String} Focus area
- */
-const determineFocusArea = (cvData) => {
-  // Simple implementation - would be enhanced with more analysis
-  return "skills"; // Default focus area
-};
-
-// Helper functions for specific template customizations
-const suggestDeskItems = (cvData) => ["laptop", "notebook", "plant"];
-const suggestWindowView = (cvData) => "cityscape";
-const suggestSpaceObjects = (cvData) => ["planets", "satellites", "stars"];
-const suggestTechnology = (cvData) => "hologram";
-const suggestNatureElements = (cvData) => ["trees", "river", "mountains"];
-const suggestTimeOfDay = (cvData) => "morning";
 
 module.exports = {
   selectTemplate,
-  templateCriteria,
+  getTemplateForUser,
+  TEMPLATE_KEYWORDS,
+  DEFAULT_TEMPLATE,
 };

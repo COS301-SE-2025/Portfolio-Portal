@@ -177,6 +177,8 @@ const processCVWithAI = async (filePath, mimeType) => {
     return await convertToStructuredCV(rawText);
 };
 
+
+
 module.exports = {
     extractTextFromFile,
     processCVWithAI

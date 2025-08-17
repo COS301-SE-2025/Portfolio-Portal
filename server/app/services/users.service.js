@@ -135,6 +135,20 @@ const updateUserProfile = async (userId, updateData) => {
   }
 };
 
+const generateSignedUrl = async (filePath, expiresIn = 3600) => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('profile-pictures')
+      .createSignedUrl(filePath, expiresIn);
+    
+    if (error) throw error;
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Signed URL error:', error.message);
+    throw error;
+  }
+};
+
 const uploadProfilePicture = async (userId, file, token) => {
   try {
     if (!file) {
@@ -153,10 +167,7 @@ const uploadProfilePicture = async (userId, file, token) => {
       throw new Error('File size too large. Maximum size is 5MB');
     }
 
-    // Delete existing profile picture first
-    await User.deleteProfilePicture(userId);
-
-    // Upload new picture
+    // Upload and get signed URL
     return await User.uploadProfilePicture(
       userId, 
       file.buffer, 
@@ -167,6 +178,18 @@ const uploadProfilePicture = async (userId, file, token) => {
   } catch (error) {
     console.error('UploadProfilePicture service error:', error.message);
     throw error;
+  }
+};
+
+const getProfilePicture = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user || !user.profile_picture_path) return null;
+    
+    return await generateSignedUrl(user.profile_picture_path);
+  } catch (error) {
+    console.error('Get profile picture error:', error);
+    return null;
   }
 };
 
@@ -263,5 +286,6 @@ module.exports = {
   deleteProfilePicture,
   searchUsers,
   getUsersBySkills,
-  getProfileStats
+  getProfileStats,
+  getProfilePicture
 };
