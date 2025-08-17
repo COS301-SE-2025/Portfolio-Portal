@@ -12,9 +12,12 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
+import LabPage from "./pages/LabPage";
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile'];
+
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile', '/lab'];
 const HIDDEN_THEME_BUTTON_PATHS = ['/', '/office', '/forest', '/space' ]; 
+
 
 function App() {
   const location = useLocation();
@@ -32,7 +35,9 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/office" element={<OfficePage />} />
           <Route path="/forest" element={<ForestPage />} />
+          <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
+
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
