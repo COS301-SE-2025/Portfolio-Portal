@@ -25,7 +25,7 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 ## 📚 Documentation
 
 | Document                                         | GitHub (MD)                                         | Google Docs                                                                                                    |
-| ------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| ------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/SRS-v1.0.md)              | [Google Doc](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/edit?  usp=sharing) | _N/A_  |
 | **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/SRS-v2.0.md)                       | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?tab=t.0)     | _N/A_  |
 | **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS-v3.0.md)                       | [Google Doc](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/edit?usp=sharing) | _N/A_  |
