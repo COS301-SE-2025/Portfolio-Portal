@@ -19,7 +19,11 @@ const Hero = () => {
             {description || "Full stack developer creating digital solutions with precision and efficiency."}
           </p>
           <div className="flex gap-4 pt-4">
-            <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105">
+          // In your Hero.jsx component
+            <button
+              onClick={() => window.location.href = '/3DPortfolio'}
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105"
+            >
               View My Work
             </button>
           </div>
