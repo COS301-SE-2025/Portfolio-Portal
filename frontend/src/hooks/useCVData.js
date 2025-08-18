@@ -1,12 +1,37 @@
 // frontend/src/hooks/useCVData.js
-import { useState, useEffec, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import cvDataService from "../services/cvDataService";
 
 export const useCVData = () => {
-  const [cvData, setCvData] = useState(cvDataService.getData());
+  const [cvDataRaw, setCvDataRaw] = useState(() => cvDataService.getData());
+
+  useEffect(() => {
+    // subscribe to changes from cvDataService
+    const unsubscribe = cvDataService.subscribe((data) => {
+      setCvDataRaw(data);
+    });
+
+    // If there's no cached data, try to fetch from /cv/me (backend)
+    if (!cvDataService.hasData() && cvDataService.getMyCV) {
+      cvDataService.getMyCV()
+        .then(res => {
+          if (res?.data) {
+            cvDataService.setData(res.data);
+            // setCvDataRaw will be triggered by the subscription
+          }
+        })
+        .catch(() => {
+          // no CV on server or not authenticated — ignore silently
+        });
+    }
+
+    return () => unsubscribe();
+    // run once on mount
+  }, []);
 
   // transform the data's structure
   const transformedData = useMemo(() => {
+    const cvData = cvDataRaw;
     if (!cvData) return null;
 
     return {
@@ -36,8 +61,9 @@ export const useCVData = () => {
         linkedin: cvData.personal_info?.linkedin || "",
         website: cvData.personal_info?.website || "",
       },
+      references: cvData.references || [],
     };
-  }, [cvData]);
+  }, [cvDataRaw]);
 
   return {
     cvData: transformedData,

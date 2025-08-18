@@ -679,11 +679,6 @@ const handleProfilePictureUpload = async (e) => {
                   </div>
                   Portfolio Websites
                 </h2>
-                <span className={`text-sm rounded-full px-3 py-1 ${
-                  isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-500'
-                }`}>
-                  {portfolioPlaceholders.length} Templates
-                </span>
               </div>
               <div className="grid gap-6">
                 {portfolioPlaceholders.map((project, index) => (

@@ -6,8 +6,7 @@ import { OrbitControls, Environment } from "@react-three/drei";
 import useCvData from "../../../hooks/useCVData";
 
 const Hero = () => {
-  // Get CV data (assume it returns { userName, ... })
-  const { name, description } = useCvData() || {};
+  const { name, description } = useCvData();
 
   return (
     <section className="relative w-full h-screen mx-auto flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/30">
@@ -34,10 +33,10 @@ const Hero = () => {
         <div className="flex-1 max-w-2xl">
           <div className="space-y-6">
             <h1 className="text-6xl lg:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 leading-tight animate-pulse">
-              {name || "Bill Burr"}
+              {name }
             </h1>
             <p className="text-2xl lg:text-3xl font-light text-gray-200 mb-8 tracking-wide">
-              {description || "Full stack developer & designer"}
+              {description}
             </p>
 
             {/* Call to action button */}
