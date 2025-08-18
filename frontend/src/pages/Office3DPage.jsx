@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, useGLTF, Text } from '@react-three/drei';
-import { Suspense, useEffect } from 'react';
+import { OrbitControls, Environment, Text } from '@react-three/drei';
 import { useCVData } from '../hooks/useCVData';
 import OfficeNavbar from '../components/Templates/office/Navbar';
 
-// Preload the correct model
-useGLTF.preload('/office/Capstone.glb');
+// Import GLTFLoader directly
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { useLoader } from '@react-three/fiber';
 
 export default function Office3DPage() {
   const { cvData } = useCVData();
@@ -20,7 +20,6 @@ export default function Office3DPage() {
           rotation: [-Math.PI/6, 0, 0],
           fov: 50 
         }}
-        gl={{ preserveDrawingBuffer: true }}
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
@@ -44,33 +43,26 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData }) {
-  const { scene, error } = useGLTF('/office/Capstone.glb');
+  // Use the direct loader approach
+  const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
   
   useEffect(() => {
-    if (error) {
-      console.error('Model loading error:', error);
-      // Try alternative loading method if needed
-    }
-    if (scene) {
+    if (gltf?.scene) {
       // Update text elements
       const textElements = {
         'AboutHeading': 'About Me',
         'AboutDescription': cvData?.about || '',
         'SkillsHeading': 'Core Expertise',
-        // Add more as needed
       };
 
       Object.entries(textElements).forEach(([name, content]) => {
-        const obj = scene.getObjectByName(name);
+        const obj = gltf.scene.getObjectByName(name);
         if (obj) obj.userData.text = content;
       });
     }
-  }, [scene, error, cvData]);
+  }, [gltf, cvData]);
 
-  if (error) return <FallbackModel />;
-  if (!scene) return <LoadingModel />;
-
-  return <primitive object={scene} />;
+  return gltf?.scene ? <primitive object={gltf.scene} /> : null;
 }
 
 function LoadingModel() {
