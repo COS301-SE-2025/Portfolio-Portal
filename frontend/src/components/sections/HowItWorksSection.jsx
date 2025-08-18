@@ -14,16 +14,10 @@ const HowItWorksSection = forwardRef(({ id, show, handleScrollToSection }, ref) 
   return (
     <SectionWrapper id={id} show={show} ref={ref} isDark={isDark}>
       <div className={`relative z-10 max-w-4xl w-full text-center space-y-12 animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
-        <div className={`absolute -left-4 top-0 w-1 h-32 rounded-full ${
-          isDark ? 'bg-gradient-to-b from-blue-400 to-indigo-500' : 'bg-gradient-to-b from-purple-500 to-blue-600'
-        } animate-pulse`}></div>
         
         <h2 className="text-5xl lg:text-6xl font-bold mb-8 relative">
           <span className="relative inline-block">
             How it
-            <div className={`absolute -inset-1 rounded-lg blur-lg ${
-              isDark ? 'bg-blue-500/20' : 'bg-purple-300/30'
-            } -z-10 animate-pulse`}></div>
           </span>
           <br />
           <span className={`relative inline-block bg-gradient-to-r bg-clip-text text-transparent ${
@@ -47,23 +41,15 @@ const HowItWorksSection = forwardRef(({ id, show, handleScrollToSection }, ref) 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {steps.map((step) => (
             <div key={step.number} className="flex flex-col items-center space-y-6 relative group">
-              <div className={`absolute -top-4 -right-4 w-6 h-6 rounded-full animate-bounce-slow ${
-                isDark ? 'bg-gradient-to-br from-blue-400 to-indigo-500' : 'bg-gradient-to-br from-purple-500 to-blue-600'
-              } shadow-lg opacity-60`}></div>
-              
               <div className={`relative w-20 h-20 rounded-full flex items-center justify-center text-white text-3xl font-bold transition-all duration-300 group-hover:scale-110 ${
                 isDark 
                   ? 'bg-gradient-to-br from-blue-600 to-indigo-600 shadow-2xl hover:shadow-blue-500/25' 
                   : 'bg-gradient-to-br from-purple-600 to-blue-600 shadow-2xl shadow-purple-200/50 hover:shadow-purple-500/30'
               } transform hover:-translate-y-1`}>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-indigo-400/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-full"></div>
                 <span className="relative z-10">{step.number}</span>
               </div>
               
               <div className="text-center relative">
-                <div className={`absolute -inset-2 rounded-lg blur-lg ${
-                  isDark ? 'bg-blue-500/10' : 'bg-purple-300/20'
-                } -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
                 <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
                 <h3 className="text-2xl font-bold mb-4">{step.subtitle}</h3>
               </div>

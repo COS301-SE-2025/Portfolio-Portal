@@ -10,16 +10,10 @@ const AboutSection = forwardRef(({ id, show }, ref) => {
       <div className={`relative z-10 max-w-6xl w-full animate-fadeIn ${isDark ? 'text-white' : 'text-gray-900'}`}>
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div className="space-y-12 lg:pr-8 relative">
-            <div className={`absolute -left-4 top-0 w-1 h-32 rounded-full ${
-              isDark ? 'bg-gradient-to-b from-blue-400 to-indigo-500' : 'bg-gradient-to-b from-purple-500 to-blue-600'
-            } animate-pulse`}></div>
             
             <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold leading-none relative">
               <span className="relative inline-block">
                 About
-                <div className={`absolute -inset-1 rounded-lg blur-lg ${
-                  isDark ? 'bg-blue-500/20' : 'bg-purple-300/30'
-                } -z-10 animate-pulse`}></div>
               </span>
               <br />
               <span className={`relative inline-block ${

@@ -35,7 +35,8 @@ const templates = [
   {
     title: "Lab",
     description: "Waltah White.",
-    image: "/images/cafe.png",
+    image: "/images/lab.png",
+    href: "/lab",
   },
 ];
 

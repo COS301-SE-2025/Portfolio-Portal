@@ -116,16 +116,10 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
     <SectionWrapper id={id} show={show} ref={ref} isDark={isDark}>
       <div className={`relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
         <div className="text-center space-y-6 relative">
-          <div className={`absolute -left-4 top-0 w-1 h-32 rounded-full ${
-            isDark ? 'bg-gradient-to-b from-blue-400 to-indigo-500' : 'bg-gradient-to-b from-purple-500 to-blue-600'
-          } animate-pulse`}></div>
           
           <h1 className="text-5xl lg:text-6xl font-bold leading-tight relative">
             <span className="relative inline-block">
               Upload your
-              <div className={`absolute -inset-1 rounded-lg blur-lg ${
-                isDark ? 'bg-blue-500/20' : 'bg-purple-300/30'
-              } -z-10 animate-pulse`}></div>
             </span>
             <br />
             <span className={`relative inline-block bg-gradient-to-r bg-clip-text text-transparent ${
@@ -260,10 +254,6 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
         </div>
         
         <div className="hidden lg:flex items-center justify-center relative">
-          <div className={`absolute inset-0 rounded-xl ${
-            isDark ? 'bg-gradient-to-br from-slate-800/30 to-blue-900/20' : 'bg-gradient-to-br from-purple-100/50 to-blue-100/50'
-          } backdrop-blur-sm`}></div>
-          
           <div className="w-[32rem] h-[32rem] relative">
             <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
               <ambientLight intensity={1.5} />

@@ -16,7 +16,7 @@ import LabPage from "./pages/LabPage";
 
 
 const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile', '/lab'];
-const HIDDEN_THEME_BUTTON_PATHS = ['/', '/office', '/forest', '/space' ]; 
+const HIDDEN_THEME_BUTTON_PATHS = ['/', '/office', '/forest', '/space', '/lab' ]; 
 
 
 function App() {
