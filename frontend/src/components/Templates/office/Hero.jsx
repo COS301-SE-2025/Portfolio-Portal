@@ -11,7 +11,7 @@ const Hero = () => {
   const { name, description } = useCvData() || {};
 
   const handleViewWorkClick = () => {
-    navigate('/office'); // Navigates to the 3D portfolio page
+    navigate('/office3d'); // Navigates to the new 3D portfolio page
   };
 
   return (
@@ -30,12 +30,12 @@ const Hero = () => {
               onClick={handleViewWorkClick}
               className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105"
             >
-              View My Work
+              Explore 3D Portfolio
             </button>
           </div>
         </div>
 
-        {/* 3D Office Model Section */}
+        {/* 3D Office Model Preview Section */}
         <div className="flex-1 w-full h-full max-w-2xl">
           <Canvas
             camera={{ position: [350, 250, 350], fov: 35 }}
@@ -50,7 +50,8 @@ const Hero = () => {
               <OrbitControls
                 enableZoom={false}
                 enablePan={false}
-                autoRotate={false}
+                autoRotate={true}
+                autoRotateSpeed={0.5}
                 maxDistance={500}
                 minDistance={100}
                 maxPolarAngle={Math.PI / 2.1}
