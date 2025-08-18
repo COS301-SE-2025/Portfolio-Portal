@@ -1,15 +1,15 @@
-// src/pages/Office3DPage.jsx
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, useGLTF, Text } from '@react-three/drei'
-import { Suspense, useEffect } from 'react'
-import { useCVData } from '../hooks/useCVData'
-import OfficeNavbar from '../components/Templates/office/Navbar'
+import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment, useGLTF, Text } from '@react-three/drei';
+import { Suspense, useEffect } from 'react';
+import { useCVData } from '../hooks/useCVData';
+import OfficeNavbar from '../components/Templates/office/Navbar';
 
-// Preload the model (must be outside component)
-useGLTF.preload('/office/Office.glb')
+// Preload the correct model
+useGLTF.preload('/office/Capstone.glb');
 
 export default function Office3DPage() {
-  const { cvData } = useCVData()
+  const { cvData } = useCVData();
 
   return (
     <div className="relative h-screen">
@@ -40,29 +40,37 @@ export default function Office3DPage() {
         />
       </Canvas>
     </div>
-  )
+  );
 }
 
 function Office3DScene({ cvData }) {
-  const { scene, error } = useGLTF('/office/Office.glb')
+  const { scene, error } = useGLTF('/office/Capstone.glb');
   
   useEffect(() => {
-    if (error) console.error('Model loading error:', error)
+    if (error) {
+      console.error('Model loading error:', error);
+      // Try alternative loading method if needed
+    }
     if (scene) {
       // Update text elements
-      const updateText = (name, content) => {
-        const obj = scene.getObjectByName(name)
-        if (obj) obj.userData.text = content
-      }
-      updateText('AboutHeading', 'About Me')
-      updateText('AboutDescription', cvData?.about || '')
+      const textElements = {
+        'AboutHeading': 'About Me',
+        'AboutDescription': cvData?.about || '',
+        'SkillsHeading': 'Core Expertise',
+        // Add more as needed
+      };
+
+      Object.entries(textElements).forEach(([name, content]) => {
+        const obj = scene.getObjectByName(name);
+        if (obj) obj.userData.text = content;
+      });
     }
-  }, [scene, error, cvData])
+  }, [scene, error, cvData]);
 
-  if (error) return <FallbackModel />
-  if (!scene) return <LoadingModel />
+  if (error) return <FallbackModel />;
+  if (!scene) return <LoadingModel />;
 
-  return <primitive object={scene} />
+  return <primitive object={scene} />;
 }
 
 function LoadingModel() {
@@ -70,7 +78,7 @@ function LoadingModel() {
     <Text position={[0, 2, 0]} color="white" anchorX="center">
       Loading 3D environment...
     </Text>
-  )
+  );
 }
 
 function FallbackModel() {
@@ -78,14 +86,14 @@ function FallbackModel() {
     <Text position={[0, 0, 0]} color="red" anchorX="center">
       Failed to load 3D office
     </Text>
-  )
+  );
 }
 
 class ErrorBoundary extends React.Component {
-  state = { hasError: false }
-  static getDerivedStateFromError = () => ({ hasError: true })
-  componentDidCatch(error) { console.error('3D Error:', error) }
+  state = { hasError: false };
+  static getDerivedStateFromError = () => ({ hasError: true });
+  componentDidCatch(error) { console.error('3D Error:', error); }
   render() {
-    return this.state.hasError ? this.props.fallback : this.props.children
+    return this.state.hasError ? this.props.fallback : this.props.children;
   }
 }
