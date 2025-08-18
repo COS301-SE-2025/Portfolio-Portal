@@ -17,52 +17,16 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
       ref={ref} 
       className={`relative min-h-screen py-12 px-6 lg:px-20 overflow-hidden ${
         isDark 
-          ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950' 
-          : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-100'
+      ? 'bg-gray-800/50 backdrop-blur-sm' 
+      : 'bg-gray-50 backdrop-blur-md' 
       }`}
     >
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Large floating shapes */}
-        <div className={`absolute top-20 right-10 w-32 h-32 rounded-full blur-xl animate-float-slow ${
-          isDark ? 'bg-blue-500/15' : 'bg-purple-300/30'
-        }`}></div>
-        <div className={`absolute top-60 left-20 w-24 h-24 rounded-full blur-lg animate-float-medium ${
-          isDark ? 'bg-indigo-500/20' : 'bg-blue-300/35'
-        }`}></div>
-        <div className={`absolute bottom-40 right-40 w-20 h-20 rounded-full blur-lg animate-float-fast ${
-          isDark ? 'bg-purple-500/25' : 'bg-indigo-300/40'
-        }`}></div>
-        
-        {/* Geometric shapes */}
-        <div className={`absolute top-32 left-10 w-16 h-16 transform rotate-45 animate-spin-slow ${
-          isDark ? 'bg-gradient-to-br from-blue-500/15 to-indigo-600/15' : 'bg-gradient-to-br from-purple-300/30 to-blue-400/30'
-        }`}></div>
-        <div className={`absolute bottom-20 left-1/4 w-12 h-12 transform rotate-12 animate-bounce-slow ${
-          isDark ? 'bg-gradient-to-br from-slate-700/20 to-blue-500/20' : 'bg-gradient-to-br from-indigo-300/35 to-purple-400/35'
-        }`}></div>
-      </div>
-
-      {/* Gradient overlay */}
-      <div className={`absolute inset-0 ${
-        isDark 
-          ? 'bg-gradient-to-r from-slate-800/30 via-transparent to-blue-900/20' 
-          : 'bg-gradient-to-r from-purple-100/40 via-transparent to-blue-100/40'
-      }`}></div>
 
       {show && (
         <div className={`relative z-10 max-w-6xl mx-auto animate-fadeIn ${isDark ? 'text-white' : 'text-slate-900'}`}>
-          {/* Glowing accent */}
-          <div className={`absolute -left-4 top-0 w-1 h-32 rounded-full ${
-            isDark ? 'bg-gradient-to-b from-blue-400 to-indigo-500' : 'bg-gradient-to-b from-purple-500 to-blue-600'
-          } animate-pulse`}></div>
-          
           <h1 className="text-4xl lg:text-5xl font-bold text-center mb-4 relative">
             <span className="relative inline-block">
               Explore Our
-              <div className={`absolute -inset-1 rounded-lg blur-lg ${
-                isDark ? 'bg-blue-500/20' : 'bg-purple-300/30'
-              } -z-10 animate-pulse`}></div>
             </span>
             <br />
             <span className={`relative inline-block bg-gradient-to-r bg-clip-text text-transparent ${
@@ -71,9 +35,6 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
                 : 'from-purple-600 via-blue-600 to-indigo-600'
             } animate-gradient-shift`}>
               Templates
-              <div className={`absolute -inset-2 rounded-lg blur-xl ${
-                isDark ? 'bg-gradient-to-r from-blue-500/30 to-indigo-400/20' : 'bg-gradient-to-r from-purple-400/40 to-blue-400/40'
-              } -z-10 animate-pulse`}></div>
             </span>
           </h1>
           
