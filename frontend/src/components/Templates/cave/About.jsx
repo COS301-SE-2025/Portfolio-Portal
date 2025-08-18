@@ -41,37 +41,22 @@ const About = () => {
   };
 
   const sections = [
-    { id: 'intro', label: 'Introduction', icon: '👋' },
-    { id: 'philosophy', label: 'Philosophy', icon: '🔮' },
-    { id: 'mission', label: 'Mission', icon: '🎯' },
+    { id: 'philosophy', label: 'Description', icon: '🔮' },
+    { id: 'mission', label: 'About', icon: '🎯' },
     { id: 'skills', label: 'Skills', icon: '⚡' }
   ];
 
   const renderContent = () => {
     switch(activeSection) {
-      case 'intro':
-        return (
-          <div className="space-y-6">
-            <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
-              Welcome to My Digital Cave
-            </h3>
-            <p className="text-lg leading-relaxed text-white/90">
-              {description || "I'm a passionate developer and creative technologist with a deep love for immersive experiences. My journey began in the depths of code caves, where I discovered the magic of bringing digital worlds to life."}
-            </p>
-            <p className="text-lg leading-relaxed text-white/80">
-              {about || "With years of experience crafting interactive applications, I specialize in modern web technologies and believe in creating digital experiences that not only function beautifully but also tell compelling stories."}
-            </p>
-          </div>
-        );
       case 'philosophy':
         return (
           <div className="space-y-6">
             <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-              My Philosophy
+              Description
             </h3>
             <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-400/30 rounded-xl p-6">
               <p className="text-lg leading-relaxed text-white/90 italic">
-                "Every line of code is a brushstroke in the canvas of digital reality. I craft experiences that bridge the gap between imagination and technology."
+                {description || 'A passionate web developer with a love for creating immersive digital experiences.'}
               </p>
             </div>
             <p className="text-white/85">
@@ -80,11 +65,11 @@ const About = () => {
             </p>
           </div>
         );
-      case 'mission':
+      case 'About':
         return (
           <div className="space-y-6">
             <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              My Mission
+              {about || ''}
             </h3>
             <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-400/30 rounded-xl p-6">
               <p className="text-lg leading-relaxed text-white/90 italic">
