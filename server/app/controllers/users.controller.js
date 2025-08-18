@@ -152,6 +152,7 @@ const updateProfile = async (req, res) => {
 const uploadProfilePicture = async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
+    console.log('req.file:', req.file);
     if (!token) {
       return res.status(401).json({ error: 'Authorization token required' });
     }
@@ -159,7 +160,7 @@ const uploadProfilePicture = async (req, res) => {
     const profilePictureUrl = await userService.uploadProfilePicture(
       req.user.id, 
       req.file,
-      token // Pass the token to the service
+      token
     );
     
     res.status(200).json({ 
@@ -235,6 +236,21 @@ const getProfileStats = async (req, res) => {
   }
 };
 
+const getProfilePicture = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const signedUrl = await userService.getProfilePicture(userId);
+    
+    if (!signedUrl) {
+      return res.status(404).json({ error: 'Profile picture not found' });
+    }
+    
+    res.json({ profile_picture_url: signedUrl });
+  } catch (error) {
+    handleError(res, error, 'Failed to get profile picture');
+  }
+};
+
 // Get public profile by username/email (for profile pages)
 const getPublicProfile = async (req, res) => {
   try {
@@ -285,5 +301,6 @@ module.exports = {
   searchUsers,
   getUsersBySkills,
   getProfileStats,
-  getPublicProfile
+  getPublicProfile,
+  getProfilePicture
 };

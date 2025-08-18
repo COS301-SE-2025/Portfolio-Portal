@@ -39,9 +39,14 @@ router.use(authMiddleware.validateToken); // All routes below require authentica
 router.get('/me', userController.getCurrentUser);
 router.put('/me/profile', userController.updateProfile);
 router.get('/me/stats', userController.getProfileStats);
+router.get('/me/profile-picture', userController.getProfilePicture);
 
 // Profile picture management
-router.post('/me/profile-picture', upload.single('profilePicture'), userController.uploadProfilePicture);
+router.post(
+  '/me/profile-picture', 
+  upload.single('profilePicture'), // Field name must match
+  userController.uploadProfilePicture
+);
 router.delete('/me/profile-picture', userController.deleteProfilePicture);
 
 // Logout (requires authentication)

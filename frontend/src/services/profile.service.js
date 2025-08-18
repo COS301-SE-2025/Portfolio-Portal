@@ -1,18 +1,21 @@
 import api from './api.service';
 
 export const profileService = {
-  getProfile: (token) => api.get('/users/me', token),
-  updateProfile: (token, data) => api.put('/users/me/profile', data, token),
-  uploadProfilePicture: (token, file) => {
-    const formData = new FormData();
-    formData.append('profilePicture', file);
-    
+  getProfile: () => api.get('/users/me'),
+  
+  updateProfile: (token, data) => {
+    return api.put('/users/me/profile', data, {
+    });
+  },
+  
+  uploadProfilePicture: (formData, config = {}) => {
+    console.log('Sending FormData:', [...formData.entries()]);
     return api.post('/users/me/profile-picture', formData, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
+        ...config.headers
       }
     });
   },
-
+  
+  getProfilePictureUrl: () => api.get('/users/me/profile-picture')
 };
