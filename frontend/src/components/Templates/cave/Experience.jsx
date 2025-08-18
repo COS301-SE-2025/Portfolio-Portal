@@ -168,14 +168,7 @@ const Experience = () => {
         {/* Pickaxe Display */}
         <div className="bg-black/20 backdrop-blur-md border border-purple-400/30 rounded-xl p-6">
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24">
-              <Canvas>
-                <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-                <ambientLight intensity={0.6} />
-                <pointLight position={[2, 2, 2]} intensity={1} color="#8b5cf6" />
-                <FloatingPickaxe />
-              </Canvas>
-            </div>
+            
             <div>
               <h4 className="text-lg font-semibold text-white mb-2">Frontend Mining</h4>
               <p className="text-white/80 text-sm">React, Vue, Angular, TypeScript</p>
@@ -186,14 +179,7 @@ const Experience = () => {
         {/* Shovel Display */}
         <div className="bg-black/20 backdrop-blur-md border border-cyan-400/30 rounded-xl p-6">
           <div className="flex items-center gap-4">
-            <div className="w-24 h-24">
-              <Canvas>
-                <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-                <ambientLight intensity={0.6} />
-                <pointLight position={[2, 2, 2]} intensity={1} color="#06b6d4" />
-                <FloatingShovel />
-              </Canvas>
-            </div>
+            
             <div>
               <h4 className="text-lg font-semibold text-white mb-2">Backend Excavation</h4>
               <p className="text-white/80 text-sm">Node.js, Python, MongoDB, AWS</p>
@@ -301,14 +287,6 @@ const Experience = () => {
       <div className="flex-shrink-0 flex items-center justify-center py-6">
         <div className="flex items-center gap-8">
           {/* 3D Pickaxe */}
-          <div className="w-20 h-20">
-            <Canvas>
-              <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-              <ambientLight intensity={0.6} />
-              <pointLight position={[2, 2, 2]} intensity={1} color="#8b5cf6" />
-              <FloatingPickaxe />
-            </Canvas>
-          </div>
           
           <div className="text-center">
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">

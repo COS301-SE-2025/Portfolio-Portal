@@ -308,14 +308,7 @@ const Contact = () => {
       <div className="flex-shrink-0 flex items-center justify-center py-6">
         <div className="flex items-center gap-8">
           {/* 3D Crystal */}
-          <div className="w-24 h-24">
-            <Canvas>
-              <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-              <ambientLight intensity={0.6} />
-              <pointLight position={[2, 2, 2]} intensity={1} color="#06b6d4" />
-              <FloatingCrystal />
-            </Canvas>
-          </div>
+          
           
           <div className="text-center">
             <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">

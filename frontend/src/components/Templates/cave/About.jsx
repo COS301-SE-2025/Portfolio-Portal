@@ -125,15 +125,7 @@ const About = () => {
       {/* Header with 3D Campfire */}
       <div className="flex-shrink-0 flex items-center justify-center py-8">
         <div className="flex items-center gap-8">
-          {/* 3D Campfire */}
-          <div className="w-32 h-32">
-            <Canvas>
-              <PerspectiveCamera makeDefault position={[0, 0, 5]} />
-              <ambientLight intensity={0.6} />
-              <pointLight position={[2, 2, 2]} intensity={1} color="#ff6b35" />
-              <FloatingCampfire />
-            </Canvas>
-          </div>
+          
           
           {/* Name and Avatar */}
           <div className="text-center">
