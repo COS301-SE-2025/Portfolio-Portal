@@ -1,11 +1,18 @@
+// src/components/Templates/office/Hero.jsx
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Office from '../../3DModels/Office';
 import useCvData from '../../../hooks/useCVData';
 
 const Hero = () => {
+  const navigate = useNavigate();
   const { name, description } = useCvData() || {};
+
+  const handleViewWorkClick = () => {
+    navigate('/office'); // Navigates to the 3D portfolio page
+  };
 
   return (
     <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900 flex items-center">
@@ -19,8 +26,8 @@ const Hero = () => {
             {description || "Full stack developer creating digital solutions with precision and efficiency."}
           </p>
           <div className="flex gap-4 pt-4">
-            <button
-              onClick={() => window.location.href = '/3DPortfolio'}
+            <button 
+              onClick={handleViewWorkClick}
               className="px-8 py-3 bg-gradient-to-r from-blue-600 to-gray-700 hover:from-blue-700 hover:to-gray-800 text-white font-medium rounded transition-all duration-300 transform hover:scale-105"
             >
               View My Work
