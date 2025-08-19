@@ -1,48 +1,66 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
-import useCvData from '../hooks/useCVData'; // Correct path based on your structure
-import OfficeNavbar from '../components/Templates/office/Navbar'; // Correct path
+import useCvData from '../hooks/useCVData';
+import OfficeNavbar from '../components/Templates/office/Navbar';
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from '@react-three/fiber';
 
 export default function Office3DPage() {
-  const { cvData } = useCvData(); // Using the same hook as other files
+  const { cvData } = useCvData();
   const [scrollPosition, setScrollPosition] = useState(0);
   const scrollContainerRef = useRef();
+  const scrollTimeoutRef = useRef();
 
-  // Handle natural mouse wheel scrolling
+  // Handle natural mouse wheel scrolling with smoothing
   useEffect(() => {
     const handleWheel = (e) => {
-      // Allow natural page scrolling with mouse wheel
+      e.preventDefault();
+      
+      // Clear any existing timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      // Apply smoothing with smaller increments
       setScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.5;
+        const newPos = prev + e.deltaY * 0.1; // Much smaller increment
         return Math.max(0, Math.min(newPos, 100));
       });
+
+      // Set timeout to clear smooth scrolling
+      scrollTimeoutRef.current = setTimeout(() => {
+        scrollTimeoutRef.current = null;
+      }, 100);
     };
 
     const container = scrollContainerRef.current;
     if (container) {
       container.addEventListener('wheel', handleWheel, { passive: false });
-      return () => container.removeEventListener('wheel', handleWheel);
+      return () => {
+        container.removeEventListener('wheel', handleWheel);
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+      };
     }
   }, []);
 
   return (
-    <div className="relative h-screen" ref={scrollContainerRef}>
+    <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 10, 15],
+          position: [0, 15, 25], // More zoomed out
           rotation: [-Math.PI/6, 0, 0],
-          fov: 50 
+          fov: 45 // Slightly smaller FOV for more zoomed out effect
         }}
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <Environment preset="city" />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[15, 15, 10]} intensity={0.8} />
+        <Environment preset="apartment" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
@@ -59,10 +77,10 @@ export default function Office3DPage() {
       </Canvas>
       
       {/* Scroll indicator */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
         <div className="w-48 h-2 bg-gray-600 rounded-full">
           <div 
-            className="h-full bg-blue-500 rounded-full transition-all duration-200"
+            className="h-full bg-blue-500 rounded-full transition-all duration-200 ease-out"
             style={{ width: `${scrollPosition}%` }}
           ></div>
         </div>
@@ -73,11 +91,12 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData, scrollPosition }) {
-  const { scene } = useThree();
+  const { scene, camera } = useThree();
   const groupRef = useRef();
   const textElementsRef = useRef([]);
+  const targetZ = useRef(0);
   
-  // Mock data fallback (same structure as your other files)
+  // Mock data fallback
   const mockData = {
     name: "John Doe",
     title: "Full Stack Developer",
@@ -108,35 +127,45 @@ function Office3DScene({ cvData, scrollPosition }) {
   const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
   
   useFrame(() => {
-    // Apply scrolling by moving the entire scene on the Z-axis
+    // Smooth scrolling with lerp for smoother movement
     if (groupRef.current) {
-      groupRef.current.position.z = scrollPosition * 0.3; // Adjust multiplier as needed
+      targetZ.current = scrollPosition * 0.5; // Adjust multiplier as needed
+      groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
 
   useEffect(() => {
     if (gltf?.scene) {
       // Store references to text elements
-      textElementsRef.current = [];
+      const textElements = [];
       
       // Update text elements based on object names
       gltf.scene.traverse((object) => {
         if (object.isMesh && object.name) {
-          // Map object names to CV data (same structure as your other files)
+          // Map object names to CV data
           let textContent = '';
+          let fontSize = '16px';
+          let fontWeight = 'normal';
           
           switch(object.name) {
             case 'AboutHeading':
               textContent = 'About Me';
+              fontSize = '24px';
+              fontWeight = 'bold';
               break;
             case 'AboutDescription':
               textContent = data.about || '';
+              fontSize = '16px';
               break;
             case 'Title':
               textContent = data.title || '';
+              fontSize = '20px';
+              fontWeight = '600';
               break;
             case 'Subtitle':
               textContent = data.name || 'Full Stack Developer';
+              fontSize = '18px';
+              fontWeight = '500';
               break;
             case 'ContactEmail':
               textContent = data.email || '';
@@ -146,49 +175,54 @@ function Office3DScene({ cvData, scrollPosition }) {
               break;
             case 'ExpertiseHeading':
               textContent = 'Expertise';
+              fontSize = '22px';
+              fontWeight = 'bold';
               break;
             case 'ExpertiseDescription':
               textContent = data.skills?.join(', ') || '';
               break;
             case 'ExperienceHeading':
               textContent = 'Experience';
+              fontSize = '22px';
+              fontWeight = 'bold';
               break;
             case 'ExperienceDescription':
-              textContent = data.experience?.[0]?.description || 
-                           (data.experience?.[0]?.position ? 
-                            `${data.experience[0].position} at ${data.experience[0].company}` : '');
+              const exp = data.experience?.[0];
+              textContent = exp ? `${exp.position} at ${exp.company} (${exp.period})` : '';
               break;
             case 'EducationHeading':
               textContent = 'Education';
+              fontSize = '22px';
+              fontWeight = 'bold';
               break;
             case 'EducationDescription':
-              textContent = data.education?.[0]?.description || 
-                           (data.education?.[0]?.degree ? 
-                            `${data.education[0].degree} from ${data.education[0].institution}` : '');
+              const edu = data.education?.[0];
+              textContent = edu ? `${edu.degree} from ${edu.institution} (${edu.period})` : '';
               break;
             case 'ContactMessage':
               textContent = 'Get in touch to discuss opportunities';
               break;
             default:
-              // For other text elements, keep their original content or hide them
-              if (object.name.includes('Text')) {
-                object.visible = false; // Hide the original text mesh
+              if (object.name.includes('Text') || object.name.includes('Heading') || object.name.includes('Description')) {
+                object.visible = false;
               }
           }
           
-          // Store reference for later updates
           if (textContent) {
-            textElementsRef.current.push({
+            textElements.push({
               object,
               textContent,
+              fontSize,
+              fontWeight,
               originalVisibility: object.visible
             });
             
-            // For now, just hide the original and we'll replace with HTML overlays
             object.visible = false;
           }
         }
       });
+      
+      textElementsRef.current = textElements;
     }
   }, [gltf, data]);
 
@@ -207,9 +241,23 @@ function Office3DScene({ cvData, scrollPosition }) {
           ]}
           transform
           occlude
+          distanceFactor={2} // Makes text size more consistent regardless of distance
           className="html-overlay"
+          style={{
+            pointerEvents: 'none',
+            transition: 'opacity 0.3s ease'
+          }}
         >
-          <div className="bg-black/70 text-white p-3 rounded max-w-xs border border-blue-400/30">
+          <div 
+            className="bg-black/80 text-white p-4 rounded-lg border border-blue-400/30 backdrop-blur-sm"
+            style={{
+              fontSize: item.fontSize,
+              fontWeight: item.fontWeight,
+              maxWidth: '300px',
+              lineHeight: '1.5',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+            }}
+          >
             {item.textContent}
           </div>
         </Html>
@@ -221,9 +269,9 @@ function Office3DScene({ cvData, scrollPosition }) {
 function LoadingModel() {
   return (
     <Html center>
-      <div className="text-white text-center">
+      <div className="text-white text-center bg-black/70 p-6 rounded-lg backdrop-blur-sm">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-        <p>Loading 3D environment...</p>
+        <p className="text-lg">Loading 3D environment...</p>
       </div>
     </Html>
   );
@@ -232,8 +280,9 @@ function LoadingModel() {
 function FallbackModel() {
   return (
     <Html center>
-      <div className="text-red-500 text-center">
-        <p>Failed to load 3D office</p>
+      <div className="text-red-500 text-center bg-black/70 p-6 rounded-lg">
+        <p className="text-lg">Failed to load 3D office</p>
+        <p className="text-sm mt-2">Please check if the model file exists</p>
       </div>
     </Html>
   );
