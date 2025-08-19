@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { profileService } from "../../services/profile.service";
 import { useTheme } from "../../contexts/ThemeContext";
-import "./ProfileSection.css";
 
 // Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
@@ -429,11 +428,7 @@ const ProfileSection = () => {
 
   return (
     <div
-      className={`min-h-screen relative overflow-hidden ${
-        isDark
-          ? "bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950"
-          : "bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100"
-      }`}
+      className={`min-h-screen relative overflow-hidden`}
     >
       <div className="max-w-7xl mx-auto p-6">
         {profilePictureError && (
