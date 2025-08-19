@@ -11,7 +11,7 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-55); // Start higher up
+  const [scrollPosition, setScrollPosition] = useState(-55);
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
 
@@ -28,7 +28,7 @@ export default function Office3DPage() {
       // Apply smoothing with correct direction and limited range
       setScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.15;
-        return Math.max(-50, Math.min(newPos, 150)); // Start at -50, end at 150 for shorter range
+        return Math.max(-50, Math.min(newPos, 150));
       });
 
       // Set timeout to clear smooth scrolling
@@ -58,7 +58,9 @@ export default function Office3DPage() {
           rotation: [-Math.PI/6, 0, 0],
           fov: 50
         }}
+        gl={{ alpha: true }} // Enable transparency
       >
+        <color attach="background" args={['#1a202c']} /> {/* Set canvas background color */}
         <ambientLight intensity={0.6} />
         <directionalLight position={[15, 15, 10]} intensity={0.8} />
         <Environment preset="apartment" />
@@ -94,7 +96,6 @@ export default function Office3DPage() {
 function Office3DScene({ cvData, scrollPosition }) {
   const { scene } = useThree();
   const groupRef = useRef();
-  const textElementsRef = useRef([]);
   const targetZ = useRef(0);
   
   // Mock data fallback
@@ -107,8 +108,8 @@ function Office3DScene({ cvData, scrollPosition }) {
     experience: [
       {
         company: "Tech Innovations Inc.",
-        title: "Senior Developer", // Changed from 'position' to 'title'
-        startDate: "2020", // Changed from 'period'
+        title: "Senior Developer",
+        startDate: "2020",
         endDate: "2023",
         extra: ["Led frontend development team for flagship product", "Implemented modern React architecture"]
       }
@@ -117,7 +118,7 @@ function Office3DScene({ cvData, scrollPosition }) {
       {
         institution: "Tech University",
         degree: "Bachelor of Computer Science",
-        startDate: "2014", // Changed from 'period'
+        startDate: "2014",
         endDate: "2018"
       }
     ]
@@ -132,7 +133,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   useFrame(() => {
     // Smooth scrolling with lerp for smoother movement - extended range
     if (groupRef.current) {
-      targetZ.current = -scrollPosition * 0.8; // Negative to move camera backward when scrolling down
+      targetZ.current = -scrollPosition * 0.8;
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
@@ -148,6 +149,27 @@ function Office3DScene({ cvData, scrollPosition }) {
       });
       console.log('=== End Object Names ===');
       
+      // First, make all planes transparent
+      gltf.scene.traverse((object) => {
+        if (object.isMesh && object.name && (
+          object.name.includes('Title') || 
+          object.name.includes('Subtitle') || 
+          object.name.includes('About') || 
+          object.name.includes('Expertise') || 
+          object.name.includes('Experience') || 
+          object.name.includes('Education') || 
+          object.name.includes('Contact') || 
+          object.name.includes('Heading') || 
+          object.name.includes('Description')
+        )) {
+          // Make the plane fully transparent
+          object.material.transparent = true;
+          object.material.opacity = 0;
+          object.material.needsUpdate = true;
+          object.renderOrder = 1; // Render after other objects
+        }
+      });
+      
       // Update actual Blender text objects
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
@@ -155,36 +177,42 @@ function Office3DScene({ cvData, scrollPosition }) {
           
           // Map your specific text object names to content
           switch(object.name) {
-            case 'Text001':
+            case 'Title':
               textContent = data.name || 'John Doe';
               break;
-            case 'Text003':
+            case 'Subtitle':
               textContent = data.title || 'Full Stack Developer';
               break;
-            case 'Text':
+            case 'AboutDescription':
               textContent = data.about || 'Experienced developer with passion for creating innovative solutions and user-friendly experiences.';
               break;
-            case 'Text004':
+            case 'ExpertiseDescription':
               textContent = data.skills?.slice(0, 4).join(' • ') || 'JavaScript • React • Node.js • Three.js';
               break;
-            case 'Text005':
+            case 'ExperienceDescription':
               const exp = data.experience?.[0];
               textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : 'Senior Developer at Tech Company (2020-2023)';
               break;
-            case 'Text006':
+            case 'EducationDescription':
               const edu = data.education?.[0];
               textContent = edu ? `${edu.degree} - ${edu.institution} (${edu.startDate}-${edu.endDate})` : 'Bachelor of Computer Science - Tech University (2014-2018)';
               break;
-            case 'Text002':
+            case 'ContactDescription':
               textContent = data.email || 'contact@johndoe.com';
               break;
-            case 'Text007':
+            case 'AboutHeading':
+              textContent = 'About Me';
+              break;
+            case 'ExpertiseHeading':
               textContent = 'Experience & Expertise';
               break;
-            case 'Text008':
+            case 'ExperienceHeading':
+              textContent = 'Professional Journey';
+              break;
+            case 'EducationHeading':
               textContent = 'Education & Background';
               break;
-            case 'Text009':
+            case 'ContactHeading':
               textContent = 'Get In Touch';
               break;
           }
@@ -198,13 +226,12 @@ function Office3DScene({ cvData, scrollPosition }) {
               canvas.width = 512;
               canvas.height = 128;
               
-              // Clear canvas
-              context.fillStyle = '#000000';
-              context.fillRect(0, 0, canvas.width, canvas.height);
+              // Clear canvas with transparent background
+              context.clearRect(0, 0, canvas.width, canvas.height);
               
               // Draw text
-              context.fillStyle = '#ffffff';
-              context.font = 'bold 24px Arial';
+              context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
+              context.font = object.name.includes('Heading') ? 'bold 24px Arial' : '18px Arial';
               context.textAlign = 'center';
               context.textBaseline = 'middle';
               
@@ -226,7 +253,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               lines.push(currentLine);
               
               // Draw each line
-              const lineHeight = 30;
+              const lineHeight = object.name.includes('Heading') ? 30 : 24;
               const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
               
               lines.forEach((line, index) => {
@@ -237,11 +264,13 @@ function Office3DScene({ cvData, scrollPosition }) {
               const texture = new THREE.CanvasTexture(canvas);
               texture.needsUpdate = true;
               
-              // Clone material to avoid affecting other objects
-              const newMaterial = object.material.clone();
-              newMaterial.map = texture;
-              newMaterial.transparent = true;
-              newMaterial.alphaTest = 0.1;
+              // Create a new material for the text
+              const newMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+              });
+              
               object.material = newMaterial;
               
               // Make sure the object is visible
