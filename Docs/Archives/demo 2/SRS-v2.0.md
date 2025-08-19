@@ -6,7 +6,7 @@
 
 ---
 
-**Version:** 2.0 
+**Version:** 2.0
 
 **Date:** 06/2025
 
@@ -14,22 +14,22 @@
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)  
-2. [Domain Model](#2-domain-model)  
-3. [User Stories / User Characteristics](#3-user-stories-user-characteristics)  
-4. [Use Cases](#4-use-cases)  
-5. [Functional Requirements](#5-functional-requirements)  
-6. [Architectural Requirements](#6-architectural-requirements)  
-   - [6.1 Architectural Design Strategy](#61-architectural-design-strategy)  
-   - [6.2 Architectural Strategies/Styles](#62-architectural-strategies-styles)  
-   - [6.3 Architectural Quality Requirements](#63-architectural-quality-requirements) 
-   - [6.4 Architectural Design and Patterns](#64-architectural-design-and-patterns) 
+1. [Introduction](#1-introduction)
+2. [Domain Model](#2-domain-model)
+3. [User Stories / User Characteristics](#3-user-stories-user-characteristics)
+4. [Use Cases](#4-use-cases)
+5. [Functional Requirements](#5-functional-requirements)
+6. [Architectural Requirements](#6-architectural-requirements)
+   - [6.1 Architectural Design Strategy](#61-architectural-design-strategy)
+   - [6.2 Architectural Strategies/Styles](#62-architectural-strategies-styles)
+   - [6.3 Architectural Quality Requirements](#63-architectural-quality-requirements)
+   - [6.4 Architectural Design and Patterns](#64-architectural-design-and-patterns)
    - [6.5 Architectural Constraints](#65-architectural-constraints)
-   - [6.6 Technology Choices](#66-technology-choices)  
-7. [Technology Requirements](#7-technology-requirements)  
-8. [Deployment Model (Demo 3)](#8-deployment-model)  
-9. [Live Deployed System (Demo 4)](#9-live-deployed-system)  
-10. [Service Contracts](#10-service-contracts)  
+   - [6.6 Technology Choices](#66-technology-choices)
+7. [Technology Requirements](#7-technology-requirements)
+8. [Deployment Model (Demo 3)](#8-deployment-model)
+9. [Live Deployed System (Demo 4)](#9-live-deployed-system)
+10. [Service Contracts](#10-service-contracts)
 11. [Appendix](#11-appendix)
 
 ---
@@ -104,9 +104,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US001: Upload CV**
 
-- **As a** job seeker  
-- **I want to** upload my CV in various formats (PDF, DOC, DOCX)  
-- **So that** I can quickly create a portfolio website without manual data entry  
+- **As a** job seeker
+- **I want to** upload my CV in various formats (PDF, DOC, DOCX)
+- **So that** I can quickly create a portfolio website without manual data entry
 - **Acceptance Criteria**:
   - System accepts PDF, DOC, and DOCX file formats
   - File size limit of 10MB enforced
@@ -126,9 +126,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US003: Template Selection Algorithm**
 
-- **As a** user  
-- **I want** the system to automatically suggest the most suitable 3D template  
-- **So that** my portfolio matches my professional profile and industry  
+- **As a** user
+- **I want** the system to automatically suggest the most suitable 3D template
+- **So that** my portfolio matches my professional profile and industry
 - **Acceptance Criteria**:
   - Algorithm analyzes CV content and suggests appropriate template
   - System provides reasoning for template selection
@@ -141,9 +141,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US004: 3D Website Generation**
 
-- **As a** user  
-- **I want** my portfolio data automatically populated into a 3D template  
-- **So that** I can have an interactive portfolio website without coding  
+- **As a** user
+- **I want** my portfolio data automatically populated into a 3D template
+- **So that** I can have an interactive portfolio website without coding
 - **Acceptance Criteria**:
   - Personal information correctly mapped to template sections
   - Work experience displayed chronologically in 3D environment
@@ -152,9 +152,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US005: Template Customization**
 
-- **As a** creative professional  
-- **I want to** customize colors, layouts, and elements within my chosen template  
-- **So that** my portfolio reflects my personal brand and style  
+- **As a** creative professional
+- **I want to** customize colors, layouts, and elements within my chosen template
+- **So that** my portfolio reflects my personal brand and style
 - **Acceptance Criteria**:
   - Color scheme can be modified
   - Text fonts and sizes are adjustable
@@ -163,9 +163,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US006: Multiple View Modes**
 
-- **As a** user  
-- **I want to** explore my 3D portfolio in different viewing modes  
-- **So that** I can choose the most engaging presentation style  
+- **As a** user
+- **I want to** explore my 3D portfolio in different viewing modes
+- **So that** I can choose the most engaging presentation style
 - **Acceptance Criteria**:
   - First-person navigation mode available
   - Third-person/fly-through mode available
@@ -178,9 +178,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US007: Preview and Testing**
 
-- **As a** user  
-- **I want to** preview my 3D portfolio before publishing  
-- **So that** I can ensure everything looks professional and functions correctly  
+- **As a** user
+- **I want to** preview my 3D portfolio before publishing
+- **So that** I can ensure everything looks professional and functions correctly
 - **Acceptance Criteria**:
   - Full preview mode with all functionality
   - Performance metrics displayed (load time, frame rate)
@@ -189,9 +189,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US008: Code Download and Sharing**
 
-- **As a** developer  
-- **I want to** download the generated portfolio code  
-- **So that** I can host it on my own domain or make advanced customizations  
+- **As a** developer
+- **I want to** download the generated portfolio code
+- **So that** I can host it on my own domain or make advanced customizations
 - **Acceptance Criteria**:
   - Complete HTML, CSS, and JavaScript files provided
   - Code is well-commented and organized
@@ -200,9 +200,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US009: Account Management**
 
-- **As a** frequent user  
-- **I want to** create an account to save and manage multiple portfolios  
-- **So that** I can maintain different versions for different purposes  
+- **As a** frequent user
+- **I want to** create an account to save and manage multiple portfolios
+- **So that** I can maintain different versions for different purposes
 - **Acceptance Criteria**:
   - User registration and authentication system
   - Dashboard showing all saved portfolios
@@ -215,9 +215,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US010: Custom Template Upload**
 
-- **As a** advanced user  
-- **I want to** upload my own 3D template  
-- **So that** I can have a completely unique portfolio design  
+- **As a** advanced user
+- **I want to** upload my own 3D template
+- **So that** I can have a completely unique portfolio design
 - **Acceptance Criteria**:
   - Template validation ensures compatibility
   - Support for common 3D formats (GLTF, OBJ)
@@ -226,9 +226,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US011: Dynamic Content Editor**
 
-- **As a** user  
-- **I want to** modify elements within my 3D portfolio after generation  
-- **So that** I can keep my portfolio updated without regenerating everything  
+- **As a** user
+- **I want to** modify elements within my 3D portfolio after generation
+- **So that** I can keep my portfolio updated without regenerating everything
 - **Acceptance Criteria**:
   - In-scene editing capabilities
   - Drag-and-drop element replacement
@@ -237,9 +237,9 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 **US012: Theme Management**
 
-- **As a** user  
-- **I want to** apply different visual themes to the platform interface  
-- **So that** I can personalize my user experience  
+- **As a** user
+- **I want to** apply different visual themes to the platform interface
+- **So that** I can personalize my user experience
 - **Acceptance Criteria**:
   - Multiple theme options available
   - Dark/light mode toggle
@@ -259,22 +259,26 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 > Specify the functional requirements to satisfy the use cases. Assign the requirements to subsystems.
 
 ### FR1: OCR Scanner
+
 - **FR1.1**: The system shall allow users to upload a CV in image or PDF format.
 - **FR1.2**: The system shall use Optical Character Recognition (OCR) to extract text content from the uploaded CV.
 - **FR1.3**: The system shall analyze the extracted CV content and determine the most suitable 3D template based on predefined criteria or an algorithm.
 - **FR1.4**: The system shall display the selected template to the user for confirmation or customization.
 
 ### FR2: 3D Website Templates
+
 - **FR2.1**: The system shall provide at least four predefined 3D templates: office, space, forest, and cave.
 - **FR2.2**: The system shall allow the user to preview each 3D template.
 - **FR2.3**: The system shall allow the user to customize content within the selected 3D template (e.g., insert CV details, images, links).
 
 ### FR3: Deploy Site on Localhost
+
 - **FR3.1**: The system shall generate a deployable version of the customized portfolio website.
 - **FR3.2**: The system shall automatically deploy the generated website to localhost for local viewing.
 - **FR3.3**: The system shall notify the user of the localhost address/port where the site is viewable.
 
 ### FR4: Code Sharing/Download
+
 - **FR4.1**: The system shall generate the full source code for the customized portfolio website.
 - **FR4.2**: The system shall allow users to download the generated website code as a ZIP file.
 - **FR4.3**: The system shall provide sharing options (e.g., GitHub link generation or direct share to platforms, if applicable).
@@ -282,13 +286,15 @@ Please refer to [this link](https://docs.google.com/document/d/1br4loDNRrGsrz9mS
 
 ---
 
-# 6. Architectural Requirements  
-*[Specify & quantify the system’s quality requirements, such as performance, reliability, scalability, security, and maintainability]*
+# 6. Architectural Requirements
+
+_[Specify & quantify the system’s quality requirements, such as performance, reliability, scalability, security, and maintainability]_
 
 ---
 
-## 6.1 Architectural Design Strategy  
-*[Choose an architecture design strategy for your system. Options include decomposition, design based on quality requirements, and generating test cases. Justify your choice. (graded in Demo 3)]*
+## 6.1 Architectural Design Strategy
+
+_[Choose an architecture design strategy for your system. Options include decomposition, design based on quality requirements, and generating test cases. Justify your choice. (graded in Demo 3)]_
 
 **Chosen Strategy**: **Design Based on Quality Requirements**
 
@@ -308,8 +314,9 @@ This strategy allows us to build a system that is resilient, performant, and use
 
 ---
 
-## 6.2. Architectural Strategies/Styles  
-*[Architectural styles are categorized by components, connectors, and constraints. Choose one that best fits your project’s needs and justify your decision. A list of styles can be found on [Wikipedia](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3)]*
+## 6.2. Architectural Strategies/Styles
+
+_[Architectural styles are categorized by components, connectors, and constraints. Choose one that best fits your project’s needs and justify your decision. A list of styles can be found on [Wikipedia](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3)]_
 
 **Chosen Strategy/Style**: **Service-Oriented Architecture (SOA)**
 
@@ -317,31 +324,32 @@ This strategy allows us to build a system that is resilient, performant, and use
 
 Our system involves several clearly defined and independently manageable modules:
 
-- OCR service  
-- Template selection engine  
-- 3D rendering service  
-- User management  
-- File storage  
+- OCR service
+- Template selection engine
+- 3D rendering service
+- User management
+- File storage
 
 Each of these services communicates via well-defined APIs, making SOA an ideal choice. This architecture allows:
 
-- **Separation of concerns** (e.g., OCR is decoupled from frontend logic)  
+- **Separation of concerns** (e.g., OCR is decoupled from frontend logic)
 - **Independent testing and development**
 
 Moreover, our backend is built using **Node.js + Express.js**, which naturally supports REST APIs, aligning well with SOA principles.
 
 ---
 
-## 6.3. Architectural Quality Requirements  
-*[Prioritize at least five quality requirements (from highest to lowest priority). Each quality requirement must be quantified or specified in a testable way. For example, availability: 99.5% uptime, scalability: 50 requests per second, security: role-based access control. (graded in Demo 2)]*
+## 6.3. Architectural Quality Requirements
 
-| Priority | Quality Requirement | Quantification |
-|----------|----------------------|----------------|
-| 1        | **Availability**     | The system must maintain **99.5% uptime** during active development. |
-| 2        | **Performance**      | OCR + template rendering must complete **within 5 seconds** on average. |
-| 3        | **Security**         | All users must authenticate via **email & password**; incorrect passwords fail. |
-| 4        | **Usability**        | User can complete CV upload and preview in **under 5 clicks**. Help menu readily available. |
-| 5        | **Maintainability**  | **≥80% unit test coverage** across core backend and frontend services (e.g., template selector, OCR service). Make use of React components. |
+_[Prioritize at least five quality requirements (from highest to lowest priority). Each quality requirement must be quantified or specified in a testable way. For example, availability: 99.5% uptime, scalability: 50 requests per second, security: role-based access control. (graded in Demo 2)]_
+
+| Priority | Quality Requirement | Quantification                                                                                                                              |
+| -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | **Availability**    | The system must maintain **99.5% uptime** during active development.                                                                        |
+| 2        | **Performance**     | OCR + template rendering must complete **within 5 seconds** on average.                                                                     |
+| 3        | **Security**        | All users must authenticate via **email & password**; incorrect passwords fail.                                                             |
+| 4        | **Usability**       | User can complete CV upload and preview in **under 5 clicks**. Help menu readily available.                                                 |
+| 5        | **Maintainability** | **≥80% unit test coverage** across core backend and frontend services (e.g., template selector, OCR service). Make use of React components. |
 
 ---
 
@@ -366,7 +374,7 @@ The system handles potentially **large file uploads** (CVs with multiple pages),
 
 #### In our context:
 
-- Users shouldn't wait more than a few seconds to see their 3D portfolio after uploading their CV.  
+- Users shouldn't wait more than a few seconds to see their 3D portfolio after uploading their CV.
 - A slow system could make the 3D feature feel gimmicky rather than impressive.
 
 ---
@@ -379,8 +387,8 @@ Most users will interact with the system only once — so it needs to be immedia
 
 #### In our context:
 
-- Our users aren’t necessarily tech experts — they may be job seekers testing it briefly.  
-- A simple, attractive UI encourages engagement and showcases the 3D portfolio in the best light.  
+- Our users aren’t necessarily tech experts — they may be job seekers testing it briefly.
+- A simple, attractive UI encourages engagement and showcases the 3D portfolio in the best light.
 - Usability directly impacts how our project is judged during demos.
 
 ---
@@ -393,7 +401,7 @@ The system is expected to evolve — we may want to add new 3D templates, tweak 
 
 #### In our context:
 
-- We are using a team-based workflow across multiple technologies (React, Vue, Three.js, Blender, [Node.js](https://nodejs.org)).  
+- We are using a team-based workflow across multiple technologies (React, Vue, Three.js, Blender, [Node.js](https://nodejs.org)).
 - Maintainability reduces bugs, helps with onboarding new developers, and prepares the project for future reuse or extensions (e.g., user profile page, video templates, etc.).
 
 ---
@@ -406,14 +414,15 @@ The users upload **sensitive personal information** (CVs with names, contact inf
 
 #### In our context:
 
-- We must **prevent unauthorised access** to user data (via Supabase’s authentication and Row-Level Security).  
-- File storage must be **private**, and access should be granted only to the authenticated user.  
+- We must **prevent unauthorised access** to user data (via Supabase’s authentication and Row-Level Security).
+- File storage must be **private**, and access should be granted only to the authenticated user.
 - Input fields and uploaded files must be **validated/sanitised** to prevent script injection, spam, or file-type abuse.
 
 ---
 
 ### 6.4. Architectural Design and Patterns
-*[Provide an overview of the system’s architecture, including a diagram that shows each component and how it fits into the selected architectural pattern. Justify each design decision and explain how it meets the system’s constraints. A list of patterns can be found on [Wikipedia](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3)]*
+
+_[Provide an overview of the system’s architecture, including a diagram that shows each component and how it fits into the selected architectural pattern. Justify each design decision and explain how it meets the system’s constraints. A list of patterns can be found on [Wikipedia](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3)]_
 
 ---
 
@@ -432,10 +441,10 @@ The system is composed of the following components:
 - **Controller (Logic Layer)**:  
   The backend is implemented with Node.js and Express.js. It acts as an intermediary between the frontend and the model layer, handling:
 
-  - File uploads  
-  - OCR processing  
-  - Template selection logic  
-  - Data validation and access control  
+  - File uploads
+  - OCR processing
+  - Template selection logic
+  - Data validation and access control
   - Communication with Supabase
 
 ---
@@ -476,8 +485,9 @@ This architecture fits the constraints of:
 
 ---
 
-## 6.5. Architectural Constraints  
-*[Identify any constraints affecting the architecture, such as client requirements or deployment limitations. (graded in Demo 2)]*
+## 6.5. Architectural Constraints
+
+_[Identify any constraints affecting the architecture, such as client requirements or deployment limitations. (graded in Demo 2)]_
 
 Our system is currently in development, with key functionality and components being actively implemented. The following architectural constraints have been identified based on client requirements, project timeline, technology choices, and deployment plans:
 
@@ -505,8 +515,8 @@ Our system is currently in development, with key functionality and components be
 
 - **Constraint**: We are using free-tier versions of Supabase and Vercel, which impose:
 
-  - Bandwidth limits  
-  - API request limits  
+  - Bandwidth limits
+  - API request limits
   - File size restrictions
 
 - **Impact**: OCR processing and file storage must be optimized to remain within these limits. We cannot afford compute-heavy or long-running backend operations.
@@ -535,8 +545,9 @@ Our system is currently in development, with key functionality and components be
 
 ---
 
-## 6.6. Technology Choices  
-*[Before selecting a technology, assess at least three options for each component. Provide an overview, the pros and cons, and a justification for your final choice, explaining how it fits with the architecture, design, and constraints. (graded in Demo 2)]*
+## 6.6. Technology Choices
+
+_[Before selecting a technology, assess at least three options for each component. Provide an overview, the pros and cons, and a justification for your final choice, explaining how it fits with the architecture, design, and constraints. (graded in Demo 2)]_
 
 ---
 
@@ -548,16 +559,18 @@ We required a database that supports relational data (users, resumes, template m
 
 #### Options Considered:
 
-- **Firebase**  
-  - **Pros**: Very user-friendly, easy setup with real-time sync, good frontend integration.  
+- **Firebase**
+
+  - **Pros**: Very user-friendly, easy setup with real-time sync, good frontend integration.
   - **Cons**: Free tier has strict limits and a 30-day trial constraint we’d need to work around.
 
-- **MongoDB Atlas**  
-  - **Pros**: Flexible NoSQL model, great for rapid development, schema-less design.  
+- **MongoDB Atlas**
+
+  - **Pros**: Flexible NoSQL model, great for rapid development, schema-less design.
   - **Cons**: We needed more structured relational capabilities (e.g., joins, constraints); also has tier limitations.
 
-- **Supabase (PostgreSQL-based)**  
-  - **Pros**: Fully open-source, free tier generous enough for academic projects, supports SQL queries and relations, includes built-in authentication and storage.  
+- **Supabase (PostgreSQL-based)**
+  - **Pros**: Fully open-source, free tier generous enough for academic projects, supports SQL queries and relations, includes built-in authentication and storage.
   - **Cons**: Slightly steeper learning curve than Firebase, community still growing.
 
 #### Final Choice: Supabase
@@ -575,20 +588,23 @@ We needed a dynamic and interactive UI framework that can support a responsive w
 
 #### Options Considered:
 
-- **React**  
-  - **Pros**: Popular, component-based, excellent ecosystem (e.g., React Three Fiber), strong community support.  
+- **React**
+
+  - **Pros**: Popular, component-based, excellent ecosystem (e.g., React Three Fiber), strong community support.
   - **Cons**: Slightly more boilerplate than Vue, requires more setup for small reactive bindings.
 
-- **Vue.js**  
-  - **Pros**: Lightweight, intuitive syntax, reactive two-way binding out of the box.  
+- **Vue.js**
+
+  - **Pros**: Lightweight, intuitive syntax, reactive two-way binding out of the box.
   - **Cons**: Smaller ecosystem compared to React; limited integration with some 3D libraries.
 
-- **Angular**  
+- **Angular**
+
   - **Pros**: Full-fledged framework with batteries included.
   - **Cons**: Heavyweight, more complex than needed for our relatively small web interface.
 
-- **Three.js**  
-  - **Pros**: Industry standard for 3D rendering on the web, robust documentation and examples.  
+- **Three.js**
+  - **Pros**: Industry standard for 3D rendering on the web, robust documentation and examples.
   - **Cons**: Low-level — requires more boilerplate code unless wrapped with helper libraries like `react-three-fiber`.
 
 ---
@@ -608,21 +624,24 @@ We needed a lightweight, performant backend to handle file uploads, manage API e
 
 #### Options Considered:
 
-- **Django (Python)**  
-  - **Pros**: Great for rapid development, built-in admin and ORM.  
+- **Django (Python)**
+
+  - **Pros**: Great for rapid development, built-in admin and ORM.
   - **Cons**: Python-based, less natural fit for our full JavaScript stack.
 
-- **Spring Boot (Java)**  
-  - **Pros**: Very robust, great for large enterprise applications.  
+- **Spring Boot (Java)**
+
+  - **Pros**: Very robust, great for large enterprise applications.
   - **Cons**: Overhead too high for a lean student project; slower to prototype.
 
-- **Node.js with Express.js**  
-  - **Pros**: Fast, event-driven, works seamlessly with frontend JS frameworks, massive ecosystem.  
+- **Node.js with Express.js**
+
+  - **Pros**: Fast, event-driven, works seamlessly with frontend JS frameworks, massive ecosystem.
   - **Cons**: Requires more effort for structure and security unless planned well.
 
-- **Testing: Postman and Jest**  
-  - **Postman Pros**: Easy API testing, automated test scripts.  
-  - **Jest Pros**: Simple yet powerful JavaScript testing framework, great for unit/integration testing.  
+- **Testing: Postman and Jest**
+  - **Postman Pros**: Easy API testing, automated test scripts.
+  - **Jest Pros**: Simple yet powerful JavaScript testing framework, great for unit/integration testing.
   - **Cons**: Postman doesn’t cover unit-level testing, Jest requires test writing discipline.
 
 ---
@@ -642,16 +661,18 @@ We needed a tool to create custom 3D templates (e.g., space station, cave, fores
 
 #### Options Considered:
 
-- **Maya**  
-  - **Pros**: Industry standard, highly advanced.  
+- **Maya**
+
+  - **Pros**: Industry standard, highly advanced.
   - **Cons**: Expensive and overpowered for our needs.
 
-- **Cinema 4D**  
-  - **Pros**: Intuitive UI, good for animation.  
+- **Cinema 4D**
+
+  - **Pros**: Intuitive UI, good for animation.
   - **Cons**: Also costly; not ideal for web export formats.
 
-- **Blender**  
-  - **Pros**: Free and open-source, powerful feature set, supports WebGL-compatible formats (e.g., glTF), large community and tutorials.  
+- **Blender**
+  - **Pros**: Free and open-source, powerful feature set, supports WebGL-compatible formats (e.g., glTF), large community and tutorials.
   - **Cons**: Learning curve, especially for new 3D artists.
 
 ---
@@ -709,13 +730,15 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 
 ---
 
-## 8. Deployment Model  
-*[To be completed for Demo 3.]*
+## 8. Deployment Model
+
+_[To be completed for Demo 3.]_
 
 ---
 
-## 9. Live Deployed System  
-*[To be completed for Demo 4.]*
+## 9. Live Deployed System
+
+_[To be completed for Demo 4.]_
 
 ---
 
@@ -733,6 +756,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Response**
+
 ```json
 {
   "cvId": "abc123",
@@ -742,6 +766,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Effect**
+
 - Stores the CV file temporarily or in a document store.
 - Triggers OCR processing and text extraction.
 - Saves extracted data in the database linked to a `cvId`.
@@ -760,6 +785,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Response**
+
 ```json
 {
   "templateId": "space-theme-01",
@@ -769,6 +795,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Effect**
+
 - Uses extracted CV text to determine the most appropriate template using keyword matching or an ML model.
 - Saves selected template info linked to the user/session.
 
@@ -787,6 +814,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Response**
+
 ```json
 {
   "portfolioUrl": "http://localhost:3000/portfolio/abc123",
@@ -795,6 +823,7 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 ```
 
 **Effect**
+
 - Combines extracted CV data with the selected 3D template.
 - Renders and deploys a personalized portfolio site locally.
 - Creates a folder or static build with HTML/CSS/JS for the portfolio.
@@ -807,20 +836,24 @@ Blender offered us a powerful, free tool for creating and exporting our 3D envir
 `GET /api/portfolio/download?cvId=abc123`
 
 **Response**
-- Binary `.zip` file  
+
+- Binary `.zip` file
 - Header:
+
 ```
 Content-Disposition: attachment; filename="portfolio-source.zip"
 ```
 
 **Effect**
+
 - Bundles the generated portfolio website’s source code.
 - Allows user to save or share the code offline.
 
 ---
 
-## 11. Appendix  
-*[You do not need a complete or detailed SRS. An incremental approach, as applied to Agile methods, is advised. Update the SRS document over time, placing old sections that have changed in an appendix.]*
+## 11. Appendix
+
+_[You do not need a complete or detailed SRS. An incremental approach, as applied to Agile methods, is advised. Update the SRS document over time, placing old sections that have changed in an appendix.]_
 
 ---
 
@@ -828,16 +861,20 @@ Content-Disposition: attachment; filename="portfolio-source.zip"
 
 #### 11.1.1 Quality Requirements
 
-**QR1: Availability**  
+**QR1: Availability**
+
 - Ensure the system has maximum uptime with minimal crashes.
 
-**QR2: Performance**  
+**QR2: Performance**
+
 - Ensure a seamless user experience without too much delay.
 
-**QR3: Usability**  
+**QR3: Usability**
+
 - Design a User Interface that is visually appealing and easy to understand.
 
-**QR4: Maintainability**  
+**QR4: Maintainability**
+
 - Create a system that allows easy changes to templates or other areas of the system for future changes or expansions.
 
 ---
@@ -855,6 +892,7 @@ This pattern allows for low coupling and high cohesion. It makes the architectur
 ### 11.1.3. Design Patterns
 
 #### 11.1.3.1. Strategy:
+
 The Strategy design pattern is a behavioural pattern that enables an object to alter its behaviour dynamically at runtime. It defines a family of algorithms, encapsulates each one, and makes them interchangeable. This pattern allows the algorithm to vary independently from clients that use it.
 
 This design pattern will be used for the (3D template) selection algorithm portion of the system.
@@ -862,6 +900,7 @@ This design pattern will be used for the (3D template) selection algorithm porti
 ---
 
 #### 11.1.3.2. Abstract Factory
+
 The Abstract Factory pattern is a creational design pattern that provides an interface for creating families of related or dependent objects without specifying their concrete classes. It allows a client to create objects without knowing their specific implementations, promoting loose coupling between client code and the concrete classes it uses.
 
 This design pattern will be used when creating 3D objects to be added to the 3D templates (e.g., planets and stars for the Space template; coffee mugs, water dispensers, stationery for the Office template; trees, bushes and birds for the Forest template; bats and rocks for the Cave template, etc).
@@ -869,9 +908,11 @@ This design pattern will be used when creating 3D objects to be added to the 3D 
 ---
 
 #### 11.1.3.3. Model-View-Controller (MVC)
-The MVC architectural pattern separates an application into three interconnected components:  
-- the **Model**, responsible for managing data and business logic;  
-- the **View**, responsible for presenting data to the user and handling UI interactions; and  
+
+The MVC architectural pattern separates an application into three interconnected components:
+
+- the **Model**, responsible for managing data and business logic;
+- the **View**, responsible for presenting data to the user and handling UI interactions; and
 - the **Controller**, acting as an intermediary between the Model and View, processing user input events and updating the Model or View accordingly.
 
 This design pattern will be used for the PortfolioPortal system to separate concerns, improve maintainability, and support scalable and testable code.
@@ -882,4 +923,4 @@ This design pattern will be used for the PortfolioPortal system to separate conc
 
 The use of third-party libraries is restricted, but not entirely ruled out. Discussion may take place as to how and where third-party libraries may be applied.
 
-*Figure: Sprint 1 PortfolioPortal Burndown Chart*
+_Figure: Sprint 1 PortfolioPortal Burndown Chart_

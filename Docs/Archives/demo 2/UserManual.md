@@ -1,13 +1,12 @@
 # PortfolioPortal
 
-## User Manual 
-#### *(Demo 2)*
+## User Manual
 
 ### Please refer to our [Google Docs document](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0) for a more detailed specification.
 
 ---
 
-**Version:** 1.0 
+**Version:** 1.0
 
 **Date:** 06/2025
 
@@ -19,31 +18,31 @@
 
 ### Team Members
 
-| Name and Surname     | Student Number |
-|----------------------|----------------|
-| Eric Booyens         | u05127824      |
-| Angelique Breedt     | u23542838      |
-| Nabegh Muhra         | u23661268      |
-| Keegan Walker        | u22693760      |
-| Christopher Yoko     | u22857941      |
+| Name and Surname | Student Number |
+| ---------------- | -------------- |
+| Eric Booyens     | u05127824      |
+| Angelique Breedt | u23542838      |
+| Nabegh Muhra     | u23661268      |
+| Keegan Walker    | u22693760      |
+| Christopher Yoko | u22857941      |
 
 ---
 
-> *The user manual should describe the project in simple terms, using images and screenshots to help users navigate. Include screenshots of the UI & a logical flow that makes sense to non-technical users.*
+> _The user manual should describe the project in simple terms, using images and screenshots to help users navigate. Include screenshots of the UI & a logical flow that makes sense to non-technical users._
 
 ---
 
 ## Table of Contents
 
-| # | Section                                 | Page        |
-|---|-----------------------------------------|-------------|
-| 1 | [Landing Page](#1-landing-page)                            | Page 2 - 3  |
-| 2 | [Sign Up Page](#2-sign-up-page)                            | Page 4      |
-| 3 | [Sign In Page](#3-sign-in-page)                            | Page 5      |
-| 4 | [Home Page](#4-home-page)                                  | Page 6 - 10 |
-| 5 | [Profile Page](#5-profile-page)                            | Page 11 - 12|
-| 6 | [Your 3D-generated portfolio site](#6-your-3d-generated-portfolio-site) | Page 13     |
-| 7 | [Support](#7-support)                                      | Page 14     |
+| #   | Section                                                                 | Page         |
+| --- | ----------------------------------------------------------------------- | ------------ |
+| 1   | [Landing Page](#1-landing-page)                                         | Page 2 - 3   |
+| 2   | [Sign Up Page](#2-sign-up-page)                                         | Page 4       |
+| 3   | [Sign In Page](#3-sign-in-page)                                         | Page 5       |
+| 4   | [Home Page](#4-home-page)                                               | Page 6 - 10  |
+| 5   | [Profile Page](#5-profile-page)                                         | Page 11 - 12 |
+| 6   | [Your 3D-generated portfolio site](#6-your-3d-generated-portfolio-site) | Page 13      |
+| 7   | [Support](#7-support)                                                   | Page 14      |
 
 ---
 
@@ -51,7 +50,7 @@
 
 The **Landing Page** is the first screen you’ll see when visiting PortfolioPortal. It provides a quick overview of the platform's features and invites new users to get started.
 
-- Scroll down to learn more about what PortfolioPortal offers.  
+- Scroll down to learn more about what PortfolioPortal offers.
 - Click **“Get Started”** to begin the signup process.
 
 Please refer to our [Google Docs document](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0) for all images.
@@ -75,7 +74,7 @@ The **Sign In Page** allows returning users to access their accounts.
 - Enter your registered **email** and **password**.
 - Click **“Sign in”** to proceed.
 - If you forgot your password, click the **“Forgot Password?”** link for recovery options.  
-  *(still yet to be implemented)*
+  _(still yet to be implemented)_
 - If this is your first time using PortfolioPortal, select the  
   **“Don't have an account? Sign Up”** link below the ‘Sign in’ button.
 
@@ -88,6 +87,7 @@ Once signed in, you’ll be directed to the **Home Page** (4.1), which acts as t
 ### Features:
 
 - A top **navigation bar** with links to the following:
+
   - **How It Works** (4.2) – a step-by-step guide
   - **Upload CV** (4.3) – upload your resume for OCR scanning
   - **Templates** (4.4) – preview the available 3D environments
@@ -137,7 +137,7 @@ Here you can:
 
 Once your CV is uploaded and processed, you’ll be directed to your own, personalised **3D portfolio website**.
 
-📸 *[Insert screenshot of a sample 3D portfolio here]*
+📸 _[Insert screenshot of a sample 3D portfolio here]_
 
 ### What to Expect:
 
@@ -150,7 +150,7 @@ Once your CV is uploaded and processed, you’ll be directed to your own, person
 - Use your **mouse or keyboard** to explore the space.
 - Hover over objects to reveal more information.
 - Each scene is responsive and can be viewed on both desktop and mobile.  
-  *(mobile viewing is still yet to be accounted for)*
+  _(mobile viewing is still yet to be accounted for)_
 
 ---
 
