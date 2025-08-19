@@ -61,8 +61,12 @@ class User {
         console.error('FindById error:', error.message);
         throw new Error(error.message);
       }
-      return data;
-    } catch (error) {
+    if (data) {
+      data.profile_picture_url = await this.getSignedProfileUrl(data.profile_picture_path);
+    }
+    
+    return data;
+  } catch (error) {
       console.error('User.findById error:', error.message);
       throw error;
     }
@@ -83,10 +87,29 @@ class User {
         console.error('FindByEmail error:', error.message);
         throw new Error(error.message);
       }
-      return data;
-    } catch (error) {
+    if (data) {
+      data.profile_picture_url = await this.getSignedProfileUrl(data.profile_picture_path);
+    }
+    
+    return data;
+  } catch (error) {
       console.error('User.findByEmail error:', error.message);
       throw error;
+    }
+  }
+
+    static async getSignedProfileUrl(profilePath) {
+    if (!profilePath) return null;
+    
+    try {
+      const { data, error } = await supabase.storage
+        .from('profile-pictures')
+        .createSignedUrl(profilePath, 86400);
+
+      return error ? null : data.signedUrl;
+    } catch (error) {
+      console.error('getSignedProfileUrl error:', error.message);
+      return null;
     }
   }
 
@@ -94,9 +117,9 @@ static async updateProfile(authId, updateData) {
   try {
     // Validate and sanitize update data
     const allowedFields = [
-      'name', 'bio', 'cv_url', 'profile_picture_url', 
+      'name', 'bio', 'cv_url', 'profile_picture_path', 
       'about_paragraphs', 'certifications', 'skills', 
-      'linkedin', 'github', 'profile_picture_path',
+      'linkedin', 'github',
       'selected_template'
     ];
     
@@ -121,7 +144,11 @@ static async updateProfile(authId, updateData) {
       console.error('UpdateProfile error:', error.message);
       throw new Error(error.message);
     }
-
+    // Add signed URL to response
+    if (data) {
+      data.profile_picture_url = await this.getSignedProfileUrl(data.profile_picture_path);
+    }
+    
     return data;
   } catch (error) {
     console.error('User.updateProfile error:', error.message);
@@ -129,62 +156,55 @@ static async updateProfile(authId, updateData) {
   }
 }
 
-  static async uploadProfilePicture(authId, fileBuffer, fileName, contentType, token) {
-    try {
-      // Create authenticated client
-      const supabaseAuth = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_KEY,
-        {
-          global: {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        }
-      );
+static async uploadProfilePicture(authId, fileBuffer, fileName, contentType, token) {
+  try {
+    // Create authenticated client
+    const supabaseAuth = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_KEY,
+      { global: { headers: { 'Authorization': `Bearer ${token}` } }}
+    );
 
-      // Delete existing profile picture first
-      await this.deleteProfilePicture(authId);
+    // Delete existing profile picture first
+    await this.deleteProfilePicture(authId);
 
-      const fileExt = fileName.split('.').pop();
-      const filePath = `${authId}/profile.${fileExt}`;
+    const fileExt = fileName.split('.').pop();
+    const filePath = `${authId}/profile.${fileExt}`;
 
-      // Upload file
-      const { error: uploadError } = await supabaseAuth.storage
-        .from('profile-pictures')
-        .upload(filePath, fileBuffer, {
-          contentType,
-          upsert: true,
-          cacheControl: '3600'
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Generate signed URL (1 hour expiration)
-      const { data: signedUrlData, error: signedUrlError } = await supabaseAuth.storage
-        .from('profile-pictures')
-        .createSignedUrl(filePath, 3600);
-
-      if (signedUrlError) throw signedUrlError;
-      const signedUrl = signedUrlData.signedUrl;
-
-      // Update user profile with path and URL
-      await this.updateProfile(authId, { 
-        profile_picture_url: signedUrl,
-        profile_picture_path: filePath
+    // Upload file with proper cache control
+    const { error: uploadError } = await supabaseAuth.storage
+      .from('profile-pictures')
+      .upload(filePath, fileBuffer, {
+        contentType,
+        upsert: true,
+        cacheControl: '86400'  // 24 hours cache
       });
 
-      return signedUrl;
-    } catch (error) {
-      console.error('UploadProfilePicture error:', {
-        message: error.message,
-        authId,
-        fileName
-      });
-      throw error;
-    }
+    if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+    // Generate 24-hour signed URL
+    const { data: signedUrlData, error: urlError } = await supabaseAuth.storage
+      .from('profile-pictures')
+      .createSignedUrl(filePath, 86400);  // 24 hours in seconds
+
+    if (urlError) throw new Error(`URL generation failed: ${urlError.message}`);
+    
+    // Update only the path in database
+    await this.updateProfile(authId, { 
+      profile_picture_path: filePath 
+    });
+
+    return signedUrlData.signedUrl;
+  } catch (error) {
+    console.error('UploadProfilePicture error:', {
+      authId,
+      fileName,
+      message: error.message,
+      stack: error.stack
+    });
+    throw new Error('Profile picture upload failed. Please try again.');
   }
+}
 
   static async deleteProfilePicture(authId) {
     try {
@@ -201,13 +221,13 @@ static async updateProfile(authId, updateData) {
         }
       }
 
-      // Remove URL and path from database
-      await this.updateProfile(authId, { 
-        profile_picture_url: null,
-        profile_picture_path: null 
-      });
-      return true;
-    } catch (error) {
+    // Fix duplicate field issue
+    await this.updateProfile(authId, { 
+      profile_picture_path: null 
+    });
+    
+    return true;
+  } catch (error) {
       console.error('User.deleteProfilePicture error:', error.message);
       throw error;
     }
@@ -245,7 +265,7 @@ static async updateSelectedTemplate(authId, template) {
       const searchTerm = `%${query}%`;
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, email, bio, profile_picture_url, skills')
+        .select('id, name, email, bio, profile_picture_path, skills')
         .or(`name.ilike.${searchTerm},email.ilike.${searchTerm},bio.ilike.${searchTerm}`)
         .limit(limit)
         .offset(offset)
@@ -267,7 +287,7 @@ static async updateSelectedTemplate(authId, template) {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('id, name, email, bio, profile_picture_url, skills')
+        .select('id, name, email, bio, profile_picture_path, skills')
         .overlaps('skills', skills)
         .limit(limit)
         .order('name');

@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 import AuthLayout from '../components/AuthLayout';
-import cvDataService from '../services/cvDataService'; // <- new import
+import cvDataService from '../services/cvDataService';
+import { profileService } from '../services/profile.service';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -26,7 +27,9 @@ const Login = () => {
       console.log(data);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.user.id);
-      localStorage.setItem('imageURL', data.user.profile_picture_url);
+
+      const profile_picture_url = profileService.getProfilePictureUrl();
+      localStorage.setItem('imageURL', (await profile_picture_url).data.profile_picture_url);
 
       // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
       try {

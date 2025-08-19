@@ -1,6 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import Space from './pages/Space';
 import OfficePage from './pages/OfficePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -15,6 +14,7 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 import ForestPage from "./pages/ForestPage";
 import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
+import Space from './pages/Space';
 
 const HIDDEN_NAVBAR_PATHS = [
   '/',
