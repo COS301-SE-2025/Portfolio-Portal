@@ -7,10 +7,11 @@ import OfficeNavbar from '../components/Templates/office/Navbar';
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from '@react-three/fiber';
+import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(0); // Start at 0 (top)
+  const [scrollPosition, setScrollPosition] = useState(-50); // Start higher up
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
 
@@ -24,10 +25,10 @@ export default function Office3DPage() {
         clearTimeout(scrollTimeoutRef.current);
       }
       
-      // Apply smoothing with correct direction and extended range
+      // Apply smoothing with correct direction and limited range
       setScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.15; // Positive for correct direction, increased sensitivity
-        return Math.max(0, Math.min(newPos, 300)); // Extended range to 300 for more scrolling
+        const newPos = prev + e.deltaY * 0.15;
+        return Math.max(-50, Math.min(newPos, 150)); // Start at -50, end at 150 for shorter range
       });
 
       // Set timeout to clear smooth scrolling
@@ -81,10 +82,10 @@ export default function Office3DPage() {
         <div className="w-48 h-2 bg-gray-600 rounded-full">
           <div 
             className="h-full bg-blue-500 rounded-full transition-all duration-200 ease-out"
-            style={{ width: `${Math.min((scrollPosition / 300) * 100, 100)}%` }}
+            style={{ width: `${Math.min(((scrollPosition + 50) / 200) * 100, 100)}%` }}
           ></div>
         </div>
-        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round((scrollPosition / 300) * 100)}%)</p>
+        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 50) / 200) * 100)}%)</p>
       </div>
     </div>
   );
@@ -131,7 +132,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   useFrame(() => {
     // Smooth scrolling with lerp for smoother movement - extended range
     if (groupRef.current) {
-      targetZ.current = scrollPosition * 0.8; // Increased multiplier for more movement
+      targetZ.current = -scrollPosition * 0.8; // Negative to move camera backward when scrolling down
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
@@ -142,163 +143,121 @@ function Office3DScene({ cvData, scrollPosition }) {
       console.log('=== 3D Model Object Names ===');
       gltf.scene.traverse((object) => {
         if (object.name) {
-          console.log(`Object name: "${object.name}", type: ${object.type}`);
+          console.log(`Object name: "${object.name}", type: ${object.type}, geometry: ${object.geometry?.type}`);
         }
       });
       console.log('=== End Object Names ===');
       
-      // Store references to text elements
-      const textElements = [];
-      
-      // Update text elements based on object names
+      // Update actual Blender text objects
       gltf.scene.traverse((object) => {
-        if (object.name) {
-          // Map object names to CV data - expanded list of possible names
+        if (object.name && object.isMesh) {
           let textContent = '';
-          let fontSize = '16px';
-          let fontWeight = 'normal';
-          let textColor = '#ffffff';
           
-          // Convert object name to lowercase for comparison
-          const objectName = object.name.toLowerCase();
-          
-          // About section
-          if (objectName.includes('about') && objectName.includes('head')) {
-            textContent = 'About Me';
-            fontSize = '24px';
-            fontWeight = 'bold';
-            textColor = '#3498db';
-          } else if (objectName.includes('about') && (objectName.includes('desc') || objectName.includes('text'))) {
-            textContent = data.about || '';
-            fontSize = '16px';
-          }
-          // Title/Name section
-          else if (objectName.includes('title') || objectName.includes('name')) {
-            if (objectName.includes('sub')) {
-              textContent = data.name || 'Full Stack Developer';
-              fontSize = '18px';
-              fontWeight = '500';
-            } else {
-              textContent = data.title || '';
-              fontSize = '20px';
-              fontWeight = '600';
-              textColor = '#2ecc71';
-            }
-          }
-          // Contact section
-          else if (objectName.includes('contact')) {
-            if (objectName.includes('email')) {
-              textContent = data.email || '';
-            } else if (objectName.includes('name')) {
-              textContent = data.name || '';
-            } else if (objectName.includes('message')) {
-              textContent = 'Get in touch to discuss opportunities';
-            }
-          }
-          // Skills/Expertise section
-          else if (objectName.includes('skill') || objectName.includes('expert')) {
-            if (objectName.includes('head')) {
-              textContent = 'Expertise';
-              fontSize = '22px';
-              fontWeight = 'bold';
-              textColor = '#3498db';
-            } else if (objectName.includes('desc') || objectName.includes('text')) {
-              textContent = data.skills?.join(', ') || '';
-            }
-          }
-          // Experience section
-          else if (objectName.includes('experience') || objectName.includes('work')) {
-            if (objectName.includes('head')) {
-              textContent = 'Experience';
-              fontSize = '22px';
-              fontWeight = 'bold';
-              textColor = '#3498db';
-            } else if (objectName.includes('desc') || objectName.includes('text')) {
+          // Map your specific text object names to content
+          switch(object.name) {
+            case 'Text001':
+              textContent = data.name || 'John Doe';
+              break;
+            case 'Text003':
+              textContent = data.title || 'Full Stack Developer';
+              break;
+            case 'Text':
+              textContent = data.about || 'Experienced developer with passion for creating innovative solutions and user-friendly experiences.';
+              break;
+            case 'Text004':
+              textContent = data.skills?.slice(0, 4).join(' • ') || 'JavaScript • React • Node.js • Three.js';
+              break;
+            case 'Text005':
               const exp = data.experience?.[0];
-              textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : '';
-            }
-          }
-          // Education section
-          else if (objectName.includes('education') || objectName.includes('school')) {
-            if (objectName.includes('head')) {
-              textContent = 'Education';
-              fontSize = '22px';
-              fontWeight = 'bold';
-              textColor = '#3498db';
-            } else if (objectName.includes('desc') || objectName.includes('text')) {
+              textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : 'Senior Developer at Tech Company (2020-2023)';
+              break;
+            case 'Text006':
               const edu = data.education?.[0];
-              textContent = edu ? `${edu.degree} from ${edu.institution} (${edu.startDate}-${edu.endDate})` : '';
-            }
-          }
-          // Generic text elements (fallback)
-          else if (objectName.includes('text') || objectName.includes('label')) {
-            // Try to extract meaningful content based on position or other context
-            textContent = `Text Element: ${object.name}`;
+              textContent = edu ? `${edu.degree} - ${edu.institution} (${edu.startDate}-${edu.endDate})` : 'Bachelor of Computer Science - Tech University (2014-2018)';
+              break;
+            case 'Text002':
+              textContent = data.email || 'contact@johndoe.com';
+              break;
+            case 'Text007':
+              textContent = 'Experience & Expertise';
+              break;
+            case 'Text008':
+              textContent = 'Education & Background';
+              break;
+            case 'Text009':
+              textContent = 'Get In Touch';
+              break;
           }
           
           if (textContent) {
-            textElements.push({
-              object,
-              textContent,
-              fontSize,
-              fontWeight,
-              textColor,
-              originalVisibility: object.visible
-            });
-            
-            // Hide the original object to replace with HTML overlay
-            object.visible = false;
-            
-            console.log(`Mapped "${object.name}" to: "${textContent}"`);
+            // Try to update the object's material or create a canvas texture
+            if (object.material) {
+              // Create a canvas texture with the text
+              const canvas = document.createElement('canvas');
+              const context = canvas.getContext('2d');
+              canvas.width = 512;
+              canvas.height = 128;
+              
+              // Clear canvas
+              context.fillStyle = '#000000';
+              context.fillRect(0, 0, canvas.width, canvas.height);
+              
+              // Draw text
+              context.fillStyle = '#ffffff';
+              context.font = 'bold 24px Arial';
+              context.textAlign = 'center';
+              context.textBaseline = 'middle';
+              
+              // Handle long text by wrapping
+              const words = textContent.split(' ');
+              const lines = [];
+              let currentLine = '';
+              
+              words.forEach(word => {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const metrics = context.measureText(testLine);
+                if (metrics.width > canvas.width - 40 && currentLine !== '') {
+                  lines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine = testLine;
+                }
+              });
+              lines.push(currentLine);
+              
+              // Draw each line
+              const lineHeight = 30;
+              const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
+              
+              lines.forEach((line, index) => {
+                context.fillText(line, canvas.width / 2, startY + index * lineHeight);
+              });
+              
+              // Create texture and apply to material
+              const texture = new THREE.CanvasTexture(canvas);
+              texture.needsUpdate = true;
+              
+              // Clone material to avoid affecting other objects
+              const newMaterial = object.material.clone();
+              newMaterial.map = texture;
+              newMaterial.transparent = true;
+              newMaterial.alphaTest = 0.1;
+              object.material = newMaterial;
+              
+              // Make sure the object is visible
+              object.visible = true;
+              
+              console.log(`Updated text object "${object.name}" with canvas texture: "${textContent}"`);
+            }
           }
         }
       });
-      
-      textElementsRef.current = textElements;
-      console.log(`Total text elements mapped: ${textElements.length}`);
     }
   }, [gltf, data]);
 
   return (
     <group ref={groupRef}>
       {gltf?.scene && <primitive object={gltf.scene} />}
-      
-      {/* HTML overlays for dynamic text */}
-      {textElementsRef.current.map((item, index) => (
-        <Html
-          key={index}
-          position={[
-            item.object.position.x,
-            item.object.position.y,
-            item.object.position.z
-          ]}
-          transform
-          distanceFactor={10} // Reduced for better visibility
-          className="html-overlay"
-          style={{
-            pointerEvents: 'none',
-            transition: 'opacity 0.3s ease',
-            width: '300px',
-            maxWidth: '300px'
-          }}
-        >
-          <div 
-            className="bg-black/90 p-3 rounded-lg border border-blue-400/30 backdrop-blur-sm shadow-lg"
-            style={{
-              fontSize: item.fontSize,
-              fontWeight: item.fontWeight,
-              color: item.textColor,
-              lineHeight: '1.4',
-              boxShadow: '0 4px 20px rgba(52, 152, 219, 0.2)',
-              textAlign: 'left',
-              wordWrap: 'break-word',
-              maxWidth: '280px'
-            }}
-          >
-            {item.textContent}
-          </div>
-        </Html>
-      ))}
     </group>
   );
 }
