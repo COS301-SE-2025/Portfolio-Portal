@@ -24,7 +24,8 @@ const HIDDEN_NAVBAR_PATHS = [
   '/forest',
   '/space',
   '/profile',
-  '/lab'
+  '/lab',
+  '/cave'
 ];
 
 const HIDDEN_THEME_BUTTON_PATHS = [
@@ -32,7 +33,8 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/office',
   '/forest',
   '/space',
-  '/lab'
+  '/lab',
+  '/cave',
 ];
 
 function App() {
