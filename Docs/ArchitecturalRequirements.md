@@ -34,10 +34,9 @@
 | --- | -------------------------------------------------------------------------------------------------- |
 | 1   | [Architectural structural design & requirements](#1-architectural-structural-design--requirements) |
 | 1.1 | [Architectural Design Strategy](#11-architectural-design-strategy)                                 |
-| 1.2 | [Architectural Strategies/Styles](#12-architectural-strategiesstyles)                              |
-| 1.3 | [Architectural Design and Pattern](#13-architectural-design-and-pattern)                           |
+| 1.2 | [Architectural Styles & Architectural Design](#12-architectural-styles--architectural-design)      |
+| 1.3 | [Architectural Diagram](#13-architectural-diagram)                                                 |
 | 1.4 | [Architectural Constraints](#14-architectural-constraints)                                         |
-| 1.5 | [Technology Choices](#15-technology-choices)                                                       |
 | 2   | [Quality Requirements](#2-quality-requirements)                                                    |
 | 3   | [Deployment Model](#3-deployment-model)                                                            |
 | 4   | [Service Contracts](#4-service-contracts)                                                          |
@@ -68,101 +67,87 @@ This strategy allows us to build a system that is resilient, performant, and use
 
 ---
 
-# 1.2. Architectural Strategies/Styles
+# 1.2. Architectural Styles & Architectural Design
 
-> _[Architectural styles are categorized by components, connectors, and constraints. Choose one that best fits your project's needs and justify your decision. A list of styles can be found on [this Wikipedia page](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3).]_
+## Primary Architectural Styles:
 
-### **Chosen Strategy/Style**: Service-Oriented Architecture (SOA)
+Portfolio Portal employs a hybrid architectural approach to effectively separate concerns, facilitate maintainability, and promote scalability. The primary styles are:
 
-#### Justification:
+## 1.2.1. Client-Server Architecture
 
-Our system involves several clearly defined and independently manageable modules:
+This is the foundational pattern. The React frontend (client) runs in the user's browser and communicates over HTTP with a centralised Node.js/Express backend (server). This clear separation allows for independent development, deployment, and scaling of the frontend and backend tiers.
 
-- OCR service
-- Template selection engine
-- 3D rendering service
-- User management
-- File storage
+## 1.2.2. Service-Oriented Architecture (SOA)
+
+Our system is decomposed into several clearly defined and independently manageable modules:
+
+- **Authentication and User Management Service** - handles user sign-up, login, and session management via Supabase Auth
+- **File Upload and Storage Service** - manages the secure reception and temporary storage of user-uploaded CVs
+- **CV Analysis Service** - encapsulates the OCR processing and template selection algorithm
+- **Portfolio Generation and 3D Rendering Service** - handles logic for instantiating the chosen 3D template with the user's extracted data
+- **Deployment Service** - manages the build process and deployment of the generated portfolio React app to a hosting platform
+
+**Justification:** SOA allows us to develop, update, and scale these capabilities independently. For example, we could swap the OCR provider or change the template selection algorithm, without affecting the file upload or authentication logic. This modularity directly supports maintainability and performance, by allowing potential future scaling of individual services.
 
 Each of these services communicates via well-defined APIs, making SOA an ideal choice. This architecture allows:
 
 - **Separation of concerns** (e.g., OCR is decoupled from frontend logic)
+
 - **Independent testing and development**
 
-Moreover, our backend is built using **Node.js + Express.js**, which naturally supports REST APIs, aligning well with SOA principles.
+Moreover, our backend is built using Node.js + Express.js, which naturally supports REST APIs, aligning well with SOA principles. Enables modular development where different team members can work on OCR processing, template selection algorithms, and 3D rendering independently.
 
----
+## 1.2.3. Model-View-Controller (MVC)
 
-## 1.3. Architectural Design and Pattern
+- **Models** (`server/app/models`): Define the data structure and interact with the Supabase database (e.g., User, Template, Portfolio)
+- **Controllers** (`server/app/controllers`): Handle the application logic for specific routes. They process HTTP/REST Model Services, and send responses (e.g., `authController.js`, `portfolioController.js`)
+- **Views:** In an API-driven backend, the "View" is the JSON response sent to the client. The React frontend acts as the consumer and presenter of this data.
 
-_[Provide an overview of the system's architecture, including a diagram that shows each component and how it fits into the selected architectural pattern. Justify each design decision and explain how it meets the system’s constraints. A list of patterns can be found on [Wikipedia](https://en.wikipedia.org/wiki/List_of_software_architecture_styles_and_patterns) (graded in Demo 3)]_
-
-### 1.3.1. Overview of the System Architecture
-
-Our system follows the **Model–View–Controller (MVC)** architectural pattern to clearly separate concerns between data handling, business logic, and user interface rendering. This structure improves maintainability, testability, and scalability by isolating each responsibility into distinct layers.
-
-The system is composed of the following components:
-
-- **Model (Data Layer):**  
-  Supabase serves as our database management system and includes authentication, file storage, and PostgreSQL for structured CV and user data. It also enforces Row-Level Security (RLS) to ensure each user can only access their own data.
-
-- **View (Presentation Layer):**  
-  The frontend is built using a combination of React, Vue.js, and Three.js. React and Vue manage the interface and user interaction, while Three.js renders the interactive 3D portfolio templates (forest, cave, space, office). This view layer retrieves data from the backend and updates the UI accordingly.
-
-- **Controller (Logic Layer):**  
-  The backend is implemented with Node.js and Express.js. It acts as an intermediary between the frontend and the model layer, handling:
-
-  - File uploads
-  - OCR processing
-  - Template selection logic
-  - Data validation and access control
-  - Communication with Supabase
-
----
-
-### 1.3.2. Architectural Diagram
-
-Please refer to our [Google Docs document](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0) for the diagram.
-
----
-
-### 1.3.3. Justification for MVC Pattern
-
-We chose the MVC pattern because it aligns closely with the structure of our web application and addresses multiple architectural constraints and quality requirements:
+**Justification:** MVC provides a clean separation of concerns between data management, user interface, and business logic, essential for maintaining the complex 3D rendering and CV processing workflows. This makes the codebase highly organised, testable, and maintainable. It allows multiple developers to work on business logic, data access, and API endpoints simultaneously, without conflict. We chose the MVC pattern because it aligns closely with the structure of our web application and addresses multiple architectural constraints and quality requirements:
 
 - **Separation of concerns** ensures the frontend, backend logic, and data are independently maintainable.
 
 - **Supports modularity and testability**, especially important for a year-long project with evolving features (e.g., adding new 3D templates).
 
-- **Enables team parallelism**, allowing frontend developers to focus on the view, while backend developers manage business logic.
+- **Enables our team to work in parallel** — frontend developers focus on the view, while backend developers handle API logic.
 
-- **Enhances security** by isolating access control logic in the controller layer and enforcing Row-Level Security at the model layer.
+- **Enhances security** by centralizing access control logic in the controller layer and enforcing RLS at the model layer.
 
-- **Improves performance and availability** by offloading computation-heavy logic (like OCR) to the backend, while keeping rendering on the client-side.
+- **Supports performance and availability** by offloading computation-heavy tasks (like OCR) to the backend, while keeping rendering on the client-side.
 
-- **Fits naturally with our tech stack**: React/Three.js for the View, Node.js/Express for the Controller, and Supabase for the Model.
+- **Fits naturally with our tech stack:** React/Three.js for the View, Node.js/Express for the Controller, and Supabase for the Model.
+
+## Justification for this Hybrid Approach:
+
+The combination of Client-Server, MVC, and SOA is ideal for this project. Client-Server provides the macro-structure, MVC organises the separation of the data and business logic for that data (model), the UI/frontend (view), and the middleman between the model and the view. SOA defines the modular, logical components within the backend. This hybrid directly addresses some of our quality goals:
+
+- **Performance:** Intensive tasks (like OCR) are offloaded to dedicated services on the backend
+- **Maintainability:** Changes are isolated to specific services or MVC components
+- **Security:** A clear API boundary allows for centralised security middleware (e.g. input validation, authentication checks) in the controllers.
 
 ---
 
-### 1.3.4. How the Design Decision Meets the System Constraints
+## 1.3. Architectural Diagram
+
+Please refer to our [Google Docs document](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0) for the diagram.
+
+### 1.3.4. How the design decision meets the system constraints
 
 This architecture fits the constraints of:
 
-- **Free-tier and student-level hosting** (e.g., Supabase, Vercel)
+- **Free-tier and student-level hosting**
 
-- **A non-collaborative, user-isolated system** — ensures each user's data is private and separate
+- **A non-collaborative, user-isolated system**
 
-- **A need for low-friction, rapid development** — the MVC structure enables parallel work and easier onboarding
+- **A need for low-friction, rapid development**
 
-- **Protecting sensitive user-uploaded data** — handled securely using Supabase authentication and RLS
+- **Protecting sensitive user-uploaded data**
 
-- **Allowing future extensibility** — e.g., adding new templates, export formats, or analytics features without major refactors
+- **Allowing future extensibility** (e.g., new templates, export formats, or analytics)
 
 ---
 
 ## 1.4. Architectural Constraints
-
-> _[Identify any constraints affecting the architecture, such as client requirements or deployment limitations. (graded in Demo 2)]_
 
 Our system is currently in development, with key functionality and components being actively implemented. The following architectural constraints have been identified based on client requirements, project timeline, technology choices, and deployment plans:
 
@@ -222,145 +207,7 @@ Our system is currently in development, with key functionality and components be
 
 ---
 
-## 1.5. Technology Choices
-
-_Before selecting a technology, assess at least three options for each component. Provide an overview, the pros and cons, and a justification for your final choice, explaining how it fits with the architecture, design, and constraints. (graded in Demo 2)_
-
-### 1.5.1. Database Management System
-
-#### Project Needs:
-
-We required a database that supports relational data (users, resumes, template metadata), integrates easily with JavaScript-based frameworks, offers scalability, and ideally offers a free tier suitable for year-long use without needing trial resets.
-
-#### Options Considered:
-
-- **Firebase**
-
-  - **Pros**: Very user-friendly, easy setup with real-time sync, good frontend integration.
-  - **Cons**: Free tier has strict limits and a 30-day trial constraint we’d need to work around.
-
-- **MongoDB Atlas**
-
-  - **Pros**: Flexible NoSQL model, great for rapid development, schema-less design.
-  - **Cons**: We needed more structured relational capabilities (e.g., joins, constraints); also has tier limitations.
-
-- **Supabase (PostgreSQL-based)**
-  - **Pros**: Fully open-source, free tier generous enough for academic projects, supports SQL queries and relations, includes built-in authentication and storage.
-  - **Cons**: Slightly steeper learning curve than Firebase, community still growing.
-
-**Final Choice: Supabase**
-
-**Justification**:  
-Supabase uses PostgreSQL, which supports our need for structured relational data (e.g., associating a CV with a user and selected 3D template). Its generous free tier allowed us to avoid constant re-setup, unlike Firebase. It also fits well with our JavaScript stack and supports file storage (for uploaded CVs), user authentication, and real-time data — all valuable in our architecture.
-
----
-
-### 1.5.2. Frontend Frameworks & 3D Rendering
-
-#### Project Needs:
-
-We needed a dynamic and interactive UI framework that can support a responsive web interface, integrate with WebGL ([Three.js](https://threejs.org) is built directly on WebGL) for 3D content, and allow each team member to contribute modularly. Additionally, since our templates are 3D environments, we required a rendering engine that supports interactive 3D scenes in the browser.
-
-#### Options Considered:
-
-- **React**
-
-  - **Pros**: Popular, component-based, excellent ecosystem (e.g., React Three Fiber), strong community support.
-  - **Cons**: Slightly more boilerplate than Vue, requires more setup for small reactive bindings.
-
-- **Vue.js**
-
-  - **Pros**: Lightweight, intuitive syntax, reactive two-way binding out of the box.
-  - **Cons**: Smaller ecosystem compared to React; limited integration with some 3D libraries.
-
-- **Angular**
-
-  - **Pros**: Full-fledged framework with batteries included.
-  - **Cons**: Heavyweight, more complex than needed for our relatively small web interface.
-
-- **Three.js**
-  - **Pros**: Industry standard for 3D rendering on the web, robust documentation and examples.
-  - **Cons**: Low-level — requires more boilerplate code unless wrapped with helper libraries like `react-three-fiber`.
-
----
-
-**Final Choice: React, Vue.js, and Three.js**
-
-**Justification**:  
-We adopted a hybrid approach: React is used as our core frontend framework due to its modularity and compatibility with `react-three-fiber` for rendering 3D templates. Vue.js was used for lighter components and quick prototyping due to its simplicity. Three.js powers the actual 3D rendering in our templates. This combination allows flexibility, team collaboration, and performance — essential for rendering interactive 3D portfolio sites.
-
----
-
-### 1.5.3. Backend Server & API Testing
-
-#### Project Needs:
-
-We needed a lightweight, performant backend to handle file uploads, manage API endpoints, integrate with the database, and test core functionality (such as text extraction, template matching).
-
-#### Options Considered:
-
-- **Django (Python)**
-
-  - **Pros**: Great for rapid development, built-in admin and ORM.
-  - **Cons**: Python-based, less natural fit for our full JavaScript stack.
-
-- **Spring Boot (Java)**
-
-  - **Pros**: Very robust, great for large enterprise applications.
-  - **Cons**: Overhead too high for a lean student project; slower to prototype.
-
-- **Node.js with Express.js**
-
-  - **Pros**: Fast, event-driven, works seamlessly with frontend JS frameworks, massive ecosystem.
-  - **Cons**: Requires more effort for structure and security unless planned well.
-
-- **Testing: Postman and Jest**
-  - **Postman Pros**: Easy API testing, automated test scripts.
-  - **Jest Pros**: Simple yet powerful JavaScript testing framework, great for unit/integration testing.
-  - **Cons**: Postman doesn’t cover unit-level testing, Jest requires test writing discipline.
-
----
-
-**Final Choices: Node.js + Express.js, Postman, and Jest**
-
-**Justification**:  
-Node.js and Express.js allowed us to maintain a consistent language (JavaScript) across the full stack, simplifying development. It integrates smoothly with Supabase and supports fast prototyping of APIs. Postman facilitated API endpoint testing during integration. Jest was selected for backend unit testing to ensure stability of critical functions like text extraction and template selection.
-
----
-
-### 1.5.4. 3D Model Creation Tools
-
-**Project Needs:**  
-We needed a tool to create custom 3D templates (e.g., space station, cave, forest office) that could be exported to formats compatible with Three.js.
-
-**Options Considered:**
-
-- **Maya**
-
-  - **Pros**: Industry standard, highly advanced.
-  - **Cons**: Expensive and overpowered for our needs.
-
-- **Cinema 4D**
-
-  - **Pros**: Intuitive UI, good for animation.
-  - **Cons**: Also costly; not ideal for web export formats.
-
-- **Blender**
-  - **Pros**: Free and open-source, powerful feature set, supports WebGL-compatible formats (e.g., glTF), large community and tutorials.
-  - **Cons**: Learning curve, especially for new 3D artists.
-
----
-
-**Final Choice: Blender**
-
-**Justification:**  
-Blender offered us a powerful, free tool for creating and exporting our 3D environments. Its compatibility with glTF and direct integration with Three.js made it ideal for our pipeline. Additionally, the active Blender community provided us with assets, plug-ins, and tutorials, accelerating our learning and development process.
-
----
-
 # 2. Quality Requirements
-
-> _[Prioritize at least five quality requirements (from highest to lowest priority). Each quality requirement must be quantified or specified in a testable way. For example, availability: 99.5% uptime, scalability: 50 requests per second, security: role-based access control. (graded in Demo 2)]_
 
 | Priority | Quality Requirement | Quantification                                                                                                                              |
 | -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -441,10 +288,6 @@ The users upload **sensitive personal information** (CVs with names, contact inf
 
 # 3. Deployment Model
 
-_[To be completed for **Demo 3**.]_
-
-_Provide a detailed description of how your system will be deployed. This includes the target environment (e.g., cloud, on-premises, hybrid), the deployment topology (e.g., multi-tier, containerized microservices), and any tools or platforms used (e.g., Docker, Kubernetes, AWS). Include a deployment diagram that illustrates the infrastructure setup and shows how different system components are distributed across nodes or services. The model should support the **systems** quality requirements, such as scalability, reliability, and maintainability._
-
 Our system will be deployed in a cloud-based environment, leveraging Vercel for frontend hosting and continuous deployment, and Supabase for backend database services. The deployment model is designed for high availability, scalability, and maintainability while remaining cost-effective.
 
 ## Target Environment
@@ -501,13 +344,49 @@ The system follows a multi-tier architecture:
 
 Please refer to our [Google Docs document](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0) for the diagram.
 
+## How each quality attribute is addressed:
+
+### Availability:
+
+- **Global CDN:** Vercel's edge network ensures high availability across geographic regions
+- **Managed Infrastructure:** Both Vercel and Supabase handle infrastructure redundancy and automatic failover
+- **Auto-scaling:** Auto-scaling prevents resource exhaustion during traffic spikes
+- **Always-on Services:** Supabase provides 24/7 database availability
+
+### Maintainability:
+
+- **Automated CI/CD:** GitHub integration with Vercel enables seamless deployment pipeline
+- **Separation of Concerns:** Clear boundaries between presentation, application, and data tiers
+- **Managed Services:** Reduces operational overhead by offloading infrastructure management
+- **Version Control:** GitHub provides robust change tracking and rollback capabilities
+
+### Performance:
+
+- **Edge Caching:** Vercel's CDN delivers content from locations closest to users
+- **Serverless Functions:** Reduces cold start latency and scales on demand
+- **Optimised Database:** Supabase PostgreSQL is performance-tuned with connection pooling
+- **Static Asset Optimisation:** Vercel automatically optimises images and assets
+
+### Security:
+
+- **HTTPS Enforcement:** All traffic is encrypted in transit via Vercel
+- **Authentication:** Supabase provides built-in user authentication and authorisation
+- **API Security:** Secure API endpoints with proper key management
+- **Role-based Access:** permissions controlled through Supabase's auth system
+
+### Usability:
+
+Our deployment model indirectly supports usability through:
+
+- **Fast Load Times:** CDN and edge caching improve user experience
+- **High Availability:** Users can reliably access the system
+- **Mobile Responsiveness:** Modern React/Next.js stack supports responsive design
+
 ---
 
 # 4. Service Contracts
 
-_[Explain the API call request, responses & effects **(demo 3)**]_
-
-_Describe the service contracts between the major components or services in your system. This includes API specifications, data formats (e.g., JSON, XML), communication protocols (e.g., REST, gRPC), and any error-handling or timeout mechanisms. Each service contract should be **well-defined**, versioned where applicable, and testable to ensure reliable integration between components. Clear service contracts help enforce loose coupling and enable independent development and testing of services._
+Explanation of the API call request, responses & effects:
 
 ## Service: uploadCV
 
