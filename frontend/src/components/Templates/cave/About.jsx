@@ -1,32 +1,46 @@
 import React, { useState, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera } from '@react-three/drei';
-import { useCVData } from '../../../hooks/useCVData';
-import { MiniModel } from './Hero'; // Import the MiniModel component
+// import { Canvas, useFrame } from '@react-three/fiber';
+// import { PerspectiveCamera } from '@react-three/drei';
+// import { useCVData } from '../../../hooks/useCVData';
+// import { MiniModel } from './Hero'; // Import the MiniModel component
 
-// Floating 3D campfire component
-function FloatingCampfire() {
-  const meshRef = useRef();
+// Mock data to replace useCVData hook
+const mockCVData = {
+  name: 'Alex Thompson',
+  about: 'Mission Statement',
+  description: 'A passionate full-stack developer with expertise in creating immersive web experiences using modern technologies like React, Three.js, and WebGL. I love bringing ideas to life through clean code and beautiful user interfaces.',
+  skills: [
+    'React.js', 'Three.js', 'JavaScript', 'TypeScript', 'Node.js', 
+    'Python', 'WebGL', '3D Modeling', 'UI/UX Design', 'MongoDB',
+    'Next.js', 'GraphQL', 'Docker', 'AWS', 'Blender'
+  ]
+};
+
+// Floating 3D campfire component - commented out for now
+// function FloatingCampfire() {
+//   const meshRef = useRef();
   
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
-      meshRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.2;
-    }
-  });
+//   useFrame((state) => {
+//     if (meshRef.current) {
+//       meshRef.current.rotation.y += 0.01;
+//       meshRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.2;
+//     }
+//   });
   
-  return (
-    <group ref={meshRef} scale={[0.03, 0.03, 0.03]}>
-      <MiniModel model="campfire" />
-      <pointLight position={[0, 2, 0]} intensity={2} color="#ff6b35" />
-    </group>
-  );
-}
+//   return (
+//     <group ref={meshRef} scale={[0.03, 0.03, 0.03]}>
+//       <MiniModel model="campfire" />
+//       <pointLight position={[0, 2, 0]} intensity={2} color="#ff6b35" />
+//     </group>
+//   );
+// }
 
 const About = () => {
   const [isHovered, setIsHovered] = useState(false);
-  const [activeSection, setActiveSection] = useState('intro');
-  const { name, about, description, skills } = useCVData();
+  const [activeSection, setActiveSection] = useState('philosophy');
+  
+  // Using mock data instead of useCVData hook
+  const { name, about, description, skills } = mockCVData;
 
   // Fallback skills if none provided
   const displaySkills = skills.length > 0 ? skills : [
@@ -65,11 +79,11 @@ const About = () => {
             </p>
           </div>
         );
-      case 'About':
+      case 'mission':
         return (
           <div className="space-y-6">
             <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              {about || ''}
+              {about || 'Mission Statement'}
             </h3>
             <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-400/30 rounded-xl p-6">
               <p className="text-lg leading-relaxed text-white/90 italic">
@@ -126,6 +140,18 @@ const About = () => {
       <div className="flex-shrink-0 flex items-center justify-center py-8">
         <div className="flex items-center gap-8">
           
+          {/* 3D Campfire placeholder - commented out for now */}
+          {/* <div className="w-32 h-32">
+            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+              <ambientLight intensity={0.4} />
+              <FloatingCampfire />
+            </Canvas>
+          </div> */}
+          
+          {/* Campfire emoji placeholder */}
+          <div className="text-6xl animate-pulse">
+            🔥
+          </div>
           
           {/* Name and Avatar */}
           <div className="text-center">
