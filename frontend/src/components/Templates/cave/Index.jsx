@@ -8,7 +8,7 @@ import Contact from './Contact';
 import LoadingScreen from './LoadingScreen';
 import './Index.css';
 
-// Import your 3D models
+// Import  3D models
 import Cave2 from '../../3DModels/Cave';
 import Crystal from '../../3DModels/Crystal';
 import Campfire from '../../3DModels/Campfire';
@@ -18,28 +18,15 @@ import Skull from '../../3DModels/Skull';
 import floor from './floor.png';
 import Lamp from '../../3DModels/Lamp';
 
-// Optimized Auto-rotating camera component
-const AutoRotatingCamera = React.memo(() => {
+// Static Camera component - no auto-rotation
+const StaticCamera = React.memo(() => {
   const { camera } = useThree();
   
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime() * 0.3;
-    const radius = 60;
-    const height = 12;
-    
-    // 20 degrees total rotation (10 degrees each side from center)
-    const maxAngle = (10 * Math.PI) / 180;
-    const angle = Math.sin(time) * maxAngle;
-    
-    // Direct position setting for smoothest movement
-    camera.position.set(
-      Math.sin(angle) * radius,
-      height,
-      Math.cos(angle) * radius
-    );
-    
-    camera.lookAt(0, -2, 0);
-  });
+  // Set camera to a fixed position once
+  useEffect(() => {
+    camera.position.set(0, 12, 60); // Static position
+    camera.lookAt(0, -2, 0); // Look at campfire area
+  }, [camera]);
   
   return null;
 });
@@ -211,6 +198,10 @@ const Scene3DModels = React.memo(() => {
         <Crystal />
       </group>
 
+      <group position={[-35, 0, 10]} scale={[7, 7, 7]} rotation={[0, 0, 0]}>
+        <Crystal />
+      </group>
+
       {/* Skull */}
       <group position={[30, 5, -40]} scale={[0.05, 0.05, 0.05]} rotation={[0, -Math.PI / 3, 0]}>
         <Skull />
@@ -234,7 +225,7 @@ const Scene3DModels = React.memo(() => {
   );
 });
 
-// Integrated and optimized Hero component
+// Integrated and optimized Hero component with static camera
 const OptimizedHero = React.memo(({ activeCard }) => {
   return (
     <div className="w-full h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-800 relative overflow-hidden">
@@ -250,8 +241,8 @@ const OptimizedHero = React.memo(({ activeCard }) => {
         }}
         camera={{ fov: 75, near: 0.1, far: 1000 }}
       >
-        {/* Auto-rotating camera */}
-        <AutoRotatingCamera />
+        {/* Static camera - no auto-rotation */}
+        <StaticCamera />
         
         {/* Optimized lighting */}
         <OptimizedLighting />

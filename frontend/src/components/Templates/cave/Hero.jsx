@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Import your 3D models
+// Import  3D models
 import Cave2 from '../../3DModels/Cave';
 import Crystal from '../../3DModels/Crystal';
 import Campfire from '../../3DModels/Campfire';
