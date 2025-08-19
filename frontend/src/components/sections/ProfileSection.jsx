@@ -310,7 +310,7 @@ const portfolioPlaceholders = [
   {
     theme: "forest",
     title: "Forest themed Portfolio", 
-    image: "../../../public/images/space.png",
+    image: "../../../public/images/forest.png",
     link: "http://localhost:5173/forest"
   },
   {
