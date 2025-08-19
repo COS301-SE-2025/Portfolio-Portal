@@ -40,13 +40,13 @@
 
 ## Table of Contents
 
-| #   | Section                                           | Page |
-| --- | ------------------------------------------------- | ---- |
-| 1   | [Introduction](#1-introduction)                   | 2    |
-| 2   | [Prerequisites](#2-prerequisites)                 | 3    |
-| 3   | [Installation Steps](#3-installation-steps)       | 4    |
-| 4   | [Deployment & Running](#4-deployment--running)    | 5    |
-| 5   | [Production Deployment](#5-production-deployment) | 6    |
+| #   | Section                                           |
+| --- | ------------------------------------------------- |
+| 1   | [Introduction](#1-introduction)                   |
+| 2   | [Prerequisites](#2-prerequisites)                 |
+| 3   | [Installation Steps](#3-installation-steps)       |
+| 4   | [Deployment & Running](#4-deployment--running)    |
+| 5   | [Production Deployment](#5-production-deployment) |
 
 ---
 
