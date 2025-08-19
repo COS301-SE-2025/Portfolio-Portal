@@ -38,6 +38,12 @@ const templates = [
     image: "/images/lab.png",
     href: "/lab",
   },
+    {
+    title: "Cave",
+    description: "Man like Cave",
+    image: "/images/cave.png",
+    href: "/cave",
+  }
 ];
 
 export default templates;
