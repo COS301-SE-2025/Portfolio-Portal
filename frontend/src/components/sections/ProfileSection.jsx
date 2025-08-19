@@ -45,9 +45,6 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
   const [formData, setFormData] = useState({
     name: profile.name || '',
     bio: profile.bio || '',
-    about: Array.isArray(profile.about_paragraphs) ? profile.about_paragraphs.join('\n\n') : '',
-    skills: Array.isArray(profile.skills) ? profile.skills.join(', ') : '',
-    certifications: Array.isArray(profile.certifications) ? profile.certifications.join(', ') : '',
     linkedin: profile.linkedin || '',
     github: profile.github || '',
     cv_url: profile.cv_url || ''
@@ -61,10 +58,7 @@ const handleSubmit = async (e) => {
   setErrors([]);
 
   const updatedData = {
-    ...formData,
-    about_paragraphs: formData.about.split('\n\n').map(p => p.trim()).filter(Boolean),
-    skills: formData.skills.split(',').map(s => s.trim()).filter(Boolean),
-    certifications: formData.certifications.split(',').map(c => c.trim()).filter(Boolean)
+    ...formData
   };
 
   // Remove empty or unchanged fields
@@ -99,9 +93,6 @@ const handleSubmit = async (e) => {
   const inputFields = [
     { id: 'name', label: 'Name', type: 'text' },
     { id: 'bio', label: 'Bio', type: 'textarea', rows: 3 },
-    { id: 'about', label: 'About (each paragraph separated by a blank line)', type: 'textarea', rows: 10 },
-    { id: 'skills', label: 'Skills (comma-separated)', type: 'text' },
-    { id: 'certifications', label: 'Certifications (comma-separated)', type: 'text' },
     { id: 'linkedin', label: 'LinkedIn URL', type: 'text' },
     { id: 'github', label: 'GitHub URL', type: 'text' },
     { id: 'cv_url', label: 'CV URL', type: 'text' }
@@ -309,23 +300,42 @@ const handleProfilePictureUpload = async (e) => {
   
   if (!profile) return null;
 
-  const portfolioPlaceholders = [
+const portfolioPlaceholders = [
+  {
+    theme: "space",
+    title: "Space themed Portfolio",
+    image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
+    link: "http://localhost:5173/space"
+  },
+  {
+    theme: "forest",
+    title: "Forest themed Portfolio", 
+    image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
+    link: "http://localhost:5173/forest"
+  },
+  {
+    theme: "office",
+    title: "Office themed Portfolio",
+    image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
+    link: "http://localhost:5173/office"
+  },
     {
-      title: "Space themed Portfolio",
-      image: "https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg?w=300&h=200&fit=crop",
-      link: "http://localhost:5173/space"
-    },
+    theme: "lab",
+    title: "Lab themed Portfolio",
+    image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
+    link: "http://localhost:5173/office"
+  },
     {
-      title: "Forest themed Portfolio", 
-      image: "https://wallpaperonline.co.za/wp-content/uploads/2022/01/Screen-Shot-2020-11-04-at-00.17.25-e1632808578117.jpg?w=300&h=200&fit=crop",
-      link: "http://localhost:5173/forest"
-    },
-    {
-      title: "Office themed Portfolio",
-      image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
-      link: "http://localhost:5173/office"
-    }
-  ];
+    theme: "Cave",
+    title: "Cave themed Portfolio",
+    image: "https://digital-walls.com/cdn/shop/products/Globe.png?v=1666086840&width=533?w=300&h=200&fit=crop", 
+    link: "http://localhost:5173/office"
+  }
+];
+
+const selectedTemplate = portfolioPlaceholders.find(
+  template => template.theme === profile.selected_template
+);
 
   return (
     <div className={`min-h-screen relative overflow-hidden ${
@@ -333,18 +343,6 @@ const handleProfilePictureUpload = async (e) => {
         ? 'bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950' 
         : 'bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100'
     }`}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className={`absolute top-20 right-10 w-32 h-32 rounded-full blur-xl animate-float-slow ${
-          isDark ? 'bg-blue-500/15' : 'bg-purple-300/30'
-        }`}></div>
-        <div className={`absolute top-60 left-20 w-24 h-24 rounded-full blur-lg animate-float-medium ${
-          isDark ? 'bg-indigo-500/20' : 'bg-blue-300/35'
-        }`}></div>
-        <div className={`absolute bottom-40 right-40 w-20 h-20 rounded-full blur-lg animate-float-fast ${
-          isDark ? 'bg-purple-500/25' : 'bg-indigo-300/40'
-        }`}></div>
-      </div>
 
       <div className="max-w-7xl mx-auto p-6">
         {profilePictureError && (
@@ -502,164 +500,6 @@ const handleProfilePictureUpload = async (e) => {
                 ))}
               </div>
             </div>
-
-            {/* About Section */}
-            <div className={`rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300 ${
-              isDark ? 'bg-slate-800' : 'bg-white'
-            }`}>
-              <h2 className={`text-2xl font-bold mb-6 flex items-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${
-                  isDark 
-                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500'
-                }`}>
-                  <User className="w-4 h-4 text-white" />
-                </div>
-                About Me
-              </h2>
-              {profile.about_paragraphs && profile.about_paragraphs.length > 0 ? (
-                <div className="space-y-4">
-                  {profile.about_paragraphs.map((paragraph, index) => (
-                    <p key={index} className={`text-lg leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                    isDark ? 'bg-gradient-to-r from-purple-500/30 to-indigo-500/30' : 'bg-gradient-to-r from-purple-100 to-pink-100'
-                  }`}>
-                    <User className={`w-10 h-10 ${isDark ? 'text-purple-400' : 'text-purple-400'}`} />
-                  </div>
-                  <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Share your story with the world
-                  </p>
-                  <button 
-                    onClick={() => setIsModalOpen(true)} 
-                    className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                      isDark 
-                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600' 
-                        : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600'
-                    }`}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Add About Information
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Skills Section */}
-            <div className={`rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300 ${
-              isDark ? 'bg-slate-800' : 'bg-white'
-            }`}>
-              <h2 className={`text-2xl font-bold mb-6 flex items-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${
-                  isDark 
-                    ? 'bg-gradient-to-r from-green-500 to-teal-500' 
-                    : 'bg-gradient-to-r from-green-500 to-teal-500'
-                }`}>
-                  <Code className="w-4 h-4 text-white" />
-                </div>
-                Skills & Technologies
-              </h2>
-              {profile.skills && profile.skills.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {profile.skills.map((skill, index) => (
-                    <span 
-                      key={index} 
-                      className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 transform hover:scale-105 cursor-default ${
-                        isDark 
-                          ? 'bg-gradient-to-r from-blue-500/30 to-indigo-500/30 text-blue-200 hover:from-blue-500/40 hover:to-indigo-500/40' 
-                          : 'bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 hover:from-blue-200 hover:to-purple-200'
-                      }`}
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                    isDark ? 'bg-gradient-to-r from-green-500/30 to-teal-500/30' : 'bg-gradient-to-r from-green-100 to-teal-100'
-                  }`}>
-                    <Code className={`w-10 h-10 ${isDark ? 'text-green-400' : 'text-green-400'}`} />
-                  </div>
-                  <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Showcase your technical expertise
-                  </p>
-                  <button 
-                    onClick={() => setIsModalOpen(true)} 
-                    className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                      isDark 
-                        ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600' 
-                        : 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600'
-                    }`}
-                  >
-                    <Code className="w-4 h-4 mr-2" />
-                    Add Skills
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Certifications Section */}
-            <div className={`rounded-2xl shadow-xl p-8 transform hover:scale-[1.02] transition-all duration-300 ${
-              isDark ? 'bg-slate-800' : 'bg-white'
-            }`}>
-              <h2 className={`text-2xl font-bold mb-6 flex items-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${
-                  isDark 
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500' 
-                    : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                }`}>
-                  <Award className="w-4 h-4 text-white" />
-                </div>
-                Certifications & Awards
-              </h2>
-              {profile.certifications && profile.certifications.length > 0 ? (
-                <div className="space-y-4">
-                  {profile.certifications.map((cert, index) => (
-                    <div 
-                      key={index} 
-                      className={`p-4 rounded-xl border-l-4 transition-shadow duration-200 hover:shadow-md ${
-                        isDark 
-                          ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500' 
-                          : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-400'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <Award className={`w-5 h-5 mr-3 ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`} />
-                        <p className={`font-semibold ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{cert}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                    isDark ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30' : 'bg-gradient-to-r from-yellow-100 to-orange-100'
-                  }`}>
-                    <Award className={`w-10 h-10 ${isDark ? 'text-yellow-400' : 'text-yellow-400'}`} />
-                  </div>
-                  <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Display your achievements and certifications
-                  </p>
-                  <button 
-                    onClick={() => setIsModalOpen(true)} 
-                    className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                      isDark 
-                        ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600' 
-                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:from-yellow-600 hover:to-orange-600'
-                    }`}
-                  >
-                    <Award className="w-4 h-4 mr-2" />
-                    Add Certifications
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Right Column - Portfolio */}
@@ -670,65 +510,74 @@ const handleProfilePictureUpload = async (e) => {
             }`}>
               <div className="flex items-center justify-between mb-8">
                 <h2 className={`text-2xl font-bold flex items-center ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${
-                    isDark 
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-500' 
-                      : 'bg-gradient-to-r from-indigo-500 to-purple-500'
-                  }`}>
-                    <Briefcase className="w-4 h-4 text-white" />
-                  </div>
-                  Portfolio Websites
+                  Portfolio Website
                 </h2>
+<span className={`text-sm rounded-full px-3 py-1 ${
+  isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-500'
+}`}>
+  {selectedTemplate ? "1 Template" : "0 Templates"}
+</span>
               </div>
-              <div className="grid gap-6">
-                {portfolioPlaceholders.map((project, index) => (
-                  <a 
-                    key={index} 
-                    href={project.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="group cursor-pointer transform hover:scale-105 transition-all duration-300 block"
-                  >
-                    <div className={`relative overflow-hidden rounded-xl shadow-lg ${
-                      isDark ? 'bg-slate-700/50' : 'bg-gray-100'
-                    }`}>
-                      <img 
-                        src={project.image} 
-                        alt={project.title}
-                        className="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className={`absolute inset-0 transition-all duration-300 group-hover:opacity-100 opacity-0 ${
-                        isDark 
-                          ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent' 
-                          : 'bg-gradient-to-t from-black/60 via-transparent to-transparent'
-                      }`}>
-                        <div className="absolute bottom-4 left-4 right-4">
-                          <div className="flex items-center justify-between text-white">
-                            <div>
-                              <h3 className="font-bold text-lg">{project.title}</h3>
-                            </div>
-                            <div className={`rounded-full p-2 ${
-                              isDark ? 'bg-white/20' : 'bg-white/20'
-                            } backdrop-blur-sm`}>
-                              <ExternalLink className="w-5 h-5" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4 px-2">
-                      <h3 className={`font-semibold transition-colors duration-200 ${
-                        isDark ? 'text-gray-200 group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-600'
-                      }`}>
-                        {project.title}
-                      </h3>
-                      <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {project.description}
-                      </p>
-                    </div>
-                  </a>
-                ))}
+<div className="grid gap-6">
+  {selectedTemplate ? (
+    <a 
+      href={selectedTemplate.link} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="group cursor-pointer transform hover:scale-105 transition-all duration-300 block"
+    >
+      <div className={`relative overflow-hidden rounded-xl shadow-lg ${
+        isDark ? 'bg-slate-700/50' : 'bg-gray-100'
+      }`}>
+        <img 
+          src={selectedTemplate.image} 
+          alt={selectedTemplate.title}
+          className="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className={`absolute inset-0 transition-all duration-300 group-hover:opacity-100 opacity-0 ${
+          isDark 
+            ? 'bg-gradient-to-t from-black/70 via-transparent to-transparent' 
+            : 'bg-gradient-to-t from-black/60 via-transparent to-transparent'
+        }`}>
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="flex items-center justify-between text-white">
+              <div>
+                <h3 className="font-bold text-lg">{selectedTemplate.title}</h3>
               </div>
+              <div className={`rounded-full p-2 ${
+                isDark ? 'bg-white/20' : 'bg-white/20'
+              } backdrop-blur-sm`}>
+                <ExternalLink className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 px-2">
+        <h3 className={`font-semibold transition-colors duration-200 ${
+          isDark ? 'text-gray-200 group-hover:text-blue-400' : 'text-gray-900 group-hover:text-blue-600'
+        }`}>
+          {selectedTemplate.title}
+        </h3>
+      </div>
+    </a>
+  ) : (
+    <div className={`text-center py-12 rounded-xl ${
+      isDark ? 'bg-slate-700/50 text-gray-400' : 'bg-gray-100 text-gray-500'
+    }`}>
+      <p className="text-lg mb-4">No portfolio template selected</p>
+      <button 
+        className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+          isDark 
+            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' 
+            : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+        }`}
+      >
+        Select Template
+      </button>
+    </div>
+  )}
+</div>
             </div>
           </div>
         </div>

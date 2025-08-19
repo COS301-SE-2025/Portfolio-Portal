@@ -16,7 +16,7 @@ const Portfolio = require("../models/Portfolio");
  */
 exports.selectTemplate = async (req, res) => {
   try {
-    const { cvData } = req.body;
+    const { cvData, authId } = req.body;
 
     if (!cvData) {
       return res.status(400).json({
@@ -26,18 +26,140 @@ exports.selectTemplate = async (req, res) => {
     }
 
     // Use the template selection algorithm
-    const templateResult = templateService.selectTemplate(cvData);
+    const selectedTemplate = templateService.selectTemplate(cvData);
+    console.log(`Template selected: ${selectedTemplate}`);
+
+    // If authId is provided, store the template in the user's record
+    if (authId) {
+      try {
+        console.log(`Storing template ${selectedTemplate} for user ${authId}`);
+        const storeResult = await templateService.storeTemplateForUser(authId, selectedTemplate);
+        console.log(`Template storage result: ${storeResult}`);
+      } catch (storeError) {
+        console.error("Error storing template:", storeError);
+        // Don't fail the entire request if storage fails
+      }
+    }
 
     // Return the selected template info and customization options
     return res.status(200).json({
       success: true,
-      data: templateResult,
+      data: {
+        selectedTemplate,
+        template: selectedTemplate, // for backward compatibility
+      },
     });
   } catch (error) {
     console.error("Error in template selection:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to select template",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get template for a specific user (runs algorithm and stores result)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getTemplateForUser = async (req, res) => {
+  try {
+    const { authId } = req.params;
+
+    if (!authId) {
+      return res.status(400).json({
+        success: false,
+        message: "User auth ID is required",
+      });
+    }
+
+    // This will run the algorithm and store the result
+    const selectedTemplate = await templateService.getTemplateForUser(authId);
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        selectedTemplate,
+        authId
+      },
+    });
+  } catch (error) {
+    console.error("Error getting template for user:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get template for user",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Get stored template for user (without running algorithm)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getStoredTemplate = async (req, res) => {
+  try {
+    const { authId } = req.params;
+
+    if (!authId) {
+      return res.status(400).json({
+        success: false,
+        message: "User auth ID is required",
+      });
+    }
+
+    const storedTemplate = await templateService.getStoredTemplateForUser(authId);
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        selectedTemplate: storedTemplate,
+        authId
+      },
+    });
+  } catch (error) {
+    console.error("Error getting stored template:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get stored template",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Update template for user (re-run algorithm and update stored result)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.updateTemplateForUser = async (req, res) => {
+  try {
+    const { authId } = req.params;
+
+    if (!authId) {
+      return res.status(400).json({
+        success: false,
+        message: "User auth ID is required",
+      });
+    }
+
+    const updatedTemplate = await templateService.updateTemplateForUser(authId);
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        selectedTemplate: updatedTemplate,
+        authId
+      },
+    });
+  } catch (error) {
+    console.error("Error updating template for user:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update template for user",
       error: error.message,
     });
   }

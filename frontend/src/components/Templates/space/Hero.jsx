@@ -33,7 +33,7 @@ const Hero = () => {
         <div className="flex-1 max-w-2xl">
           <div className="space-y-6">
             <h1 className="text-6xl lg:text-7xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 leading-tight animate-pulse">
-              {name }
+              {name}
             </h1>
             <p className="text-2xl lg:text-3xl font-light text-gray-200 mb-8 tracking-wide">
               {description}

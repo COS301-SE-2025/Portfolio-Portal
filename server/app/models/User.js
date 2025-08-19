@@ -90,43 +90,44 @@ class User {
     }
   }
 
-  static async updateProfile(authId, updateData) {
-    try {
-      // Validate and sanitize update data
-      const allowedFields = [
-        'name', 'bio', 'cv_url', 'profile_picture_url', 
-        'about_paragraphs', 'certifications', 'skills', 
-        'linkedin', 'github', 'profile_picture_path'
-      ];
-      
-      const sanitizedData = {};
-      Object.keys(updateData).forEach(key => {
-        if (allowedFields.includes(key) && updateData[key] !== undefined) {
-          sanitizedData[key] = updateData[key];
-        }
-      });
-
-      // Add updated timestamp
-      sanitizedData.updated_at = new Date().toISOString();
-
-      const { data, error } = await supabase
-        .from('users')
-        .update(sanitizedData)
-        .eq('auth_id', authId)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('UpdateProfile error:', error.message);
-        throw new Error(error.message);
+static async updateProfile(authId, updateData) {
+  try {
+    // Validate and sanitize update data
+    const allowedFields = [
+      'name', 'bio', 'cv_url', 'profile_picture_url', 
+      'about_paragraphs', 'certifications', 'skills', 
+      'linkedin', 'github', 'profile_picture_path',
+      'selected_template'
+    ];
+    
+    const sanitizedData = {};
+    Object.keys(updateData).forEach(key => {
+      if (allowedFields.includes(key) && updateData[key] !== undefined) {
+        sanitizedData[key] = updateData[key];
       }
+    });
 
-      return data;
-    } catch (error) {
-      console.error('User.updateProfile error:', error.message);
-      throw error;
+    // Add updated timestamp
+    sanitizedData.updated_at = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(sanitizedData)
+      .eq('auth_id', authId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('UpdateProfile error:', error.message);
+      throw new Error(error.message);
     }
+
+    return data;
+  } catch (error) {
+    console.error('User.updateProfile error:', error.message);
+    throw error;
   }
+}
 
   static async uploadProfilePicture(authId, fileBuffer, fileName, contentType, token) {
     try {
@@ -212,6 +213,33 @@ class User {
     }
   }
 
+static async updateSelectedTemplate(authId, template) {
+  try {
+    console.log(`User.updateSelectedTemplate called with authId: ${authId}, template: ${template}`);
+    
+    const { data, error } = await supabase
+      .from('users')
+      .update({ 
+        selected_template: template,
+        updated_at: new Date().toISOString()
+      })
+      .eq('auth_id', authId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('UpdateSelectedTemplate Supabase error:', error);
+      throw new Error(error.message);
+    }
+
+    console.log('UpdateSelectedTemplate success, updated user:', data);
+    return data ? true : false;
+  } catch (error) {
+    console.error('User.updateSelectedTemplate error:', error.message);
+    throw error;
+  }
+}
+
   static async searchUsers(query, limit = 10, offset = 0) {
     try {
       const searchTerm = `%${query}%`;
@@ -256,5 +284,7 @@ class User {
     }
   }
 }
+
+
 
 module.exports = User;
