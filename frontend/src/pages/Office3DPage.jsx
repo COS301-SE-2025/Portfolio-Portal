@@ -1,8 +1,8 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Environment, Text, Html } from '@react-three/drei';
-import useCvData from '../hooks/useCVData'; // Using the same hook as other files
-import OfficeNavbar from '../components/Templates/office/Navbar';
+import { OrbitControls, Environment, Html } from '@react-three/drei';
+import useCvData from '../hooks/useCVData'; // Correct path based on your structure
+import OfficeNavbar from '../components/Templates/office/Navbar'; // Correct path
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -11,14 +11,27 @@ import { useLoader } from '@react-three/fiber';
 export default function Office3DPage() {
   const { cvData } = useCvData(); // Using the same hook as other files
   const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollContainerRef = useRef();
 
-  const handleWheel = (e) => {
-    // Use deltaX for horizontal scrolling
-    setScrollPosition(prev => Math.max(0, Math.min(prev + e.deltaX * 0.1, 100)));
-  };
+  // Handle natural mouse wheel scrolling
+  useEffect(() => {
+    const handleWheel = (e) => {
+      // Allow natural page scrolling with mouse wheel
+      setScrollPosition(prev => {
+        const newPos = prev + e.deltaY * 0.5;
+        return Math.max(0, Math.min(newPos, 100));
+      });
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      return () => container.removeEventListener('wheel', handleWheel);
+    }
+  }, []);
 
   return (
-    <div className="relative h-screen" onWheel={handleWheel}>
+    <div className="relative h-screen" ref={scrollContainerRef}>
       <OfficeNavbar />
       <Canvas
         camera={{ 
@@ -53,7 +66,7 @@ export default function Office3DPage() {
             style={{ width: `${scrollPosition}%` }}
           ></div>
         </div>
-        <p className="text-xs mt-1 text-center">Scroll horizontally to navigate</p>
+        <p className="text-xs mt-1 text-center">Scroll to navigate the office</p>
       </div>
     </div>
   );
@@ -95,9 +108,9 @@ function Office3DScene({ cvData, scrollPosition }) {
   const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
   
   useFrame(() => {
-    // Apply horizontal scrolling by moving the entire scene
+    // Apply scrolling by moving the entire scene on the Z-axis
     if (groupRef.current) {
-      groupRef.current.position.x = -scrollPosition * 0.3; // Adjust multiplier as needed
+      groupRef.current.position.z = scrollPosition * 0.3; // Adjust multiplier as needed
     }
   });
 
