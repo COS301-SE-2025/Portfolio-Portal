@@ -223,22 +223,55 @@ const TEMPLATE_KEYWORDS = {
     ],
   },
 
-  //-------------------------------CAVE TEMPLATE:-------------------------------
-  // cave: {
-  //   skills:
-  //     { keyword: "", weight: 3 },
-  //     { keyword: "", weight: 3 },
-  //
-  //   ],
-  //   jobTitles: [
-  //     { keyword: "", weight: 4 },
-  //     { keyword: "Paleontologist", weight: 4 },
-  //   ],
-  //   education: [
-  //     { keyword: "", weight: 4 },
-  //     { keyword: "", weight: 4 },
-  //   ],
-  // },
+  // -------------------------------CAVE TEMPLATE:-------------------------------
+  cave: {
+    skills: [
+      { keyword: "speleology", weight: 5 },
+      { keyword: "hydrogeology", weight: 4 },
+      { keyword: "geomorphology", weight: 4 },
+      { keyword: "anthropology", weight: 4 },
+      { keyword: "archaeological excavation", weight: 4 },
+      { keyword: "mining", weight: 4 },
+      { keyword: "geology", weight: 3 },
+      { keyword: "history", weight: 3 },
+      { keyword: "rockclimbing", weight: 3 },
+      { keyword: "exploring", weight: 3 },
+      { keyword: "excavation", weight: 3 },
+      { keyword: "expedition", weight: 3 },
+      { keyword: "hiking", weight: 2 },
+    ],
+    jobTitles: [
+      { keyword: "speleologist", weight: 5 },
+      { keyword: "hydrogeologist", weight: 4 },
+      { keyword: "cave explorer", weight: 4 },
+      { keyword: "geomorphologist", weight: 4 },
+      { keyword: "mining engineer", weight: 4 },
+      { keyword: "archaeologist", weight: 4 },
+      { keyword: "paleontologist", weight: 4 },
+      { keyword: "anthropologist", weight: 4 },
+      { keyword: "cartographer", weight: 4 },
+      { keyword: "mining", weight: 4 },
+      { keyword: "cave diver", weight: 4 },
+      { keyword: "tour guide", weight: 4 },
+      { keyword: "mountain guide", weight: 4 },
+      { keyword: "adventure tour guide", weight: 4 },
+      { keyword: "expedition leader", weight: 3 },
+      { keyword: "survival instructor", weight: 3 },
+      { keyword: "geologist", weight: 3 },
+    ],
+    education: [
+      { keyword: "speleology", weight: 5 },
+      { keyword: "hydrogeology", weight: 4 },
+      { keyword: "geomorphology", weight: 4 },
+      { keyword: "mining engineering", weight: 4 },
+      { keyword: "BEng mining engineering", weight: 4 },
+      { keyword: "mining", weight: 4 },
+      { keyword: "archaeology", weight: 4 },
+      { keyword: "paleontology", weight: 4 },
+      { keyword: "geology", weight: 3 },
+      { keyword: "anthropology", weight: 4 },
+    ],
+  },
 };
 
 // default template if no clear winner
@@ -246,7 +279,7 @@ const DEFAULT_TEMPLATE = "space";
 
 /**
  * calculate score for a given template based on CV data
- * @param {string} template - template name (space, forest, office)
+ * @param {string} template - template name (space, forest, office, lab, cave)
  * @param {object} cvData - structured CV data
  * @returns {number} calculated score
  */
@@ -304,7 +337,7 @@ const calculateTemplateScore = (template, cvData) => {
 /**
  * select most appropriate template based on CV content
  * @param {object} cvData - structured CV data from OCR
- * @returns {string} selected template name (space, forest, or office)
+ * @returns {string} selected template name (space, forest, office, lab, or cave)
  */
 const selectTemplate = (cvData) => {
   if (!cvData) return DEFAULT_TEMPLATE;
@@ -315,6 +348,7 @@ const selectTemplate = (cvData) => {
     forest: calculateTemplateScore("forest", cvData),
     office: calculateTemplateScore("office", cvData),
     lab: calculateTemplateScore("lab", cvData),
+    cave: calculateTemplateScore("cave", cvData),
   };
 
   console.log("Template Scores:", scores); // testing
