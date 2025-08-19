@@ -11,7 +11,7 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-50); // Start higher up
+  const [scrollPosition, setScrollPosition] = useState(-55); // Start higher up
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
 
@@ -56,7 +56,7 @@ export default function Office3DPage() {
         camera={{ 
           position: [0, 15, 25],
           rotation: [-Math.PI/6, 0, 0],
-          fov: 45
+          fov: 50
         }}
       >
         <ambientLight intensity={0.6} />
