@@ -24,9 +24,9 @@ export default function Office3DPage() {
         clearTimeout(scrollTimeoutRef.current);
       }
       
-      // Apply smoothing with smaller increments
+      // Apply smoothing with smaller increments - REVERSED DIRECTION
       setScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.1; // Much smaller increment
+        const newPos = prev - e.deltaY * 0.1; // Negative for correct direction
         return Math.max(0, Math.min(newPos, 100));
       });
 
@@ -53,9 +53,9 @@ export default function Office3DPage() {
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 15, 25], // More zoomed out
+          position: [0, 15, 25],
           rotation: [-Math.PI/6, 0, 0],
-          fov: 45 // Slightly smaller FOV for more zoomed out effect
+          fov: 45
         }}
       >
         <ambientLight intensity={0.6} />
@@ -91,7 +91,7 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData, scrollPosition }) {
-  const { scene, camera } = useThree();
+  const { scene } = useThree();
   const groupRef = useRef();
   const textElementsRef = useRef([]);
   const targetZ = useRef(0);
@@ -129,7 +129,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   useFrame(() => {
     // Smooth scrolling with lerp for smoother movement
     if (groupRef.current) {
-      targetZ.current = scrollPosition * 0.5; // Adjust multiplier as needed
+      targetZ.current = scrollPosition * 0.5;
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
@@ -146,12 +146,14 @@ function Office3DScene({ cvData, scrollPosition }) {
           let textContent = '';
           let fontSize = '16px';
           let fontWeight = 'normal';
+          let textColor = '#ffffff';
           
           switch(object.name) {
             case 'AboutHeading':
               textContent = 'About Me';
               fontSize = '24px';
               fontWeight = 'bold';
+              textColor = '#3498db';
               break;
             case 'AboutDescription':
               textContent = data.about || '';
@@ -161,6 +163,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = data.title || '';
               fontSize = '20px';
               fontWeight = '600';
+              textColor = '#2ecc71';
               break;
             case 'Subtitle':
               textContent = data.name || 'Full Stack Developer';
@@ -177,6 +180,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = 'Expertise';
               fontSize = '22px';
               fontWeight = 'bold';
+              textColor = '#3498db';
               break;
             case 'ExpertiseDescription':
               textContent = data.skills?.join(', ') || '';
@@ -185,6 +189,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = 'Experience';
               fontSize = '22px';
               fontWeight = 'bold';
+              textColor = '#3498db';
               break;
             case 'ExperienceDescription':
               const exp = data.experience?.[0];
@@ -194,6 +199,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = 'Education';
               fontSize = '22px';
               fontWeight = 'bold';
+              textColor = '#3498db';
               break;
             case 'EducationDescription':
               const edu = data.education?.[0];
@@ -214,6 +220,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent,
               fontSize,
               fontWeight,
+              textColor,
               originalVisibility: object.visible
             });
             
@@ -240,22 +247,23 @@ function Office3DScene({ cvData, scrollPosition }) {
             item.object.position.z
           ]}
           transform
-          occlude
-          distanceFactor={2} // Makes text size more consistent regardless of distance
+          distanceFactor={15} // Increased for better visibility
           className="html-overlay"
           style={{
             pointerEvents: 'none',
-            transition: 'opacity 0.3s ease'
+            transition: 'opacity 0.3s ease',
+            width: '300px' // Fixed width for better layout
           }}
         >
           <div 
-            className="bg-black/80 text-white p-4 rounded-lg border border-blue-400/30 backdrop-blur-sm"
+            className="bg-black/80 p-4 rounded-lg border border-blue-400/30 backdrop-blur-sm"
             style={{
               fontSize: item.fontSize,
               fontWeight: item.fontWeight,
-              maxWidth: '300px',
+              color: item.textColor,
               lineHeight: '1.5',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+              textAlign: 'left'
             }}
           >
             {item.textContent}
