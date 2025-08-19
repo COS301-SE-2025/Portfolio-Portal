@@ -264,6 +264,10 @@ function Office3DScene({ cvData, scrollPosition }) {
               const texture = new THREE.CanvasTexture(canvas);
               texture.needsUpdate = true;
               
+              // Fix horizontal inversion by flipping the texture
+              texture.wrapS = THREE.RepeatWrapping;
+              texture.repeat.x = -1;
+              
               // Create a new material for the text
               const newMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
