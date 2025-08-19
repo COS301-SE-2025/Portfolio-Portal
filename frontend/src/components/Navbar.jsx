@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useLocation, Link } from 'react-router-dom';
-import { User, Home, Upload, Info, FileText, Settings, Menu, X } from 'lucide-react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { User, Home, Upload, Info, FileText, Settings, Menu, X, LogOut } from 'lucide-react';
+import { authService } from '../services/auth.service'; // Adjust path if necessary
 
 const navLinks = [
   { sectionId: 'hero', label: 'Home', icon: Home },
@@ -18,6 +19,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Check if screen is mobile size
   useEffect(() => {
@@ -78,6 +80,16 @@ const Navbar = () => {
       setActiveSection(sectionId);
     }
     // Close mobile menu after navigation
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    localStorage.removeItem('imageURL');
+    setProfileImage(null);
+    navigate('/');
     if (isMobile) {
       setIsMobileMenuOpen(false);
     }
@@ -173,6 +185,19 @@ const Navbar = () => {
                   </li>
                 );
               })}
+              <li key="logout">
+                <button
+                  onClick={handleLogout}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    isDark
+                      ? 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
+                      : 'text-gray-600 hover:bg-gray-100/50 hover:text-gray-900'
+                  }`}
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Logout</span>
+                </button>
+              </li>
             </ul>
           </nav>
         </div>
@@ -251,6 +276,19 @@ const Navbar = () => {
                 </li>
               );
             })}
+            <li key="logout" className="flex justify-center">
+              <button
+                onClick={handleLogout}
+                className={`p-3 rounded-lg transition-all relative ${
+                  isDark
+                    ? 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
+                    : 'text-gray-600 hover:bg-gray-100/50 hover:text-gray-900'
+                }`}
+                title="Logout"
+              >
+                <LogOut className="w-6 h-6" />
+              </button>
+            </li>
           </ul>
         </nav>
       </div>
