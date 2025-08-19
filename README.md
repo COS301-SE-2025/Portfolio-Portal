@@ -65,6 +65,7 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 - [Artist (Forest Template)](https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 - [Finance Manager (Office Template)](https://www.canva.com/design/DAGwJKtX6QE/csYznEg-pY2vf-FpFJaPfw/edit?utm_content=DAGwJKtX6QE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 - [Medical Assistant (Lab Template)](https://www.canva.com/design/DAGwT8dRXzM/hu0--roX3m688uxQICh0NA/edit?utm_content=DAGwT8dRXzM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+- [Mining Engineer (Cave Template)](https://www.canva.com/design/DAGwfwnQPWg/fLqTxsrCfIUBQ68BdGYUjQ/edit?utm_content=DAGwfwnQPWg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 
