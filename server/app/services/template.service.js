@@ -8,6 +8,7 @@
  */
 
 const CVData = require("../models/CVData");
+const User = require("../models/User");
 
 // template keywords with weights
 const TEMPLATE_KEYWORDS = {
@@ -340,7 +341,24 @@ const selectTemplate = (cvData) => {
 };
 
 /**
- * get template selection for a user
+ * Store the selected template in the user's database record
+ * @param {string} authId - user's auth ID
+ * @param {string} template - selected template name
+ * @returns {Promise<boolean>} success status
+ */
+const storeTemplateForUser = async (authId, template) => {
+  try {
+    const result = await User.updateSelectedTemplate(authId, template);
+    console.log(`Template '${template}' stored for user ${authId}`);
+    return result;
+  } catch (error) {
+    console.error("Error storing template for user:", error);
+    return false;
+  }
+};
+
+/**
+ * get template selection for a user and store it in database
  * @param {string} authId - user's auth ID
  * @returns {Promise<string>} selected template name
  */
@@ -349,9 +367,53 @@ const getTemplateForUser = async (authId) => {
     const cvData = await CVData.findByAuthId(authId);
     if (!cvData) return DEFAULT_TEMPLATE;
 
-    return selectTemplate(cvData);
+    const selectedTemplate = selectTemplate(cvData);
+    
+    // Store the selected template in the user's record
+    await storeTemplateForUser(authId, selectedTemplate);
+    
+    return selectedTemplate;
   } catch (error) {
     console.error("Error getting template for user:", error);
+    return DEFAULT_TEMPLATE;
+  }
+};
+
+/**
+ * Get stored template for user from database (without running selection algorithm)
+ * @param {string} authId - user's auth ID
+ * @returns {Promise<string>} stored template name or default
+ */
+const getStoredTemplateForUser = async (authId) => {
+  try {
+    const user = await User.findById(authId);
+    return user?.selected_template || DEFAULT_TEMPLATE;
+  } catch (error) {
+    console.error("Error getting stored template for user:", error);
+    return DEFAULT_TEMPLATE;
+  }
+};
+
+/**
+ * Re-run template selection and update stored template
+ * @param {string} authId - user's auth ID
+ * @returns {Promise<string>} newly selected template name
+ */
+const updateTemplateForUser = async (authId) => {
+  try {
+    const cvData = await CVData.findByAuthId(authId);
+    if (!cvData) {
+      await storeTemplateForUser(authId, DEFAULT_TEMPLATE);
+      return DEFAULT_TEMPLATE;
+    }
+
+    const selectedTemplate = selectTemplate(cvData);
+    await storeTemplateForUser(authId, selectedTemplate);
+    
+    console.log(`Template updated to '${selectedTemplate}' for user ${authId}`);
+    return selectedTemplate;
+  } catch (error) {
+    console.error("Error updating template for user:", error);
     return DEFAULT_TEMPLATE;
   }
 };
@@ -359,6 +421,9 @@ const getTemplateForUser = async (authId) => {
 module.exports = {
   selectTemplate,
   getTemplateForUser,
+  getStoredTemplateForUser,
+  updateTemplateForUser,
+  storeTemplateForUser,
   TEMPLATE_KEYWORDS,
   DEFAULT_TEMPLATE,
 };

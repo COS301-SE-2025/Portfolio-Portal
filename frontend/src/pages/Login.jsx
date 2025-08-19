@@ -1,7 +1,9 @@
+// frontend/src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 import AuthLayout from '../components/AuthLayout';
+import cvDataService from '../services/cvDataService'; // <- new import
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +26,18 @@ const Login = () => {
       console.log(data);
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.user.id);
-      localStorage.setItem('imageURL', data.user.profile_picture_url)
+      localStorage.setItem('imageURL', data.user.profile_picture_url);
+
+      // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
+      try {
+        const cvRes = await cvDataService.getMyCV();
+        if (cvRes?.data) {
+          cvDataService.setData(cvRes.data);
+        }
+      } catch (cvErr) {
+        // no CV on server or fetch failed — that's OK, user can upload later
+        console.info('No CV found for user or error fetching CV:', cvErr?.response?.status || cvErr.message);
+      }
 
       navigate('/home');
     } catch (err) {

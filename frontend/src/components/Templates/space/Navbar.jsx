@@ -4,7 +4,7 @@ import useCvData from '../../../hooks/useCVData'
 
 const Navbar = () => {
   const [active, setActive] = useState("");
-    const { name } = useCvData() || {};
+    const { name } = useCvData();
 
   return (
     <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
