@@ -10,14 +10,30 @@ import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
 
+
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
+import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
 
+const HIDDEN_NAVBAR_PATHS = [
+  '/',
+  '/login',
+  '/register',
+  '/office',
+  '/forest',
+  '/space',
+  '/profile',
+  '/lab'
+];
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile', '/lab'];
-const HIDDEN_THEME_BUTTON_PATHS = ['/', '/office', '/forest', '/space', '/lab' ]; 
-
+const HIDDEN_THEME_BUTTON_PATHS = [
+  '/',
+  '/office',
+  '/forest',
+  '/space',
+  '/lab'
+];
 
 function App() {
   const location = useLocation();
@@ -37,7 +53,8 @@ function App() {
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
-
+          <Route path="/cave" element={<CavePage />} />
+          
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
