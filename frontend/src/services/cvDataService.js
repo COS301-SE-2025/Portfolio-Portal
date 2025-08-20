@@ -15,6 +15,10 @@ class CVDataService {
   updateProfile = (userId, profileData) => api.put(`/users/profile/update/${userId}`, profileData);
   deleteProfile = (userId) => api.delete(`/users/profile/delete/${userId}`);
 
+  // New: get the current user's CV (no userId required)
+  // This hits the endpoint you provided: GET /api/cv/me
+  getMyCV = () => api.get('/cv/me');
+
   // Links
   getUserLinks = (userId) => api.get(`users/${userId}/links`);
   createUserLinks = (userId, linksData) => api.post(`/users/${userId}/links`, linksData);
@@ -138,9 +142,11 @@ class CVDataService {
 
   // Convenience Getters
   getName = () => this.getData()?.name || '';
+  getDescription = () => this.getData()?.description || '';
+  getSummary = () => this.getData()?.summary || '';
   getEmail = () => this.getData()?.email || '';
   getPhone = () => this.getData()?.phone || '';
-  getAbout = () => this.getData()?.about || [];
+  getAbout = () => this.getData()?.about || '';
   getSkills = () => this.getData()?.skills || [];
   getExperience = () => this.getData()?.experience || [];
   getEducation = () => this.getData()?.education || [];

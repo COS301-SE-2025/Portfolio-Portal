@@ -14,8 +14,30 @@ const portfolioController = require("../controllers/portfolio.controller");
  * @route   POST /api/portfolio/select-template
  * @desc    Analyze CV data and select appropriate template
  * @access  Public
+ * @body    { cvData: Object, authId?: String }
  */
 router.post("/select-template", portfolioController.selectTemplate);
+
+/**
+ * @route   GET /api/portfolio/template/:authId
+ * @desc    Get template for user (runs algorithm and stores result)
+ * @access  Public
+ */
+router.get("/template/:authId", portfolioController.getTemplateForUser);
+
+/**
+ * @route   GET /api/portfolio/stored-template/:authId
+ * @desc    Get stored template for user (without running algorithm)
+ * @access  Public
+ */
+router.get("/stored-template/:authId", portfolioController.getStoredTemplate);
+
+/**
+ * @route   PUT /api/portfolio/template/:authId
+ * @desc    Update template for user (re-run algorithm)
+ * @access  Public
+ */
+router.put("/template/:authId", portfolioController.updateTemplateForUser);
 
 /**
  * @route   POST /api/portfolio/generate

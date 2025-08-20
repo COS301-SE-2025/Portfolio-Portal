@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -7,9 +9,8 @@ const bodyParser = require("body-parser");
 const ocrRoutes = require("./app/routes/ocr.routes");
 const portfolioRoutes = require("./app/routes/portfolio.routes");
 const userRoutes = require("./app/routes/users.routes");
+const cvRoutes = require('./app/routes/cv.routes');
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
-
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 const app = express();
@@ -27,6 +28,7 @@ const upload = multer({ dest: path.join(__dirname, "uploads/") });
 app.use("/api/ocr", ocrRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/users", userRoutes);
+app.use('/api/cv', cvRoutes);
 
 // Export app for use in server.js
 module.exports = app;

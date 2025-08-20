@@ -1,7 +1,8 @@
-import useCvData from '../../../hooks/useCVData'; // Adjust path as needed
+//frontend/src/components/Templates/space/Experience.jsx
+import useCvData from "../../../hooks/useCVData";
 
 const ExperienceAndEducation = () => {
-  const { cvData } = useCvData() || {};
+  const { cvData } = useCvData();
 
   return (
     <section id="experience" className="py-24 bg-gray-900/50 relative">
@@ -21,7 +22,7 @@ const ExperienceAndEducation = () => {
               <div
                 key={`exp-${index}`}
                 className={`relative transition-all duration-300 
-                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} 
+                  ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} 
                   flex flex-col md:flex group-hover:blur-sm 
                   hover:!blur-none hover:scale-[1.05]`}
               >
@@ -31,14 +32,18 @@ const ExperienceAndEducation = () => {
                 {/* Content */}
                 <div className="ml-12 md:ml-0 md:w-1/2 md:px-8">
                   <div className="bg-gray-800/70 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-300">
-                    <h3 className="font-bold text-xl text-blue-400">{item.title}</h3>
+                    <h3 className="font-bold text-xl text-blue-400">
+                      {item.title}
+                    </h3>
                     <div className="flex justify-between mb-2">
                       <p className="text-gray-300">{item.company}</p>
                       <p className="text-gray-400 text-sm">{`${item.startDate} - ${item.endDate}`}</p>
                     </div>
                     <ul className="text-gray-400 list-disc list-inside">
                       {item.extra?.map((bullet, bulletIndex) => (
-                        <li key={`bullet-${index}-${bulletIndex}`}>{bullet.replace('¢ ', '')}</li>
+                        <li key={`bullet-${index}-${bulletIndex}`}>
+                          {bullet.replace("¢ ", "")}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -63,7 +68,7 @@ const ExperienceAndEducation = () => {
               <div
                 key={`edu-${index}`}
                 className={`relative transition-all duration-300 
-                  ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} 
+                  ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} 
                   flex flex-col md:flex group-hover:blur-sm 
                   hover:!blur-none hover:scale-[1.05]`}
               >
@@ -73,12 +78,16 @@ const ExperienceAndEducation = () => {
                 {/* Content */}
                 <div className="ml-12 md:ml-0 md:w-1/2 md:px-8">
                   <div className="bg-gray-800/70 p-6 rounded-lg border border-gray-700 hover:border-purple-500 transition-all duration-300">
-                    <h3 className="font-bold text-xl text-purple-400">{item.degree}</h3>
+                    <h3 className="font-bold text-xl text-purple-400">
+                      {item.degree}
+                    </h3>
                     <div className="flex justify-between mb-2">
                       <p className="text-gray-300">{item.institution}</p>
                       <p className="text-gray-400 text-sm">{item.endDate}</p>
                     </div>
-                    {item.field && <p className="text-gray-400">{item.field}</p>}
+                    {item.field && (
+                      <p className="text-gray-400">{item.field}</p>
+                    )}
                   </div>
                 </div>
               </div>

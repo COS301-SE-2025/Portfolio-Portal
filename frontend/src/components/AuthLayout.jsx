@@ -1,5 +1,4 @@
 import { useTheme } from '../contexts/ThemeContext';
-import ThemeToggleButton from '../components/ThemeToggleButton';
 import { Sparkles } from 'lucide-react';
 
 const AuthLayout = ({ title, subtitle, children }) => {
@@ -67,23 +66,10 @@ const AuthLayout = ({ title, subtitle, children }) => {
         ))}
       </div>
 
-      {/* Theme Toggle Button */}
-      <div className="absolute top-4 right-4 z-50">
-        <div
-          className={`rounded-full p-2 transition-all ${
-            isDark
-              ? 'bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20'
-              : 'bg-gray-200/50 backdrop-blur-sm border border-gray-300/50 hover:bg-gray-300/50'
-          }`}
-        >
-          <ThemeToggleButton />
-        </div>
-      </div>
-
       {/* Navigation */}
       <nav className="relative z-10 container mx-auto px-6 py-6">
         <div className="flex items-center">
-          <Sparkles className="w-8 h-8 text-purple-400" />
+          <Sparkles className={`w-8 h-8 ${isDark ? 'text-purple-400' : 'text-purple-600'}`} />
           <span
             className={`text-2xl font-bold bg-clip-text text-transparent ${
               isDark ? 'bg-gradient-to-r from-purple-400 to-pink-400' : 'bg-gradient-to-r from-purple-600 to-pink-600'
@@ -100,11 +86,11 @@ const AuthLayout = ({ title, subtitle, children }) => {
           className={`w-full max-w-md rounded-2xl p-8 transition-all duration-200 ${
             isDark
               ? 'bg-white/5 backdrop-blur-sm border border-white/10'
-              : 'bg-gray-100/80 backdrop-blur-sm border border-gray-500'
+              : 'bg-white/90 backdrop-blur-sm border border-gray-300 shadow-lg'
           }`}
         >
           <h1 className="text-3xl font-bold text-center mb-2">{title}</h1>
-          <p className="text-center text-gray-300 dark:text-gray-300 mb-8">{subtitle}</p>
+          <p className="text-center text-gray-600 dark:text-gray-300 mb-8">{subtitle}</p>
           {children}
         </div>
       </div>
@@ -114,7 +100,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
         {[...Array(15)].map((_, i) => (
           <div
             key={`particle-${i}`}
-            className={`absolute w-1 h-1 rounded fetal ${
+            className={`absolute w-1 h-1 rounded-full ${
               isDark ? 'bg-gradient-to-r from-blue-400 to-purple-400' : 'bg-gradient-to-r from-blue-600 to-purple-600'
             }`}
             style={{

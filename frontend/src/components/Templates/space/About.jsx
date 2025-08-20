@@ -1,15 +1,12 @@
-import { Suspense} from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment } from '@react-three/drei';
-import * as THREE from 'three';
-import Head from '../../3DModels/Head'; // Assuming you have a Head component for the 3D model
-import Astronaught from '../../3DModels/Astronaught';
-import useCvData from '../../../hooks/useCVData' // Adjust the path if needed
-import Helmet from '../../3DModels/Helmet'; // Assuming you have a Helmet component for the 3D model
-
+//frontend/src/components/Templates/space/About.jsx
+import { Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment } from "@react-three/drei";
+import Astronaught from "../../3DModels/Astronaught";
+import useCvData from "../../../hooks/useCVData";
 
 const About = () => {
-    const { cvData } = useCvData() || {};
+  const { cvData } = useCvData();
   return (
     <section id="about" className="py-24 relative overflow-hidden">
       {/* Starfield Background */}
@@ -24,11 +21,11 @@ const About = () => {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               opacity: Math.random() * 0.8 + 0.2,
-              animation: `twinkle ${2 + Math.random() * 3}s infinite`
+              animation: `twinkle ${2 + Math.random() * 3}s infinite`,
             }}
           />
         ))}
-        
+
         {/* Shooting stars */}
         {[...Array(3)].map((_, i) => (
           <div
@@ -38,11 +35,11 @@ const About = () => {
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 30}%`,
               animation: `shootingStar ${3 + Math.random() * 4}s infinite`,
-              animationDelay: `${Math.random() * 10}s`
+              animationDelay: `${Math.random() * 10}s`,
             }}
           />
         ))}
-        
+
         {/* Nebula effects */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/5 rounded-full blur-3xl animate-pulse opacity-70"></div>
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-500/8 to-purple-500/8 rounded-full blur-3xl animate-pulse delay-1000 opacity-60"></div>
@@ -51,10 +48,15 @@ const About = () => {
 
       <style jsx>{`
         @keyframes twinkle {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 1; }
+          0%,
+          100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 1;
+          }
         }
-        
+
         @keyframes shootingStar {
           0% {
             transform: translateX(-100px) translateY(100px);
@@ -72,12 +74,12 @@ const About = () => {
           }
         }
       `}</style>
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <h2 className="text-4xl lg:text-5xl font-bold mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
           About Me
         </h2>
-        
+
         <div className="flex flex-col lg:flex-row gap-12 items-center">
           {/* 3D Character Section */}
           <div className="w-full lg:w-1/2 relative">
@@ -96,12 +98,24 @@ const About = () => {
                   castShadow
                   shadow-mapSize={[2048, 2048]}
                 />
-                <pointLight position={[-10, -10, -10]} intensity={0.6} color="#8b5cf6" />
-                <pointLight position={[10, 0, 10]} intensity={0.6} color="#06b6d4" />
-                <pointLight position={[0, 10, -10]} intensity={0.4} color="#f59e0b" />
-                
+                <pointLight
+                  position={[-10, -10, -10]}
+                  intensity={0.6}
+                  color="#8b5cf6"
+                />
+                <pointLight
+                  position={[10, 0, 10]}
+                  intensity={0.6}
+                  color="#06b6d4"
+                />
+                <pointLight
+                  position={[0, 10, -10]}
+                  intensity={0.4}
+                  color="#f59e0b"
+                />
+
                 <Environment preset="night" />
-                
+
                 <Suspense fallback={null}>
                   <Astronaught />
                   <OrbitControls
@@ -109,57 +123,57 @@ const About = () => {
                     enablePan={false}
                     enableRotate={true}
                     autoRotate={true}
-                    autoRotateSpeed={-0.8
-                    
-                    // move the camera around the model
-                    
-                    }
+                    autoRotateSpeed={
+                      -0.8
 
+                      // move the camera around the model
+                    }
                   />
                 </Suspense>
               </Canvas>
             </div>
           </div>
-          
+
           {/* Content Section */}
           <div className="w-full lg:w-1/2 space-y-6">
             <div className="space-y-6">
               <p className="text-lg lg:text-xl text-gray-300 leading-relaxed">
-                {cvData?.about }
+                {cvData?.about}
               </p>
-
             </div>
-            
-            {/* Enhanced Skills Section */}
-{/* Enhanced Skills Section */}
-<div className="mt-8">
-  <h3 className="text-xl font-semibold text-gray-200 mb-4">Technologies & Skills</h3>
-  <div className="flex flex-wrap gap-3">
-    {cvData?.skills?.map((skill, index) => {
-      // Cycle through a set of gradient classes for visual variety
-      const gradients = [
-        "from-blue-500 to-cyan-500",
-        "from-yellow-500 to-orange-500",
-        "from-teal-500 to-blue-500",
-        "from-green-500 to-emerald-500",
-        "from-purple-500 to-pink-500",
-        "from-indigo-500 to-purple-500",
-      ];
-      const gradient = gradients[index % gradients.length]; // Cycle through gradients
 
-      return (
-        <span
-          key={`skill-${index}`}
-          className={`px-4 py-2 bg-gradient-to-r ${gradient} bg-opacity-20 border border-gray-600/50 rounded-full text-sm text-gray-300 backdrop-blur-sm hover:scale-105 transition-transform duration-200 cursor-default`}
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
-          {skill}
-        </span>
-      );
-    })}
-  </div>
-</div>
-            
+            {/* Enhanced Skills Section */}
+            {/* Enhanced Skills Section */}
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold text-gray-200 mb-4">
+                Technologies & Skills
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {cvData?.skills?.map((skill, index) => {
+                  // Cycle through a set of gradient classes for visual variety
+                  const gradients = [
+                    "from-blue-500 to-cyan-500",
+                    "from-yellow-500 to-orange-500",
+                    "from-teal-500 to-blue-500",
+                    "from-green-500 to-emerald-500",
+                    "from-purple-500 to-pink-500",
+                    "from-indigo-500 to-purple-500",
+                  ];
+                  const gradient = gradients[index % gradients.length]; // Cycle through gradients
+
+                  return (
+                    <span
+                      key={`skill-${index}`}
+                      className={`px-4 py-2 bg-gradient-to-r ${gradient} bg-opacity-20 border border-gray-600/50 rounded-full text-sm text-gray-300 backdrop-blur-sm hover:scale-105 transition-transform duration-200 cursor-default`}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {skill}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Call to action */}
             <div className="mt-8 pt-6">
               <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25">
@@ -169,7 +183,7 @@ const About = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Floating particles - closer and more magical */}
       <div className="absolute inset-0 pointer-events-none z-5">
         {[...Array(25)].map((_, i) => (
@@ -181,7 +195,7 @@ const About = () => {
               top: `${Math.random() * 100}%`,
               animation: `float ${3 + Math.random() * 4}s infinite ease-in-out`,
               animationDelay: `${Math.random() * 5}s`,
-              opacity: 0.6 + Math.random() * 0.4
+              opacity: 0.6 + Math.random() * 0.4,
             }}
           />
         ))}
@@ -189,7 +203,8 @@ const About = () => {
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% { 
+          0%,
+          100% {
             transform: translateY(0px) translateX(0px);
             opacity: 0.3;
           }
@@ -197,7 +212,7 @@ const About = () => {
             transform: translateY(-20px) translateX(10px);
             opacity: 0.8;
           }
-          50% { 
+          50% {
             transform: translateY(-10px) translateX(-15px);
             opacity: 1;
           }

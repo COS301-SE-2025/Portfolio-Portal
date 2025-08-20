@@ -1,7 +1,9 @@
 import api from './api.service';
 
 export const authService = {
-  signUp: (userData) => api.post('/users/register', userData),
+  signUp: (formData) => {
+    return api.post('/users/register', formData); // now plain JSON
+  },
   login: (credentials) => api.post('/users/login', credentials),
   logout: () => {
     localStorage.removeItem('token');

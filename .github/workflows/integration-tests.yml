@@ -63,3 +63,4 @@ jobs:
             cypress/integrationTests/home.cy.js
             cypress/integrationTests/login.cy.js
             cypress/integrationTests/register.cy.js
+            cypress/integrationTests/templateSelection.cy.js
