@@ -14,8 +14,8 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile'];
-const HIDDEN_THEME_BUTTON_PATHS = []; // Add any paths where you don't want the theme button
+const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile', '/office3d']; // Add any paths where you don't want the navbar
+const HIDDEN_THEME_BUTTON_PATHS = ['/office3d']; // Add any paths where you don't want the theme button
 
 function App() {
   const location = useLocation();
