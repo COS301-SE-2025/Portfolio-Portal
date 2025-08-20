@@ -54,7 +54,7 @@ export default function Office3DPage() {
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 15, 25],
+          position: [0, 12, 20], // Zoomed in by 20% (from [0, 15, 25])
           rotation: [-Math.PI/6, 0, 0],
           fov: 50
         }}
@@ -229,9 +229,10 @@ function Office3DScene({ cvData, scrollPosition }) {
               // Clear canvas with transparent background
               context.clearRect(0, 0, canvas.width, canvas.height);
               
-              // Draw text
+              // Draw text - increased font size for headings only
               context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
-              context.font = object.name.includes('Heading') ? 'bold 24px Arial' : '18px Arial';
+              // Increased heading font size from 24px to 32px (about 33% larger)
+              context.font = object.name.includes('Heading') ? 'bold 32px Arial' : '18px Arial';
               context.textAlign = 'center';
               context.textBaseline = 'middle';
               
@@ -252,8 +253,8 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               lines.push(currentLine);
               
-              // Draw each line
-              const lineHeight = object.name.includes('Heading') ? 30 : 24;
+              // Draw each line - increased line height for headings
+              const lineHeight = object.name.includes('Heading') ? 38 : 24; // Increased from 30 to 38
               const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
               
               lines.forEach((line, index) => {
