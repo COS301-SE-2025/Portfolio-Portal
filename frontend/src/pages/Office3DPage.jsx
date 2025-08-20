@@ -11,7 +11,7 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-55);
+  const [scrollPosition, setScrollPosition] = useState(-80); // start higher (top of object visible)
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
 
@@ -25,7 +25,7 @@ export default function Office3DPage() {
       
       setScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.15;
-        return Math.max(-50, Math.min(newPos, 150));
+        return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
       });
 
       scrollTimeoutRef.current = setTimeout(() => {
@@ -50,9 +50,9 @@ export default function Office3DPage() {
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 9, 15], // Zoomed in further
+          position: [0, 7, 11], // zoomed in closer
           rotation: [-Math.PI/6, 0, 0],
-          fov: 50
+          fov: 38
         }}
         gl={{ alpha: true }}
       >
@@ -80,17 +80,16 @@ export default function Office3DPage() {
         <div className="w-48 h-2 bg-gray-600 rounded-full">
           <div 
             className="h-full bg-blue-500 rounded-full transition-all duration-200 ease-out"
-            style={{ width: `${Math.min(((scrollPosition + 50) / 200) * 100, 100)}%` }}
+            style={{ width: `${Math.min(((scrollPosition + 80) / 300) * 100, 100)}%` }}
           ></div>
         </div>
-        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 50) / 200) * 100)}%)</p>
+        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 80) / 300) * 100)}%)</p>
       </div>
     </div>
   );
 }
 
 function Office3DScene({ cvData, scrollPosition }) {
-  const { scene } = useThree();
   const groupRef = useRef();
   const targetZ = useRef(0);
   
@@ -124,7 +123,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   
   useFrame(() => {
     if (groupRef.current) {
-      targetZ.current = -scrollPosition * 0.8;
+      targetZ.current = -scrollPosition * 0.9; // smoother + longer scroll effect
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
@@ -162,21 +161,21 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = data.title || 'Full Stack Developer';
               break;
             case 'AboutDescription':
-              textContent = data.about || 'Experienced developer with passion for creating innovative solutions and user-friendly experiences.';
+              textContent = data.about || '';
               break;
             case 'ExpertiseDescription':
-              textContent = data.skills?.slice(0, 4).join(' • ') || 'JavaScript • React • Node.js • Three.js';
+              textContent = data.skills?.slice(0, 4).join(' • ') || '';
               break;
             case 'ExperienceDescription':
               const exp = data.experience?.[0];
-              textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : 'Senior Developer at Tech Company (2020-2023)';
+              textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : '';
               break;
             case 'EducationDescription':
               const edu = data.education?.[0];
-              textContent = edu ? `${edu.degree} - ${edu.institution} (${edu.startDate}-${edu.endDate})` : 'Bachelor of Computer Science - Tech University (2014-2018)';
+              textContent = edu ? `${edu.degree} - ${edu.institution} (${edu.startDate}-${edu.endDate})` : '';
               break;
             case 'ContactDescription':
-              textContent = data.email || 'contact@johndoe.com';
+              textContent = data.email || '';
               break;
             case 'AboutHeading':
               textContent = 'About Me';
@@ -203,18 +202,17 @@ function Office3DScene({ cvData, scrollPosition }) {
               canvas.height = 128;
               
               context.clearRect(0, 0, canvas.width, canvas.height);
-              
               context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
               
               // Font sizes
               if (object.name === 'Title') {
-                context.font = 'bold 40px Arial';
+                context.font = 'bold 44px Arial';
               } else if (object.name === 'Subtitle') {
-                context.font = 'bold 28px Arial'; // bigger subtitle
+                context.font = 'bold 32px Arial';
               } else if (object.name.includes('Heading')) {
                 context.font = 'bold 34px Arial';
               } else {
-                context.font = '20px Arial'; // consistent for all descriptions
+                context.font = '20px Arial';
               }
               context.textAlign = 'center';
               context.textBaseline = 'middle';
@@ -235,14 +233,12 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               lines.push(currentLine);
               
-              // Line heights
               let lineHeight = 28;
-              if (object.name === 'Title') lineHeight = 46;
-              else if (object.name === 'Subtitle') lineHeight = 36;
+              if (object.name === 'Title') lineHeight = 50;
+              else if (object.name === 'Subtitle') lineHeight = 40;
               else if (object.name.includes('Heading')) lineHeight = 42;
 
               const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
-              
               lines.forEach((line, index) => {
                 context.fillText(line, canvas.width / 2, startY + index * lineHeight);
               });
