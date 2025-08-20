@@ -199,38 +199,36 @@ function Office3DScene({ cvData, scrollPosition }) {
               textContent = data.skills?.slice(0, 4).join(' • ') || '';
               break;
             case 'ExperienceDescription':
-              const exp = data.experience?.[0];
-              if (exp) {
-                let expText = `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
-                if (exp.extra?.length > 0) {
-                  // Add the first bullet point if available
-                  const firstBullet = exp.extra[0].replace('¢ ', '');
-                  expText += `\n• ${firstBullet}`;
-                  // Add second bullet if available and there's space
-                  if (exp.extra[1]) {
-                    const secondBullet = exp.extra[1].replace('¢ ', '');
-                    expText += `\n• ${secondBullet}`;
+              if (data.experience?.length > 0) {
+                const expTexts = data.experience.map((exp) => {
+                  let expText = `• ${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
+                  if (exp.extra?.length > 0) {
+                    const firstBullet = exp.extra[0].replace('¢ ', '');
+                    expText += ` - ${firstBullet}`;
                   }
-                }
-                textContent = expText;
+                  return expText;
+                });
+                textContent = expTexts.join('\n\n');
               }
               break;
             case 'EducationDescription':
-              const edu = data.education?.[0];
-              if (edu) {
-                let eduText = `${edu.degree} - ${edu.institution}`;
-                if (edu.startDate && edu.endDate) {
-                  eduText += ` (${edu.startDate}-${edu.endDate})`;
-                } else if (edu.endDate) {
-                  eduText += ` (${edu.endDate})`;
-                }
-                if (edu.field) {
-                  eduText += `\nField: ${edu.field}`;
-                }
-                if (edu.gpa) {
-                  eduText += `\nGPA: ${edu.gpa}`;
-                }
-                textContent = eduText;
+              if (data.education?.length > 0) {
+                const eduTexts = data.education.map((edu) => {
+                  let eduText = `• ${edu.degree} - ${edu.institution}`;
+                  if (edu.startDate && edu.endDate) {
+                    eduText += ` (${edu.startDate}-${edu.endDate})`;
+                  } else if (edu.endDate) {
+                    eduText += ` (${edu.endDate})`;
+                  }
+                  if (edu.field) {
+                    eduText += `, Field: ${edu.field}`;
+                  }
+                  if (edu.gpa) {
+                    eduText += `, GPA: ${edu.gpa}`;
+                  }
+                  return eduText;
+                });
+                textContent = eduTexts.join('\n\n');
               }
               break;
             case 'ContactDescription':
