@@ -15,23 +15,19 @@ export default function Office3DPage() {
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
 
-  // Handle natural mouse wheel scrolling with smoothing
   useEffect(() => {
     const handleWheel = (e) => {
       e.preventDefault();
       
-      // Clear any existing timeout
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
       
-      // Apply smoothing with correct direction and limited range
       setScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.15;
         return Math.max(-50, Math.min(newPos, 150));
       });
 
-      // Set timeout to clear smooth scrolling
       scrollTimeoutRef.current = setTimeout(() => {
         scrollTimeoutRef.current = null;
       }, 100);
@@ -54,13 +50,13 @@ export default function Office3DPage() {
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 12, 20], // Zoomed in by 20% (from [0, 15, 25])
+          position: [0, 9, 15], // Zoomed in further
           rotation: [-Math.PI/6, 0, 0],
           fov: 50
         }}
-        gl={{ alpha: true }} // Enable transparency
+        gl={{ alpha: true }}
       >
-        <color attach="background" args={['#1a202c']} /> {/* Set canvas background color */}
+        <color attach="background" args={['#1a202c']} />
         <ambientLight intensity={0.6} />
         <directionalLight position={[15, 15, 10]} intensity={0.8} />
         <Environment preset="apartment" />
@@ -98,7 +94,6 @@ function Office3DScene({ cvData, scrollPosition }) {
   const groupRef = useRef();
   const targetZ = useRef(0);
   
-  // Mock data fallback
   const mockData = {
     name: "John Doe",
     title: "Full Stack Developer",
@@ -124,14 +119,10 @@ function Office3DScene({ cvData, scrollPosition }) {
     ]
   };
 
-  // Use data from hook or fallback to mock data
   const data = cvData || mockData;
-  
-  // Use the direct loader approach
   const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
   
   useFrame(() => {
-    // Smooth scrolling with lerp for smoother movement - extended range
     if (groupRef.current) {
       targetZ.current = -scrollPosition * 0.8;
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
@@ -140,16 +131,6 @@ function Office3DScene({ cvData, scrollPosition }) {
 
   useEffect(() => {
     if (gltf?.scene) {
-      // Debug: Log all object names to help identify correct names
-      console.log('=== 3D Model Object Names ===');
-      gltf.scene.traverse((object) => {
-        if (object.name) {
-          console.log(`Object name: "${object.name}", type: ${object.type}, geometry: ${object.geometry?.type}`);
-        }
-      });
-      console.log('=== End Object Names ===');
-      
-      // First, make all planes transparent
       gltf.scene.traverse((object) => {
         if (object.isMesh && object.name && (
           object.name.includes('Title') || 
@@ -162,20 +143,17 @@ function Office3DScene({ cvData, scrollPosition }) {
           object.name.includes('Heading') || 
           object.name.includes('Description')
         )) {
-          // Make the plane fully transparent
           object.material.transparent = true;
           object.material.opacity = 0;
           object.material.needsUpdate = true;
-          object.renderOrder = 1; // Render after other objects
+          object.renderOrder = 1;
         }
       });
       
-      // Update actual Blender text objects
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
           
-          // Map your specific text object names to content
           switch(object.name) {
             case 'Title':
               textContent = data.name || 'John Doe';
@@ -218,25 +196,29 @@ function Office3DScene({ cvData, scrollPosition }) {
           }
           
           if (textContent) {
-            // Try to update the object's material or create a canvas texture
             if (object.material) {
-              // Create a canvas texture with the text
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
               canvas.width = 512;
               canvas.height = 128;
               
-              // Clear canvas with transparent background
               context.clearRect(0, 0, canvas.width, canvas.height);
               
-              // Draw text - increased font size for headings only
               context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
-              // Increased heading font size from 24px to 32px (about 33% larger)
-              context.font = object.name.includes('Heading') ? 'bold 32px Arial' : '18px Arial';
+              
+              // Font sizes
+              if (object.name === 'Title') {
+                context.font = 'bold 40px Arial';
+              } else if (object.name === 'Subtitle') {
+                context.font = 'bold 28px Arial'; // bigger subtitle
+              } else if (object.name.includes('Heading')) {
+                context.font = 'bold 34px Arial';
+              } else {
+                context.font = '20px Arial'; // consistent for all descriptions
+              }
               context.textAlign = 'center';
               context.textBaseline = 'middle';
               
-              // Handle long text by wrapping
               const words = textContent.split(' ');
               const lines = [];
               let currentLine = '';
@@ -253,23 +235,23 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               lines.push(currentLine);
               
-              // Draw each line - increased line height for headings
-              const lineHeight = object.name.includes('Heading') ? 38 : 24; // Increased from 30 to 38
+              // Line heights
+              let lineHeight = 28;
+              if (object.name === 'Title') lineHeight = 46;
+              else if (object.name === 'Subtitle') lineHeight = 36;
+              else if (object.name.includes('Heading')) lineHeight = 42;
+
               const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
               
               lines.forEach((line, index) => {
                 context.fillText(line, canvas.width / 2, startY + index * lineHeight);
               });
               
-              // Create texture and apply to material
               const texture = new THREE.CanvasTexture(canvas);
               texture.needsUpdate = true;
-              
-              // Fix horizontal inversion by flipping the texture
               texture.wrapS = THREE.RepeatWrapping;
               texture.repeat.x = -1;
               
-              // Create a new material for the text
               const newMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: true,
@@ -277,11 +259,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               
               object.material = newMaterial;
-              
-              // Make sure the object is visible
               object.visible = true;
-              
-              console.log(`Updated text object "${object.name}" with canvas texture: "${textContent}"`);
             }
           }
         }
