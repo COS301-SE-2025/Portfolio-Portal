@@ -48,7 +48,7 @@ export default function Office3DPage() {
       }
       
       setTargetScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.15;
+        const newPos = prev + e.deltaY * 0.04;
         return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
       });
 
