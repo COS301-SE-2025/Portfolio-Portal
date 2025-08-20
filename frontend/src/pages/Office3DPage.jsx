@@ -239,24 +239,31 @@ function Office3DScene({ cvData, scrollPosition }) {
               // Font sizes
               if (object.name === 'Title') {
                 context.font = 'bold 60px Arial';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
               } else if (object.name === 'Subtitle') {
                 context.font = 'bold 44px Arial';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
               } else if (object.name.includes('Heading')) {
                 context.font = 'bold 34px Arial';
+                context.textAlign = 'left';
+                context.textBaseline = 'bottom';
               } else {
                 context.font = '20px Arial';
+                context.textAlign = 'left';
+                context.textBaseline = 'top';
               }
-              context.textAlign = 'center';
-              context.textBaseline = 'middle';
               
               const words = textContent.split(' ');
               const lines = [];
               let currentLine = '';
+              const maxWidth = canvas.width - 80; // More padding for left alignment
               
               words.forEach(word => {
                 const testLine = currentLine + (currentLine ? ' ' : '') + word;
                 const metrics = context.measureText(testLine);
-                if (metrics.width > canvas.width - 40 && currentLine !== '') {
+                if (metrics.width > maxWidth && currentLine !== '') {
                   lines.push(currentLine);
                   currentLine = word;
                 } else {
@@ -270,9 +277,25 @@ function Office3DScene({ cvData, scrollPosition }) {
               else if (object.name === 'Subtitle') lineHeight = 40;
               else if (object.name.includes('Heading')) lineHeight = 42;
 
-              const startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
+              // Position text based on type
+              let startX, startY;
+              
+              if (object.name === 'Title' || object.name === 'Subtitle') {
+                // Keep title and subtitle centered
+                startX = canvas.width / 2;
+                startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
+              } else if (object.name.includes('Heading')) {
+                // Headings at bottom left
+                startX = 40;
+                startY = canvas.height - 20 - ((lines.length - 1) * lineHeight);
+              } else {
+                // Descriptions at top left
+                startX = 40;
+                startY = 20;
+              }
+              
               lines.forEach((line, index) => {
-                context.fillText(line, canvas.width / 2, startY + index * lineHeight);
+                context.fillText(line, startX, startY + index * lineHeight);
               });
               
               const texture = new THREE.CanvasTexture(canvas);
