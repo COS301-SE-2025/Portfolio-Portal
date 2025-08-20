@@ -217,7 +217,21 @@ function Office3DScene({ cvData, scrollPosition }) {
               break;
             case 'EducationDescription':
               const edu = data.education?.[0];
-              textContent = edu ? `${edu.degree} - ${edu.institution} (${edu.startDate}-${edu.endDate})` : '';
+              if (edu) {
+                let eduText = `${edu.degree} - ${edu.institution}`;
+                if (edu.startDate && edu.endDate) {
+                  eduText += ` (${edu.startDate}-${edu.endDate})`;
+                } else if (edu.endDate) {
+                  eduText += ` (${edu.endDate})`;
+                }
+                if (edu.field) {
+                  eduText += `\nField: ${edu.field}`;
+                }
+                if (edu.gpa) {
+                  eduText += `\nGPA: ${edu.gpa}`;
+                }
+                textContent = eduText;
+              }
               break;
             case 'ContactDescription':
               textContent = data.email || '';
