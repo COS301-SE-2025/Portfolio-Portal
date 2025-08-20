@@ -8,7 +8,6 @@ import Contact from './Contact';
 import LoadingScreen from './LoadingScreen';
 import './Index.css';
 
-// Import  3D models
 import Cave2 from '../../3DModels/Cave';
 import Crystal from '../../3DModels/Crystal';
 import Campfire from '../../3DModels/Campfire';
@@ -18,24 +17,20 @@ import Skull from '../../3DModels/Skull';
 import floor from './floor.png';
 import Lamp from '../../3DModels/Lamp';
 
-// Static Camera component - no auto-rotation
 const StaticCamera = React.memo(() => {
   const { camera } = useThree();
   
-  // Set camera to a fixed position once
   useEffect(() => {
-    camera.position.set(0, 12, 60); // Static position
-    camera.lookAt(0, -2, 0); // Look at campfire area
+    camera.position.set(0, 12, 60);
+    camera.lookAt(0, -2, 0); 
   }, [camera]);
   
   return null;
 });
 
-// Optimized Floor and Wall component with memoized texture
 const TexturedFloorAndWalls = React.memo(() => {
   const floorTexture = useLoader(THREE.TextureLoader, floor);
   
-  // Memoize texture configuration
   useMemo(() => {
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
@@ -45,7 +40,6 @@ const TexturedFloorAndWalls = React.memo(() => {
   
   return (
     <>
-      {/* Main cave floor with texture */}
       <mesh position={[0, -8, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[200, 200]} />
         <meshStandardMaterial 
@@ -57,7 +51,6 @@ const TexturedFloorAndWalls = React.memo(() => {
         />
       </mesh>
       
-      {/* Secondary floor layer for depth */}
       <mesh position={[0, -7.8, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[180, 180]} />
         <meshStandardMaterial 
@@ -70,7 +63,6 @@ const TexturedFloorAndWalls = React.memo(() => {
         />
       </mesh>
       
-      {/* Base foundation layer */}
       <mesh position={[0, -8.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[250, 250]} />
         <meshStandardMaterial 
@@ -86,7 +78,6 @@ const TexturedFloorAndWalls = React.memo(() => {
   );
 });
 
-// Optimized Crystal Component
 const DecorativeCrystal = React.memo(({ position, color = "#8b5cf6", scale = [4, 4, 4] }) => {
   const meshRef = useRef();
   
@@ -114,14 +105,11 @@ const DecorativeCrystal = React.memo(({ position, color = "#8b5cf6", scale = [4,
   );
 });
 
-// Optimized Lighting Setup Component
 const OptimizedLighting = React.memo(() => {
   return (
     <>
-      {/* Base ambient light */}
       <ambientLight intensity={0.8} color="#6366f1" />
       
-      {/* Main directional light */}
       <directionalLight 
         position={[10, 10, 5]} 
         intensity={2.5} 
@@ -130,21 +118,17 @@ const OptimizedLighting = React.memo(() => {
         shadow-mapSize={[1024, 1024]}
       />
       
-      {/* Secondary directional lights */}
       <directionalLight position={[-10, 10, 5]} intensity={1.5} color="#e0e7ff" />
       <directionalLight position={[0, 10, -10]} intensity={1.8} color="#f8fafc" />
       
-      {/* Campfire lighting */}
       <pointLight position={[0, 2, 0]} intensity={5} color="#ff6b35" />
       <pointLight position={[0, 0, 0]} intensity={3} color="#ffa500" />
       
-      {/* Corner area lights for even coverage */}
       <pointLight position={[20, 10, 20]} intensity={2} color="#ffffff" />
       <pointLight position={[-20, 10, 20]} intensity={2} color="#ffffff" />
       <pointLight position={[20, 10, -20]} intensity={2} color="#ffffff" />
       <pointLight position={[-20, 10, -20]} intensity={2} color="#ffffff" />
       
-      {/* Skull spotlight */}
       <spotLight 
         position={[30, 15, -30]} 
         target-position={[30, 5, -40]}
@@ -155,10 +139,8 @@ const OptimizedLighting = React.memo(() => {
         castShadow
       />
       
-      {/* Skull accent light */}
       <pointLight position={[30, 8, -40]} intensity={3} color="#f0f0ff" />
       
-      {/* Atmospheric lighting */}
       <spotLight 
         position={[0, 15, 0]} 
         target-position={[0, -8, 0]}
@@ -169,7 +151,6 @@ const OptimizedLighting = React.memo(() => {
         castShadow
       />
       
-      {/* Ceiling lights for overall brightness */}
       <pointLight position={[0, 20, 0]} intensity={2} color="#ffffff" />
       <pointLight position={[15, 18, 15]} intensity={1.5} color="#e0e7ff" />
       <pointLight position={[-15, 18, 15]} intensity={1.5} color="#e0e7ff" />
@@ -179,45 +160,34 @@ const OptimizedLighting = React.memo(() => {
   );
 });
 
-// Optimized 3D Scene Models
 const Scene3DModels = React.memo(() => {
   return (
     <>
-      {/* Cave Interior Model */}
       <group position={[0, -8, -45]} scale={[15, 15, 15]}>
         <Cave2 />
       </group>
 
-      {/* Central Campfire */}
       <group position={[0, -6.5, 0]} scale={[0.08, 0.08, 0.08]}>
         <Campfire />
       </group>
       
-      {/* Crystal */}
       <group position={[50, 0, 10]} scale={[7, 7, 7]} rotation={[0, 0, 0]}>
         <Crystal />
       </group>
 
-      <group position={[-35, 0, 10]} scale={[7, 7, 7]} rotation={[0, 0, 0]}>
-        <Crystal />
-      </group>
 
-      {/* Skull */}
       <group position={[30, 5, -40]} scale={[0.05, 0.05, 0.05]} rotation={[0, -Math.PI / 3, 0]}>
         <Skull />
       </group>
       
-      {/* Pickaxe */}
       <group position={[45, 5, 8]} scale={[4, 4, 4]} rotation={[0.2, Math.PI / 4, 10]}>
         <Pickaxe />
       </group>
       
-      {/* Shovel */}
       <group position={[12, -4.5, -10]} scale={[4, 4, 4]} rotation={[0, 0, -0.3]}>
         <Shovel />
       </group>
 
-      {/* Lamp */}
       <group position={[-30, -4.5, -10]} scale={[16, 16, 16]} rotation={[0, 0, 0]}>
         <Lamp />
       </group>
@@ -225,7 +195,6 @@ const Scene3DModels = React.memo(() => {
   );
 });
 
-// Integrated and optimized Hero component with static camera
 const OptimizedHero = React.memo(({ activeCard }) => {
   return (
     <div className="w-full h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-800 relative overflow-hidden">
@@ -234,30 +203,25 @@ const OptimizedHero = React.memo(({ activeCard }) => {
         shadows
         gl={{ 
           powerPreference: "high-performance",
-          antialias: false, // Disable for better performance
+          antialias: false,
           alpha: false,
           depth: true,
           stencil: false
         }}
         camera={{ fov: 75, near: 0.1, far: 1000 }}
       >
-        {/* Static camera - no auto-rotation */}
         <StaticCamera />
         
-        {/* Optimized lighting */}
         <OptimizedLighting />
         
-        {/* 3D Scene Models */}
         <Scene3DModels />
         
-        {/* Textured Floor and Walls */}
         <TexturedFloorAndWalls />
       </Canvas>
     </div>
   );
 });
 
-// Mini 3D Model for cards (optimized)
 const MiniModel = React.memo(({ model, scale = [0.3, 0.3, 0.3], position = [0, 0, 0] }) => {
   const groupRef = useRef();
 
@@ -267,7 +231,6 @@ const MiniModel = React.memo(({ model, scale = [0.3, 0.3, 0.3], position = [0, 0
     }
   });
 
-  // Memoize scale calculation
   const modelScale = useMemo(() => {
     if (model === 'pickaxe' || model === 'shovel') {
       return [2, 2, 2];
@@ -309,12 +272,10 @@ const Index = () => {
   const [isCardVisible, setIsCardVisible] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Optimized load complete handler
   const handleLoadComplete = useCallback(() => {
     setIsLoading(false);
   }, []);
 
-  // Optimized card navigation with smooth transitions
   const handleCardChange = useCallback((cardType) => {
     if (isTransitioning || cardType === activeCard) return;
     
@@ -328,7 +289,6 @@ const Index = () => {
     }, 200);
   }, [isTransitioning, activeCard]);
 
-  // Optimized keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (isLoading || isTransitioning) return;
@@ -375,24 +335,6 @@ const Index = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isLoading, isTransitioning, isCardVisible, handleCardChange]);
 
-  // Optimized auto-cycle with longer interval for better UX
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isLoading && !isTransitioning && isCardVisible) {
-        setActiveCard(prev => {
-          const newCard = prev === 'about' ? 'experience' : 
-                          prev === 'experience' ? 'contact' : 
-                          'about';
-          handleCardChange(newCard);
-          return prev;
-        });
-      }
-    }, 25000); // Increased to 25 seconds
-
-    return () => clearInterval(interval);
-  }, [isLoading, isTransitioning, isCardVisible, handleCardChange]);
-
-  // Memoized card component
   const getCurrentCard = useMemo(() => {
     const cardProps = {
       className: `transition-all duration-500 ${isCardVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'}`
@@ -409,7 +351,6 @@ const Index = () => {
     }
   }, [activeCard, isCardVisible]);
 
-  // Memoized theme colors
   const theme = useMemo(() => {
     switch(activeCard) {
       case 'about':
@@ -443,7 +384,6 @@ const Index = () => {
     }
   }, [activeCard]);
 
-  // Memoized navigation items
   const navigationItems = useMemo(() => [
     { key: 'about', label: 'About', icon: '🔥', color: 'green', description: 'Personal Story' },
     { key: 'experience', label: 'Experience', icon: '⛏️', color: 'purple', description: 'Professional Journey' },
@@ -457,12 +397,10 @@ const Index = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 overflow-hidden">
       
-      {/* Optimized 3D Scene with performance settings */}
       <div className="relative z-10">
         <OptimizedHero activeCard={activeCard} />
       </div>
 
-      {/* Enhanced Central Card Overlay */}
       <div className={`
         fixed inset-0 z-40 flex items-center justify-center p-6 pointer-events-none
         transition-all duration-500
@@ -480,7 +418,6 @@ const Index = () => {
             bg-black/10 ${theme.border} ${theme.shadow}
             hover:${theme.glow} hover:border-opacity-60
           `}>
-            {/* Card header with theme indicator */}
             <div className={`
               absolute top-0 left-0 right-0 h-1 
               ${activeCard === 'about' ? 'bg-gradient-to-r from-green-400 to-emerald-400' : 
@@ -489,7 +426,6 @@ const Index = () => {
               transition-all duration-700
             `} />
             
-            {/* Card content */}
             <div className="h-full pt-1">
               {getCurrentCard}
             </div>
@@ -497,7 +433,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Enhanced Navigation Pills */}
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-black/20 backdrop-blur-xl border border-white/25 rounded-2xl px-8 py-4 shadow-2xl">
           <div className="flex items-center gap-6">
@@ -523,7 +458,6 @@ const Index = () => {
                   <span className="text-xs opacity-70 leading-tight">{item.description}</span>
                 </div>
                 
-                {/* Active indicator */}
                 {activeCard === item.key && (
                   <div className={`
                     absolute bottom-0 left-0 right-0 h-0.5 
@@ -536,7 +470,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Enhanced Progress Indicator */}
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-black/20 backdrop-blur-xl border border-white/25 rounded-2xl px-6 py-4 shadow-xl">
           <div className="flex items-center gap-4">
@@ -564,7 +497,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Enhanced Keyboard Instructions */}
       <div className="fixed bottom-6 left-20 z-40">
         <div className="bg-black/20 backdrop-blur-xl border border-white/25 rounded-xl px-5 py-4 shadow-xl">
           <div className="text-sm text-white/80">
@@ -585,15 +517,14 @@ const Index = () => {
                 <span>Toggle Cards</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-white/60">Auto</span>
-                <span>25s Cycle</span>
+                <span className="text-white/60">Manual</span>
+                <span>Only</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Status Indicator */}
       <div className="fixed bottom-6 right-6 z-40">
         <div className="bg-black/20 backdrop-blur-xl border border-white/25 rounded-xl px-5 py-4 shadow-xl">
           <div className="flex items-center gap-3">
@@ -615,9 +546,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Optimized Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Reduced particles for better performance */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
@@ -636,7 +565,6 @@ const Index = () => {
           />
         ))}
         
-        {/* Optimized gradient orbs */}
         <div 
           className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/8 to-transparent rounded-full blur-3xl animate-pulse"
           style={{ animationDuration: '4s' }}
@@ -650,7 +578,6 @@ const Index = () => {
           style={{ animationDelay: '1s', animationDuration: '6s' }}
         />
         
-        {/* Dynamic theme-based overlay */}
         <div className={`
           absolute inset-0 transition-all duration-1000
           ${activeCard === 'about' ? 'bg-gradient-to-br from-green-500/5 via-transparent to-transparent' :
@@ -659,7 +586,6 @@ const Index = () => {
         `} />
       </div>
 
-      {/* Card visibility toggle button */}
       <button
         onClick={() => setIsCardVisible(!isCardVisible)}
         className="fixed top-6 right-6 z-50 bg-black/20 backdrop-blur-xl border border-white/25 rounded-xl p-3 shadow-xl hover:bg-black/30 transition-all duration-300"

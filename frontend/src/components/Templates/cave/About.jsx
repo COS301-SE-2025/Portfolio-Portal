@@ -1,54 +1,17 @@
-import React, { useState, useRef } from 'react';
-// import { Canvas, useFrame } from '@react-three/fiber';
-// import { PerspectiveCamera } from '@react-three/drei';
-// import { useCVData } from '../../../hooks/useCVData';
-// import { MiniModel } from './Hero'; // Import the MiniModel component
-
-// Mock data to replace useCVData hook
-const mockCVData = {
-  name: 'Alex Thompson',
-  about: 'Mission Statement',
-  description: 'A passionate full-stack developer with expertise in creating immersive web experiences using modern technologies like React, Three.js, and WebGL. I love bringing ideas to life through clean code and beautiful user interfaces.',
-  skills: [
-    'React.js', 'Three.js', 'JavaScript', 'TypeScript', 'Node.js', 
-    'Python', 'WebGL', '3D Modeling', 'UI/UX Design', 'MongoDB',
-    'Next.js', 'GraphQL', 'Docker', 'AWS', 'Blender'
-  ]
-};
-
-// Floating 3D campfire component - commented out for now
-// function FloatingCampfire() {
-//   const meshRef = useRef();
-  
-//   useFrame((state) => {
-//     if (meshRef.current) {
-//       meshRef.current.rotation.y += 0.01;
-//       meshRef.current.position.y = Math.sin(state.clock.getElapsedTime()) * 0.2;
-//     }
-//   });
-  
-//   return (
-//     <group ref={meshRef} scale={[0.03, 0.03, 0.03]}>
-//       <MiniModel model="campfire" />
-//       <pointLight position={[0, 2, 0]} intensity={2} color="#ff6b35" />
-//     </group>
-//   );
-// }
+import React, { useState } from 'react';
+import { useCVData } from '../../../hooks/useCVData';
 
 const About = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [activeSection, setActiveSection] = useState('philosophy');
   
-  // Using mock data instead of useCVData hook
-  const { name, about, description, skills } = mockCVData;
+  const { name, about, description, skills } = useCVData();
 
-  // Fallback skills if none provided
   const displaySkills = skills.length > 0 ? skills : [
     'React.js', 'Three.js', 'JavaScript', 'TypeScript', 'Node.js', 
     'Python', 'WebGL', '3D Modeling', 'UI/UX Design', 'MongoDB'
   ];
 
-  // Get initials for avatar if no name provided
   const getInitials = (fullName) => {
     if (!fullName) return '🔥';
     return fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -136,24 +99,12 @@ const About = () => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header with 3D Campfire */}
       <div className="flex-shrink-0 flex items-center justify-center py-8">
         <div className="flex items-center gap-8">
-          
-          {/* 3D Campfire placeholder - commented out for now */}
-          {/* <div className="w-32 h-32">
-            <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-              <ambientLight intensity={0.4} />
-              <FloatingCampfire />
-            </Canvas>
-          </div> */}
-          
-          {/* Campfire emoji placeholder */}
           <div className="text-6xl animate-pulse">
             🔥
           </div>
           
-          {/* Name and Avatar */}
           <div className="text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-lg border-2 border-green-300/30 mb-4 mx-auto">
               {getInitials(name)}
@@ -166,7 +117,6 @@ const About = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
       <div className="flex-shrink-0 px-8 mb-6">
         <div className="flex flex-wrap gap-2 justify-center">
           {sections.map((section) => (
@@ -187,7 +137,6 @@ const About = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div 
         className="flex-1 px-8 pb-8 overflow-y-auto"
         onMouseEnter={() => setIsHovered(true)}
@@ -205,7 +154,6 @@ const About = () => {
           `}>
             {renderContent()}
             
-            {/* Interactive Elements */}
             <div className="mt-8 pt-6 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-green-300 opacity-70">
