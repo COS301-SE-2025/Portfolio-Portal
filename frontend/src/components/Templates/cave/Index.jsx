@@ -166,25 +166,9 @@ const Scene3DModels = React.memo(() => {
       <group position={[0, -8, -45]} scale={[15, 15, 15]}>
         <Cave2 />
       </group>
-
-      <group position={[0, -6.5, 0]} scale={[0.08, 0.08, 0.08]}>
-        <Campfire />
-      </group>
-      
-      <group position={[50, 0, 10]} scale={[7, 7, 7]} rotation={[0, 0, 0]}>
-        <Crystal />
-      </group>
-
-      <group position={[30, 5, -40]} scale={[0.05, 0.05, 0.05]} rotation={[0, -Math.PI / 3, 0]}>
+    
+      <group position={[0, 2, 0]} scale={[0.04, 0.04, 0.04]} rotation={[0, -Math.PI / 3, 0]}>
         <Skull />
-      </group>
-      
-      <group position={[45, 5, 8]} scale={[4, 4, 4]} rotation={[0.2, Math.PI / 4, 10]}>
-        <Pickaxe />
-      </group>
-      
-      <group position={[12, -4.5, -10]} scale={[4, 4, 4]} rotation={[0, 0, -0.3]}>
-        <Shovel />
       </group>
 
       <group position={[-30, -4.5, -10]} scale={[16, 16, 16]} rotation={[0, 0, 0]}>
@@ -196,7 +180,7 @@ const Scene3DModels = React.memo(() => {
 
 const OptimizedHero = React.memo(({ activeCard }) => {
   return (
-    <div className="w-full h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-800 relative overflow-hidden fixed inset-0 z-0">
+    <div className="w-full h-screen bg-gradient-to-b from-slate-900 via-purple-900 to-slate-800 relative overflow-hidden">
       <Canvas 
         className="w-full h-full" 
         shadows
@@ -394,53 +378,44 @@ const Index = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 overflow-hidden">
       
-      {/* Fixed 3D Background */}
-      <OptimizedHero activeCard={activeCard} />
-
-      {/* Scrollable Content */}
-      <div className="relative z-10 min-h-screen">
-        
-        {/* About Section */}
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-6xl h-[85vh] relative">
-            <div className="h-full backdrop-blur-xl border-2 rounded-3xl shadow-2xl overflow-hidden bg-black/10 border-green-400/40 shadow-green-500/25 hover:bg-green-400/5 hover:border-opacity-60 transition-all duration-700">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-emerald-400 transition-all duration-700" />
-              <div className="h-full pt-1">
-                <About />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Experience Section */}
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-6xl h-[85vh] relative">
-            <div className="h-full backdrop-blur-xl border-2 rounded-3xl shadow-2xl overflow-hidden bg-black/10 border-purple-400/40 shadow-purple-500/25 hover:bg-purple-400/5 hover:border-opacity-60 transition-all duration-700">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 transition-all duration-700" />
-              <div className="h-full pt-1">
-                <Experience />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact Section */}
-        <div className="min-h-screen flex items-center justify-center p-6">
-          <div className="w-full max-w-6xl h-[85vh] relative">
-            <div className="h-full backdrop-blur-xl border-2 rounded-3xl shadow-2xl overflow-hidden bg-black/10 border-cyan-400/40 shadow-cyan-500/25 hover:bg-cyan-400/5 hover:border-opacity-60 transition-all duration-700">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-700" />
-              <div className="h-full pt-1">
-                <Contact />
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="relative z-10">
+        <OptimizedHero activeCard={activeCard} />
       </div>
 
-      {/* Fixed Navigation UI Elements */}
+      <div className={`
+        fixed inset-0 z-40 flex items-center justify-center p-6 pointer-events-none
+        transition-all duration-500
+        ${isCardVisible ? 'opacity-100' : 'opacity-0'}
+      `}>
+        <div className={`
+          relative z-50 w-full max-w-6xl h-[85vh]
+          transition-all duration-700 transform pointer-events-auto
+          ${isTransitioning ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}
+          ${!isCardVisible ? 'scale-95 opacity-0' : ''}
+        `}>
+          <div className={`
+            h-full backdrop-blur-xl border-2 rounded-3xl shadow-2xl
+            transition-all duration-700 overflow-hidden
+            bg-black/10 ${theme.border} ${theme.shadow}
+            hover:${theme.glow} hover:border-opacity-60
+          `}>
+            <div className={`
+              absolute top-0 left-0 right-0 h-1 
+              ${activeCard === 'about' ? 'bg-gradient-to-r from-green-400 to-emerald-400' : 
+                activeCard === 'experience' ? 'bg-gradient-to-r from-purple-400 to-indigo-400' : 
+                'bg-gradient-to-r from-cyan-400 to-blue-400'}
+              transition-all duration-700
+            `} />
+            
+            <div className="h-full pt-1">
+              {getCurrentCard}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-black/20 backdrop-blur-xl border border-white/25 rounded-2xl px-8 py-4 shadow-2xl">
           <div className="flex items-center gap-6">
@@ -525,8 +500,7 @@ const Index = () => {
                 <span>Toggle Cards</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-white/60">Scroll</span>
-                <span>Enabled</span>
+                
               </div>
             </div>
           </div>
@@ -554,7 +528,7 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-5">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
