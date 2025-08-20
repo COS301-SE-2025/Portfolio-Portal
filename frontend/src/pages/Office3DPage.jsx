@@ -113,9 +113,6 @@ export default function Office3DPage() {
             }}
           ></div>
         </div>
-        <p className="text-xs mt-2 text-center text-gray-300">
-          Scroll to navigate the office ({Math.round(((scrollPosition + 40) / 190) * 100)}%)
-        </p>
       </div>
     </div>
   );
