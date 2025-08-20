@@ -70,7 +70,7 @@ export default function Office3DPage() {
   }, []);
 
   // Calculate progress percentage more accurately
-  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 300) * 100));
+  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 140) * 100));
 
   return (
     <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
@@ -204,11 +204,11 @@ function Office3DScene({ cvData, scrollPosition }) {
                   let expText = `• ${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
                   if (exp.extra?.length > 0) {
                     const firstBullet = exp.extra[0].replace('¢ ', '');
-                    expText += ` - ${firstBullet}`;
+                    expText += `\n  - ${firstBullet}`;
                   }
                   return expText;
                 });
-                textContent = expTexts.join('\n');
+                textContent = expTexts.join('\n\n');
               }
               break;
             case 'EducationDescription':
@@ -228,7 +228,7 @@ function Office3DScene({ cvData, scrollPosition }) {
                   }
                   return eduText;
                 });
-                textContent = eduTexts.join('\n');
+                textContent = eduTexts.join('\n\n');
               }
               break;
             case 'ContactDescription':
