@@ -48,7 +48,7 @@ export default function Office3DPage() {
       }
       
       setTargetScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.15;
+        const newPos = prev + e.deltaY * 0.04;
         return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
       });
 
@@ -113,9 +113,6 @@ export default function Office3DPage() {
             }}
           ></div>
         </div>
-        <p className="text-xs mt-2 text-center text-gray-300">
-          Scroll to navigate the office ({Math.round(((scrollPosition + 40) / 190) * 100)}%)
-        </p>
       </div>
     </div>
   );
