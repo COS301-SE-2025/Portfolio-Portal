@@ -18,37 +18,47 @@ const Login = () => {
     if (error) setError('');
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
 
+  try {
+    const { data } = await authService.login(formData);
+    console.log(data);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('userId', data.user.id);
+
+    // Safely try to fetch profile picture
     try {
-      const { data } = await authService.login(formData);
-      console.log(data);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userId', data.user.id);
-
-      const profile_picture_url = profileService.getProfilePictureUrl();
-      localStorage.setItem('imageURL', (await profile_picture_url).data.profile_picture_url);
-
-      // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
-      try {
-        const cvRes = await cvDataService.getMyCV();
-        if (cvRes?.data) {
-          cvDataService.setData(cvRes.data);
-        }
-      } catch (cvErr) {
-        // no CV on server or fetch failed — that's OK, user can upload later
-        console.info('No CV found for user or error fetching CV:', cvErr?.response?.status || cvErr.message);
+      const profile_picture_res = await profileService.getProfilePictureUrl();
+      if (profile_picture_res?.data?.profile_picture_url) {
+        localStorage.setItem('imageURL', profile_picture_res.data.profile_picture_url);
+      } else {
+        localStorage.removeItem('imageURL'); // or set a default placeholder URL
       }
-
-      navigate('/home');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
-    } finally {
-      setIsLoading(false);
+    } catch (picErr) {
+      console.info("No profile picture found or error fetching:", picErr?.response?.status || picErr.message);
+      localStorage.removeItem('imageURL'); // fallback if error
     }
-  };
+
+    // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
+    try {
+      const cvRes = await cvDataService.getMyCV();
+      if (cvRes?.data) {
+        cvDataService.setData(cvRes.data);
+      }
+    } catch (cvErr) {
+      console.info('No CV found for user or error fetching CV:', cvErr?.response?.status || cvErr.message);
+    }
+
+    navigate('/home');
+  } catch (err) {
+    setError(err.response?.data?.message || 'Login failed');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <AuthLayout title="Welcome Back!" subtitle="Log in to access your portfolio">
