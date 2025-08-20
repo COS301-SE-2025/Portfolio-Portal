@@ -208,7 +208,7 @@ function Office3DScene({ cvData, scrollPosition }) {
                   }
                   return expText;
                 });
-                textContent = expTexts.join('\n\n');
+                textContent = expTexts.join('\n');
               }
               break;
             case 'EducationDescription':
@@ -221,14 +221,14 @@ function Office3DScene({ cvData, scrollPosition }) {
                     eduText += ` (${edu.endDate})`;
                   }
                   if (edu.field) {
-                    eduText += `, Field: ${edu.field}`;
+                    eduText += `\n  Field: ${edu.field}`;
                   }
                   if (edu.gpa) {
-                    eduText += `, GPA: ${edu.gpa}`;
+                    eduText += `\n  GPA: ${edu.gpa}`;
                   }
                   return eduText;
                 });
-                textContent = eduTexts.join('\n\n');
+                textContent = eduTexts.join('\n');
               }
               break;
             case 'ContactDescription':
@@ -275,7 +275,7 @@ function Office3DScene({ cvData, scrollPosition }) {
                 context.textAlign = 'left';
                 context.textBaseline = 'bottom';
               } else {
-                context.font = '20px Arial';
+                context.font = '16px Arial'; // Even smaller font for better fit
                 context.textAlign = 'left';
                 context.textBaseline = 'top';
               }
@@ -304,7 +304,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               lines.push(currentLine);
               
-              let lineHeight = 28;
+              let lineHeight = 22; // Adjusted for smaller font
               if (object.name === 'Title') lineHeight = 50;
               else if (object.name === 'Subtitle') lineHeight = 40;
               else if (object.name.includes('Heading')) lineHeight = 50; // Increased for bigger headings
