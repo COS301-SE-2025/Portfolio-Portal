@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import OfficePage from './pages/OfficePage';
+import Office3DPage from './pages/Office3DPage'
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
@@ -21,6 +22,7 @@ const HIDDEN_NAVBAR_PATHS = [
   '/login',
   '/register',
   '/office',
+  '/office3d', 
   '/forest',
   '/space',
   '/profile',
@@ -31,6 +33,7 @@ const HIDDEN_NAVBAR_PATHS = [
 const HIDDEN_THEME_BUTTON_PATHS = [
   '/',
   '/office',
+  '/office3d', 
   '/forest',
   '/space',
   '/lab',
@@ -52,6 +55,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/office" element={<OfficePage />} />
+          <Route path="/office3d" element={<Office3DPage />} />
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
