@@ -83,7 +83,7 @@ export default function Office3DPage() {
             style={{ width: `${Math.min(((scrollPosition + 80) / 300) * 100, 100)}%` }}
           ></div>
         </div>
-        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 80) / 300) * 100)}%)</p>
+        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 40) / 190) * 100)}%)</p>
       </div>
     </div>
   );
@@ -206,9 +206,9 @@ function Office3DScene({ cvData, scrollPosition }) {
               
               // Font sizes
               if (object.name === 'Title') {
-                context.font = 'bold 44px Arial';
+                context.font = 'bold 60px Arial';
               } else if (object.name === 'Subtitle') {
-                context.font = 'bold 32px Arial';
+                context.font = 'bold 44px Arial';
               } else if (object.name.includes('Heading')) {
                 context.font = 'bold 34px Arial';
               } else {
