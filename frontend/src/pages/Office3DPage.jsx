@@ -246,7 +246,7 @@ function Office3DScene({ cvData, scrollPosition }) {
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
               } else if (object.name.includes('Heading')) {
-                context.font = 'bold 34px Arial';
+                context.font = 'bold 48px Arial'; // Made much bigger than descriptions
                 context.textAlign = 'left';
                 context.textBaseline = 'bottom';
               } else {
@@ -258,7 +258,14 @@ function Office3DScene({ cvData, scrollPosition }) {
               const words = textContent.split(' ');
               const lines = [];
               let currentLine = '';
-              const maxWidth = canvas.width - 80; // More padding for left alignment
+              let maxWidth;
+              
+              // Different max widths for different text types
+              if (object.name === 'Subtitle') {
+                maxWidth = canvas.width - 40; // Keep subtitle on one line if possible
+              } else {
+                maxWidth = canvas.width - 80; // More padding for left alignment
+              }
               
               words.forEach(word => {
                 const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -275,7 +282,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               let lineHeight = 28;
               if (object.name === 'Title') lineHeight = 50;
               else if (object.name === 'Subtitle') lineHeight = 40;
-              else if (object.name.includes('Heading')) lineHeight = 42;
+              else if (object.name.includes('Heading')) lineHeight = 50; // Increased for bigger headings
 
               // Position text based on type
               let startX, startY;
@@ -287,7 +294,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               } else if (object.name.includes('Heading')) {
                 // Headings at bottom left
                 startX = 40;
-                startY = canvas.height - 20 - ((lines.length - 1) * lineHeight);
+                startY = canvas.height - 15 - ((lines.length - 1) * lineHeight); // Adjusted for bigger font
               } else {
                 // Descriptions at top left
                 startX = 40;
