@@ -1,6 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import Space from './pages/Space';
 import OfficePage from './pages/OfficePage';
 import Office3DPage from './pages/Office3DPage'
 import Login from './pages/Login';
@@ -11,11 +10,35 @@ import Profile from './pages/Profile';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
 
+
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
+import CavePage from "./pages/CavePage";
+import LabPage from "./pages/LabPage";
+import Space from './pages/Space';
 
-const HIDDEN_NAVBAR_PATHS = ['/', '/login', '/register', '/office', '/forest', '/space', '/profile', '/office3d']; // Add any paths where you don't want the navbar
-const HIDDEN_THEME_BUTTON_PATHS = ['/office3d','/office']; // Add any paths where you don't want the theme button
+const HIDDEN_NAVBAR_PATHS = [
+  '/',
+  '/login',
+  '/register',
+  '/office',
+  '/office3d', 
+  '/forest',
+  '/space',
+  '/profile',
+  '/lab',
+  '/cave'
+];
+
+const HIDDEN_THEME_BUTTON_PATHS = [
+  '/',
+  '/office',
+  '/office3d', 
+  '/forest',
+  '/space',
+  '/lab',
+  '/cave',
+];
 
 function App() {
   const location = useLocation();
@@ -34,7 +57,10 @@ function App() {
           <Route path="/office" element={<OfficePage />} />
           <Route path="/office3d" element={<Office3DPage />} />
           <Route path="/forest" element={<ForestPage />} />
+          <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/cave" element={<CavePage />} />
+          
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />

@@ -6,7 +6,7 @@ import Astronaught from "../../3DModels/Astronaught";
 import useCvData from "../../../hooks/useCVData";
 
 const About = () => {
-  const { cvData } = useCvData() || {};
+  const { cvData } = useCvData();
   return (
     <section id="about" className="py-24 relative overflow-hidden">
       {/* Starfield Background */}

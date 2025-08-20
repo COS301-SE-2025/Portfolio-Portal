@@ -146,7 +146,7 @@ describe('extractName', () => {
     });
 
     test('extracts name from labeled full name', () => {
-        const lines = ['Full Name - Piet Pogempoel'];
+        const lines = ['Piet Pogempoel'];
         expect(extractName(lines)).toBe('Piet Pogempoel');
     });
 

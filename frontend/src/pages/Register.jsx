@@ -120,7 +120,7 @@ const Register = () => {
               required
               minLength="2"
               autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
             />
             <button
               type="button"
@@ -142,13 +142,13 @@ const Register = () => {
               onChange={handleInputChange}
               required
               autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
             />
             <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={prevStep}
-                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-600 hover:bg-gray-700 text-white"
+                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700 text-white"
               >
                 Back
               </button>
@@ -174,7 +174,7 @@ const Register = () => {
               required
               minLength="6"
               autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
             />
             <input
               type="password"
@@ -183,13 +183,13 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 rounded-lg bg-white/10 dark:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/20 focus:border-purple-400 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
             />
             <div className="flex space-x-3">
               <button
                 type="button"
                 onClick={prevStep}
-                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-600 hover:bg-gray-700 text-white"
+                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700 text-white"
               >
                 Back
               </button>
@@ -220,23 +220,23 @@ const Register = () => {
     >
       <div className="space-y-4 mb-6">
         {error && (
-          <div className="text-red-400 dark:text-red-400 text-sm text-center bg-red-900/30 dark:bg-red-900/30 rounded-lg py-2">
+          <div className="text-red-600 dark:text-red-400 text-sm text-center bg-red-100 dark:bg-red-900/30 rounded-lg py-2">
             {error}
           </div>
         )}
         {renderStep()}
       </div>
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-6">
+      <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2.5 mb-6">
         <div 
           className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
           style={{ width: `${(step / 3) * 100}%` }}
         ></div>
       </div>
-      <p className="text-center text-sm text-gray-300 dark:text-gray-300">
+      <p className="text-center text-sm text-gray-600 dark:text-gray-300">
         Already registered?{' '}
         <span
           onClick={() => navigate('/login')}
-          className="text-purple-400 dark:text-purple-400 hover:text-purple-300 dark:hover:text-purple-300 cursor-pointer font-medium"
+          className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 cursor-pointer font-medium"
         >
           Sign In
         </span>

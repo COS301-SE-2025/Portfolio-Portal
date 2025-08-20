@@ -2,7 +2,7 @@
 import useCvData from "../../../hooks/useCVData";
 
 const ExperienceAndEducation = () => {
-  const { cvData } = useCvData() || {};
+  const { cvData } = useCvData();
 
   return (
     <section id="experience" className="py-24 bg-gray-900/50 relative">

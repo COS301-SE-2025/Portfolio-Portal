@@ -1,58 +1,54 @@
+//server/app/controllers/ocr.controller.js
 const fs = require("fs");
 const { processCVWithAI } = require("../services/ocr.service");
-const { saveCVData } = require("../services/cvData.service");
+const { saveCVData } = require("../services/cv.service");
+const { selectTemplate, updateTemplateForUser } = require("../services/template.service");
 
-/**
- * Handle uploaded CV file, run OCR, and return structured CV data
- * @param {*} req - Express request (expects req.file from multer)
- * @param {*} res - Express response
- */
 const handleUpload = async (req, res) => {
-    try {
-        const file = req.file;
+  try {
+    const file = req.file;
+    const authId = req.user?.id;
 
-        if (!file) {
-            return res.status(400).json({ success: false, message: "No file uploaded" });
-        }
-
-        // Get user ID from authenticated request
-        const authId = req.user?.id;
-        if (!authId) {
-            return res.status(401).json({ success: false, message: "User authentication required" });
-        }
-
-        // Process CV with OCR and AI
-        const structuredCV = await processCVWithAI(file.path, file.mimetype);
-
-        // Save structured CV data to database
-        try {
-            const savedCVData = await saveCVData(authId, structuredCV);
-            console.log(`CV data saved to database for user: ${authId}`);
-        } catch (dbError) {
-            console.error("Database save error:", dbError);
-            // Continue with response even if database save fails
-            // This ensures the user still gets their processed CV data
-        }
-
-        return res.status(200).json({
-            success: true,
-            data: structuredCV
-        });
-    } catch (error) {
-        console.error("OCR Controller error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to process uploaded CV",
-            error: error.message
-        });
-    } finally {
-        // Clean up uploaded file
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
+    if (!file || !authId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid request" });
     }
+
+    // process CV with OCR & AI
+    const structuredCV = await processCVWithAI(file.path, file.mimetype);
+
+    // save structured CV data to database
+    try {
+      await saveCVData(authId, structuredCV);
+    } catch (dbError) {
+      console.error("Database save error:", dbError);
+    }
+
+    // select appropriate template
+    const selectedTemplate = selectTemplate(structuredCV);
+
+    updateTemplateForUser(authId, selectedTemplate);
+    return res.status(200).json({
+      success: true,
+      data: structuredCV,
+      template: selectedTemplate,
+    });
+  } catch (error) {
+    console.error("OCR Controller error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process uploaded CV",
+      error: error.message,
+    });
+  } finally {
+    // clean up uploaded file
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+  }
 };
 
 module.exports = {
-    handleUpload
+  handleUpload,
 };
