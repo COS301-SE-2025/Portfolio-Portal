@@ -200,7 +200,20 @@ function Office3DScene({ cvData, scrollPosition }) {
               break;
             case 'ExperienceDescription':
               const exp = data.experience?.[0];
-              textContent = exp ? `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})` : '';
+              if (exp) {
+                let expText = `${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
+                if (exp.extra?.length > 0) {
+                  // Add the first bullet point if available
+                  const firstBullet = exp.extra[0].replace('¢ ', '');
+                  expText += `\n• ${firstBullet}`;
+                  // Add second bullet if available and there's space
+                  if (exp.extra[1]) {
+                    const secondBullet = exp.extra[1].replace('¢ ', '');
+                    expText += `\n• ${secondBullet}`;
+                  }
+                }
+                textContent = expText;
+              }
               break;
             case 'EducationDescription':
               const edu = data.education?.[0];
