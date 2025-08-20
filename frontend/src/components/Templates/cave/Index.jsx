@@ -166,26 +166,9 @@ const Scene3DModels = React.memo(() => {
       <group position={[0, -8, -45]} scale={[15, 15, 15]}>
         <Cave2 />
       </group>
-
-      <group position={[0, -6.5, 0]} scale={[0.08, 0.08, 0.08]}>
-        <Campfire />
-      </group>
-      
-      <group position={[50, 0, 10]} scale={[7, 7, 7]} rotation={[0, 0, 0]}>
-        <Crystal />
-      </group>
-
-
-      <group position={[30, 5, -40]} scale={[0.05, 0.05, 0.05]} rotation={[0, -Math.PI / 3, 0]}>
+    
+      <group position={[0, 2, 0]} scale={[0.04, 0.04, 0.04]} rotation={[0, -Math.PI / 3, 0]}>
         <Skull />
-      </group>
-      
-      <group position={[45, 5, 8]} scale={[4, 4, 4]} rotation={[0.2, Math.PI / 4, 10]}>
-        <Pickaxe />
-      </group>
-      
-      <group position={[12, -4.5, -10]} scale={[4, 4, 4]} rotation={[0, 0, -0.3]}>
-        <Shovel />
       </group>
 
       <group position={[-30, -4.5, -10]} scale={[16, 16, 16]} rotation={[0, 0, 0]}>
@@ -517,8 +500,7 @@ const Index = () => {
                 <span>Toggle Cards</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-white/60">Manual</span>
-                <span>Only</span>
+                
               </div>
             </div>
           </div>
