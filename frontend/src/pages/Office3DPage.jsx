@@ -12,8 +12,32 @@ import * as THREE from 'three';
 export default function Office3DPage() {
   const { cvData } = useCvData();
   const [scrollPosition, setScrollPosition] = useState(-80); // start higher (top of object visible)
+  const [targetScrollPosition, setTargetScrollPosition] = useState(-80);
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
+  const animationFrameRef = useRef();
+
+  // Smooth scrolling animation
+  useEffect(() => {
+    const animate = () => {
+      setScrollPosition(prev => {
+        const diff = targetScrollPosition - prev;
+        if (Math.abs(diff) < 0.1) {
+          return targetScrollPosition;
+        }
+        return prev + diff * 0.08; // Smoother interpolation
+      });
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    
+    animationFrameRef.current = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [targetScrollPosition]);
 
   useEffect(() => {
     const handleWheel = (e) => {
@@ -23,7 +47,7 @@ export default function Office3DPage() {
         clearTimeout(scrollTimeoutRef.current);
       }
       
-      setScrollPosition(prev => {
+      setTargetScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.15;
         return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
       });
@@ -44,6 +68,9 @@ export default function Office3DPage() {
       };
     }
   }, []);
+
+  // Calculate progress percentage more accurately
+  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 300) * 100));
 
   return (
     <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
@@ -75,15 +102,20 @@ export default function Office3DPage() {
         />
       </Canvas>
       
-      {/* Scroll indicator */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-        <div className="w-48 h-2 bg-gray-600 rounded-full">
+      {/* Improved scroll indicator */}
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg backdrop-blur-sm border border-gray-600/30">
+        <div className="w-56 h-3 bg-gray-700 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-blue-500 rounded-full transition-all duration-200 ease-out"
-            style={{ width: `${Math.min(((scrollPosition + 80) / 300) * 100, 100)}%` }}
+            className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 ease-out shadow-lg"
+            style={{ 
+              width: `${progressPercentage}%`,
+              boxShadow: progressPercentage > 5 ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
+            }}
           ></div>
         </div>
-        <p className="text-xs mt-1 text-center">Scroll to navigate the office ({Math.round(((scrollPosition + 40) / 190) * 100)}%)</p>
+        <p className="text-xs mt-2 text-center text-gray-300">
+          Scroll to navigate the office ({Math.round(((scrollPosition + 40) / 190) * 100)}%)
+        </p>
       </div>
     </div>
   );
