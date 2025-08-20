@@ -171,7 +171,7 @@ const Contact = () => {
         Send a Message
       </h3>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-semibold text-white/90 mb-3 uppercase tracking-wide">
@@ -225,17 +225,17 @@ const Contact = () => {
           ></textarea>
         </div>
 
-        <button
-          type="submit"
+        <div
+          onClick={handleSubmit}
           className="w-full bg-gradient-to-r from-cyan-500/80 to-blue-500/80 text-white py-4 px-6 rounded-xl font-semibold 
                    flex items-center justify-center gap-3 hover:from-cyan-600/80 hover:to-blue-600/80 
                    transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 
-                   border-2 border-cyan-400/30 hover:border-cyan-400/50"
+                   border-2 border-cyan-400/30 hover:border-cyan-400/50 cursor-pointer"
         >
           <Send className="w-5 h-5" />
           Send Message to the Cave
-        </button>
-      </form>
+        </div>
+        </div>
 
       {/* Status indicator */}
       <div className="text-center mt-6">
@@ -303,9 +303,9 @@ const Contact = () => {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="min-h-screen overflow-y-auto">
       {/* Header with 3D Crystal */}
-      <div className="flex-shrink-0 flex items-center justify-center py-6">
+      <div className="flex items-center justify-center py-16">
         <div className="flex items-center gap-8">
           {/* 3D Crystal */}
           
@@ -332,44 +332,32 @@ const Contact = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex-shrink-0 px-8 mb-6">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`
-                px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2
-                ${activeSection === section.id ? 
-                  'bg-gradient-to-r from-cyan-500/30 to-blue-500/30 border-2 border-cyan-400/50 text-white scale-105' : 
-                  'bg-white/10 border border-white/20 text-white/70 hover:bg-white/20 hover:text-white hover:scale-105'}
-              `}
-            >
-              <span>{section.icon}</span>
-              <span className="text-sm font-medium">{section.label}</span>
-            </button>
-          ))}
+      {/* Contact Info Section */}
+      <div className="px-8 mb-16 max-w-4xl mx-auto">
+        <div 
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className={`
+            bg-black/20 backdrop-blur-md border-2 border-white/15 rounded-2xl p-8 
+            shadow-2xl transition-all duration-500
+            ${isHovered ? 'bg-black/30 shadow-cyan-500/20 border-cyan-400/30 scale-102' : 'scale-100'}
+          `}
+        >
+          {renderContactInfo()}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div 
-        className="flex-1 px-8 pb-8 overflow-y-auto"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className={`
-          max-w-4xl mx-auto transition-all duration-700 transform
-          ${isHovered ? 'scale-102' : 'scale-100'}
-        `}>
-          <div className={`
-            bg-black/20 backdrop-blur-md border-2 border-white/15 rounded-2xl p-8 
-            shadow-2xl transition-all duration-500
-            ${isHovered ? 'bg-black/30 shadow-cyan-500/20 border-cyan-400/30' : ''}
-          `}>
-            {renderContent()}
-          </div>
+      {/* Contact Form Section */}
+      <div className="px-8 mb-16 max-w-4xl mx-auto">
+        <div className="bg-black/20 backdrop-blur-md border-2 border-white/15 rounded-2xl p-8 shadow-2xl hover:bg-black/30 hover:shadow-purple-500/20 hover:border-purple-400/30 transition-all duration-500 hover:scale-102">
+          {renderContactForm()}
+        </div>
+      </div>
+
+      {/* Social Links Section */}
+      <div className="px-8 pb-16 max-w-4xl mx-auto">
+        <div className="bg-black/20 backdrop-blur-md border-2 border-white/15 rounded-2xl p-8 shadow-2xl hover:bg-black/30 hover:shadow-green-500/20 hover:border-green-400/30 transition-all duration-500 hover:scale-102">
+          {renderSocialLinks()}
         </div>
       </div>
     </div>
