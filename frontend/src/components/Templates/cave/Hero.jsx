@@ -217,31 +217,7 @@ const Hero = ({ activeCard }) => {
         <pointLight position={[15, 18, -15]} intensity={1.5} color="#e0e7ff" />
         <pointLight position={[-15, 18, -15]} intensity={1.5} color="#e0e7ff" />
         
-        <group position={[0, -8, -45]} scale={[15, 15, 15]}>
-          <Cave2 />
-        </group>
-
-        <group position={[0, -6.5, 0]} scale={[0.08, 0.08, 0.08]}>
-          <Campfire />
-        </group>
-        
-
-        <group position={[-35, 0, 10]} scale={[7, 7, 7]} rotation={[0,0, 0]}>
-          <Crystal />
-        </group>
-
-        <group position={[30, 5, -40]} scale={[0.05, 0.05, 0.05]} rotation={[0, -Math.PI / 3, 0]}>
-          <Skull />
-        </group>
-        
-        
-        <group position={[12, -4.5, -10]} scale={[4, 4, 4]} rotation={[0, 0, -0.3]}>
-          <Shovel />
-        </group>
-
-        <group position={[-30, -4.5, -10]} scale={[16, 16, 16]} rotation={[0, 0, 0]}>
-          <Lamp />
-        </group>
+      
     
         <TexturedFloorAndWalls />
       </Canvas>
