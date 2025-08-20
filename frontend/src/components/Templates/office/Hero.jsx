@@ -3,6 +3,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCvData from '../../../hooks/useCVData';
+import Office from '../../3DModels/Office'; // Add this import
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -29,17 +30,22 @@ const Hero = () => {
         <div className="flex-1 w-full h-full max-w-2xl">
           <Canvas
             camera={{ position: [350, 250, 350], fov: 35 }}
+            gl={{ preserveDrawingBuffer: true }}
+            className="w-full h-full"
           >
             <Suspense fallback={null}>
               <ambientLight intensity={0.7} />
               <directionalLight position={[100, 100, 100]} intensity={0.6} />
               <pointLight position={[-50, -50, -50]} intensity={0.4} />
-              <OfficePreview />
+              <Office scale={[0.3, 0.3, 0.3]} position={[0, -50, 0]} />
               <OrbitControls
                 enableZoom={false}
                 enablePan={false}
-                autoRotate={true}
-                autoRotateSpeed={0.5}
+                autoRotate={false}
+                maxDistance={500}
+                minDistance={100}
+                maxPolarAngle={Math.PI / 2.1}
+                minPolarAngle={Math.PI / 6}
               />
             </Suspense>
           </Canvas>
@@ -48,15 +54,5 @@ const Hero = () => {
     </section>
   );
 };
-
-// Simple preview component
-function OfficePreview() {
-  return (
-    <mesh>
-      <boxGeometry args={[5, 2, 5]} />
-      <meshStandardMaterial color="#3a3a3a" />
-    </mesh>
-  );
-}
 
 export default Hero;
