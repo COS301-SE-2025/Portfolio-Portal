@@ -7,18 +7,18 @@ const loginUser = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Supabase login error:', error.message);
-      throw new Error(error.message);
+      throw new Error('Invalid credentials'); // Generic error for security
     }
     if (!data.session) {
-      console.error('No session returned');
-      return null;
+      console.error('No session returned after login');
+      throw new Error('Login failed: No session data');
     }
 
     console.log('Auth user ID:', data.user.id);
     const userProfile = await User.findById(data.user.id);
     if (!userProfile) {
-      console.error('User profile not found for ID:', data.user.id);
-      return null;
+      console.error('User profile not found in DB for auth ID:', data.user.id);
+      throw new Error('User profile not found'); // This indicates a data inconsistency
     }
 
     return {
@@ -28,15 +28,18 @@ const loginUser = async (email, password) => {
       expires_at: data.session.expires_at,
     };
   } catch (error) {
-    console.error('Login error:', error.message);
-    return null;
+    console.error('Login service error:', error.message);
+    throw error; // Re-throw to be caught by the centralized error handler
   }
 };
 
 const refreshToken = async (refreshToken) => {
   try {
     const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-    if (error || !data.session) return null;
+    if (error || !data.session) {
+      console.error('Supabase refresh token error:', error?.message || 'No session after refresh');
+      throw new Error('Invalid refresh token');
+    }
 
     return {
       token: data.session.access_token,
@@ -44,8 +47,8 @@ const refreshToken = async (refreshToken) => {
       expires_at: data.session.expires_at
     };
   } catch (error) {
-    console.error('Token refresh error:', error);
-    return null;
+    console.error('Token refresh service error:', error.message);
+    throw error;
   }
 };
 
@@ -53,16 +56,24 @@ const logoutUser = async (token) => {
   try {
     await supabase.auth.setSession({ access_token: token });
     const { error } = await supabase.auth.signOut();
-    return !error;
+    if (error) {
+      console.error('Supabase logout error:', error.message);
+      throw new Error('Logout failed');
+    }
+    return true;
   } catch (error) {
-    console.error('Logout error:', error);
-    return false;
+    console.error('Logout service error:', error.message);
+    throw error;
   }
 };
 
 const getUserById = async (id) => {
   try {
-    return await User.findById(id);
+    const user = await User.findById(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   } catch (error) {
     console.error('GetUserById service error:', error.message);
     throw error;
@@ -71,7 +82,11 @@ const getUserById = async (id) => {
 
 const getUserByEmail = async (email) => {
   try {
-    return await User.findByEmail(email);
+    const user = await User.findByEmail(email);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return user;
   } catch (error) {
     console.error('GetUserByEmail service error:', error.message);
     throw error;
@@ -79,21 +94,27 @@ const getUserByEmail = async (email) => {
 };
 
 const createUser = async (userData) => {
-  const { email, name, password, professional } = userData; // Add professional
+  const { email, name, password, professional } = userData;
   try {
-    console.log('Creating user with:', { email, name, professional });
-    
+    // Business logic validations
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      throw new Error('Invalid email format');
+    }
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters');
+    }
+
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
       throw new Error('User already registered with this email');
     }
 
-    const user = await User.create(email, password, name, professional); // Pass professional
-    console.log('Created user:', user);
+    // Call User model to create the user in auth and database
+    const user = await User.create(email, password, name, professional);
     return user;
   } catch (error) {
-    console.error('Create user error:', error.message);
+    console.error('Create user service error:', error.message);
     throw error;
   }
 };
@@ -101,8 +122,8 @@ const createUser = async (userData) => {
 const updateUserProfile = async (userId, updateData) => {
   try {
     // Validate required fields if provided
-    if (updateData.email && !/\S+@\S+\.\S+/.test(updateData.email)) {
-      throw new Error('Invalid email format');
+    if (updateData.email) {
+      throw new Error('Email cannot be updated directly via this route. Please use a dedicated email change process.');
     }
 
     // Validate array fields
@@ -116,35 +137,25 @@ const updateUserProfile = async (userId, updateData) => {
       throw new Error('Skills must be an array');
     }
 
-    // Validate URL fields
-    const urlFields = ['cv_url', 'linkedin', 'github', 'profile_picture_url'];
+    // Validate URL fields (ensure they are valid URLs or null/empty)
+    const urlFields = ['cv_url', 'linkedin', 'github']; // profile_picture_url is handled by upload/delete
     urlFields.forEach(field => {
-      if (updateData[field] && updateData[field] !== null) {
+      if (updateData[field] && updateData[field] !== null && updateData[field] !== '') {
         try {
           new URL(updateData[field]);
         } catch (e) {
-          throw new Error(`Invalid URL format for ${field}`);
+          throw new Error(`Invalid URL format for ${field}: ${updateData[field]}`);
         }
       }
     });
 
-    return await User.updateProfile(userId, updateData);
+    const updatedUser = await User.updateProfile(userId, updateData);
+    if (!updatedUser) {
+      throw new Error('Failed to update user profile or user not found.');
+    }
+    return updatedUser;
   } catch (error) {
     console.error('UpdateUserProfile service error:', error.message);
-    throw error;
-  }
-};
-
-const generateSignedUrl = async (filePath, expiresIn = 3600) => {
-  try {
-    const { data, error } = await supabase.storage
-      .from('profile-pictures')
-      .createSignedUrl(filePath, expiresIn);
-    
-    if (error) throw error;
-    return data.signedUrl;
-  } catch (error) {
-    console.error('Signed URL error:', error.message);
     throw error;
   }
 };
@@ -167,13 +178,13 @@ const uploadProfilePicture = async (userId, file, token) => {
       throw new Error('File size too large. Maximum size is 5MB');
     }
 
-    // Upload and get signed URL
+    // Call User model to handle the actual upload to Supabase Storage
     return await User.uploadProfilePicture(
-      userId, 
-      file.buffer, 
-      file.originalname, 
+      userId,
+      file.buffer,
+      file.originalname,
       file.mimetype,
-      token
+      token // Pass token for authenticated storage upload
     );
   } catch (error) {
     console.error('UploadProfilePicture service error:', error.message);
@@ -183,19 +194,24 @@ const uploadProfilePicture = async (userId, file, token) => {
 
 const getProfilePicture = async (userId) => {
   try {
-    const user = await User.findById(userId);
-    if (!user || !user.profile_picture_path) return null;
-    
-    return await generateSignedUrl(user.profile_picture_path);
+    const user = await User.findById(userId); // This now directly returns the user with signed URL
+    if (!user || !user.profile_picture_url) {
+      return null; // Or throw an error if no picture is expected
+    }
+    return user.profile_picture_url;
   } catch (error) {
-    console.error('Get profile picture error:', error);
-    return null;
+    console.error('Get profile picture service error:', error.message);
+    throw error;
   }
 };
 
 const deleteProfilePicture = async (userId) => {
   try {
-    return await User.deleteProfilePicture(userId);
+    const success = await User.deleteProfilePicture(userId);
+    if (!success) {
+      throw new Error('Failed to delete profile picture');
+    }
+    return true;
   } catch (error) {
     console.error('DeleteProfilePicture service error:', error.message);
     throw error;
@@ -207,9 +223,19 @@ const searchUsers = async (query, page = 1, limit = 10) => {
     if (!query || query.trim().length < 2) {
       throw new Error('Search query must be at least 2 characters');
     }
+    if (isNaN(page) || page < 1) {
+      page = 1;
+    }
+    if (isNaN(limit) || limit < 1 || limit > 100) { // Example limit max
+      limit = 10;
+    }
 
     const offset = (page - 1) * limit;
-    return await User.searchUsers(query.trim(), limit, offset);
+    const users = await User.searchUsers(query.trim(), limit, offset);
+
+    // If you need total count for pagination, add a User.countUsers(query) method
+    // and return it along with users.
+    return users;
   } catch (error) {
     console.error('SearchUsers service error:', error.message);
     throw error;
@@ -220,6 +246,9 @@ const getUsersBySkills = async (skills, limit = 10) => {
   try {
     if (!Array.isArray(skills) || skills.length === 0) {
       throw new Error('Skills must be a non-empty array');
+    }
+    if (isNaN(limit) || limit < 1 || limit > 100) {
+      limit = 10;
     }
 
     return await User.getUsersBySkills(skills, limit);
@@ -238,15 +267,15 @@ const getProfileStats = async (userId) => {
 
     const stats = {
       profileComplete: 0,
-      totalFields: 10,
+      totalFields: 10, // Define total fields for completeness calculation
       completedFields: []
     };
 
-    // Check profile completeness
+    // Define fields to check for completeness. Use actual field names from your User model.
     const fields = [
       { key: 'name', label: 'Name' },
       { key: 'bio', label: 'Bio' },
-      { key: 'profile_picture_url', label: 'Profile Picture' },
+      { key: 'profile_picture_url', label: 'Profile Picture' }, 
       { key: 'about_paragraphs', label: 'About Section' },
       { key: 'skills', label: 'Skills' },
       { key: 'certifications', label: 'Certifications' },
@@ -258,7 +287,8 @@ const getProfileStats = async (userId) => {
 
     fields.forEach(field => {
       const value = user[field.key];
-      if (value !== null && value !== undefined && value !== '' && 
+      // Check for null, undefined, empty string, or empty array
+      if (value !== null && value !== undefined && value !== '' &&
           (!Array.isArray(value) || value.length > 0)) {
         stats.completedFields.push(field.label);
         stats.profileComplete++;
@@ -274,6 +304,40 @@ const getProfileStats = async (userId) => {
   }
 };
 
+const getPublicProfile = async (identifier) => {
+  try {
+    let user;
+    if (identifier.includes('@')) {
+      user = await User.findByEmail(identifier);
+    } else {
+      user = await User.findById(identifier); // Assuming User.findById can also handle non-UUID identifiers if your DB supports it
+    }
+
+    if (!user) {
+      throw new Error('Profile not found');
+    }
+
+    // Return only public information, explicitly define what's public
+    const publicProfile = {
+      id: user.id,
+      name: user.name,
+      bio: user.bio,
+      profile_picture_url: user.profile_picture_url,
+      about_paragraphs: user.about_paragraphs,
+      skills: user.skills,
+      certifications: user.certifications,
+      linkedin: user.linkedin,
+      github: user.github,
+      created_at: user.created_at
+    };
+    return publicProfile;
+  } catch (error) {
+    console.error('GetPublicProfile service error:', error.message);
+    throw error;
+  }
+};
+
+
 module.exports = {
   loginUser,
   logoutUser,
@@ -287,5 +351,6 @@ module.exports = {
   searchUsers,
   getUsersBySkills,
   getProfileStats,
-  getProfilePicture
+  getProfilePicture,
+  getPublicProfile
 };
