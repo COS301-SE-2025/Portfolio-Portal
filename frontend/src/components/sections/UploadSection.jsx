@@ -3,6 +3,7 @@ import { useState, useRef, forwardRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
+import api from './services/api.service';
 import cvDataService from "../../services/cvDataService";
 import Robot from "../3DModels/Robot";
 import SectionWrapper from "./SectionWrapper";
@@ -62,52 +63,46 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
 
   const triggerFileInput = () => fileInputRef.current.click();
 
-  const handleSubmitCV = async () => {
-    if (!file) {
-      setError("No file selected");
-      return;
+const handleSubmitCV = async () => {
+  if (!file) {
+    setError("No file selected");
+    return;
+  }
+
+  setIsProcessing(true);
+  setError(null);
+
+  const formData = new FormData();
+  formData.append("cv", file);
+
+  try {
+    // Use api.service instead of direct fetch
+    const response = await api.post('/ocr/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const result = response.data; // axios returns data in response.data
+
+    console.log("CV processing Result:", result);
+    if (result.success) {
+      cvDataService.setData(result.data);
+
+      // immediately redirect to the selected template
+      const template = result.template || "space"; // default to space if none selected
+      console.log("Redirecting to template:", template);
+      window.location.href = `/${template}`;
+    } else {
+      setError("Failed to process CV");
     }
-
-    setIsProcessing(true);
-    setError(null);
-
-    const formData = new FormData();
-    formData.append("cv", file);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5050/api/ocr/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-
-      const result = await response.json();
-
-      console.log("CV rocessing Result:", result);
-      if (result.success) {
-        cvDataService.setData(result.data);
-
-        // immediately redirect to the selected template
-        const template = result.template || "space"; // default to space if none selected
-        console.log("Redirecting to template:", template);
-        window.location.href = `/${template}`;
-      } else {
-        setError("Failed to process CV");
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      setError(`Upload failed: ${err.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
+  } catch (err) {
+    console.error("Upload error:", err);
+    setError(`Upload failed: ${err.response?.data?.message || err.message}`);
+  } finally {
+    setIsProcessing(false);
+  }
+};
   return (
     <SectionWrapper id={id} show={show} ref={ref} isDark={isDark}>
       <div
