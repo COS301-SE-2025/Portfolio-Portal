@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5050/api';
+// Use environment variable with fallback for local development
+const API_BASE_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:5050';
+
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL}/api`,
 });
 
 api.interceptors.request.use((config) => {
@@ -12,5 +14,14 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Optional: Add response interceptor for debugging
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 export default api;
