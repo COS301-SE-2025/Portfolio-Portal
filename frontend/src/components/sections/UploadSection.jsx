@@ -3,7 +3,7 @@ import { useState, useRef, forwardRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { Suspense } from "react";
-import api from './services/api.service';
+import api from '../../services/api.service';
 import cvDataService from "../../services/cvDataService";
 import Robot from "../3DModels/Robot";
 import SectionWrapper from "./SectionWrapper";
