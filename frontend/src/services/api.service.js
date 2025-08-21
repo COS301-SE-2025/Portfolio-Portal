@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-// Temporarily force production URL for testing
-const API_BASE_URL = import.meta.env.REACT_APP_API_URL || 'https://backend-production-18b9.up.railway.app';
-
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
