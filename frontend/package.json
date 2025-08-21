@@ -3,12 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+"scripts": {
+  "dev": "npm run start",
+  "build": "vite build",
+  "preview": "vite preview",
+  "lint": "eslint .",
+  "start": "vite preview"
+},
   "dependencies": {
     "@react-spring/three": "^10.0.1",
     "@react-three/drei": "^10.0.8",
@@ -40,5 +41,8 @@
     "globals": "^16.0.0",
     "tailwindcss": "^4.1.6",
     "vite": "^6.3.5"
-  }
+  },
+  "engines": {
+  "node": ">=20.0.0"
+}
 }
