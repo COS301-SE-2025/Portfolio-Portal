@@ -61,7 +61,7 @@ const getCurrentUser = async (req, res) => {
 // Create new user (register)
 const createUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, professional } = req.body; // Add professional
     
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Name, email, and password are required' });
@@ -76,7 +76,8 @@ const createUser = async (req, res) => {
     const user = await userService.createUser({ 
       email, 
       name, 
-      password
+      password,
+      professional: professional !== undefined ? professional : true // Default to true if not provided
     });
     res.status(201).json(user);
   } catch (error) {

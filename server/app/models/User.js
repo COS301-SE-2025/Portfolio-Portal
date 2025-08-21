@@ -2,49 +2,51 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = require('../config/supabase');
 
 class User {
-  static async create(email, password, name) {
-    try {
-      // Sign up user in Supabase auth
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { name } },
-      });
-      if (error) {
-        console.error('Supabase signUp error:', error.message);
-        throw new Error(error.message);
-      }
-
-      // Insert into users table with all available fields
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .insert({ 
-          auth_id: data.user.id, 
-          name, 
-          email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-      
-      if (userError) {
-        console.error('User insert error:', userError.message);
-        throw new Error(userError.message);
-      }
-
-      return { 
-        id: data.user.id, 
-        email, 
-        name, 
-        token: data.session?.access_token,
-        user_profile: user
-      };
-    } catch (error) {
-      console.error('User.create error:', error.message);
-      throw error;
+static async create(email, password, name, professional = true) { 
+  try {
+    // Sign up user in Supabase auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+    if (error) {
+      console.error('Supabase signUp error:', error.message);
+      throw new Error(error.message);
     }
+
+    // Insert into users table with professional field
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert({ 
+        auth_id: data.user.id, 
+        name, 
+        email,
+        professional,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (userError) {
+      console.error('User insert error:', userError.message);
+      throw new Error(userError.message);
+    }
+
+    return { 
+      id: data.user.id, 
+      email, 
+      name, 
+      professional, 
+      token: data.session?.access_token,
+      user_profile: user
+    };
+  } catch (error) {
+    console.error('User.create error:', error.message);
+    throw error;
   }
+}
 
   static async findById(id) {
     try {
@@ -119,10 +121,8 @@ static async updateProfile(authId, updateData) {
     const allowedFields = [
       'name', 'bio', 'cv_url', 'profile_picture_path', 
       'about_paragraphs', 'certifications', 'skills', 
-      'linkedin', 'github',
-      'selected_template'
+      'linkedin', 'github', 'selected_template', 'professional'
     ];
-    
     const sanitizedData = {};
     Object.keys(updateData).forEach(key => {
       if (allowedFields.includes(key) && updateData[key] !== undefined) {

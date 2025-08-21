@@ -79,9 +79,9 @@ const getUserByEmail = async (email) => {
 };
 
 const createUser = async (userData) => {
-  const { email, name, password } = userData;
+  const { email, name, password, professional } = userData; // Add professional
   try {
-    console.log('Creating user with:', { email, name });
+    console.log('Creating user with:', { email, name, professional });
     
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -89,7 +89,7 @@ const createUser = async (userData) => {
       throw new Error('User already registered with this email');
     }
 
-    const user = await User.create(email, password, name);
+    const user = await User.create(email, password, name, professional); // Pass professional
     console.log('Created user:', user);
     return user;
   } catch (error) {
