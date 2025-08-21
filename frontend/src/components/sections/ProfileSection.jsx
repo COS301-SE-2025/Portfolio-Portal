@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { profileService } from "../../services/profile.service";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useNavigate } from "react-router-dom";
 
 // Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
@@ -254,6 +255,7 @@ const ProfileSection = () => {
   const [uploading, setUploading] = useState(false);
   const [profilePictureError, setProfilePictureError] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+  const navigate = useNavigate();
 
   // Initialize profile image from localStorage
   useEffect(() => {
@@ -394,37 +396,39 @@ const ProfileSection = () => {
       theme: "space",
       title: "Space themed Portfolio",
       image: "../../../public/images/space.png",
-      link: "http://localhost:5173/space",
+      link: "/space",
     },
     {
       theme: "forest",
       title: "Forest themed Portfolio",
       image: "../../../public/images/forest.png",
-      link: "http://localhost:5173/forest",
+      link: "/forest",
     },
     {
       theme: "office",
       title: "Office themed Portfolio",
       image: "../../../public/images/office.png",
-      link: "http://localhost:5173/office",
+      link: "/office",
     },
     {
       theme: "lab",
       title: "Lab themed Portfolio",
       image: "../../../public/images/lab.png",
-      link: "http://localhost:5173/lab",
+      link: "/lab",
     },
     {
       theme: "Cave",
       title: "Cave themed Portfolio",
       image: "../../../public/images/cave.png",
-      link: "http://localhost:5173/cave",
+      link: "/cave",
     },
   ];
 
   const selectedTemplate = portfolioPlaceholders.find(
     (template) => template.theme === profile.selected_template
   );
+  
+  
 
   return (
     <div
@@ -711,12 +715,7 @@ const ProfileSection = () => {
               </div>
               <div className="grid gap-6">
                 {selectedTemplate ? (
-                  <a
-                    href={selectedTemplate.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group cursor-pointer transform hover:scale-105 transition-all duration-300 block"
-                  >
+                  <div className="group relative cursor-pointer">
                     <div
                       className={`relative overflow-hidden rounded-xl shadow-lg ${
                         isDark ? "bg-slate-700/50" : "bg-gray-100"
@@ -733,6 +732,7 @@ const ProfileSection = () => {
                             ? "bg-gradient-to-t from-black/70 via-transparent to-transparent"
                             : "bg-gradient-to-t from-black/60 via-transparent to-transparent"
                         }`}
+                        onClick={() => navigate(selectedTemplate.route)} style={{ cursor: "pointer" }}
                       >
                         <div className="absolute bottom-4 left-4 right-4">
                           <div className="flex items-center justify-between text-white">
@@ -763,7 +763,7 @@ const ProfileSection = () => {
                         {selectedTemplate.title}
                       </h3>
                     </div>
-                  </a>
+                  </div>
                 ) : (
                   <div
                     className={`text-center py-12 rounded-xl ${
