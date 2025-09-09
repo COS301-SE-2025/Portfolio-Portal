@@ -1,6 +1,16 @@
 import { email } from "./index";
+import { useState } from "react";
+import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
 
 const Contact = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    const result = await downloadPortfolio(setIsDownloading);
+    if (!result.success) {
+      alert(result.error);
+    }
+  };
   return (
     <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/20">
       <div className="max-w-7xl mx-auto px-6">
@@ -63,6 +73,24 @@ const Contact = () => {
                 Send Message
               </button>
             </form>
+          </div>
+        </div>
+
+        {/* Download Portfolio Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
+            <h3 className="text-white text-2xl font-bold mb-4">Download Your Portfolio</h3>
+            <p className="text-gray-300 mb-6">
+              Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
+            </p>
+            <DownloadButton 
+              isDownloading={isDownloading}
+              onClick={handleDownload}
+              variant="office"
+            />
+            <p className="text-gray-400 text-sm mt-4">
+              Includes complete React app with your data, ready to run with npm install && npm start
+            </p>
           </div>
         </div>
       </div>

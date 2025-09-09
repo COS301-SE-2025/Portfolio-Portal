@@ -47,6 +47,14 @@ router.put("/template/:authId", portfolioController.updateTemplateForUser);
 router.post("/generate", portfolioController.generatePortfolio);
 
 /**
+ * @route   POST /api/portfolio/download
+ * @desc    Generate and download a portfolio as a React app zip file
+ * @access  Public
+ * @body    { userData: Object, username?: String }
+ */
+router.post("/download", portfolioController.downloadPortfolio);
+
+/**
  * @route   GET /api/portfolio/:id
  * @desc    Get a generated portfolio by ID
  * @access  Public

@@ -8,6 +8,9 @@
 
 const templateService = require("../services/template.service");
 const Portfolio = require("../models/Portfolio");
+const fs = require('fs').promises;
+const path = require('path');
+const archiver = require('archiver');
 
 /**
  * Analyzes CV data and selects an appropriate template
@@ -260,5 +263,149 @@ const generatePortfolioSections = (cvData, templateId) => {
     })),
   };
 };
+
+/**
+ * Downloads a portfolio as a React application zip file
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.downloadPortfolio = async (req, res) => {
+  try {
+    const { userData, username } = req.body;
+
+    if (!userData) {
+      return res.status(400).json({
+        success: false,
+        message: "User data is required",
+      });
+    }
+
+    // Generate a unique filename
+    const portfolioName = username ? `${username}Portfolio` : `Portfolio_${Date.now()}`;
+    const tempDir = path.join(__dirname, '../../temp', portfolioName);
+    const templateDir = path.join(__dirname, '../../templates/react-portfolio');
+
+    // Create temp directory
+    await fs.mkdir(tempDir, { recursive: true });
+
+    // Copy template files to temp directory
+    await copyDirectory(templateDir, tempDir);
+
+    // Inject user data into the template
+    await injectUserData(tempDir, userData);
+
+    // Create zip file
+    const zipPath = path.join(__dirname, '../../temp', `${portfolioName}.zip`);
+    await createZipFile(tempDir, zipPath);
+
+    // Send the zip file
+    res.download(zipPath, `${portfolioName}.zip`, async (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+      }
+      
+      // Clean up temp files
+      try {
+        await fs.rm(tempDir, { recursive: true, force: true });
+        await fs.unlink(zipPath);
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp files:', cleanupError);
+      }
+    });
+
+  } catch (error) {
+    console.error("Error downloading portfolio:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate portfolio download",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Helper function to copy directory recursively
+ */
+async function copyDirectory(src, dest) {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+
+  for (let entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath);
+    } else {
+      await fs.copyFile(srcPath, destPath);
+    }
+  }
+}
+
+/**
+ * Helper function to inject user data into template files
+ */
+async function injectUserData(tempDir, userData) {
+  // Update package.json with user's name
+  const packageJsonPath = path.join(tempDir, 'package.json');
+  let packageJson = await fs.readFile(packageJsonPath, 'utf8');
+  packageJson = packageJson.replace('"portfolio-website"', `"${userData.name ? userData.name.toLowerCase().replace(/\s+/g, '-') : 'portfolio'}-website"`);
+  await fs.writeFile(packageJsonPath, packageJson);
+
+  // Update index.html with user's name
+  const indexHtmlPath = path.join(tempDir, 'public/index.html');
+  let indexHtml = await fs.readFile(indexHtmlPath, 'utf8');
+  indexHtml = indexHtml.replace('{{USER_NAME}}', userData.name || 'Portfolio User');
+  await fs.writeFile(indexHtmlPath, indexHtml);
+
+  // Update README.md with user's name
+  const readmePath = path.join(tempDir, 'README.md');
+  let readme = await fs.readFile(readmePath, 'utf8');
+  readme = readme.replace(/{{USER_NAME}}/g, userData.name || 'Portfolio User');
+  await fs.writeFile(readmePath, readme);
+
+  // Update portfolioData.js with user's data
+  const portfolioDataPath = path.join(tempDir, 'src/data/portfolioData.js');
+  let portfolioDataContent = await fs.readFile(portfolioDataPath, 'utf8');
+  
+  // Replace placeholders with actual data
+  portfolioDataContent = portfolioDataContent
+    .replace('{{USER_NAME}}', userData.name || 'Portfolio User')
+    .replace('{{USER_TITLE}}', userData.title || 'Professional')
+    .replace('{{USER_SUMMARY}}', userData.summary || '')
+    .replace('{{USER_SKILLS}}', JSON.stringify(userData.skills || []))
+    .replace('{{USER_EXPERIENCE}}', JSON.stringify(userData.experience || []))
+    .replace('{{USER_EDUCATION}}', JSON.stringify(userData.education || []))
+    .replace('{{USER_PROJECTS}}', JSON.stringify(userData.projects || []))
+    .replace('{{USER_EMAIL}}', userData.contact?.email || '')
+    .replace('{{USER_PHONE}}', userData.contact?.phone || '')
+    .replace('{{USER_LINKEDIN}}', userData.contact?.linkedin || '')
+    .replace('{{USER_GITHUB}}', userData.contact?.github || '');
+
+  await fs.writeFile(portfolioDataPath, portfolioDataContent);
+}
+
+/**
+ * Helper function to create zip file
+ */
+async function createZipFile(sourceDir, outputPath) {
+  return new Promise((resolve, reject) => {
+    const output = require('fs').createWriteStream(outputPath);
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    output.on('close', () => {
+      console.log(`Archive created: ${archive.pointer()} total bytes`);
+      resolve();
+    });
+
+    archive.on('error', (err) => {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(sourceDir, false);
+    archive.finalize();
+  });
+}
 
 module.exports = exports;

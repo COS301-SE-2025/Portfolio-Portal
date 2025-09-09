@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe, Download } from 'lucide-react';
 import { useCVData } from '../../../hooks/useCVData';
+import { downloadPortfolio } from '../../../services/portfolioDownload.jsx';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,7 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { name, email, phone, links } = useCVData();
 
