@@ -6,7 +6,7 @@ import api from './api.service.js';
  * Handles the download functionality for portfolio websites
  */
 
-export const downloadPortfolio = async (setIsDownloading) => {
+export const downloadPortfolio = async (setIsDownloading, templateName = 'default') => {
   setIsDownloading(true);
   
   try {
@@ -36,7 +36,8 @@ export const downloadPortfolio = async (setIsDownloading) => {
     // Prepare the data for the API
     const portfolioData = {
       userData,
-      username
+      username,
+      template: templateName
     };
 
     // Make API call to download portfolio

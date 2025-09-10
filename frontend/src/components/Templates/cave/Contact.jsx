@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe, Download } from 'lucide-react';
 import { useCVData } from '../../../hooks/useCVData';
-import { downloadPortfolio } from '../../../services/portfolioDownload.jsx';
+import { downloadPortfolio, DownloadButton } from '../../../services/portfolioDownload.jsx';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -74,6 +74,13 @@ const Contact = () => {
     e.preventDefault();
     console.log('Form submitted:', formData);
     // Add your form submission logic here
+  };
+
+  const handleDownload = async () => {
+    const result = await downloadPortfolio(setIsDownloading, 'cave');
+    if (!result.success) {
+      alert(result.error);
+    }
   };
 
   return (
@@ -205,6 +212,26 @@ const Contact = () => {
         <div className="p-6 bg-green-500/10 border border-green-400/30 rounded-lg text-center">
           <p className="text-white/90">
             Let's connect and create something amazing together!
+          </p>
+        </div>
+      </div>
+
+      {/* Download Portfolio Section */}
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-purple-400">Download Portfolio</h2>
+        <div className="p-6 bg-purple-500/10 border border-purple-400/30 rounded-lg text-center">
+          <h3 className="text-white text-2xl font-bold mb-4">Get Your Portfolio Website</h3>
+          <p className="text-white/90 mb-6">
+            Download your complete portfolio as a standalone React application that you can customize and deploy anywhere.
+          </p>
+          <DownloadButton 
+            isDownloading={isDownloading}
+            onClick={handleDownload}
+            variant="default"
+            className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700"
+          />
+          <p className="text-white/70 text-sm mt-4">
+            Includes complete React app with your data, ready to run with npm install && npm start
           </p>
         </div>
       </div>

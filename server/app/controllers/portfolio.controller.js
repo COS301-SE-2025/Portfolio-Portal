@@ -271,7 +271,7 @@ const generatePortfolioSections = (cvData, templateId) => {
  */
 exports.downloadPortfolio = async (req, res) => {
   try {
-    const { userData, username } = req.body;
+    const { userData, username, template = 'default' } = req.body;
 
     if (!userData) {
       return res.status(400).json({
@@ -283,7 +283,16 @@ exports.downloadPortfolio = async (req, res) => {
     // Generate a unique filename
     const portfolioName = username ? `${username}Portfolio` : `Portfolio_${Date.now()}`;
     const tempDir = path.join(__dirname, '../../temp', portfolioName);
-    const templateDir = path.join(__dirname, '../../templates/react-portfolio');
+    
+    // Select template directory based on the template parameter
+    const templateDir = getTemplateDirectory(template);
+    
+    if (!templateDir) {
+      return res.status(400).json({
+        success: false,
+        message: `Template '${template}' not found`,
+      });
+    }
 
     // Create temp directory
     await fs.mkdir(tempDir, { recursive: true });
@@ -322,6 +331,26 @@ exports.downloadPortfolio = async (req, res) => {
     });
   }
 };
+
+/**
+ * Helper function to get template directory based on template name
+ * @param {String} template - The template name
+ * @returns {String|null} Template directory path or null if not found
+ */
+function getTemplateDirectory(template) {
+  const templatesBaseDir = path.join(__dirname, '../../templates');
+  
+  const templateMap = {
+    'default': path.join(templatesBaseDir, 'react-portfolio'),
+    'space': path.join(templatesBaseDir, 'space-portfolio'),
+    'office': path.join(templatesBaseDir, 'office-portfolio'),
+    'forest': path.join(templatesBaseDir, 'forest-portfolio'),
+    'cave': path.join(templatesBaseDir, 'cave-portfolio'),
+    'lab': path.join(templatesBaseDir, 'lab-portfolio')
+  };
+
+  return templateMap[template] || templateMap['default'];
+}
 
 /**
  * Helper function to copy directory recursively

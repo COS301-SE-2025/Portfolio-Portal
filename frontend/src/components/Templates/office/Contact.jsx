@@ -6,7 +6,7 @@ const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
-    const result = await downloadPortfolio(setIsDownloading);
+    const result = await downloadPortfolio(setIsDownloading, 'office');
     if (!result.success) {
       alert(result.error);
     }

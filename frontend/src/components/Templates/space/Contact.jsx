@@ -24,7 +24,7 @@ const Contact = () => {
   };
 
   const handleDownload = async () => {
-    const result = await downloadPortfolio(setIsDownloading);
+    const result = await downloadPortfolio(setIsDownloading, 'space');
     if (!result.success) {
       alert(result.error);
     }
