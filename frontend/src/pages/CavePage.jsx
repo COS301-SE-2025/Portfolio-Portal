@@ -1,5 +1,5 @@
 import React from 'react';
-import Index from '../components/Templates/cave/Index'; // Adjust path based on your folder structure
+import Index from '../components/Templates/cave/cavev1/Index'; // Adjust path based on your folder structure
 
 const CavePage = () => {
   return (
