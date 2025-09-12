@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe } from 'lucide-react';
-import { useCVData } from '../../../hooks/useCVData';
+import { useCVData } from '../../../../hooks/useCVData';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
