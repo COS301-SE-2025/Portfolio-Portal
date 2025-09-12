@@ -16,6 +16,7 @@ import ForestPage from "./pages/ForestPage";
 import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
 import Space from './pages/Space';
+import CavePagev2 from './pages/CavePagev2';
 
 const HIDDEN_NAVBAR_PATHS = [
   '/',
@@ -27,7 +28,8 @@ const HIDDEN_NAVBAR_PATHS = [
   '/space',
   '/profile',
   '/lab',
-  '/cave'
+  '/cave',
+  '/cavev2',
 ];
 
 const HIDDEN_THEME_BUTTON_PATHS = [
@@ -38,6 +40,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/space',
   '/lab',
   '/cave',
+  '/cavev2',
 ];
 
 function App() {
@@ -50,6 +53,7 @@ function App() {
       <div className="min-h-screen">
         {!shouldHideNavbar && <Navbar />}
         <Routes>
+
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -60,11 +64,12 @@ function App() {
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
-          
+          <Route path="/cavev2" element={<CavePagev2 />} />
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
+          
           {/* Catch-all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

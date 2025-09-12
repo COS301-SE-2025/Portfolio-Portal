@@ -1,13 +1,12 @@
 import React, { useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { motion } from "framer-motion";
-import { fadeIn } from "../../../utils/motion";
-import useCvData from "../../../hooks/useCVData";
+import { fadeIn } from "../../../../utils/motion";
+import useCvData from "../../../../hooks/useCVData";
 import * as THREE from "three";
 
 // Import 3D Models
 import Cave2 from "../../../3DModels/Cave";
-import Crystal from "../../../3DModels/Crystal";
 import floor from "./floor.png";
 
 // Textured Floor Component
@@ -66,19 +65,8 @@ function CaveScene() {
         <Cave2 />
       </group>
       
-      {/* Supporting Crystal Models */}
-      <group ref={crystal1Ref} position={[-12, -2, -15]} scale={[2.5, 2.5, 2.5]}>
-        <Crystal />
-        <pointLight position={[0, 3, 0]} intensity={4} color="#8b5cf6" />
-      </group>
-      
-      <group ref={crystal2Ref} position={[15, -1.8, -20]} scale={[2, 2, 2]}>
-        <Crystal />
-        <pointLight position={[0, 3, 0]} intensity={3.5} color="#a855f7" />
-      </group>
-      
-      {/* Floor */}
-      <TexturedFloor />
+
+     
     </group>
   );
 }
@@ -120,9 +108,6 @@ const Hero = () => {
           <CaveScene />
         </Canvas>
       </div>
-
-      {/* Professional Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-purple-900/70 to-slate-800/90" />
 
       {/* Content Layout - Forest Template Structure */}
       <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto px-6 flex flex-row items-start gap-5">
