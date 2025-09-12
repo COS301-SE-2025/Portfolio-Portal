@@ -8,14 +8,14 @@ import Contact from './Contact';
 import LoadingScreen from './LoadingScreen';
 import './Index.css';
 
-import Cave2 from '../../3DModels/Cave';
-import Crystal from '../../3DModels/Crystal';
-import Campfire from '../../3DModels/Campfire';
-import Pickaxe from '../../3DModels/Pickaxe';
-import Shovel from '../../3DModels/Shovel';
-import Skull from '../../3DModels/Skull';
+import Cave2 from '../../../3DModels/Cave';
+import Crystal from '../../../3DModels/Crystal';
+import Campfire from '../../../3DModels/Campfire';
+import Pickaxe from '../../../3DModels/Pickaxe';
+import Shovel from '../../../3DModels/Shovel';
+import Skull from '../../../3DModels/Skull';
 import floor from './floor.png';
-import Lamp from '../../3DModels/Lamp';
+import Lamp from '../../../3DModels/Lamp';
 
 const StaticCamera = React.memo(() => {
   const { camera } = useThree();
