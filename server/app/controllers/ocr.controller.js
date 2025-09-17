@@ -1,8 +1,11 @@
 //server/app/controllers/ocr.controller.js
 const fs = require("fs");
-const { processCVWithAI } = require("../services/ocr.service");
+const { processCV } = require("../services/ocr.service");
 const { saveCVData } = require("../services/cv.service");
-const { selectTemplate, updateTemplateForUser } = require("../services/template.service");
+const {
+  selectTemplate,
+  updateTemplateForUser,
+} = require("../services/template.service");
 
 const handleUpload = async (req, res) => {
   try {
@@ -15,8 +18,8 @@ const handleUpload = async (req, res) => {
         .json({ success: false, message: "Invalid request" });
     }
 
-    // process CV with OCR & AI
-    const structuredCV = await processCVWithAI(file.path, file.mimetype);
+    // process CV
+    const structuredCV = await processCV(file.path, file.mimetype);
 
     // save structured CV data to database
     try {
