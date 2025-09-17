@@ -2,7 +2,7 @@ const { fromPath } = require("pdf2pic");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
-const { execSync, execFile } = require("child_process");
+const { execSync, execFile, execFileSync } = require("child_process"); // NEW: execFileSync for converters
 
 // Tesseract config
 const TESS_LANG = "eng";
@@ -71,6 +71,28 @@ const tesseractTSV = (imagePath) =>
       }
     );
   });
+
+const tesseractTSVWithFallback = async (imagePath) => {
+  try {
+    return await tesseractTSV(imagePath);
+  } catch (e) {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "cvocr-img-"));
+    const pngOut = path.join(tmp, "image.png");
+    try {
+      try {
+        execFileSync("magick", [imagePath, pngOut], { stdio: "ignore" });
+      } catch {
+        execFileSync("convert", [imagePath, pngOut], { stdio: "ignore" });
+      }
+      const res = await tesseractTSV(pngOut);
+      fs.rmSync(tmp, { recursive: true, force: true });
+      return res;
+    } catch (e2) {
+      fs.rmSync(tmp, { recursive: true, force: true });
+      throw e;
+    }
+  }
+};
 
 const parseTSV = (tsv) => {
   const lines = (tsv || "").split(/\r?\n/);
@@ -363,14 +385,71 @@ const pageTextByColumns = (blocks) => {
   return [leftTxt, rightTxt].filter(Boolean).join("\n\n");
 };
 
+const getExt = (p) =>
+  (path.extname(p || "").toLowerCase() || "").replace(".", "");
+const isPDF = (mt, ext) => mt === "application/pdf" || ext === "pdf";
+const isImage = (mt, ext) =>
+  (mt && mt.startsWith("image/")) ||
+  [
+    "png",
+    "jpg",
+    "jpeg",
+    "tif",
+    "tiff",
+    "bmp",
+    "gif",
+    "webp",
+    "heic",
+    "heif",
+  ].includes(ext);
+const isOfficeLike = (mt, ext) =>
+  [
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.oasis.opendocument.text",
+    "application/rtf",
+    "text/rtf",
+    "text/plain",
+    "text/html",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ].includes(mt) ||
+  ["doc", "docx", "odt", "rtf", "txt", "html", "htm", "ppt", "pptx"].includes(
+    ext
+  );
+
+const officeToPDF = (inputPath) => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "cvocr-doc-"));
+  try {
+    execFileSync(
+      "soffice",
+      ["--headless", "--convert-to", "pdf", "--outdir", outDir, inputPath],
+      { stdio: "ignore" }
+    );
+  } catch {
+    execFileSync(
+      "libreoffice",
+      ["--headless", "--convert-to", "pdf", "--outdir", outDir, inputPath],
+      { stdio: "ignore" }
+    );
+  }
+  const base = path.basename(inputPath, path.extname(inputPath));
+  const pdfPath = path.join(outDir, `${base}.pdf`);
+  if (!fs.existsSync(pdfPath)) {
+    throw new Error("Conversion to PDF failed");
+  }
+  return { outDir, pdfPath };
+};
+
 const processCV = async (filePath, mimeType) => {
   const pages = [];
 
-  if (mimeType === "application/pdf") {
+  const ext = getExt(filePath);
+  if (isPDF(mimeType, ext)) {
     const { tempDir, images } = await rasterizePDFtoImages(filePath);
     try {
       for (let i = 0; i < images.length; i++) {
-        const tsv = await tesseractTSV(images[i]);
+        const tsv = await tesseractTSVWithFallback(images[i]);
         const rows = parseTSV(tsv);
         const blocks = rowsToBlocks(rows);
         pages.push({ page: i + 1, blocks });
@@ -378,11 +457,28 @@ const processCV = async (filePath, mimeType) => {
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
-  } else if (mimeType && mimeType.startsWith("image/")) {
-    const tsv = await tesseractTSV(filePath);
+  } else if (isImage(mimeType, ext)) {
+    const tsv = await tesseractTSVWithFallback(filePath);
     const rows = parseTSV(tsv);
     const blocks = rowsToBlocks(rows);
     pages.push({ page: 1, blocks });
+  } else if (isOfficeLike(mimeType, ext)) {
+    const { outDir, pdfPath } = officeToPDF(filePath);
+    try {
+      const { tempDir, images } = await rasterizePDFtoImages(pdfPath);
+      try {
+        for (let i = 0; i < images.length; i++) {
+          const tsv = await tesseractTSVWithFallback(images[i]);
+          const rows = parseTSV(tsv);
+          const blocks = rowsToBlocks(rows);
+          pages.push({ page: i + 1, blocks });
+        }
+      } finally {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+    } finally {
+      fs.rmSync(outDir, { recursive: true, force: true });
+    }
   } else {
     throw new Error("Unsupported file type");
   }
