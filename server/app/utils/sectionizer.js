@@ -1,6 +1,6 @@
 // Input: { name, remainingCV }
 
-// const SECTION_KEYWORDS = require("./section-keywords");
+const SECTION_KEYWORDS = require("./section-keywords");
 
 const norm = (s) =>
   (s || "")
@@ -241,13 +241,77 @@ const sectionize = ({ name: ocrName, remainingCV }) => {
     }
   }
 
+  // 3) Additional sections — extract and remove each (header excluded)
+  const out = {};
+
+  // experience
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(
+      lines,
+      "experience"
+    );
+    out.experience = sectionLines;
+    lines = cleaned;
+  }
+
+  // education
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(
+      lines,
+      "education"
+    );
+    out.education = sectionLines;
+    lines = cleaned;
+  }
+
+  // skills
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(lines, "skills");
+    out.skills = sectionLines;
+    lines = cleaned;
+  }
+
+  // certifications
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(
+      lines,
+      "certifications"
+    );
+    out.certifications = sectionLines;
+    lines = cleaned;
+  }
+
+  // languages
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(
+      lines,
+      "languages"
+    );
+    out.languages = sectionLines;
+    lines = cleaned;
+  }
+
+  // projects
+  {
+    const { sectionLines, cleaned } = extractSectionByHeader(lines, "projects");
+    out.projects = sectionLines;
+    lines = cleaned;
+  }
+
   return {
     personal_info: personal,
+    experience: out.experience,
+    education: out.education,
+    skills: out.skills,
+    certifications: out.certifications,
+    languages: out.languages,
+    projects: out.projects,
     references,
-    leftovers: lines,
+    // leftovers: lines,
   };
 };
 
 module.exports = {
   sectionize,
+  extractSectionByHeader,
 };
