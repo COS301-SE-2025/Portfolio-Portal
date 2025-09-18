@@ -10,8 +10,54 @@ Title: Earth
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
-export default function Model(props) {
+export default function Earth(props) {
   const { nodes, materials } = useGLTF('/earth/earth.gltf')
+  
+  // Debug logging
+  console.log('Earth component - nodes:', nodes)
+  console.log('Earth component - materials:', materials)
+  
+  // Check if the model loaded successfully
+  if (!nodes || !materials) {
+    console.error('Earth model failed to load - nodes or materials are undefined')
+    return (
+      <group {...props} dispose={null}>
+        <mesh>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#4a5568" />
+        </mesh>
+      </group>
+    )
+  }
+  
+  // Check if the specific node exists
+  if (!nodes.Object_4) {
+    console.error('Earth model - Object_4 node not found. Available nodes:', Object.keys(nodes))
+    return (
+      <group {...props} dispose={null}>
+        <mesh>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#4a5568" />
+        </mesh>
+      </group>
+    )
+  }
+  
+  // Check if the material exists
+  if (!materials['Scene_-_Root']) {
+    console.error('Earth model - Scene_-_Root material not found. Available materials:', Object.keys(materials))
+    return (
+      <group {...props} dispose={null}>
+        <mesh>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#4a5568" />
+        </mesh>
+      </group>
+    )
+  }
+  
+  console.log('Earth model loaded successfully!')
+  
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Object_4.geometry} material={materials['Scene_-_Root']} scale={1.728} />

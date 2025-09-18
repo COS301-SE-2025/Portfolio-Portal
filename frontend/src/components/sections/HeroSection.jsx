@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
-import Earth from "../3DModels/Earth";
+import EarthTest from "../3DModels/EarthTest";
 import { useTheme } from '../../contexts/ThemeContext';
 import { Sparkles } from 'lucide-react';
 import SectionWrapper from './SectionWrapper';
@@ -69,8 +69,13 @@ const HeroSection = forwardRef(({ id, show, handleScrollToSection }, ref) => {
             <ambientLight intensity={isDark ? 1.5 : 1.8} />
             <pointLight position={[10, 10, 10]} intensity={isDark ? 1 : 0.8} />
             <pointLight position={[-10, -10, -10]} intensity={0.3} color={isDark ? "#3b82f6" : "#6366f1"} />
-            <Suspense fallback={null}>
-              <Earth />
+            <Suspense fallback={
+              <mesh>
+                <sphereGeometry args={[1, 32, 32]} />
+                <meshStandardMaterial color={isDark ? "#4a5568" : "#e2e8f0"} />
+              </mesh>
+            }>
+              <EarthTest />
               <OrbitControls enableZoom={false} autoRotate={true} autoRotateSpeed={1.5} />
             </Suspense>
           </Canvas>
