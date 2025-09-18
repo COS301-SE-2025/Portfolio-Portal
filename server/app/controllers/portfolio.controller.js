@@ -271,9 +271,11 @@ const generatePortfolioSections = (cvData, templateId) => {
  */
 exports.downloadPortfolio = async (req, res) => {
   try {
+    console.log('Download portfolio request received:', req.body);
     const { userData, username, template = 'default' } = req.body;
 
     if (!userData) {
+      console.log('No user data provided');
       return res.status(400).json({
         success: false,
         message: "User data is required",
@@ -284,10 +286,16 @@ exports.downloadPortfolio = async (req, res) => {
     const portfolioName = username ? `${username}Portfolio` : `Portfolio_${Date.now()}`;
     const tempDir = path.join(__dirname, '../../temp', portfolioName);
     
+    console.log('Portfolio name:', portfolioName);
+    console.log('Temp directory:', tempDir);
+    
     // Select template directory based on the template parameter
     const templateDir = getTemplateDirectory(template);
     
+    console.log('Template directory:', templateDir);
+    
     if (!templateDir) {
+      console.log('Template not found:', template);
       return res.status(400).json({
         success: false,
         message: `Template '${template}' not found`,
@@ -295,16 +303,20 @@ exports.downloadPortfolio = async (req, res) => {
     }
 
     // Create temp directory
+    console.log('Creating temp directory...');
     await fs.mkdir(tempDir, { recursive: true });
 
     // Copy template files to temp directory
+    console.log('Copying template files...');
     await copyDirectory(templateDir, tempDir);
 
     // Inject user data into the template
+    console.log('Injecting user data...');
     await injectUserData(tempDir, userData);
 
     // Create zip file
     const zipPath = path.join(__dirname, '../../temp', `${portfolioName}.zip`);
+    console.log('Creating zip file:', zipPath);
     await createZipFile(tempDir, zipPath);
 
     // Send the zip file
