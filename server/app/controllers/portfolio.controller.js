@@ -366,7 +366,12 @@ async function copyDirectory(src, dest) {
     if (entry.isDirectory()) {
       await copyDirectory(srcPath, destPath);
     } else {
-      await fs.copyFile(srcPath, destPath);
+      try {
+        await fs.copyFile(srcPath, destPath);
+      } catch (error) {
+        // Skip files that can't be copied (like sockets, pipes, etc.)
+        console.warn(`Skipping file ${srcPath}: ${error.message}`);
+      }
     }
   }
 }
