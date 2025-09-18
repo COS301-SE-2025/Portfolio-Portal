@@ -2,7 +2,7 @@ const { fromPath } = require("pdf2pic");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
-const { execSync, execFile, execFileSync } = require("child_process"); // NEW: execFileSync for converters
+const { execSync, execFile, execFileSync } = require("child_process");
 
 // Tesseract config
 const TESS_LANG = "eng";
