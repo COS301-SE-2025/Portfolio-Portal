@@ -1,6 +1,8 @@
 const {
   extractPersonalInfo,
   extractReferencesFirst,
+  extractSimpleBlocks,
+  extractSectionByHeader,
 } = require("../../../app/utils/sectionizer");
 
 describe("extractPersonalInfo", () => {
@@ -196,5 +198,185 @@ describe("extractReferencesFirst", () => {
     const { references, remaining } = extractReferencesFirst(lines);
     expect(references).toEqual([]);
     expect(remaining).toEqual(lines);
+  });
+});
+
+describe("extractExperience", () => {
+  test("extracts lines under Experience header until next header", () => {
+    const lines = [
+      "Experience",
+      "Company A — Software Engineer",
+      "Jan 2022 – Present",
+      "- Built key features",
+      "Education",
+      "University Y — BSc Computer Science",
+    ];
+
+    const { sectionLines, cleanedLines } = extractSectionByHeader(
+      lines,
+      "experience"
+    );
+
+    expect(sectionLines).toEqual([
+      "Company A — Software Engineer",
+      "Jan 2022 – Present",
+      "- Built key features",
+    ]);
+
+    const cleaned = cleanedLines.join("\n");
+    expect(cleaned).toContain("Education");
+    expect(cleaned).toContain("University Y — BSc Computer Science");
+    expect(cleaned).not.toContain("Company A — Software Engineer");
+  });
+
+  test("works with alternate header keyword 'Work Experience'", () => {
+    const lines = [
+      "Work Experience",
+      "Startup B — Full-Stack Developer",
+      "2020 - 2022",
+      "• Led migration to cloud",
+      "Projects",
+      "Realtime Chat App",
+    ];
+
+    const { sectionLines } = extractSectionByHeader(lines, "experience");
+
+    expect(sectionLines).toEqual([
+      "Startup B — Full-Stack Developer",
+      "2020 - 2022",
+      "• Led migration to cloud",
+    ]);
+  });
+
+  test("captures until end-of-file when there is no subsequent header", () => {
+    const lines = [
+      "Professional Experience",
+      "Company Z — Backend Engineer",
+      "2018 - 2020",
+      "- Designed APIs",
+    ];
+
+    const { sectionLines, cleanedLines } = extractSectionByHeader(
+      lines,
+      "experience"
+    );
+
+    expect(sectionLines).toEqual([
+      "Company Z — Backend Engineer",
+      "2018 - 2020",
+      "- Designed APIs",
+    ]);
+    expect(cleanedLines).toEqual([]);
+  });
+
+  test("extractSimpleBlocks returns only the experience block for its section", () => {
+    const lines = [
+      "Experience",
+      "Org C — Data Engineer",
+      "Mar 2021 – Present",
+      "Education",
+      "BSc Information Systems",
+      "Skills",
+      "Python, SQL, Airflow",
+    ];
+
+    const { blocks } = extractSimpleBlocks(lines);
+
+    expect(blocks.experience).toEqual([
+      "Org C — Data Engineer",
+      "Mar 2021 – Present",
+    ]);
+    expect(blocks.education).toEqual(["BSc Information Systems"]);
+    expect(blocks.skills).toEqual(["Python, SQL, Airflow"]);
+  });
+});
+
+describe("extractEducation", () => {
+  test("extracts lines under Education header until next header", () => {
+    const lines = [
+      "Education",
+      "University X — BSc Computer Science",
+      "2017 - 2020",
+      "Skills",
+      "Python, JavaScript",
+    ];
+
+    const { sectionLines, cleanedLines } = extractSectionByHeader(
+      lines,
+      "education"
+    );
+
+    expect(sectionLines).toEqual([
+      "University X — BSc Computer Science",
+      "2017 - 2020",
+    ]);
+
+    const cleaned = cleanedLines.join("\n");
+    expect(cleaned).toContain("Skills");
+    expect(cleaned).toContain("Python, JavaScript");
+    expect(cleaned).not.toContain("University X — BSc Computer Science");
+  });
+
+  test("works with alternate header keyword 'Academic Background'", () => {
+    const lines = [
+      "Academic Background",
+      "University Y — MSc Data Science",
+      "2021",
+      "Projects",
+      "Thesis: Forecasting",
+    ];
+
+    const { sectionLines } = extractSectionByHeader(lines, "education");
+
+    expect(sectionLines).toEqual(["University Y — MSc Data Science", "2021"]);
+  });
+
+  test("works with alternate header keyword 'Qualifications'", () => {
+    const lines = [
+      "Qualifications",
+      "Diploma in Information Technology",
+      "2015 - 2016",
+      "Experience",
+      "Company Z — Intern",
+    ];
+
+    const { sectionLines } = extractSectionByHeader(lines, "education");
+
+    expect(sectionLines).toEqual([
+      "Diploma in Information Technology",
+      "2015 - 2016",
+    ]);
+  });
+
+  test("captures until end-of-file when there is no subsequent header", () => {
+    const lines = ["Degrees", "BEng Electrical Engineering", "2013 - 2017"];
+
+    const { sectionLines, cleanedLines } = extractSectionByHeader(
+      lines,
+      "education"
+    );
+
+    expect(sectionLines).toEqual([
+      "BEng Electrical Engineering",
+      "2013 - 2017",
+    ]);
+    expect(cleanedLines).toEqual([]);
+  });
+
+  test("extractSimpleBlocks returns the education block alongside others", () => {
+    const lines = [
+      "Education",
+      "BSc Information Systems",
+      "Experience",
+      "Org C — Data Engineer",
+      "Skills",
+      "Python, SQL, Airflow",
+    ];
+
+    const { blocks } = extractSimpleBlocks(lines);
+
+    expect(blocks.education).toEqual(["BSc Information Systems"]);
+    expect(blocks.experience).toEqual(["Org C — Data Engineer"]);
+    expect(blocks.skills).toEqual(["Python, SQL, Airflow"]);
   });
 });

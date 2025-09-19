@@ -34,14 +34,13 @@ const TOP_LEVEL_SECTIONS = [
 function isHeader(line, sectionName) {
   const meta = SECTION_KEYWORDS[sectionName];
   const variants = meta?.inline || [];
-  const L = toLower(line);
+  const L = norm(line).toLowerCase();
   return variants.some((v) => {
     if (!v) return false;
     const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const re = new RegExp(
-      `(^|[^a-z0-9])${escaped}(?:\\n|\\r|\\s|:|—|-)?$|(^|\\b)${escaped}(\\b|\\s|:|—|-)`,
-      "i"
-    );
+    // header must be (almost) standalone: start of line, optional spaces,
+    // the keyword(s), then optional colon/dash/em-dash, then end.
+    const re = new RegExp(`^\\s*${escaped}\\s*(?:[:\\-—])?\\s*$`, "i");
     return re.test(L);
   });
 }
@@ -161,9 +160,8 @@ function removeStringsFromLines(lines, strings) {
 }
 
 function extractNameFallback(lines, currentName) {
-  if (norm(currentName)) return currentName; // already have a name from OCR
+  if (norm(currentName)) return currentName;
 
-  // Try labeled patterns on a single line or the next line
   const label =
     /(full\s*name|name|first\s*name|given\s*name|middle\s*name|surname|last\s*name|family\s*name)\s*[:\-–]\s*(.+)$/i;
   for (let i = 0; i < lines.length; i++) {
@@ -180,14 +178,11 @@ function extractNameFallback(lines, currentName) {
 }
 
 function guessAddress(lines, contactHitIdxs) {
-  // limit all address work to the top window only
   const limit = Math.min(lines.length, TOP_WINDOW);
 
-  // 1) Prefer explicit labels
   for (let i = 0; i < limit; i++) {
     const L = lines[i];
     if (ADDRESS_LABELS.test(L)) {
-      // "Address: <value>" or value on next line
       const afterColon = L.split(/:\s*/i)[1];
       if (afterColon && norm(afterColon)) return norm(afterColon);
       const next = norm(lines[i + 1]);
@@ -195,7 +190,6 @@ function guessAddress(lines, contactHitIdxs) {
     }
   }
 
-  // 2) Heuristic near contact info (+-3 lines) but still within top window
   if (contactHitIdxs.length) {
     const minHit = Math.min(...contactHitIdxs);
     const maxHit = Math.max(...contactHitIdxs);
@@ -207,7 +201,6 @@ function guessAddress(lines, contactHitIdxs) {
     }
   }
 
-  // 3) Fallback: first address-like anywhere
   for (let i = 0; i < limit; i++) {
     const L = lines[i];
     if (ADDRESS_LIKE.test(L) && norm(L).length > 10) return norm(L);
@@ -224,15 +217,13 @@ function extractReferencesFirst(lines) {
 }
 
 function extractPersonalInfo(lines, ocrName = "") {
-  // Pull contacts from the full CV text (post-reference removal)
   const emails = extractEmails(lines);
   const phones = extractPhones(lines);
   const { linkedIn, other } = extractLinksAll(lines);
 
   const linkedin = linkedIn[0] || "";
-  const website = other[0] || ""; // first non-linkedin URL
+  const website = other[0] || "";
 
-  // Remove links (all), emails, phones lines from the CV to avoid polluting other sections
   const cleanupNeedles = unique([
     linkedin,
     website,
@@ -245,7 +236,6 @@ function extractPersonalInfo(lines, ocrName = "") {
     cleanupNeedles
   );
 
-  // Compute contact indices (for address proximity)
   const hitIdxs = [];
   const needles = new Set(cleanupNeedles.map((s) => s.toLowerCase()));
   lines.forEach((line, idx) => {
@@ -260,7 +250,6 @@ function extractPersonalInfo(lines, ocrName = "") {
 
   const address = guessAddress(lines, hitIdxs);
 
-  // Name fallback from labels if OCR name is empty
   const name = extractNameFallback(linesAfterContactRemoval, ocrName);
 
   const personalHeaderKey = SECTION_KEYWORDS.about ? "about" : null;
@@ -313,28 +302,23 @@ function extractSimpleBlocks(lines) {
 }
 
 function processCV(ocr) {
-  // Expecting: { name, remainingCV }
   const ocrNameLocal = (ocr && ocr.name) || "";
   let lines = (ocr && ocr.remainingCV ? ocr.remainingCV : "")
     .split(/\s*[\n\r]+\s*/)
     .map((l) => l.trim())
     .filter(Boolean);
 
-  // 1) Extract and remove references first
   const { references, remaining } = extractReferencesFirst(lines);
   lines = remaining;
 
-  // 2) Extract personal info (emails/phones/links/address) and remove those lines
   const { personal_info, remaining: remainingAfterPI } = extractPersonalInfo(
     lines,
     ocrNameLocal
   );
   lines = remainingAfterPI;
 
-  // 3) Extract simple blocks (experience, education, skills, certifications, languages, projects)
   const { blocks } = extractSimpleBlocks(lines);
 
-  // 4) Return structured result
   return {
     personal_info,
     experience: blocks.experience || [],
@@ -348,12 +332,9 @@ function processCV(ocr) {
 }
 
 module.exports = {
-  // Core generic extractor
   extractSectionByHeader,
-  // Orchestrators
   extractReferencesFirst,
   extractPersonalInfo,
   extractSimpleBlocks,
-  // Main entry
   processCV,
 };
