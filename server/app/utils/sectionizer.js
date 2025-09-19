@@ -19,6 +19,18 @@ const digits = (s) => (s || "").replace(/[^0-9]/g, "");
 // top-of-document window for address/contacts proximity
 const TOP_WINDOW = 25;
 
+const TOP_LEVEL_SECTIONS = [
+  "experience",
+  "education",
+  "skills",
+  "certifications",
+  "languages",
+  "projects",
+  "references",
+  "about",
+  "personal_info",
+];
+
 function isHeader(line, sectionName) {
   const meta = SECTION_KEYWORDS[sectionName];
   const variants = meta?.inline || [];
@@ -41,12 +53,16 @@ function findHeaderIndex(lines, sectionName) {
   return -1;
 }
 
+function isTopLevelHeaderLine(line) {
+  for (const sec of TOP_LEVEL_SECTIONS) {
+    if (isHeader(line, sec)) return true;
+  }
+  return false;
+}
+
 function findNextHeaderIndex(lines, startIdx) {
-  const allSections = Object.keys(SECTION_KEYWORDS);
   for (let i = startIdx; i < lines.length; i++) {
-    for (const sec of allSections) {
-      if (isHeader(lines[i], sec)) return i;
-    }
+    if (isTopLevelHeaderLine(lines[i])) return i;
   }
   return lines.length; // no more headers
 }
