@@ -1,317 +1,343 @@
-// Input: { name, remainingCV }
-
 const SECTION_KEYWORDS = require("./section-keywords");
 
-const norm = (s) =>
-  (s || "")
-    .toLowerCase()
-    .replace(/[•·●\-\u2022:]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g;
+const PHONE_RE =
+  /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{2,5}([-.\\s]?\d{2,5}){1,3}/g;
+const URL_RE =
+  /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-z]{2,})(\/[\S]*)?\b/g;
+const ADDRESS_LABELS =
+  /(address|location|residential\s*address|physical\s*address)/i;
+const ADDRESS_LIKE =
+  /\b(\d+\s+[^,\n]+\b(st(\.|reet)?|rd|road|ave|avenue|dr|drive|ln|lane|ct|court|blvd|boulevard)\b|\b(?:suburb|town|city|province|postal|zip)\b)/i;
 
-const splitLines = (text) =>
-  (text || "")
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
+const norm = (s) => (s ?? "").toString().trim();
+const toLower = (s) => norm(s).toLowerCase();
+const unique = (arr) =>
+  Array.from(new Set(arr.filter(Boolean).map((s) => s.trim())));
+const digits = (s) => (s || "").replace(/[^0-9]/g, "");
 
-const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// top-of-document window for address/contacts proximity
+const TOP_WINDOW = 25;
 
-// Header helpers
-const allHeadersList = () =>
-  Object.values(SECTION_KEYWORDS)
-    .flatMap((v) => v?.inline || [])
-    .map(norm);
+function isHeader(line, sectionName) {
+  const meta = SECTION_KEYWORDS[sectionName];
+  const variants = meta?.inline || [];
+  const L = toLower(line);
+  return variants.some((v) => {
+    if (!v) return false;
+    const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(
+      `(^|[^a-z0-9])${escaped}(?:\\n|\\r|\\s|:|—|-)?$|(^|\\b)${escaped}(\\b|\\s|:|—|-)`,
+      "i"
+    );
+    return re.test(L);
+  });
+}
 
-const sectionHeadersFor = (sectionName) =>
-  (SECTION_KEYWORDS[sectionName]?.inline || []).map(norm);
-
-const isAnyHeader = (line, all) => {
-  const n = norm(line);
-  return all.some((h) => n.startsWith(h));
-};
-
-const isSectionHeader = (line, heads) => {
-  const n = norm(line);
-  return heads.some((h) => n.startsWith(h));
-};
-
-// Extract by "header -> next header (or EOF)"
-// Returns { sectionLines, cleaned }
-const extractSectionByHeader = (lines, sectionName) => {
-  const thisHeads = sectionHeadersFor(sectionName);
-  if (!thisHeads.length) return { sectionLines: [], cleaned: lines.slice() };
-
-  const allHeads = allHeadersList();
-  const start = lines.findIndex((ln) => isSectionHeader(ln, thisHeads));
-  if (start === -1) return { sectionLines: [], cleaned: lines.slice() };
-
-  let endExclusive = lines.length;
-  for (let i = start + 1; i < lines.length; i++) {
-    if (isAnyHeader(lines[i], allHeads)) {
-      endExclusive = i;
-      break;
-    }
-  }
-
-  const sectionLines = lines.slice(start + 1, endExclusive); // exclude the header
-  const cleaned = lines.slice(0, start).concat(lines.slice(endExclusive));
-  return { sectionLines, cleaned };
-};
-
-// Personal info helpers
-const emailRegexGlobal = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g;
-const phoneRegexGlobal =
-  /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{2,5}([-.\s]?\d{2,5}){1,3}/g;
-const urlRegexGlobal =
-  /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-z]{2,})(\/[^\s]*)?\b/g;
-
-const isLikelyAddress = (line) => {
-  const n = norm(line);
-  const addrWords = (SECTION_KEYWORDS.address?.inline || []).map(norm);
-  const hasNum = /\b\d{1,5}\b/.test(line);
-  return hasNum && addrWords.some((w) => n.includes(w));
-};
-
-// Pull labeled value on the same line or the next line
-const pullLabeledValue = (lines, labels) => {
-  if (!labels?.length) return null;
-
-  const rx = new RegExp(
-    `\\b(${labels.map(escapeRegExp).join("|")})\\b\\s*[:\\-–]?\\s*(.+)?$`,
-    "i"
-  );
-
+function findHeaderIndex(lines, sectionName) {
   for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(rx);
-    if (m) {
-      const trimTail = (val) =>
-        (val || "").split(/\s*(?:[|,;•·\-—–])\s*/)[0].trim();
+    if (isHeader(lines[i], sectionName)) return i;
+  }
+  return -1;
+}
 
-      const same = trimTail(m[2] || "");
-      if (same) return { value: same, idx: i, usedNext: false };
-
-      const next = trimTail((lines[i + 1] || "").trim());
-      if (next) return { value: next, idx: i, usedNext: true };
+function findNextHeaderIndex(lines, startIdx) {
+  const allSections = Object.keys(SECTION_KEYWORDS);
+  for (let i = startIdx; i < lines.length; i++) {
+    for (const sec of allSections) {
+      if (isHeader(lines[i], sec)) return i;
     }
   }
-  return null;
-};
+  return lines.length; // no more headers
+}
 
-const removePicked = (arr, idx, usedNext) => {
-  const keep = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (i === idx) continue;
-    if (usedNext && i === idx + 1) continue;
-    keep.push(arr[i]);
-  }
-  return keep;
-};
-
-// Main sectionize function
-const sectionize = ({ name: ocrName, remainingCV }) => {
-  let lines = splitLines(remainingCV);
-
-  // 1) References — generic header-based extraction (header excluded)
-  const { sectionLines: references, cleaned: cleanedAfterRefs } =
-    extractSectionByHeader(lines, "references");
-  lines = cleanedAfterRefs;
-
-  // 2) Personal info
-  const personal = {
-    name: (ocrName || "").trim(),
-    description: "",
-    email: "",
-    phone: "",
-    address: "",
-    linkedin: "",
-    website: "",
-  };
-
-  // 2.a) Name via labels (only if not extracted from OCR)
-  if (!personal.name) {
-    const nameLabels = SECTION_KEYWORDS.name?.inline || [];
-    const got = pullLabeledValue(lines, nameLabels);
-    if (got) {
-      personal.name = got.value;
-      lines = removePicked(lines, got.idx, got.usedNext);
-    }
+/**
+ * Generic: find header for `sectionName`, collect every line below it until the
+ * next header (of ANY section) or EOF. Returns { sectionLines, cleanedLines, range }
+ *
+ * - Does NOT include the header line itself in `sectionLines`.
+ * - "cleanedLines" removes the header and the captured block.
+ */
+function extractSectionByHeader(lines, sectionName) {
+  const startHeader = findHeaderIndex(lines, sectionName);
+  if (startHeader === -1) {
+    return { sectionLines: [], cleanedLines: [...lines], range: null };
   }
 
-  // 2.b) Email — prefer labels; then fallback to regex anywhere
-  const emailLabeled = pullLabeledValue(
-    lines,
-    SECTION_KEYWORDS.email?.inline || []
+  // The content begins after the header line
+  const contentStart = startHeader + 1;
+  // Search for the next header after the current header line
+  const nextHeader = findNextHeaderIndex(lines, contentStart);
+  const contentEnd = nextHeader; // up-to but not including nextHeader
+
+  const sectionLines = lines
+    .slice(contentStart, contentEnd)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const cleanedLines = [
+    ...lines.slice(0, startHeader),
+    ...lines.slice(contentEnd),
+  ];
+
+  return { sectionLines, cleanedLines, range: [startHeader, contentEnd] };
+}
+
+function extractEmails(lines) {
+  const matches = [...(lines.join(" ").matchAll(EMAIL_RE) || [])].map(
+    (m) => m[0]
   );
-  if (emailLabeled) {
-    personal.email = emailLabeled.value;
-    lines = removePicked(lines, emailLabeled.idx, emailLabeled.usedNext);
-  } else {
-    const emails = [...lines.join(" ").matchAll(emailRegexGlobal)].map(
-      (m) => m[0]
-    );
-    if (emails.length) {
-      personal.email = [...new Set(emails)][0];
-      lines = lines.filter((l) => !l.includes(personal.email));
-    }
-  }
+  return unique(matches);
+}
 
-  // 2.c) Phone — prefer labels; then fallback to regex anywhere
-  const phoneLabeled = pullLabeledValue(
-    lines,
-    SECTION_KEYWORDS.phone?.inline || []
+function extractPhones(lines) {
+  const allMatches = [...(lines.join(" ").matchAll(PHONE_RE) || [])]
+    .map((m) => m[0])
+    .map((num) => num.trim())
+    .filter((num) => digits(num).length >= 7);
+  return [...new Set(allMatches)];
+}
+
+function extractLinksAll(lines) {
+  const text = lines.join(" ");
+
+  // collect emails to avoid treating parts of emails as URLs
+  const emailSpans = [...(text.matchAll(EMAIL_RE) || [])].map((m) =>
+    m[0].toLowerCase()
   );
-  if (phoneLabeled) {
-    personal.phone = phoneLabeled.value;
-    lines = removePicked(lines, phoneLabeled.idx, phoneLabeled.usedNext);
-  } else {
-    const phones = [...lines.join(" ").matchAll(phoneRegexGlobal)]
-      .map((m) => m[0].trim())
-      .filter((num) => num.replace(/[^0-9]/g, "").length >= 7);
-    if (phones.length) {
-      personal.phone = [...new Set(phones)][0];
-      lines = lines.filter((l) => !l.includes(personal.phone));
-    }
-  }
 
-  // 2.d) LinkedIn — prefer labels; else scan URLs and pick those with linkedin.com
-  const linkedinLabeled = pullLabeledValue(
-    lines,
-    SECTION_KEYWORDS.linkedin?.inline || []
+  const urls = [...(text.matchAll(URL_RE) || [])].map((m) => m[0]);
+
+  const normalized = urls
+    .filter((u) => !u.includes("@"))
+    .map((u) => (u.startsWith("http") ? u : `https://${u}`));
+
+  // remove URL candidates that are substrings of any email address (e.g., domains/local parts)
+  const filteredOutEmailSubs = normalized.filter((url) => {
+    const clean = url.replace(/^https?:\/\//i, "").toLowerCase();
+    return !emailSpans.some((em) => em.includes(clean));
+  });
+
+  const linkedIn = unique(
+    filteredOutEmailSubs.filter((u) => u.toLowerCase().includes("linkedin.com"))
   );
-  if (linkedinLabeled) {
-    personal.linkedin = linkedinLabeled.value;
-    lines = removePicked(lines, linkedinLabeled.idx, linkedinLabeled.usedNext);
-  }
-
-  // 2.e) Website — prefer labels; else scan URLs for first non-LinkedIn
-  const websiteLabeled = pullLabeledValue(
-    lines,
-    SECTION_KEYWORDS.website?.inline || []
+  const others = unique(
+    filteredOutEmailSubs.filter(
+      (u) =>
+        !u.toLowerCase().includes("linkedin.com") &&
+        !u.toLowerCase().includes("github.com")
+    )
   );
-  if (websiteLabeled) {
-    personal.website = websiteLabeled.value;
-    lines = removePicked(lines, websiteLabeled.idx, websiteLabeled.usedNext);
-  }
+  return { linkedIn, other: others };
+}
 
-  // If still needed, scan all URLs
-  if (!personal.linkedin || !personal.website) {
-    const urls = [...lines.join(" ").matchAll(urlRegexGlobal)]
-      .map((m) => (m[0].startsWith("http") ? m[0] : `https://${m[0]}`))
-      .filter((u) => !u.includes("@"));
-    const uniqUrls = [...new Set(urls)];
-
-    if (!personal.linkedin) {
-      const li = uniqUrls.find((u) => u.toLowerCase().includes("linkedin.com"));
-      if (li) personal.linkedin = li;
+function removeStringsFromLines(lines, strings) {
+  const toRemove = new Set(strings.filter(Boolean));
+  if (!toRemove.size) return [...lines];
+  return lines.filter((line) => {
+    const L = line.toLowerCase();
+    for (const s of toRemove) {
+      if (!s) continue;
+      const needle = s.toLowerCase();
+      if (L.includes(needle)) return false;
     }
-    if (!personal.website) {
-      const w = uniqUrls.find((u) => !u.toLowerCase().includes("linkedin.com"));
-      if (w) personal.website = w;
-    }
+    return true;
+  });
+}
 
-    if (uniqUrls.length) {
-      lines = lines.filter(
-        (l) => !uniqUrls.some((u) => l.includes(u.replace(/^https?:\/\//, "")))
-      );
-    }
-  }
+function extractNameFallback(lines, currentName) {
+  if (norm(currentName)) return currentName; // already have a name from OCR
 
-  // 2.f) About/Summary — generic extractor by header (header excluded)
-  const { sectionLines: aboutBlock, cleaned: cleanedAfterAbout } =
-    extractSectionByHeader(lines, "about");
-  lines = cleanedAfterAbout;
-  if (aboutBlock.length) {
-    personal.description = aboutBlock.slice(0, 6).join(" ");
-  }
-
-  // 2.g) Address — prefer labeled; else heuristic
-  const addressLabels = SECTION_KEYWORDS.address?.inline || [];
-  const labeledAddr = addressLabels.length
-    ? pullLabeledValue(lines, addressLabels)
-    : null;
-  if (labeledAddr) {
-    personal.address = labeledAddr.value;
-    lines = removePicked(lines, labeledAddr.idx, labeledAddr.usedNext);
-  } else {
-    const addrIdx = lines.findIndex(isLikelyAddress);
-    if (addrIdx !== -1) {
-      personal.address = lines[addrIdx];
-      lines = lines.filter((_, i) => i !== addrIdx);
+  // Try labeled patterns on a single line or the next line
+  const label =
+    /(full\s*name|name|first\s*name|given\s*name|middle\s*name|surname|last\s*name|family\s*name)\s*[:\-–]\s*(.+)$/i;
+  for (let i = 0; i < lines.length; i++) {
+    const m = norm(lines[i]).match(label);
+    if (m && m[2]) {
+      const value = norm(m[2]).replace(/,$/, "");
+      if (value) return value;
+      const next = norm(lines[i + 1]);
+      if (next) return next;
     }
   }
 
-  // 3) Additional sections — extract and remove each (header excluded)
-  const out = {};
+  return currentName || "";
+}
 
-  // experience
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(
-      lines,
-      "experience"
+function guessAddress(lines, contactHitIdxs) {
+  // limit all address work to the top window only
+  const limit = Math.min(lines.length, TOP_WINDOW);
+
+  // 1) Prefer explicit labels
+  for (let i = 0; i < limit; i++) {
+    const L = lines[i];
+    if (ADDRESS_LABELS.test(L)) {
+      // "Address: <value>" or value on next line
+      const afterColon = L.split(/:\s*/i)[1];
+      if (afterColon && norm(afterColon)) return norm(afterColon);
+      const next = norm(lines[i + 1]);
+      if (next) return next;
+    }
+  }
+
+  // 2) Heuristic near contact info (+-3 lines) but still within top window
+  if (contactHitIdxs.length) {
+    const minHit = Math.min(...contactHitIdxs);
+    const maxHit = Math.max(...contactHitIdxs);
+    const minIdx = Math.max(Math.min(minHit, maxHit) - 3, 0);
+    const maxIdx = Math.min(Math.max(minHit, maxHit) + 3, limit - 1);
+    for (let i = minIdx; i <= maxIdx; i++) {
+      const L = lines[i];
+      if (ADDRESS_LIKE.test(L) && norm(L).length > 10) return norm(L);
+    }
+  }
+
+  // 3) Fallback: first address-like anywhere
+  for (let i = 0; i < limit; i++) {
+    const L = lines[i];
+    if (ADDRESS_LIKE.test(L) && norm(L).length > 10) return norm(L);
+  }
+  return "";
+}
+
+function extractReferencesFirst(lines) {
+  const { sectionLines, cleanedLines } = extractSectionByHeader(
+    lines,
+    "references"
+  );
+  return { references: sectionLines, remaining: cleanedLines };
+}
+
+function extractPersonalInfo(lines, ocrName = "") {
+  // Pull contacts from the full CV text (post-reference removal)
+  const emails = extractEmails(lines);
+  const phones = extractPhones(lines);
+  const { linkedIn, other } = extractLinksAll(lines);
+
+  const linkedin = linkedIn[0] || "";
+  const website = other[0] || ""; // first non-linkedin URL
+
+  // Remove links (all), emails, phones lines from the CV to avoid polluting other sections
+  const cleanupNeedles = unique([
+    linkedin,
+    website,
+    ...emails,
+    ...phones,
+    ...other,
+  ]);
+  const linesAfterContactRemoval = removeStringsFromLines(
+    lines,
+    cleanupNeedles
+  );
+
+  // Compute contact indices (for address proximity)
+  const hitIdxs = [];
+  const needles = new Set(cleanupNeedles.map((s) => s.toLowerCase()));
+  lines.forEach((line, idx) => {
+    const L = line.toLowerCase();
+    for (const n of needles) {
+      if (n && L.includes(n)) {
+        hitIdxs.push(idx);
+        break;
+      }
+    }
+  });
+
+  const address = guessAddress(lines, hitIdxs);
+
+  // Name fallback from labels if OCR name is empty
+  const name = extractNameFallback(linesAfterContactRemoval, ocrName);
+
+  const personalHeaderKey = SECTION_KEYWORDS.about ? "about" : null;
+  let description = "";
+  let linesAfterPI = [...linesAfterContactRemoval];
+  if (personalHeaderKey) {
+    const { sectionLines, cleanedLines } = extractSectionByHeader(
+      linesAfterContactRemoval,
+      personalHeaderKey
     );
-    out.experience = sectionLines;
-    lines = cleaned;
-  }
-
-  // education
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(
-      lines,
-      "education"
-    );
-    out.education = sectionLines;
-    lines = cleaned;
-  }
-
-  // skills
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(lines, "skills");
-    out.skills = sectionLines;
-    lines = cleaned;
-  }
-
-  // certifications
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(
-      lines,
-      "certifications"
-    );
-    out.certifications = sectionLines;
-    lines = cleaned;
-  }
-
-  // languages
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(
-      lines,
-      "languages"
-    );
-    out.languages = sectionLines;
-    lines = cleaned;
-  }
-
-  // projects
-  {
-    const { sectionLines, cleaned } = extractSectionByHeader(lines, "projects");
-    out.projects = sectionLines;
-    lines = cleaned;
+    description = (sectionLines || []).join("\n");
+    linesAfterPI = cleanedLines;
   }
 
   return {
-    personal_info: personal,
-    experience: out.experience,
-    education: out.education,
-    skills: out.skills,
-    certifications: out.certifications,
-    languages: out.languages,
-    projects: out.projects,
-    references,
-    // leftovers: lines,
+    personal_info: {
+      name: name || "",
+      description: description || "",
+      email: emails[0] || "",
+      phone: phones[0] || "",
+      address: address || "",
+      linkedin: linkedin || "",
+      website: website || "",
+    },
+    remaining: linesAfterPI,
   };
-};
+}
+
+// Extract a simple block for each of the remaining sections using the generic header-based extractor
+function extractSimpleBlocks(lines) {
+  const sections = [
+    "experience",
+    "education",
+    "skills",
+    "certifications",
+    "languages",
+    "projects",
+  ].filter((k) => SECTION_KEYWORDS[k]);
+
+  const out = {};
+  let rest = [...lines];
+
+  for (const sec of sections) {
+    const { sectionLines, cleanedLines } = extractSectionByHeader(rest, sec);
+    out[sec] = sectionLines;
+    rest = cleanedLines;
+  }
+
+  return { blocks: out, remaining: rest };
+}
+
+function processCV(ocr) {
+  // Expecting: { name, remainingCV }
+  const ocrNameLocal = (ocr && ocr.name) || "";
+  let lines = (ocr && ocr.remainingCV ? ocr.remainingCV : "")
+    .split(/\s*[\n\r]+\s*/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  // 1) Extract and remove references first
+  const { references, remaining } = extractReferencesFirst(lines);
+  lines = remaining;
+
+  // 2) Extract personal info (emails/phones/links/address) and remove those lines
+  const { personal_info, remaining: remainingAfterPI } = extractPersonalInfo(
+    lines,
+    ocrNameLocal
+  );
+  lines = remainingAfterPI;
+
+  // 3) Extract simple blocks (experience, education, skills, certifications, languages, projects)
+  const { blocks } = extractSimpleBlocks(lines);
+
+  // 4) Return structured result
+  return {
+    personal_info,
+    experience: blocks.experience || [],
+    education: blocks.education || [],
+    skills: blocks.skills || [],
+    certifications: blocks.certifications || [],
+    languages: blocks.languages || [],
+    projects: blocks.projects || [],
+    references: references || [],
+  };
+}
 
 module.exports = {
-  sectionize,
+  // Core generic extractor
   extractSectionByHeader,
+  // Orchestrators
+  extractReferencesFirst,
+  extractPersonalInfo,
+  extractSimpleBlocks,
+  // Main entry
+  processCV,
 };
