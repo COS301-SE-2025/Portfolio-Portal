@@ -3,6 +3,7 @@ const {
   extractReferencesFirst,
   extractSimpleBlocks,
   extractSectionByHeader,
+  processCV,
 } = require("../../../app/utils/sectionizer");
 
 describe("extractPersonalInfo", () => {
@@ -378,5 +379,65 @@ describe("extractEducation", () => {
     expect(blocks.education).toEqual(["BSc Information Systems"]);
     expect(blocks.experience).toEqual(["Org C — Data Engineer"]);
     expect(blocks.skills).toEqual(["Python, SQL, Airflow"]);
+  });
+});
+
+describe("processCV end-to-end on OCR sample", () => {
+  const ocr = {
+    name: "AVA REYNOLDS",
+    remainingCV:
+      "Phone\n123-456-7890\n\nEmail\navareynolds@gmail.com\n\nAddress\n123 Anywhere St, Any City\n\nBachelor of Science in Computer Science\n\nMIT\n2016 - 2020\n\nBA Sales and Commerce\nWardiere University\n2020 - 2023\n\nprogramming\n\nPython\ne C++\n\n° Java\n\nEthical hacking\n\nProblem-Solving\n\nTime Management\n\nnetworks\n\n.\n\nLanguage\n\ne English\n\ne French\n\nAVA\nREYNOLDS\n\nSenior Software Engineer\nAbout me\n\nInnovative developer with a passion for artificial intelligence,\nquantum computing, and space exploration technologies. With\nover 9 years of experience in software development, data\nscience, and cloud architecture, Ava has contributed to cutting-\nedge projects in Al-driven satellite navigation and astronomical\ndata processing.\n\nProfessional Experience\n\n2019 Lead Al Engineer\n\n2021 AstroTech Innovations\n* designing machine learning models for autonomous\nsatellites and deep space navigation systems. | served\nas a Full-Stack Developer at OrbitSoft, where |\ndeveloped scalable platforms for astronomical data\nanalysis, leveraging cloud computing and advanced\nprogramming techniques.\n\n2017 Software Developer\n\n2019 TechLife\n\n* Skills included software development, machine\nlearning, quantum algorithms, data science, and cloud\narchitecture. | thrived in innovative, technology-driven\nenvironment and I am always looking toward the future\nof engineering and space research.\n\nReferences\n\nBailey Dupont\nWardiere Inc. / CEO\n\nHarumi Kobayashi\nWardiere Inc. / CEO\nPhone: 123-456-7890\n\nPhone: 123-456-7890\n\nEmail: bailey@gmail.com\n\nEmail: haru@gmail.com",
+  };
+
+  const expectedAbout =
+    "Innovative developer with a passion for artificial intelligence,\n" +
+    "quantum computing, and space exploration technologies. With\n" +
+    "over 9 years of experience in software development, data\n" +
+    "science, and cloud architecture, Ava has contributed to cutting-\n" +
+    "edge projects in Al-driven satellite navigation and astronomical\n" +
+    "data processing.";
+
+  test("returns expected structure and content", () => {
+    const res = processCV(ocr);
+
+    expect(res).toEqual(
+      expect.objectContaining({
+        personal_info: expect.any(Object),
+        experience: expect.any(Array),
+        education: expect.any(Array),
+        skills: expect.any(Array),
+        certifications: expect.any(Array),
+        languages: expect.any(Array),
+        projects: expect.any(Array),
+        references: expect.any(Array),
+      })
+    );
+
+    expect(res.personal_info.name).toBe("AVA REYNOLDS");
+    expect(res.personal_info.email).toBe("avareynolds@gmail.com");
+    expect(res.personal_info.phone).toBe("123-456-7890");
+    expect(res.personal_info.address).toBe("123 Anywhere St, Any City");
+    expect(res.personal_info.linkedin).toBe("");
+    expect(res.personal_info.website).toBe("");
+    expect(res.personal_info.description).toBe(expectedAbout);
+
+    const exp = (res.experience || []).join("\n").toLowerCase();
+    expect(exp).toContain("lead al engineer");
+    expect(exp).toContain("astrotech innovations");
+    expect(exp).toContain("software developer");
+    expect(exp).toContain("techlife");
+
+    expect(res.education).toEqual([]);
+    expect(res.skills).toEqual([]);
+    expect(res.languages).toEqual([]);
+    expect(res.projects).toEqual([]);
+
+    const refs = (res.references || []).join("\n");
+    expect(refs).toMatch(/Bailey Dupont/);
+    expect(refs).toMatch(/Harumi Kobayashi/);
+    expect(refs).toMatch(/Wardiere Inc\. \/ CEO/);
+    expect(refs).toMatch(/123-456-7890/);
+    expect(refs).toMatch(/bailey@gmail\.com/);
+    expect(refs).toMatch(/haru@gmail\.com/);
   });
 });

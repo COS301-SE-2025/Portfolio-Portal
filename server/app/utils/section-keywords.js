@@ -130,7 +130,12 @@ module.exports = {
     ],
   },
   languages: {
-    inline: ["languages", "language proficiency", "spoken languages"],
+    inline: [
+      "languages",
+      "language proficiency",
+      "spoken languages",
+      "language",
+    ],
   },
   projects: {
     inline: [
