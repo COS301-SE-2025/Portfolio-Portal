@@ -1,4 +1,5 @@
 import api from './api.service.js';
+import { deployToGitHubPages, isGitHubAuthenticated } from './github.service.js';
 
 /**
  * Portfolio Download Service
@@ -69,30 +70,63 @@ export const downloadPortfolio = async (setIsDownloading, templateName = 'defaul
       template: templateName
     };
 
-    // Make API call to download portfolio
-    const response = await fetch('/api/portfolio/download', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(portfolioData),
-    });
+    // Make API call to download portfolio with better error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+    
+    try {
+      const response = await fetch('/api/portfolio/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(portfolioData),
+        signal: controller.signal,
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to generate portfolio');
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Download failed:', response.status, errorText);
+        throw new Error(`Failed to generate portfolio: ${response.status} ${response.statusText}`);
+      }
+
+      // Check if response is actually a file
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/zip')) {
+        const errorText = await response.text();
+        console.error('Unexpected response type:', contentType, errorText);
+        throw new Error('Server returned unexpected response format');
+      }
+
+      // Create blob and download with progress indication
+      console.log('Starting file download...');
+      const blob = await response.blob();
+      console.log('File downloaded, size:', blob.size, 'bytes');
+      
+      if (blob.size === 0) {
+        throw new Error('Downloaded file is empty');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${username}Portfolio.zip`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('Download completed successfully');
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Download timed out. The portfolio file might be too large. Please try again.');
+      }
+      throw error;
     }
-
-    // Create blob and download
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = `${username}Portfolio.zip`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
     
     return { success: true };
     
@@ -104,6 +138,94 @@ export const downloadPortfolio = async (setIsDownloading, templateName = 'defaul
     };
   } finally {
     setIsDownloading(false);
+  }
+};
+
+/**
+ * Deploy portfolio to GitHub Pages
+ * @param {Function} setIsDeploying - State setter for deployment status
+ * @param {string} templateName - Template name
+ * @returns {Promise<Object>} Deployment result
+ */
+export const deployPortfolioToGitHub = async (setIsDeploying, templateName = 'default') => {
+  setIsDeploying(true);
+  
+  try {
+    // Check if user is authenticated with GitHub
+    const authenticated = await isGitHubAuthenticated();
+    if (!authenticated) {
+      return {
+        success: false,
+        error: 'GitHub authorization required. Please authorize your GitHub account first.',
+        requiresAuth: true
+      };
+    }
+
+    let cvData = null;
+    
+    // Try to fetch CV data from API, but don't fail if it's not available
+    try {
+      const cvResponse = await api.get('/cv/me');
+      cvData = cvResponse.data;
+    } catch (cvError) {
+      console.warn('Could not fetch CV data:', cvError.message);
+      // Continue with default data
+    }
+
+    // Map CV data to required format, with fallbacks
+    const userData = {
+      name: cvData?.personal_info?.name || 'Portfolio User',
+      title: cvData?.personal_info?.description || 'Professional',
+      summary: cvData?.summary || 'A passionate professional with expertise in various domains.',
+      skills: cvData?.skills || ['JavaScript', 'React', 'Node.js', 'Python', 'Problem Solving'],
+      experience: cvData?.experience || [
+        {
+          title: 'Software Developer',
+          company: 'Tech Company',
+          startDate: '2022',
+          endDate: 'Present',
+          description: 'Developed and maintained web applications using modern technologies.'
+        }
+      ],
+      education: cvData?.education || [
+        {
+          degree: 'Bachelor of Science',
+          institution: 'University',
+          startDate: '2018',
+          endDate: '2022',
+          fieldOfStudy: 'Computer Science'
+        }
+      ],
+      projects: cvData?.projects || [
+        {
+          title: 'Portfolio Website',
+          description: 'A modern, responsive portfolio website built with React and Three.js.',
+          technologies: ['React', 'Three.js', 'Tailwind CSS']
+        }
+      ],
+      contact: {
+        email: cvData?.personal_info?.email || 'contact@example.com',
+        phone: cvData?.personal_info?.phone || '+1 (555) 123-4567',
+        linkedin: cvData?.personal_info?.linkedin || 'https://linkedin.com/in/yourprofile',
+        github: cvData?.personal_info?.github || 'https://github.com/yourusername'  
+      }
+    };
+
+    const username = userData.name.replace(/\s+/g, '') || 'User';
+
+    // Deploy to GitHub Pages
+    const result = await deployToGitHubPages(userData, username, templateName);
+    
+    return result;
+    
+  } catch (error) {
+    console.error('Error deploying portfolio to GitHub:', error);
+    return { 
+      success: false, 
+      error: error.message || 'Failed to deploy portfolio to GitHub Pages. Please try again.' 
+    };
+  } finally {
+    setIsDeploying(false);
   }
 };
 

@@ -27,7 +27,7 @@ router.put('/me', validateToken, updateCV);
 
 /**
  * @route   DELETE /api/cv/me
- * @desc.Managerial duties included overseeing the daily operations of the department, managing a team of 10 staff members, and coordinating with other departments to ensure seamless project execution.  Delete CV data for the authenticated user
+ * @desc    Delete CV data for the authenticated user
  * @access  Private
  */
 router.delete('/me', validateToken, deleteCV);

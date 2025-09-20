@@ -270,6 +270,9 @@ const generatePortfolioSections = (cvData, templateId) => {
  * @param {Object} res - Express response object
  */
 exports.downloadPortfolio = async (req, res) => {
+  let tempDir = null;
+  let zipPath = null;
+  
   try {
     console.log('Download portfolio request received:', req.body);
     const { userData, username, template = 'default' } = req.body;
@@ -284,7 +287,7 @@ exports.downloadPortfolio = async (req, res) => {
 
     // Generate a unique filename
     const portfolioName = username ? `${username}Portfolio` : `Portfolio_${Date.now()}`;
-    const tempDir = path.join(__dirname, '../../temp', portfolioName);
+    tempDir = path.join(__dirname, '../../temp', portfolioName);
     
     console.log('Portfolio name:', portfolioName);
     console.log('Temp directory:', tempDir);
@@ -302,6 +305,17 @@ exports.downloadPortfolio = async (req, res) => {
       });
     }
 
+    // Check if template directory exists
+    try {
+      await fs.access(templateDir);
+    } catch (error) {
+      console.error('Template directory does not exist:', templateDir);
+      return res.status(400).json({
+        success: false,
+        message: `Template directory not found: ${template}`,
+      });
+    }
+
     // Create temp directory
     console.log('Creating temp directory...');
     await fs.mkdir(tempDir, { recursive: true });
@@ -315,20 +329,51 @@ exports.downloadPortfolio = async (req, res) => {
     await injectUserData(tempDir, userData);
 
     // Create zip file
-    const zipPath = path.join(__dirname, '../../temp', `${portfolioName}.zip`);
+    zipPath = path.join(__dirname, '../../temp', `${portfolioName}.zip`);
     console.log('Creating zip file:', zipPath);
     await createZipFile(tempDir, zipPath);
+
+    // Check if zip file was created successfully
+    try {
+      const stats = await fs.stat(zipPath);
+      console.log('Zip file created successfully, size:', stats.size, 'bytes');
+      
+      if (stats.size === 0) {
+        throw new Error('Generated zip file is empty');
+      }
+    } catch (error) {
+      console.error('Error checking zip file:', error);
+      throw new Error('Failed to create zip file');
+    }
+
+    // Set appropriate headers for file download
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${portfolioName}.zip"`);
+    res.setHeader('Cache-Control', 'no-cache');
 
     // Send the zip file
     res.download(zipPath, `${portfolioName}.zip`, async (err) => {
       if (err) {
         console.error('Error sending file:', err);
+        if (!res.headersSent) {
+          res.status(500).json({
+            success: false,
+            message: "Error sending file",
+            error: err.message,
+          });
+        }
       }
       
       // Clean up temp files
       try {
-        await fs.rm(tempDir, { recursive: true, force: true });
-        await fs.unlink(zipPath);
+        if (tempDir) {
+          await fs.rm(tempDir, { recursive: true, force: true });
+          console.log('Cleaned up temp directory:', tempDir);
+        }
+        if (zipPath) {
+          await fs.unlink(zipPath);
+          console.log('Cleaned up zip file:', zipPath);
+        }
       } catch (cleanupError) {
         console.error('Error cleaning up temp files:', cleanupError);
       }
@@ -336,11 +381,26 @@ exports.downloadPortfolio = async (req, res) => {
 
   } catch (error) {
     console.error("Error downloading portfolio:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to generate portfolio download",
-      error: error.message,
-    });
+    
+    // Clean up temp files on error
+    try {
+      if (tempDir) {
+        await fs.rm(tempDir, { recursive: true, force: true });
+      }
+      if (zipPath) {
+        await fs.unlink(zipPath);
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up temp files after error:', cleanupError);
+    }
+    
+    if (!res.headersSent) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to generate portfolio download",
+        error: error.message,
+      });
+    }
   }
 };
 
@@ -437,20 +497,52 @@ async function injectUserData(tempDir, userData) {
 async function createZipFile(sourceDir, outputPath) {
   return new Promise((resolve, reject) => {
     const output = require('fs').createWriteStream(outputPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
-
-    output.on('close', () => {
-      console.log(`Archive created: ${archive.pointer()} total bytes`);
-      resolve();
+    const archive = archiver('zip', { 
+      zlib: { level: 6 }, // Reduced compression level for faster processing
+      forceLocalTime: true,
+      forceZip64: false
     });
 
-    archive.on('error', (err) => {
+    let hasError = false;
+
+    output.on('close', () => {
+      if (!hasError) {
+        console.log(`Archive created: ${archive.pointer()} total bytes`);
+        resolve();
+      }
+    });
+
+    output.on('error', (err) => {
+      hasError = true;
+      console.error('Output stream error:', err);
       reject(err);
     });
 
+    archive.on('error', (err) => {
+      hasError = true;
+      console.error('Archive error:', err);
+      reject(err);
+    });
+
+    archive.on('warning', (err) => {
+      if (err.code === 'ENOENT') {
+        console.warn('Archive warning:', err);
+      } else {
+        hasError = true;
+        reject(err);
+      }
+    });
+
     archive.pipe(output);
-    archive.directory(sourceDir, false);
-    archive.finalize();
+    
+    // Add directory with error handling
+    try {
+      archive.directory(sourceDir, false);
+      archive.finalize();
+    } catch (err) {
+      hasError = true;
+      reject(err);
+    }
   });
 }
 

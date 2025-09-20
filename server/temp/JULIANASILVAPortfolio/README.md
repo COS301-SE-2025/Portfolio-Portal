@@ -1,4 +1,4 @@
-# Test User - Portfolio Website
+# JULIANA SILVA - Portfolio Website
 
 This is a React-based portfolio website generated automatically from your CV data.
 

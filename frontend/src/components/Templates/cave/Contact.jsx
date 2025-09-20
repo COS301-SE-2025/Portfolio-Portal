@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe, Download } from 'lucide-react';
 import { useCVData } from '../../../hooks/useCVData';
 import { downloadPortfolio, DownloadButton } from '../../../services/portfolioDownload.jsx';
+import GitHubDeploy from '../../GitHubDeploy.jsx';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -233,6 +234,22 @@ const Contact = () => {
           <p className="text-white/70 text-sm mt-4">
             Includes complete React app with your data, ready to run with npm install && npm start
           </p>
+        </div>
+      </div>
+
+      {/* GitHub Pages Deployment Section */}
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-cyan-400">Deploy to GitHub Pages</h2>
+        <div className="p-6 bg-cyan-500/10 border border-cyan-400/30 rounded-lg">
+          <h3 className="text-white text-2xl font-bold mb-4">Automatic Deployment</h3>
+          <p className="text-white/90 mb-6">
+            Deploy your portfolio to GitHub Pages with a single click. Your portfolio will be live at username.github.io/portfolio-name
+          </p>
+          <GitHubDeploy 
+            template="cave"
+            variant="primary"
+            className="text-white"
+          />
         </div>
       </div>
 
