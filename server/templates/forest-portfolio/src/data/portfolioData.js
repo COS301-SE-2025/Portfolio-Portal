@@ -5,6 +5,7 @@ const portfolioData = {
     title: "{{USER_TITLE}}",
     summary: "{{USER_SUMMARY}}"
   },
+  about: "{{USER_ABOUT}}",
   skills: {{USER_SKILLS}},
   experience: {{USER_EXPERIENCE}},
   education: {{USER_EDUCATION}},

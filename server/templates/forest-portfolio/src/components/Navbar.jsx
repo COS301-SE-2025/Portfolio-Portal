@@ -4,6 +4,7 @@ import portfolioData from '../data/portfolioData.js';
 const Navbar = () => {
   const [active, setActive] = useState("");
   const { header } = portfolioData;
+  const name = header.name;
 
   return (
     <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-[#0e0e2c]/80 backdrop-blur-sm">
@@ -16,7 +17,7 @@ const Navbar = () => {
           }}
         >
           <p className="text-green-400 text-[18px] font-bold">
-            {header.name}'s <span className="text-white">Portfolio</span>
+            {name}'s <span className="text-white">Portfolio</span>
           </p>
         </div>
 

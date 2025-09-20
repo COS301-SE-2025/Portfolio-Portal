@@ -41,13 +41,28 @@ app.use((req, res, next) => {
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Changed to true to ensure session is created
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax' // Added for better cross-origin support
+  },
+  name: 'portfolio.session' // Custom session name
 }));
+
+// Debug middleware for sessions
+app.use((req, res, next) => {
+  if (req.path.includes('/github/')) {
+    console.log('Session debug:', {
+      sessionID: req.sessionID,
+      hasSession: !!req.session,
+      githubOAuthState: req.session?.githubOAuthState,
+      path: req.path
+    });
+  }
+  next();
+});
 
 // File upload middleware
 const upload = multer({ dest: path.join(__dirname, "uploads/") });

@@ -16,15 +16,37 @@ const GitHubCallback = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        const code = searchParams.get('code');
-        const state = searchParams.get('state');
-        const error = searchParams.get('error');
-
-        if (error) {
-          setStatus('error');
-          setMessage(`GitHub authorization failed: ${error}`);
+        // Check if this is a redirect from the backend (success case)
+        const success = searchParams.get('success');
+        const userParam = searchParams.get('user');
+        
+        if (success === 'true' && userParam) {
+          setStatus('success');
+          setMessage('GitHub authorization successful! Redirecting...');
+          
+          // Clean up stored state
+          localStorage.removeItem('github_oauth_state');
+          
+          // Redirect to templates page after a short delay
+          setTimeout(() => {
+            navigate('/templates');
+          }, 2000);
           return;
         }
+
+        // Check if this is an error redirect from the backend
+        const error = searchParams.get('error');
+        const message = searchParams.get('message');
+        
+        if (error) {
+          setStatus('error');
+          setMessage(message ? decodeURIComponent(message) : `GitHub authorization failed: ${error}`);
+          return;
+        }
+
+        // Legacy flow: direct callback from GitHub (should not happen with new setup)
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
 
         if (!code || !state) {
           setStatus('error');
@@ -40,7 +62,7 @@ const GitHubCallback = () => {
           return;
         }
 
-        // Process the callback
+        // Process the callback (legacy flow)
         const result = await handleGitHubCallback(code, state);
         
         if (result.success) {

@@ -4,6 +4,8 @@ import portfolioData from '../data/portfolioData.js';
 
 const Hero = () => {
   const { header } = portfolioData;
+  const name = header.name;
+  const description = header.summary;
 
   return (
     <section className="relative w-full h-screen mx-auto">
@@ -20,7 +22,7 @@ const Hero = () => {
             animate="show"
             className="text-white font-black text-5xl sm:text-6xl lg:text-7xl"
           >
-            Hi, I'm <span className="text-green-400">{header.name}</span>
+            Hi, I'm <span className="text-green-400">{name || "Alex"}</span>
           </motion.h1>
           <motion.p
             variants={fadeIn("up", "spring", 0.7, 1)}
@@ -28,7 +30,8 @@ const Hero = () => {
             animate="show"
             className="text-white mt-4 text-lg sm:text-xl max-w-3xl"
           >
-            {header.title || "Digital storyteller & environmental advocate using technology to protect our planet's wild spaces."}
+            {description ||
+              "Digital storyteller & environmental advocate using technology to protect our planet's wild spaces."}
           </motion.p>
         </div>
       </div>

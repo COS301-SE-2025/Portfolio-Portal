@@ -1,29 +1,8 @@
 import { motion } from "framer-motion";
-
-// Simple fadeIn utility function
-const fadeIn = (direction, type, delay, duration) => ({
-  hidden: {
-    x: direction === "left" ? -100 : direction === "right" ? 100 : 0,
-    y: direction === "up" ? 100 : direction === "down" ? -100 : 0,
-    opacity: 0,
-  },
-  show: {
-    x: 0,
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: type,
-      delay: delay,
-      duration: duration,
-      ease: "easeOut",
-    },
-  },
-});
+import { fadeIn } from "../utils/motion";
+import portfolioData from '../data/portfolioData.js';
 
 const About = () => {
-  // Mock data - in real implementation, this would come from props or context
-  const about = "I bridge technology and ecology to create digital experiences that inspire action.";
-  const skills = ["Eco-Web Development", "Conservation Storytelling", "Wildlife Photography", "Environmental Education"];
 
   return (
     <section id="about" className="relative w-full py-20 mx-auto">
@@ -38,12 +17,13 @@ const About = () => {
           <div className="flex-1 bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20">
             <h3 className="text-green-400 text-2xl font-bold mb-4">About Me</h3>
             <p className="text-white text-lg mb-4">
-              {about}
+              {portfolioData.header.summary ||
+                "I bridge technology and ecology to create digital experiences that inspire action."}
             </p>
           </div>
 
           <div className="flex-1 flex flex-wrap gap-10 justify-center">
-            {skills?.map((skill, index) => (
+            {portfolioData.skills?.map((skill, index) => (
               <div
                 key={`skill-${index}`}
                 className="w-full lg:w-[45%] bg-[#0e0e2c]/70 p-6 rounded-2xl backdrop-blur-sm border border-green-400/20"

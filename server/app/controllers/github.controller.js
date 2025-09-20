@@ -3,6 +3,22 @@ const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
 
+// Temporary in-memory store for OAuth states (in production, use Redis or database)
+const oauthStates = new Map();
+
+// Clean up expired states every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  const maxAge = 10 * 60 * 1000; // 10 minutes
+  
+  for (const [state, data] of oauthStates.entries()) {
+    if (now - data.timestamp > maxAge) {
+      oauthStates.delete(state);
+      console.log('Cleaned up expired OAuth state:', state);
+    }
+  }
+}, 5 * 60 * 1000);
+
 /**
  * GitHub Controller
  * 
@@ -19,8 +35,17 @@ exports.initiateOAuth = async (req, res) => {
     // Generate a random state parameter for security
     const state = crypto.randomBytes(32).toString('hex');
     
-    // Store state in session or cache for verification
+    // Store state in both session and in-memory store for redundancy
     req.session.githubOAuthState = state;
+    oauthStates.set(state, {
+      timestamp: Date.now(),
+      sessionID: req.sessionID
+    });
+    
+    console.log('GitHub OAuth initiated with state:', state);
+    console.log('Session ID:', req.sessionID);
+    console.log('Session state stored:', req.session.githubOAuthState);
+    console.log('In-memory state stored:', oauthStates.has(state));
     
     const authUrl = githubService.getAuthorizationUrl(state);
     
@@ -48,19 +73,45 @@ exports.handleOAuthCallback = async (req, res) => {
   try {
     const { code, state } = req.query;
     
+    console.log('GitHub OAuth Callback received:', { code: code ? 'present' : 'missing', state: state ? 'present' : 'missing' });
+    console.log('Session state:', req.session.githubOAuthState);
+    console.log('Received state:', state);
+    
     if (!code || !state) {
+      console.error('Missing parameters:', { code: !!code, state: !!state });
       return res.status(400).json({
         success: false,
         message: 'Missing authorization code or state parameter'
       });
     }
 
-    // Verify state parameter
-    if (req.session.githubOAuthState !== state) {
+    // Verify state parameter using both session and in-memory store
+    const sessionStateValid = req.session.githubOAuthState === state;
+    const memoryStateValid = oauthStates.has(state);
+    
+    console.log('State verification:', {
+      sessionStateValid,
+      memoryStateValid,
+      sessionState: req.session.githubOAuthState,
+      receivedState: state,
+      hasInMemoryState: oauthStates.has(state)
+    });
+    
+    if (!sessionStateValid && !memoryStateValid) {
+      console.error('State verification failed:', { 
+        sessionState: req.session.githubOAuthState, 
+        receivedState: state,
+        hasInMemoryState: oauthStates.has(state)
+      });
       return res.status(400).json({
         success: false,
         message: 'Invalid state parameter'
       });
+    }
+    
+    // Clean up the state from in-memory store after successful verification
+    if (memoryStateValid) {
+      oauthStates.delete(state);
     }
 
     // Exchange code for access token
@@ -70,28 +121,27 @@ exports.handleOAuthCallback = async (req, res) => {
     req.session.githubAccessToken = tokenData.accessToken;
     req.session.githubUser = tokenData.user;
 
-    res.json({
-      success: true,
-      user: tokenData.user,
-      message: 'GitHub authorization successful'
-    });
+    console.log('GitHub OAuth successful for user:', tokenData.user.login);
+
+    // Redirect to frontend with success status
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectUrl = `${frontendUrl}/github/callback?success=true&user=${encodeURIComponent(JSON.stringify(tokenData.user))}`;
+    
+    res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error handling OAuth callback:', error);
     
     // Handle specific OAuth errors
     if (error.message.includes('incorrect or expired')) {
-      return res.status(400).json({
-        success: false,
-        message: 'GitHub authorization code has expired. Please try authorizing again.',
-        error: 'EXPIRED_CODE'
-      });
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const redirectUrl = `${frontendUrl}/github/callback?error=EXPIRED_CODE&message=${encodeURIComponent('GitHub authorization code has expired. Please try authorizing again.')}`;
+      return res.redirect(redirectUrl);
     }
     
-    res.status(500).json({
-      success: false,
-      message: 'Failed to complete GitHub authorization',
-      error: error.message
-    });
+    // Redirect to frontend with error
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const redirectUrl = `${frontendUrl}/github/callback?error=GENERAL_ERROR&message=${encodeURIComponent('Failed to complete GitHub authorization')}`;
+    res.redirect(redirectUrl);
   }
 };
 

@@ -1,25 +1,6 @@
 import { motion } from "framer-motion";
+import { fadeIn } from "../utils/motion";
 import { useState } from "react";
-
-// Simple fadeIn utility function
-const fadeIn = (direction, type, delay, duration) => ({
-  hidden: {
-    x: direction === "left" ? -100 : direction === "right" ? 100 : 0,
-    y: direction === "up" ? 100 : direction === "down" ? -100 : 0,
-    opacity: 0,
-  },
-  show: {
-    x: 0,
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: type,
-      delay: delay,
-      duration: duration,
-      ease: "easeOut",
-    },
-  },
-});
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -91,30 +72,6 @@ const Contact = () => {
               Send Message
             </button>
           </form>
-        </motion.div>
-
-        {/* Download Portfolio Section */}
-        <motion.div
-          variants={fadeIn("up", "spring", 0.7, 1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20 mt-8"
-        >
-          <h3 className="text-green-400 text-2xl font-bold mb-4">Download Your Portfolio</h3>
-          <p className="text-white mb-6">
-            Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
-          </p>
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-500 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isDownloading ? "Downloading..." : "Download Portfolio"}
-          </button>
-          <p className="text-gray-400 text-sm mt-4">
-            Includes complete React app with your data, ready to run with npm install && npm start
-          </p>
         </motion.div>
       </div>
     </section>

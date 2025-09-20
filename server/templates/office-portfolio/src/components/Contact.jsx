@@ -8,6 +8,7 @@ const Contact = () => {
     email: '',
     message: ''
   });
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,6 +21,15 @@ const Contact = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    // Simulate download process
+    setTimeout(() => {
+      setIsDownloading(false);
+      alert("Portfolio download completed!");
+    }, 2000);
   };
 
   return (
@@ -145,6 +155,26 @@ const Contact = () => {
                 Send Message
               </button>
             </form>
+          </div>
+        </div>
+
+        {/* Download Portfolio Section */}
+        <div className="mt-16">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
+            <h3 className="text-blue-400 text-2xl font-bold mb-4">Download Your Portfolio</h3>
+            <p className="text-white mb-6">
+              Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
+            </p>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-500 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDownloading ? "Downloading..." : "Download Portfolio"}
+            </button>
+            <p className="text-gray-400 text-sm mt-4">
+              Includes complete React app with your data, ready to run with npm install && npm start
+            </p>
           </div>
         </div>
       </div>
