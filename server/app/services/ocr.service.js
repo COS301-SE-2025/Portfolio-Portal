@@ -94,6 +94,43 @@ const tesseractTSVWithFallback = async (imagePath) => {
   }
 };
 
+// simple ImageMagick wrapper (tries `magick`, then `convert`)
+const magickRun = (args) => {
+  try {
+    execFileSync("magick", args, { stdio: "ignore" });
+    return true;
+  } catch {
+    try {
+      execFileSync("convert", args, { stdio: "ignore" });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+};
+
+// basic preprocessing: grayscale + normalize + contrast-stretch + light sharpen
+const preprocessBasicImage = (inputPath) => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "cvocr-prep-"));
+  const outPath = path.join(tmpDir, "preprocessed.png");
+  const ok = magickRun([
+    inputPath,
+    "-colorspace",
+    "Gray",
+    "-normalize",
+    "-contrast-stretch",
+    "1%",
+    "-sharpen",
+    "0x1.0",
+    outPath,
+  ]);
+  if (!ok || !fs.existsSync(outPath)) {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    return null;
+  }
+  return { tmpDir, outPath };
+};
+
 const parseTSV = (tsv) => {
   const lines = (tsv || "").split(/\r?\n/);
   if (!lines.length) return [];
@@ -123,6 +160,52 @@ const parseTSV = (tsv) => {
     rows.push(obj);
   }
   return rows;
+};
+
+// quick TSV quality score: sum of confidences + character count of words
+const scoreTSV = (tsv) => {
+  const rows = parseTSV(tsv);
+  let confSum = 0;
+  let charCount = 0;
+  for (const r of rows) {
+    if (r.level === 5 && r.text) {
+      if (isFinite(r.conf) && r.conf > 0) confSum += r.conf;
+      charCount += r.text.length;
+    }
+  }
+  return confSum + charCount;
+};
+
+// run OCR on original and a basic preprocessed image, pick the better TSV
+const tesseractBestOfOriginalAndPreprocessed = async (imagePath) => {
+  let tsvOriginal = "";
+  try {
+    tsvOriginal = await tesseractTSVWithFallback(imagePath);
+  } catch {
+    tsvOriginal = "";
+  }
+
+  let tsvPre = "";
+  let prepTmp = null;
+  try {
+    const prep = preprocessBasicImage(imagePath);
+    if (prep && prep.outPath) {
+      prepTmp = prep.tmpDir;
+      tsvPre = await tesseractTSVWithFallback(prep.outPath);
+    }
+  } catch {
+    tsvPre = "";
+  } finally {
+    if (prepTmp) fs.rmSync(prepTmp, { recursive: true, force: true });
+  }
+
+  const sOrig = tsvOriginal ? scoreTSV(tsvOriginal) : -1;
+  const sPre = tsvPre ? scoreTSV(tsvPre) : -1;
+
+  if (sPre > sOrig) return tsvPre;
+  if (sOrig >= 0) return tsvOriginal;
+  // if both failed, throw
+  throw new Error("tesseract failed on both original and preprocessed images");
 };
 
 // group words into lines
@@ -211,6 +294,10 @@ const HEADER_ALIASES = [
   "profile",
   "summary profile",
   "qualifications",
+  "contact info",
+  "contact information",
+  "contact details",
+  "professional skills",
 ];
 
 const normalize = (t) =>
@@ -449,7 +536,7 @@ const processCV = async (filePath, mimeType) => {
     const { tempDir, images } = await rasterizePDFtoImages(filePath);
     try {
       for (let i = 0; i < images.length; i++) {
-        const tsv = await tesseractTSVWithFallback(images[i]);
+        const tsv = await tesseractBestOfOriginalAndPreprocessed(images[i]);
         const rows = parseTSV(tsv);
         const blocks = rowsToBlocks(rows);
         pages.push({ page: i + 1, blocks });
@@ -458,7 +545,7 @@ const processCV = async (filePath, mimeType) => {
       fs.rmSync(tempDir, { recursive: true, force: true });
     }
   } else if (isImage(mimeType, ext)) {
-    const tsv = await tesseractTSVWithFallback(filePath);
+    const tsv = await tesseractBestOfOriginalAndPreprocessed(filePath);
     const rows = parseTSV(tsv);
     const blocks = rowsToBlocks(rows);
     pages.push({ page: 1, blocks });
@@ -468,7 +555,7 @@ const processCV = async (filePath, mimeType) => {
       const { tempDir, images } = await rasterizePDFtoImages(pdfPath);
       try {
         for (let i = 0; i < images.length; i++) {
-          const tsv = await tesseractTSVWithFallback(images[i]);
+          const tsv = await tesseractBestOfOriginalAndPreprocessed(images[i]);
           const rows = parseTSV(tsv);
           const blocks = rowsToBlocks(rows);
           pages.push({ page: i + 1, blocks });
