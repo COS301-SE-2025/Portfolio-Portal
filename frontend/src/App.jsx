@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
+import Social from './pages/Social';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
 
@@ -30,6 +31,7 @@ const HIDDEN_NAVBAR_PATHS = [
   '/lab',
   '/cave',
   '/cavev2',
+  '/social',
 ];
 
 const HIDDEN_THEME_BUTTON_PATHS = [
@@ -41,6 +43,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/lab',
   '/cave',
   '/cavev2',
+  '/social',
 ];
 
 function App() {
@@ -65,7 +68,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
           <Route path="/cavev2" element={<CavePagev2 />} />
-
+          <Route path="/social" element={<Social />} />
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/space" element={<Space />} />
