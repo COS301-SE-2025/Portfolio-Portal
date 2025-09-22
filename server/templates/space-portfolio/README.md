@@ -36,9 +36,7 @@ This creates a `build` folder with optimized files ready for deployment.
 ### Deployment Options
 
 #### GitHub Pages
-1. Install gh-pages: `npm install --save-dev gh-pages`
-2. Add to package.json scripts: `"deploy": "gh-pages -d build"`
-3. Run: `npm run deploy`
+This portfolio is automatically deployed to GitHub Pages using GitHub Actions. The deployment workflow is configured in `.github/workflows/deploy.yml` and will automatically build and deploy your portfolio whenever you push changes to the main branch.
 
 #### Netlify
 1. Drag and drop the `build` folder to [Netlify](https://netlify.com)

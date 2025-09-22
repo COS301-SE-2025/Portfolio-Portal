@@ -20,8 +20,8 @@ const Navbar = () => {
           onClick={() => scrollToSection('hero')}
           className="flex items-center gap-2 cursor-pointer"
         >
-          <p className="text-blue-400 text-[18px] font-bold">
-            {header.name}'s <span className="text-white">Office</span>
+          <p className="text-purple-400 text-[18px] font-bold">
+            {header.name}'s <span className="text-white">Portfolio</span>
           </p>
         </button>
 
@@ -30,8 +30,8 @@ const Navbar = () => {
             <li
               key={item}
               className={`${
-                active === item ? "text-blue-400" : "text-white"
-              } hover:text-blue-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
+                active === item ? "text-purple-400" : "text-white"
+              } hover:text-purple-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
             >
               <button
                 onClick={() => scrollToSection(item)}

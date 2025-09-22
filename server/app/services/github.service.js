@@ -12,7 +12,7 @@ class GitHubService {
   constructor() {
     this.clientId = process.env.GITHUB_CLIENT_ID;
     this.clientSecret = process.env.GITHUB_CLIENT_SECRET;
-    this.redirectUri = process.env.GITHUB_REDIRECT_URI || `${process.env.FRONTEND_URL}/github/callback`;
+    this.redirectUri = process.env.GITHUB_REDIRECT_URI || `${process.env.BACKEND_URL}/api/github/callback`;
   }
 
   /**
@@ -113,44 +113,48 @@ class GitHubService {
   }
 
   /**
-   * Deploy portfolio to GitHub Pages
+   * Deploy portfolio to GitHub Pages using a simpler approach
    * @param {string} accessToken - GitHub access token
    * @param {string} repoOwner - Repository owner
    * @param {string} repoName - Repository name
    * @param {string} portfolioPath - Path to the portfolio files
    * @param {Object} userData - User data for the portfolio
+   * @param {Object} githubUser - GitHub user object
    * @returns {Promise<Object>} Deployment result
    */
-  async deployToGitHubPages(accessToken, repoOwner, repoName, portfolioPath, userData) {
+  async deployToGitHubPages(accessToken, repoOwner, repoName, portfolioPath, userData, githubUser) {
+    const tempRepoPath = path.join(__dirname, '../../temp', `repo-${Date.now()}`);
+    
     try {
       const octokit = new Octokit({
         auth: accessToken
       });
 
-      // Clone the repository
-      const tempRepoPath = path.join(__dirname, '../../temp', `repo-${Date.now()}`);
-      const git = simpleGit();
-
+      console.log('Starting GitHub Pages deployment...');
+      
+      // Create temp directory
       await fs.mkdir(tempRepoPath, { recursive: true });
-      await git.clone(`https://github.com/${repoOwner}/${repoName}.git`, tempRepoPath);
+
+      // Clone the repository
+      const git = simpleGit();
+      const cloneUrl = `https://${accessToken}@github.com/${repoOwner}/${repoName}.git`;
+      console.log('Cloning repository...');
+      await git.clone(cloneUrl, tempRepoPath);
 
       // Copy portfolio files to repository
+      console.log('Copying portfolio files...');
       await this.copyPortfolioFiles(portfolioPath, tempRepoPath);
 
-      // Update package.json for GitHub Pages
-      await this.updatePackageJsonForPages(tempRepoPath, repoName);
+      // Fix package.json for GitHub Pages
+      await this.fixPackageJson(tempRepoPath, repoName, githubUser);
 
-      // Create .github/workflows directory and deployment workflow
-      await this.createGitHubWorkflow(tempRepoPath, repoName);
+      // Build the application locally
+      console.log('Building application...');
+      await this.buildApplication(tempRepoPath);
 
-      // Commit and push changes
-      const repoGit = simpleGit(tempRepoPath);
-      await repoGit.add('.');
-      await repoGit.commit('Initial portfolio deployment');
-      await repoGit.push('origin', 'main');
-
-      // Enable GitHub Pages
-      await this.enableGitHubPages(octokit, repoOwner, repoName);
+      // Create a simple static deployment instead of using GitHub Actions
+      console.log('Creating static deployment files...');
+      await this.createStaticDeployment(tempRepoPath, userData, githubUser);
 
       // Clean up temp directory
       await fs.rm(tempRepoPath, { recursive: true, force: true });
@@ -162,6 +166,14 @@ class GitHubService {
       };
     } catch (error) {
       console.error('Error deploying to GitHub Pages:', error);
+      
+      // Clean up temp directory on error
+      try {
+        await fs.rm(tempRepoPath, { recursive: true, force: true });
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp directory:', cleanupError);
+      }
+      
       throw error;
     }
   }
@@ -172,11 +184,18 @@ class GitHubService {
    * @param {string} destPath - Destination repository path
    */
   async copyPortfolioFiles(sourcePath, destPath) {
+    console.log(`Copying files from ${sourcePath} to ${destPath}`);
+    
     const files = await fs.readdir(sourcePath, { withFileTypes: true });
     
     for (const file of files) {
       const sourceFile = path.join(sourcePath, file.name);
       const destFile = path.join(destPath, file.name);
+      
+      // Skip hidden files and directories (like .git)
+      if (file.name.startsWith('.')) {
+        continue;
+      }
       
       if (file.isDirectory()) {
         await fs.mkdir(destFile, { recursive: true });
@@ -188,85 +207,230 @@ class GitHubService {
   }
 
   /**
-   * Update package.json for GitHub Pages deployment
+   * Fix package.json with proper dependencies and configuration
    * @param {string} repoPath - Repository path
    * @param {string} repoName - Repository name
+   * @param {Object} githubUser - GitHub user object
    */
-  async updatePackageJsonForPages(repoPath, repoName) {
+  async fixPackageJson(repoPath, repoName, githubUser) {
     const packageJsonPath = path.join(repoPath, 'package.json');
     
     try {
-      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'));
+      console.log('Fixing package.json...');
       
-      // Add homepage for GitHub Pages
-      packageJson.homepage = `https://${process.env.GITHUB_USERNAME || 'yourusername'}.github.io/${repoName}`;
+      let packageJson = {};
       
-      // Add deploy script
-      if (!packageJson.scripts) {
-        packageJson.scripts = {};
+      // Try to read existing package.json
+      try {
+        const existingContent = await fs.readFile(packageJsonPath, 'utf8');
+        packageJson = JSON.parse(existingContent);
+      } catch (error) {
+        console.log('No existing package.json found, creating new one');
       }
-      packageJson.scripts.deploy = 'gh-pages -d dist';
-      
-      // Add gh-pages dependency
-      if (!packageJson.devDependencies) {
-        packageJson.devDependencies = {};
-      }
-      packageJson.devDependencies['gh-pages'] = '^6.1.1';
-      
-      await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
+
+      // Create a complete, working package.json
+      const fixedPackageJson = {
+        name: repoName,
+        version: "0.1.0",
+        private: true,
+        homepage: `https://${githubUser.login}.github.io/${repoName}`,
+        dependencies: {
+          "@testing-library/jest-dom": "^5.16.4",
+          "@testing-library/react": "^13.3.0",
+          "@testing-library/user-event": "^13.5.0",
+          "react": "^18.2.0",
+          "react-dom": "^18.2.0",
+          "react-scripts": "5.0.1",
+          "web-vitals": "^2.1.4",
+          ...packageJson.dependencies
+        },
+        scripts: {
+          "start": "react-scripts start",
+          "build": "react-scripts build",
+          "test": "react-scripts test",
+          "eject": "react-scripts eject"
+        },
+        eslintConfig: {
+          extends: [
+            "react-app",
+            "react-app/jest"
+          ]
+        },
+        browserslist: {
+          production: [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+          ],
+          development: [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+          ]
+        }
+      };
+
+      await fs.writeFile(packageJsonPath, JSON.stringify(fixedPackageJson, null, 2));
+      console.log('Package.json fixed successfully');
     } catch (error) {
-      console.error('Error updating package.json:', error);
+      console.error('Error fixing package.json:', error);
       throw error;
     }
   }
 
   /**
-   * Create GitHub Actions workflow for automatic deployment
+   * Build the React application with better error handling
    * @param {string} repoPath - Repository path
-   * @param {string} repoName - Repository name
    */
-  async createGitHubWorkflow(repoPath, repoName) {
-    const workflowDir = path.join(repoPath, '.github', 'workflows');
-    await fs.mkdir(workflowDir, { recursive: true });
-    
-    const workflowContent = `name: Deploy to GitHub Pages
+  async buildApplication(repoPath) {
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    try {
+      console.log('Installing dependencies...');
+      
+      // Remove existing node_modules and package-lock to ensure clean install
+      try {
+        await execAsync('rm -rf node_modules package-lock.json', { cwd: repoPath });
+      } catch (error) {
+        console.log('No existing node_modules to clean');
+      }
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      // Install dependencies with specific flags for better compatibility
+      const installCmd = 'npm install --legacy-peer-deps --no-audit --no-fund';
+      console.log(`Running: ${installCmd}`);
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build
-      run: npm run build
-      
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: \${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-`;
+      const installResult = await execAsync(installCmd, {
+        cwd: repoPath,
+        timeout: 300000, // 5 minutes
+        maxBuffer: 1024 * 1024 * 10, // 10MB
+        env: {
+          ...process.env,
+          NODE_ENV: 'production'
+        }
+      });
 
-    const workflowPath = path.join(workflowDir, 'deploy.yml');
-    await fs.writeFile(workflowPath, workflowContent);
+      console.log('Dependencies installed successfully');
+      if (installResult.stderr) {
+        console.log('Install warnings:', installResult.stderr);
+      }
+
+      // Build the application
+      console.log('Building React application...');
+      
+      const buildResult = await execAsync('npm run build', {
+        cwd: repoPath,
+        timeout: 300000, // 5 minutes
+        maxBuffer: 1024 * 1024 * 20, // 20MB
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          CI: 'false', // Treat warnings as warnings, not errors
+          GENERATE_SOURCEMAP: 'false' // Don't generate source maps
+        }
+      });
+
+      console.log('Application built successfully');
+      
+      // Verify build directory exists and has content
+      const buildDir = path.join(repoPath, 'build');
+      const buildExists = await fs.access(buildDir).then(() => true).catch(() => false);
+      
+      if (!buildExists) {
+        throw new Error('Build directory was not created');
+      }
+
+      const buildContents = await fs.readdir(buildDir);
+      if (buildContents.length === 0) {
+        throw new Error('Build directory is empty');
+      }
+
+      console.log('Build verification passed');
+      
+    } catch (error) {
+      console.error('Build failed:', error);
+      
+      // Log more detailed error information
+      if (error.stdout) console.log('Build stdout:', error.stdout);
+      if (error.stderr) console.log('Build stderr:', error.stderr);
+      
+      // Provide more helpful error messages
+      let errorMessage = 'Build process failed';
+      
+      if (error.message.includes('react-scripts')) {
+        errorMessage = 'React Scripts build failed. Please check your template configuration.';
+      } else if (error.message.includes('ENOENT')) {
+        errorMessage = 'Build command not found. Please ensure npm is installed.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Build process timed out. Try again or check your template size.';
+      }
+      
+      throw new Error(errorMessage);
+    }
+  }
+
+  /**
+   * Create static deployment by committing build files directly
+   * @param {string} repoPath - Repository path
+   * @param {Object} userData - User data
+   * @param {Object} githubUser - GitHub user object
+   */
+  async createStaticDeployment(repoPath, userData, githubUser) {
+    try {
+      const git = simpleGit(repoPath);
+
+      // Configure git
+      await git.addConfig('user.name', githubUser.name || 'Portfolio Portal');
+      await git.addConfig('user.email', githubUser.email || 'noreply@portfolioportal.com');
+
+      // Create GitHub Pages deployment using gh-pages branch
+      console.log('Creating gh-pages branch...');
+      
+      // Create an orphan gh-pages branch
+      await git.checkoutBranch('gh-pages', 'HEAD');
+      
+      // Remove all files except build directory
+      const files = await fs.readdir(repoPath, { withFileTypes: true });
+      for (const file of files) {
+        if (file.name !== 'build' && file.name !== '.git') {
+          const filePath = path.join(repoPath, file.name);
+          if (file.isDirectory()) {
+            await fs.rm(filePath, { recursive: true, force: true });
+          } else {
+            await fs.unlink(filePath);
+          }
+        }
+      }
+
+      // Move build contents to root
+      const buildPath = path.join(repoPath, 'build');
+      const buildFiles = await fs.readdir(buildPath);
+      
+      for (const file of buildFiles) {
+        const srcPath = path.join(buildPath, file);
+        const destPath = path.join(repoPath, file);
+        await fs.rename(srcPath, destPath);
+      }
+
+      // Remove empty build directory
+      await fs.rmdir(buildPath);
+
+      // Add all files
+      await git.add('.');
+      
+      // Commit
+      await git.commit(`Deploy portfolio for ${userData.name || githubUser.name}`);
+      
+      // Push to gh-pages branch
+      await git.push('origin', 'gh-pages', ['--force']);
+
+      console.log('Static deployment created successfully');
+      
+    } catch (error) {
+      console.error('Error creating static deployment:', error);
+      throw error;
+    }
   }
 
   /**
@@ -277,20 +441,24 @@ jobs:
    */
   async enableGitHubPages(octokit, owner, repo) {
     try {
-      await octokit.rest.repos.update({
+      // Enable GitHub Pages with gh-pages branch as source
+      await octokit.rest.repos.createPagesSite({
         owner: owner,
         repo: repo,
-        has_pages: true,
-        pages: {
-          source: {
-            branch: 'gh-pages',
-            path: '/'
-          }
+        source: {
+          branch: 'gh-pages',
+          path: '/'
         }
       });
+      
+      console.log('GitHub Pages enabled successfully');
     } catch (error) {
-      console.error('Error enabling GitHub Pages:', error);
-      // Don't throw error as this might fail if Pages is already enabled
+      if (error.status === 409) {
+        console.log('GitHub Pages already enabled');
+      } else {
+        console.error('Error enabling GitHub Pages:', error);
+        // Don't throw error as deployment may still work
+      }
     }
   }
 
@@ -321,4 +489,3 @@ jobs:
 }
 
 module.exports = new GitHubService();
-

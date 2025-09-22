@@ -55,6 +55,13 @@ router.post("/generate", portfolioController.generatePortfolio);
 router.post("/download", portfolioController.downloadPortfolio);
 
 /**
+ * @route   GET /api/portfolio/health
+ * @desc    Health check for download endpoint
+ * @access  Public
+ */
+router.get("/health", portfolioController.healthCheck);
+
+/**
  * @route   GET /api/portfolio/:id
  * @desc    Get a generated portfolio by ID
  * @access  Public

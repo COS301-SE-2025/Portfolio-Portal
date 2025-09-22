@@ -4,9 +4,11 @@ import { fadeIn } from "../../../utils/motion";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
 import GitHubDeploy from "../../GitHubDeploy.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { cvData } = useCVData();
 
   const handleDownload = async () => {
     const result = await downloadPortfolio(setIsDownloading, 'forest');
@@ -110,8 +112,9 @@ const Contact = () => {
             Automatically deploy your portfolio to GitHub Pages with a single click. Your portfolio will be live at username.github.io/portfolio-name
           </p>
           <GitHubDeploy 
+            userData={cvData}
+            username={cvData?.name?.toLowerCase().replace(/\s+/g, '') || 'portfolio'}
             template="forest"
-            
             variant="success"
             className="text-white"
           />

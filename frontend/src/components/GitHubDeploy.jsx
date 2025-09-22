@@ -49,7 +49,11 @@ const GitHubDeploy = ({
   const handleGitHubAuth = async () => {
     try {
       setError(null);
-      const result = await initiateGitHubAuth();
+      
+      // Get current page path for return URL
+      const returnUrl = window.location.pathname;
+      
+      const result = await initiateGitHubAuth(template, returnUrl);
       
       if (result.success) {
         // Store state in localStorage for verification
@@ -77,16 +81,19 @@ const GitHubDeploy = ({
     setDeploymentResult(null);
 
     try {
+      console.log('Starting GitHub deployment...');
       const result = await deployToGitHubPages(userData, username, template);
       
       if (result.success) {
+        console.log('Deployment successful:', result.data);
         setDeploymentResult(result.data);
       } else {
+        console.error('Deployment failed:', result.error);
         setError(result.error);
       }
     } catch (error) {
       console.error('Error deploying to GitHub Pages:', error);
-      setError('Failed to deploy portfolio to GitHub Pages');
+      setError('Failed to deploy portfolio to GitHub Pages. This process can take several minutes - please try again if it fails.');
     } finally {
       setIsDeploying(false);
     }
@@ -239,7 +246,7 @@ const GitHubDeploy = ({
         ) : (
           <p>
             Your portfolio will be deployed to GitHub Pages and available publicly.
-            The deployment process may take a few minutes to complete.
+            <strong> The deployment process can take 3-5 minutes to complete</strong> - please be patient and don't close this page.
           </p>
         )}
       </div>

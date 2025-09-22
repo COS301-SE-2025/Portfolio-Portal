@@ -72,7 +72,7 @@ export const downloadPortfolio = async (setIsDownloading, templateName = 'defaul
 
     // Make API call to download portfolio with better error handling
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
     
     try {
       const response = await fetch('/api/portfolio/download', {

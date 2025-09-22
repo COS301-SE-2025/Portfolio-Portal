@@ -35,15 +35,23 @@ exports.initiateOAuth = async (req, res) => {
     // Generate a random state parameter for security
     const state = crypto.randomBytes(32).toString('hex');
     
+    // Get the template/page from query parameters
+    const template = req.query.template || 'default';
+    const returnUrl = req.query.returnUrl || '/templates';
+    
     // Store state in both session and in-memory store for redundancy
     req.session.githubOAuthState = state;
     oauthStates.set(state, {
       timestamp: Date.now(),
-      sessionID: req.sessionID
+      sessionID: req.sessionID,
+      template: template,
+      returnUrl: returnUrl
     });
     
     console.log('GitHub OAuth initiated with state:', state);
     console.log('Session ID:', req.sessionID);
+    console.log('Template:', template);
+    console.log('Return URL:', returnUrl);
     console.log('Session state stored:', req.session.githubOAuthState);
     console.log('In-memory state stored:', oauthStates.has(state));
     
@@ -109,8 +117,14 @@ exports.handleOAuthCallback = async (req, res) => {
       });
     }
     
-    // Clean up the state from in-memory store after successful verification
+    // Get the stored template and return URL before cleaning up
+    let template = 'default';
+    let returnUrl = '/templates';
+    
     if (memoryStateValid) {
+      const stateData = oauthStates.get(state);
+      template = stateData.template || 'default';
+      returnUrl = stateData.returnUrl || '/templates';
       oauthStates.delete(state);
     }
 
@@ -122,12 +136,24 @@ exports.handleOAuthCallback = async (req, res) => {
     req.session.githubUser = tokenData.user;
 
     console.log('GitHub OAuth successful for user:', tokenData.user.login);
+    console.log('OAuth callback - Session ID:', req.sessionID);
+    console.log('OAuth callback - Stored access token:', !!req.session.githubAccessToken);
+    console.log('OAuth callback - Stored GitHub user:', !!req.session.githubUser);
+    console.log('OAuth callback - Session keys:', Object.keys(req.session || {}));
+    console.log('Redirecting to:', returnUrl);
 
-    // Redirect to frontend with success status
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const redirectUrl = `${frontendUrl}/github/callback?success=true&user=${encodeURIComponent(JSON.stringify(tokenData.user))}`;
-    
-    res.redirect(redirectUrl);
+    // Save the session before redirecting
+    req.session.save((err) => {
+      if (err) {
+        console.error('Error saving session:', err);
+      }
+      
+      // Redirect to frontend with success status and return to the original page
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const redirectUrl = `${frontendUrl}${returnUrl}?github_auth=success&user=${encodeURIComponent(JSON.stringify(tokenData.user))}`;
+      
+      res.redirect(redirectUrl);
+    });
   } catch (error) {
     console.error('Error handling OAuth callback:', error);
     
@@ -151,10 +177,21 @@ exports.handleOAuthCallback = async (req, res) => {
  * @param {Object} res - Express response object
  */
 exports.deployToGitHubPages = async (req, res) => {
+  const startTime = Date.now();
+  console.log('GitHub deployment started at:', new Date().toISOString());
+  
   try {
     const { userData, username, template = 'default' } = req.body;
     const accessToken = req.session.githubAccessToken;
     const githubUser = req.session.githubUser;
+
+    console.log('Deploy request - Session ID:', req.sessionID);
+    console.log('Deploy request - Has session:', !!req.session);
+    console.log('Deploy request - Access token:', !!accessToken);
+    console.log('Deploy request - GitHub user:', !!githubUser);
+    console.log('Deploy request - Session keys:', Object.keys(req.session || {}));
+    console.log('Deploy request - Template:', template);
+    console.log('Deploy request - Username:', username);
 
     if (!accessToken || !githubUser) {
       return res.status(401).json({
@@ -193,12 +230,25 @@ exports.deployToGitHubPages = async (req, res) => {
     const repoName = `${username || githubUser.login}-portfolio`;
     
     try {
-      // Create repository
-      const repo = await githubService.createRepository(
-        accessToken,
-        repoName,
-        `Portfolio website for ${userData.name || githubUser.name}`
-      );
+      let repo;
+      
+      // Check if repository already exists
+      try {
+        repo = await githubService.getRepository(accessToken, githubUser.login, repoName);
+        console.log('Repository already exists, using existing repository:', repoName);
+      } catch (error) {
+        // Repository doesn't exist, create it
+        console.log('Creating new repository:', repoName);
+        repo = await githubService.createRepository(
+          accessToken,
+          repoName,
+          `Portfolio website for ${userData.name || githubUser.name}`
+        );
+        
+        // Wait a moment for the repository to be fully created
+        console.log('Waiting for repository to be fully created...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
 
       // Deploy to GitHub Pages
       const deploymentResult = await githubService.deployToGitHubPages(
@@ -206,11 +256,16 @@ exports.deployToGitHubPages = async (req, res) => {
         githubUser.login,
         repoName,
         tempDir,
-        userData
+        userData,
+        githubUser
       );
 
       // Clean up temp directory
       await fs.rm(tempDir, { recursive: true, force: true });
+
+      const endTime = Date.now();
+      const duration = (endTime - startTime) / 1000;
+      console.log(`GitHub deployment completed successfully in ${duration} seconds`);
 
       res.json({
         success: true,
@@ -229,7 +284,11 @@ exports.deployToGitHubPages = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Error deploying to GitHub Pages:', error);
+    const endTime = Date.now();
+    const duration = (endTime - startTime) / 1000;
+    console.error(`GitHub deployment failed after ${duration} seconds:`, error);
+    console.error('Error stack:', error.stack);
+    
     res.status(500).json({
       success: false,
       message: 'Failed to deploy portfolio to GitHub Pages',

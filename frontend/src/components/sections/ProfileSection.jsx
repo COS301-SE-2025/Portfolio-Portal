@@ -397,30 +397,35 @@ const ProfileSection = () => {
       title: "Space themed Portfolio",
       image: "../../../public/images/space.png",
       link: "/space",
+      route: "/space",
     },
     {
       theme: "forest",
       title: "Forest themed Portfolio",
       image: "../../../public/images/forest.png",
       link: "/forest",
+      route: "/forest",
     },
     {
       theme: "office",
       title: "Office themed Portfolio",
       image: "../../../public/images/office.png",
       link: "/office",
+      route: "/office",
     },
     {
       theme: "lab",
       title: "Lab themed Portfolio",
       image: "../../../public/images/lab.png",
       link: "/lab",
+      route: "/lab",
     },
     {
       theme: "Cave",
       title: "Cave themed Portfolio",
       image: "../../../public/images/cave.png",
       link: "/cave",
+      route: "/cave",
     },
   ];
 
@@ -638,8 +643,18 @@ const ProfileSection = () => {
                       ? "from-green-600 to-teal-600"
                       : "from-green-500 to-green-600",
                   },
+                  {
+                    icon: ExternalLink,
+                    label: "Portfolio Website",
+                    value: selectedTemplate ? `${selectedTemplate.theme} Portfolio` : "No portfolio deployed",
+                    href: selectedTemplate ? `/${selectedTemplate.theme.toLowerCase()}` : undefined,
+                    text: selectedTemplate ? "View Portfolio" : "Deploy Portfolio",
+                    color: isDark
+                      ? "from-purple-600 to-violet-600"
+                      : "from-purple-500 to-purple-600",
+                  },
                 ]
-                  .filter((item) => item.value)
+                  .filter((item) => item.value || item.label === "Portfolio Website")
                   .map(({ icon: Icon, label, value, href, text, color }) => (
                     <div key={label} className="group">
                       <div
@@ -662,23 +677,37 @@ const ProfileSection = () => {
                           >
                             {label}
                           </p>
-                          <a
-                            href={href}
-                            target={label !== "Email" ? "_blank" : undefined}
-                            rel={
-                              label !== "Email"
-                                ? "noopener noreferrer"
-                                : undefined
-                            }
-                            className={`font-medium transition-colors duration-200 flex items-center group ${
-                              isDark
-                                ? "text-gray-200 hover:text-blue-400"
-                                : "text-gray-900 hover:text-blue-600"
-                            }`}
-                          >
-                            {text}
-                            <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                          </a>
+                          {href ? (
+                            <a
+                              href={href}
+                              target={label !== "Email" && label !== "Portfolio Website" ? "_blank" : undefined}
+                              rel={
+                                label !== "Email" && label !== "Portfolio Website"
+                                  ? "noopener noreferrer"
+                                  : undefined
+                              }
+                              className={`font-medium transition-colors duration-200 flex items-center group ${
+                                isDark
+                                  ? "text-gray-200 hover:text-blue-400"
+                                  : "text-gray-900 hover:text-blue-600"
+                              }`}
+                            >
+                              {text}
+                              <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => navigate('/templates')}
+                              className={`font-medium transition-colors duration-200 flex items-center group ${
+                                isDark
+                                  ? "text-gray-200 hover:text-blue-400"
+                                  : "text-gray-900 hover:text-blue-600"
+                              }`}
+                            >
+                              {text}
+                              <ExternalLink className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

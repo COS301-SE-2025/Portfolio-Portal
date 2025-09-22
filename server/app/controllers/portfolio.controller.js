@@ -12,6 +12,17 @@ const fs = require('fs').promises;
 const path = require('path');
 const archiver = require('archiver');
 
+// Helper function to log memory usage
+function logMemoryUsage(stage) {
+  const used = process.memoryUsage();
+  console.log(`${stage} - Memory Usage:`, {
+    rss: `${Math.round(used.rss / 1024 / 1024 * 100) / 100} MB`,
+    heapTotal: `${Math.round(used.heapTotal / 1024 / 1024 * 100) / 100} MB`,
+    heapUsed: `${Math.round(used.heapUsed / 1024 / 1024 * 100) / 100} MB`,
+    external: `${Math.round(used.external / 1024 / 1024 * 100) / 100} MB`
+  });
+}
+
 /**
  * Analyzes CV data and selects an appropriate template
  * @param {Object} req - Express request object
@@ -273,8 +284,20 @@ exports.downloadPortfolio = async (req, res) => {
   let tempDir = null;
   let zipPath = null;
   
+  // Set a timeout for the entire operation
+  const operationTimeout = setTimeout(() => {
+    if (!res.headersSent) {
+      console.error('Download operation timed out');
+      res.status(408).json({
+        success: false,
+        message: 'Download operation timed out. Please try again.',
+      });
+    }
+  }, 240000); // 4 minutes timeout
+  
   try {
     console.log('Download portfolio request received:', req.body);
+    logMemoryUsage('Download Start');
     const { userData, username, template = 'default' } = req.body;
 
     if (!userData) {
@@ -320,18 +343,52 @@ exports.downloadPortfolio = async (req, res) => {
     console.log('Creating temp directory...');
     await fs.mkdir(tempDir, { recursive: true });
 
-    // Copy template files to temp directory
+    // Copy template files to temp directory with progress tracking
     console.log('Copying template files...');
-    await copyDirectory(templateDir, tempDir);
+    logMemoryUsage('Before File Copy');
+    
+    try {
+      await copyDirectoryWithProgress(templateDir, tempDir);
+      logMemoryUsage('After File Copy');
+    } catch (copyError) {
+      console.error('Error copying files with progress tracking, trying fallback method:', copyError);
+      // Fallback to simple copy method
+      await copyDirectory(templateDir, tempDir);
+      logMemoryUsage('After Fallback File Copy');
+    }
+
+    // Force garbage collection after copying files
+    if (global.gc) {
+      global.gc();
+      console.log('Garbage collection performed after file copy');
+      logMemoryUsage('After Garbage Collection');
+    }
 
     // Inject user data into the template
     console.log('Injecting user data...');
     await injectUserData(tempDir, userData);
 
-    // Create zip file
+    // Create zip file with streaming approach
     zipPath = path.join(__dirname, '../../temp', `${portfolioName}.zip`);
     console.log('Creating zip file:', zipPath);
-    await createZipFile(tempDir, zipPath);
+    logMemoryUsage('Before Zip Creation');
+    
+    try {
+      await createZipFileStreaming(tempDir, zipPath);
+      logMemoryUsage('After Zip Creation');
+    } catch (zipError) {
+      console.error('Error creating zip with streaming, trying fallback method:', zipError);
+      // Fallback to simple zip creation
+      await createZipFile(tempDir, zipPath);
+      logMemoryUsage('After Fallback Zip Creation');
+    }
+
+    // Force garbage collection after creating zip
+    if (global.gc) {
+      global.gc();
+      console.log('Garbage collection performed after zip creation');
+      logMemoryUsage('After Final Garbage Collection');
+    }
 
     // Check if zip file was created successfully
     try {
@@ -350,21 +407,41 @@ exports.downloadPortfolio = async (req, res) => {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${portfolioName}.zip"`);
     res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Content-Length', (await fs.stat(zipPath)).size);
 
-    // Send the zip file
-    res.download(zipPath, `${portfolioName}.zip`, async (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-        if (!res.headersSent) {
-          res.status(500).json({
-            success: false,
-            message: "Error sending file",
-            error: err.message,
-          });
-        }
+    // Send the zip file with streaming
+    const fileStream = require('fs').createReadStream(zipPath);
+    
+    fileStream.on('error', (err) => {
+      console.error('Error reading file stream:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: "Error reading file",
+          error: err.message,
+        });
       }
-      
-      // Clean up temp files
+    });
+
+    fileStream.on('open', () => {
+      console.log('File stream opened, starting download...');
+    });
+
+    fileStream.on('end', () => {
+      console.log('File stream ended');
+    });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      console.log('Client disconnected during download');
+      fileStream.destroy();
+    });
+
+    fileStream.pipe(res);
+
+    // Clean up when the response is finished
+    res.on('finish', async () => {
+      clearTimeout(operationTimeout);
       try {
         if (tempDir) {
           await fs.rm(tempDir, { recursive: true, force: true });
@@ -379,7 +456,24 @@ exports.downloadPortfolio = async (req, res) => {
       }
     });
 
+    res.on('close', async () => {
+      clearTimeout(operationTimeout);
+      try {
+        if (tempDir) {
+          await fs.rm(tempDir, { recursive: true, force: true });
+          console.log('Cleaned up temp directory on close:', tempDir);
+        }
+        if (zipPath) {
+          await fs.unlink(zipPath);
+          console.log('Cleaned up zip file on close:', zipPath);
+        }
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp files on close:', cleanupError);
+      }
+    });
+
   } catch (error) {
+    clearTimeout(operationTimeout);
     console.error("Error downloading portfolio:", error);
     
     // Clean up temp files on error
@@ -436,6 +530,16 @@ async function copyDirectory(src, dest) {
     const destPath = path.join(dest, entry.name);
 
     if (entry.isDirectory()) {
+      // Skip node_modules and other unnecessary directories
+      if (entry.name === 'node_modules' || 
+          entry.name === '.git' || 
+          entry.name === 'dist' || 
+          entry.name === 'build' ||
+          entry.name === '.next' ||
+          entry.name === 'coverage') {
+        console.log(`Skipping directory: ${srcPath}`);
+        continue;
+      }
       await copyDirectory(srcPath, destPath);
     } else {
       try {
@@ -446,6 +550,99 @@ async function copyDirectory(src, dest) {
       }
     }
   }
+}
+
+/**
+ * Helper function to copy directory with progress tracking and memory optimization
+ */
+async function copyDirectoryWithProgress(src, dest) {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+  
+  let fileCount = 0;
+  let totalFiles = 0;
+  
+  // First pass: count total files for progress tracking
+  const countFiles = async (dir) => {
+    const items = await fs.readdir(dir, { withFileTypes: true });
+    for (const item of items) {
+      if (item.isDirectory()) {
+        // Skip node_modules and other unnecessary directories
+        if (item.name === 'node_modules' || 
+            item.name === '.git' || 
+            item.name === 'dist' || 
+            item.name === 'build' ||
+            item.name === '.next' ||
+            item.name === 'coverage') {
+          continue;
+        }
+        await countFiles(path.join(dir, item.name));
+      } else {
+        totalFiles++;
+      }
+    }
+  };
+  
+  await countFiles(src);
+  console.log(`Total files to copy: ${totalFiles}`);
+
+  // Second pass: copy files with progress tracking
+  const copyWithProgress = async (srcDir, destDir) => {
+    const items = await fs.readdir(srcDir, { withFileTypes: true });
+    
+    for (const item of items) {
+      const srcPath = path.join(srcDir, item.name);
+      const destPath = path.join(destDir, item.name);
+
+      if (item.isDirectory()) {
+        // Skip node_modules and other unnecessary directories
+        if (item.name === 'node_modules' || 
+            item.name === '.git' || 
+            item.name === 'dist' || 
+            item.name === 'build' ||
+            item.name === '.next' ||
+            item.name === 'coverage') {
+          console.log(`Skipping directory: ${srcPath}`);
+          continue;
+        }
+        
+        await fs.mkdir(destPath, { recursive: true });
+        await copyWithProgress(srcPath, destPath);
+      } else {
+        try {
+          // Skip node_modules and other unnecessary directories
+          if (item.name === 'node_modules' || 
+              item.name === '.git' || 
+              item.name === 'dist' || 
+              item.name === 'build' ||
+              item.name === '.next' ||
+              item.name === 'coverage') {
+            console.log(`Skipping directory: ${srcPath}`);
+            continue;
+          }
+          
+          // Check file size and skip very large files that might cause issues
+          const stats = await fs.stat(srcPath);
+          if (stats.size > 50 * 1024 * 1024) { // Skip files larger than 50MB
+            console.warn(`Skipping large file: ${srcPath} (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
+            continue;
+          }
+          
+          await fs.copyFile(srcPath, destPath);
+          fileCount++;
+          
+          if (fileCount % 100 === 0) {
+            console.log(`Copied ${fileCount}/${totalFiles} files...`);
+          }
+        } catch (error) {
+          console.warn(`Skipping file ${srcPath}: ${error.message}`);
+        }
+      }
+    }
+  };
+  
+  await copyWithProgress(src, dest);
+  console.log(`Copy completed: ${fileCount} files copied`);
 }
 
 /**
@@ -545,5 +742,94 @@ async function createZipFile(sourceDir, outputPath) {
     }
   });
 }
+
+/**
+ * Helper function to create zip file with streaming and better memory management
+ */
+async function createZipFileStreaming(sourceDir, outputPath) {
+  return new Promise((resolve, reject) => {
+    const output = require('fs').createWriteStream(outputPath);
+    const archive = archiver('zip', { 
+      zlib: { level: 1 }, // Minimal compression for faster processing
+      forceLocalTime: true,
+      forceZip64: false,
+      highWaterMark: 1024 * 1024 // 1MB buffer
+    });
+
+    let hasError = false;
+    let bytesProcessed = 0;
+
+    output.on('close', () => {
+      if (!hasError) {
+        console.log(`Archive created: ${archive.pointer()} total bytes`);
+        resolve();
+      }
+    });
+
+    output.on('error', (err) => {
+      hasError = true;
+      console.error('Output stream error:', err);
+      reject(err);
+    });
+
+    archive.on('error', (err) => {
+      hasError = true;
+      console.error('Archive error:', err);
+      reject(err);
+    });
+
+    archive.on('warning', (err) => {
+      if (err.code === 'ENOENT') {
+        console.warn('Archive warning:', err);
+      } else {
+        hasError = true;
+        reject(err);
+      }
+    });
+
+    archive.on('progress', (progress) => {
+      bytesProcessed = progress.entries.processed;
+      if (bytesProcessed % 50 === 0) {
+        console.log(`Archive progress: ${bytesProcessed} entries processed`);
+      }
+    });
+
+    archive.pipe(output);
+    
+    // Add directory with error handling and progress tracking
+    try {
+      console.log('Starting archive creation...');
+      archive.directory(sourceDir, false);
+      archive.finalize();
+    } catch (err) {
+      hasError = true;
+      reject(err);
+    }
+  });
+}
+
+/**
+ * Health check for download endpoint
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.healthCheck = async (req, res) => {
+  try {
+    logMemoryUsage('Health Check');
+    res.json({
+      success: true,
+      message: 'Download endpoint is healthy',
+      timestamp: new Date().toISOString(),
+      memory: process.memoryUsage()
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Health check failed',
+      error: error.message
+    });
+  }
+};
 
 module.exports = exports;

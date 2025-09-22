@@ -8,11 +8,18 @@ import api from './api.service.js';
 
 /**
  * Initiate GitHub OAuth flow
+ * @param {string} template - Template name
+ * @param {string} returnUrl - URL to return to after authentication
  * @returns {Promise<Object>} Authorization URL and state
  */
-export const initiateGitHubAuth = async () => {
+export const initiateGitHubAuth = async (template = 'default', returnUrl = '/templates') => {
   try {
-    const response = await api.get('/github/auth');
+    const params = new URLSearchParams({
+      template: template,
+      returnUrl: returnUrl
+    });
+    
+    const response = await api.get(`/github/auth?${params.toString()}`);
     return {
       success: true,
       authUrl: response.data.authUrl,
