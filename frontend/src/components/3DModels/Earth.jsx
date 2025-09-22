@@ -10,8 +10,24 @@ Title: Earth
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
-export default function Model(props) {
+export default function Earth(props) {
   const { nodes, materials } = useGLTF('/earth/earth.gltf')
+  
+  console.log('Earth component - nodes:', nodes)
+  console.log('Earth component - materials:', materials)
+  
+  if (!nodes || !materials) {
+    console.error('Earth model failed to load')
+    return (
+      <group {...props} dispose={null}>
+        <mesh>
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#4a5568" />
+        </mesh>
+      </group>
+    )
+  }
+  
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Object_4.geometry} material={materials['Scene_-_Root']} scale={1.728} />
