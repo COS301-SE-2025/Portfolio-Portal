@@ -120,9 +120,6 @@ const Contact = () => {
                 onClick={handleDownload}
                 variant="space"
               />
-              <p className="text-gray-400 text-sm mt-4">
-                Includes complete React app with your data, ready to run with npm install && npm start
-              </p>
             </div>
           </div>
         </div>
