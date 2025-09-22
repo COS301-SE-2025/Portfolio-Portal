@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCVData } from '../../../../hooks/useCVData';
+import { useCVData } from '../../../hooks/useCVData';
 
 const About = () => {
   const { name, about, description, skills } = useCVData();

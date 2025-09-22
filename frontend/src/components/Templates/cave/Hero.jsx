@@ -3,14 +3,14 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
-import Cave2 from '../../../3DModels/Cave';
-import Crystal from '../../../3DModels/Crystal';
-import Campfire from '../../../3DModels/Campfire';
-import Pickaxe from '../../../3DModels/Pickaxe';
-import Shovel from '../../../3DModels/Shovel';
-import Skull from '../../../3DModels/Skull';
+import Cave2 from '../../3DModels/Cave';
+import Crystal from '../../3DModels/Crystal';
+import Campfire from '../../3DModels/Campfire';
+import Pickaxe from '../../3DModels/Pickaxe';
+import Shovel from '../../3DModels/Shovel';
+import Skull from '../../3DModels/Skull';
 import floor from './floor.png';
-import Lamp from '../../../3DModels/Lamp';
+import Lamp from '../../3DModels/Lamp';
 
 function AutoRotatingCamera() {
   const { camera } = useThree();
