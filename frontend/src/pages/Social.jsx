@@ -1,25 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Home } from 'lucide-react';
-
-// Mock theme context for demo
-const useTheme = () => ({ isDark: false });
-
-// Mock SocialSection component
-const SocialSection = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Social Section Component</h1>
-      <p className="text-gray-600">This would be imported from '../components/sections/SocialSection'</p>
-    </div>
-  );
-};
+import SocialSection from '../components/sections/SocialSection';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Social = () => {
   const { isDark } = useTheme();
-  
+  const navigate = useNavigate();
+
   const handleGoBack = () => {
-    // navigate(-1); - would use React Router's useNavigate hook
-    console.log('Going back...');
+    navigate(-1);
   };
 
   return (
