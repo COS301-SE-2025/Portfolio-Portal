@@ -6,11 +6,11 @@ import Contact from "./Contact";
 
 const Index = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">
-      {/* Custom CSS for purple gradient */}
+    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-800">
+      {/* Custom CSS for green gradient */}
       <style jsx>{`
-        .purple-gradient {
-          background: linear-gradient(180deg, #8b5cf6 0%, #6366f1 100%);
+        .green-gradient {
+          background: linear-gradient(180deg, #065f46 0%, #10b981 100%);
         }
       `}</style>
       
