@@ -38,8 +38,6 @@ function isHeader(line, sectionName) {
   return variants.some((v) => {
     if (!v) return false;
     const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    // header must be (almost) standalone: start of line, optional spaces,
-    // the keyword(s), then optional colon/dash/em-dash, then end.
     const re = new RegExp(`^\\s*${escaped}\\s*(?:[:\\-—])?\\s*$`, "i");
     return re.test(L);
   });
@@ -79,11 +77,9 @@ function extractSectionByHeader(lines, sectionName) {
     return { sectionLines: [], cleanedLines: [...lines], range: null };
   }
 
-  // The content begins after the header line
   const contentStart = startHeader + 1;
-  // Search for the next header after the current header line
   const nextHeader = findNextHeaderIndex(lines, contentStart);
-  const contentEnd = nextHeader; // up-to but not including nextHeader
+  const contentEnd = nextHeader;
 
   const sectionLines = lines
     .slice(contentStart, contentEnd)
@@ -115,7 +111,6 @@ function extractPhones(lines) {
 function extractLinksAll(lines) {
   const text = lines.join(" ");
 
-  // collect emails to avoid treating parts of emails as URLs
   const emailSpans = [...(text.matchAll(EMAIL_RE) || [])].map((m) =>
     m[0].toLowerCase()
   );
@@ -126,7 +121,6 @@ function extractLinksAll(lines) {
     .filter((u) => !u.includes("@"))
     .map((u) => (u.startsWith("http") ? u : `https://${u}`));
 
-  // remove URL candidates that are substrings of any email address (e.g., domains/local parts)
   const filteredOutEmailSubs = normalized.filter((url) => {
     const clean = url.replace(/^https?:\/\//i, "").toLowerCase();
     return !emailSpans.some((em) => em.includes(clean));
@@ -301,12 +295,148 @@ function extractSimpleBlocks(lines) {
   return { blocks: out, remaining: rest };
 }
 
+// keyword-based line assignment
+
+const SECTION_FILL_ORDER = [
+  "experience",
+  "education",
+  "skills",
+  "certifications",
+  "languages",
+  "projects",
+];
+
+function getSectionLineKeywords(sectionName) {
+  const meta = SECTION_KEYWORDS[sectionName] || {};
+  const content = Array.isArray(meta.kw) ? meta.kw : [];
+  const fallback = Array.isArray(meta.inline) ? meta.inline : [];
+  return unique([...content, ...fallback].map((s) => toLower(s)));
+}
+
+function lineContainsAnyKeyword(line, keywords) {
+  if (!line) return false;
+  const L = toLower(line);
+  for (const kw of keywords) {
+    if (!kw) continue;
+    const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`\\b${escaped}\\b`, "i");
+    if (re.test(L)) return true;
+  }
+  return false;
+}
+
+const MONTHS =
+  "(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)";
+
+function isDateOnlyLine(line) {
+  const t = norm(line)
+    .toLowerCase()
+    .replace(/[•*·●]/g, "")
+    .trim();
+  if (!t) return false;
+
+  if (
+    /^((19|20)\d{2})\s*[–—-]\s*((19|20)\d{2}|present|current)$/i.test(t) ||
+    /^((19|20)\d{2})$/.test(t)
+  )
+    return true;
+
+  const monthSpan = new RegExp(
+    `^${MONTHS}\\.?\\s+(19|20)\\d{2}(\\s*[–—-]\\s*(${MONTHS}\\.?\\s+(19|20)\\d{2}|present|current))?$`,
+    "i"
+  );
+  if (monthSpan.test(t)) return true;
+
+  if (/^(19|20)\d{2}\s*[\/\-]\s*(19|20)\d{2}$/i.test(t)) return true;
+
+  return false;
+}
+
+function removeNameLines(lines, name) {
+  const nm = norm(name);
+  if (!nm) return [...lines];
+
+  const tokens = nm
+    .replace(/[^A-Za-z\s'-]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((s) => s.toLowerCase());
+
+  const full = tokens.join(" ");
+
+  return lines.filter((line) => {
+    const L = norm(line)
+      .replace(/[^A-Za-z\s'-]/g, " ")
+      .toLowerCase();
+    if (!L) return false;
+    if (L === full) return false;
+    if (tokens.some((t) => t.length > 2 && L === t)) return false;
+    return true;
+  });
+}
+
+function distributeLeftoverLines(leftover, blocks) {
+  const bySection = {};
+  for (const s of SECTION_FILL_ORDER) {
+    bySection[s] = Array.isArray(blocks[s]) ? [...blocks[s]] : [];
+  }
+
+  const sectionKeywords = {};
+  for (const s of SECTION_FILL_ORDER) {
+    sectionKeywords[s] = getSectionLineKeywords(s);
+  }
+
+  let prevSection = null;
+
+  for (const raw of leftover) {
+    const line = norm(raw);
+    if (!line) continue;
+
+    let matched = null;
+    for (const s of SECTION_FILL_ORDER) {
+      if (
+        sectionKeywords[s].length &&
+        lineContainsAnyKeyword(line, sectionKeywords[s])
+      ) {
+        matched = s;
+        break;
+      }
+    }
+
+    if (matched) {
+      bySection[matched].push(line);
+      prevSection = matched;
+      continue;
+    }
+
+    if (prevSection && isDateOnlyLine(line)) {
+      bySection[prevSection].push(line);
+      continue;
+    }
+
+    if (prevSection) {
+      bySection[prevSection].push(line);
+      continue;
+    }
+  }
+
+  for (const s of SECTION_FILL_ORDER) {
+    bySection[s] = unique(bySection[s]);
+  }
+
+  return bySection;
+}
+
 function processCV(ocr) {
   const ocrNameLocal = (ocr && ocr.name) || "";
   let lines = (ocr && ocr.remainingCV ? ocr.remainingCV : "")
     .split(/\s*[\n\r]+\s*/)
     .map((l) => l.trim())
     .filter(Boolean);
+
+  if (ocrNameLocal) {
+    lines = removeNameLines(lines, ocrNameLocal);
+  }
 
   const { references, remaining } = extractReferencesFirst(lines);
   lines = remaining;
@@ -317,16 +447,18 @@ function processCV(ocr) {
   );
   lines = remainingAfterPI;
 
-  const { blocks } = extractSimpleBlocks(lines);
+  const { blocks, remaining: leftover } = extractSimpleBlocks(lines);
+
+  const filled = distributeLeftoverLines(leftover, blocks);
 
   return {
     personal_info,
-    experience: blocks.experience || [],
-    education: blocks.education || [],
-    skills: blocks.skills || [],
-    certifications: blocks.certifications || [],
-    languages: blocks.languages || [],
-    projects: blocks.projects || [],
+    experience: filled.experience || [],
+    education: filled.education || [],
+    skills: filled.skills || [],
+    certifications: filled.certifications || [],
+    languages: filled.languages || [],
+    projects: filled.projects || [],
     references: references || [],
   };
 }
