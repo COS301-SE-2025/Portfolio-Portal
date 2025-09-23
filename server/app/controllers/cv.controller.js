@@ -1,88 +1,68 @@
 const cvService = require('../services/cv.service');
 
-/**
- * Controller to save CV data
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-const saveCV = async (req, res) => {
+const saveCV = async (req, res, next) => {
   try {
-    const { id: authId } = req.user; // Changed from authId to id
+    const { id: authId } = req.user; // Get authId from the authenticated user
     const structuredCV = req.body;
 
-    if (!structuredCV) {
+    // Basic input validation at the controller level
+    if (!structuredCV || Object.keys(structuredCV).length === 0) {
       return res.status(400).json({ error: 'Structured CV data is required' });
     }
 
     const savedData = await cvService.saveCVData(authId, structuredCV);
     res.status(201).json(savedData);
   } catch (error) {
-    console.error('Error in saveCV controller:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error); // Pass error to centralized error handler
   }
 };
 
-/**
- * Controller to get CV data
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-const getCV = async (req, res) => {
+const getCV = async (req, res, next) => {
   try {
-    const { id: authId } = req.user; // Changed from authId to id
+    const { id: authId } = req.user; // Get authId from the authenticated user
 
     const cvData = await cvService.getCVData(authId);
     if (!cvData) {
+      // Service should ideally throw a 'CV data not found' error
       return res.status(404).json({ error: 'CV data not found' });
     }
 
     res.status(200).json(cvData);
   } catch (error) {
-    console.error('Error in getCV controller:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-/**
- * Controller to update CV data
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-const updateCV = async (req, res) => {
+const updateCV = async (req, res, next) => {
   try {
-    const { id: authId } = req.user; // Changed from authId to id
+    const { id: authId } = req.user; // Get authId from the authenticated user
     const updateData = req.body;
 
+    // Basic input validation at the controller level
     if (!updateData || Object.keys(updateData).length === 0) {
       return res.status(400).json({ error: 'Update data is required' });
     }
 
-    const updatedData = await Service.updateCVData(authId, updateData);
+    const updatedData = await cvService.updateCVData(authId, updateData); // Corrected 'Service' to 'cvService'
     res.status(200).json(updatedData);
   } catch (error) {
-    console.error('Error in updateCV controller:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 
-/**
- * Controller to delete CV data
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-const deleteCV = async (req, res) => {
+const deleteCV = async (req, res, next) => {
   try {
-    const { id: authId } = req.user; // Changed from authId to id
+    const { id: authId } = req.user; // Get authId from the authenticated user
 
     const success = await cvService.deleteCVData(authId);
     if (!success) {
-      return res.status(404).json({ error: 'CV data not found' });
+      // Service should ideally throw a 'CV data not found' error
+      return res.status(404).json({ error: 'CV data not found or already deleted' });
     }
 
     res.status(200).json({ message: 'CV data deleted successfully' });
   } catch (error) {
-    console.error('Error in deleteCV controller:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 };
 

@@ -3,7 +3,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCvData from '../../../hooks/useCVData';
-import Office from '../../3DModels/Office'; // Add this import
+import Office from '../../3DModels/Office'; 
 
 const Hero = () => {
   const navigate = useNavigate();

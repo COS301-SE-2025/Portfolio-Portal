@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const userController = require('../controllers/users.controller');
 const authMiddleware = require('../middleware/auth');
+const errorHandler = require('../middleware/errorHandler'); // Import the centralized error handler
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const upload = multer({
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
+      // Pass error to Multer, which will then be caught by our errorHandler
       cb(new Error('Only image files are allowed'), false);
     }
   }
@@ -43,7 +45,7 @@ router.get('/me/profile-picture', userController.getProfilePicture);
 
 // Profile picture management
 router.post(
-  '/me/profile-picture', 
+  '/me/profile-picture',
   upload.single('profilePicture'), // Field name must match
   userController.uploadProfilePicture
 );
@@ -55,20 +57,8 @@ router.post('/logout', userController.logoutUser);
 // Admin or specific user routes (with ID parameter)
 router.get('/:id', userController.getUser);
 
-// Error handling middleware for multer
-router.use((error, req, res, next) => {
-  if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(413).json({ error: 'File size too large. Maximum size is 5MB' });
-    }
-    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({ error: 'Unexpected file field' });
-    }
-  }
-  if (error.message === 'Only image files are allowed') {
-    return res.status(400).json({ error: 'Only image files are allowed' });
-  }
-  next(error);
-});
+// IMPORTANT: This error handling middleware must be placed LAST,
+// after all other routes and middleware.
+router.use(errorHandler);
 
 module.exports = router;

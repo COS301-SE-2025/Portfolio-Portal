@@ -1,8 +1,21 @@
 //frontend/src/components/Templates/forest/Contact.jsx
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../utils/motion";
+import { useState } from "react";
+import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
+import GitHubDeploy from "../../GitHubDeploy.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
 
 const Contact = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { cvData } = useCVData();
+
+  const handleDownload = async () => {
+    const result = await downloadPortfolio(setIsDownloading, 'forest');
+    if (!result.success) {
+      alert(result.error);
+    }
+  };
   return (
     <section id="contact" className="relative w-full py-20 mx-auto">
       <div className="max-w-7xl mx-auto px-6">
@@ -61,6 +74,47 @@ const Contact = () => {
               Send Message
             </button>
           </form>
+        </motion.div>
+
+        {/* Download Portfolio Section */}
+        <motion.div
+          variants={fadeIn("up", "spring", 0.7, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20 mt-8"
+        >
+          <h3 className="text-green-400 text-2xl font-bold mb-4">Download Your Portfolio</h3>
+          <p className="text-white mb-6">
+            Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
+          </p>
+          <DownloadButton 
+            isDownloading={isDownloading}
+            onClick={handleDownload}
+            variant="default"
+            className="bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-500"
+          />
+        </motion.div>
+
+        {/* GitHub Pages Deployment Section */}
+        <motion.div
+          variants={fadeIn("up", "spring", 0.8, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20 mt-8"
+        >
+          <h3 className="text-green-400 text-2xl font-bold mb-4">Deploy to GitHub Pages</h3>
+          <p className="text-white mb-6">
+            Automatically deploy your portfolio to GitHub Pages with a single click. Your portfolio will be live at username.github.io/portfolio-name
+          </p>
+          <GitHubDeploy 
+            userData={cvData}
+            username={cvData?.name?.toLowerCase().replace(/\s+/g, '') || 'portfolio'}
+            template="forest"
+            variant="success"
+            className="text-white"
+          />
         </motion.div>
       </div>
     </section>

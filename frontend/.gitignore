@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .DS_Store
-.env.development 
+.env.development
 .env.production
 
 

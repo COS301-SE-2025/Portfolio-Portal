@@ -69,7 +69,12 @@ const HeroSection = forwardRef(({ id, show, handleScrollToSection }, ref) => {
             <ambientLight intensity={isDark ? 1.5 : 1.8} />
             <pointLight position={[10, 10, 10]} intensity={isDark ? 1 : 0.8} />
             <pointLight position={[-10, -10, -10]} intensity={0.3} color={isDark ? "#3b82f6" : "#6366f1"} />
-            <Suspense fallback={null}>
+            <Suspense fallback={
+              <mesh>
+                <sphereGeometry args={[1, 32, 32]} />
+                <meshStandardMaterial color={isDark ? "#4a5568" : "#e2e8f0"} />
+              </mesh>
+            }>
               <Earth />
               <OrbitControls enableZoom={false} autoRotate={true} autoRotateSpeed={1.5} />
             </Suspense>
