@@ -337,6 +337,9 @@ const InfoPanel = ({ title, content, onClose, position }) => {
   );
 };
 
+
+// ---------------------------------------------------------------------------
+
 const Scene = () => {
   const [selectedObject, setSelectedObject] = useState(null);
   const { name, about, experience, education, skills } = useCvData() || {};
@@ -345,7 +348,7 @@ const Scene = () => {
     {
       id: 'about-tree',
       component: PineTreePlaceholder,
-      position: [-3, 0, 2],
+      position: [-6, 0, 2],
       title: 'About Me',
       content: about || "I'm a passionate developer who loves creating immersive digital experiences."
     },
@@ -429,7 +432,7 @@ const Scene = () => {
     <>
       {/* Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <planeGeometry args={[20, 20]} />
+        <planeGeometry args={[80, 80]} />
         <meshLambertMaterial color="#2d5016" />
       </mesh>
 
@@ -454,6 +457,22 @@ const Scene = () => {
       <PineTreePlaceholder position={[4, 0, -4]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <PineTreePlaceholder position={[-3, 0, -4]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <PineTreePlaceholder position={[6, 0, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+
+      <PineTreePlaceholder position={[6, 0, -10]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+       <PineTreePlaceholder position={[4, 0, -16]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+       <PineTreePlaceholder position={[10, 0, -6]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+
+        <PineTreePlaceholder position={[15, 0, -8]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+         <PineTreePlaceholder position={[9, 0, -20]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+          <PineTreePlaceholder position={[20, 0, -7]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+           <PineTreePlaceholder position={[15, 0, 8]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+
+
+           <PineTreePlaceholder position={[-6, 0, 8]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+           
+           <PineTreePlaceholder position={[-8, 0, 12]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
+
+
       <RockPlaceholder position={[1, 0.5, 4]} onClick={() => {}} isHighlighted={false} />
       <RockPlaceholder position={[-4, 0.5, 2]} onClick={() => {}} isHighlighted={false} />
 
@@ -502,7 +521,7 @@ const ForestPage3D = () => {
           onClick={() => window.location.href = '/'}
           className="bg-green-400/20 hover:bg-green-400/30 border border-green-400/50 text-green-400 px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-400/20"
         >
-          🏠 Back to Portfolio
+          🏠 Back to Portfolio Portal
         </button>
       </div>
 
@@ -512,6 +531,11 @@ const ForestPage3D = () => {
         <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-blue-400 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
         <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-purple-400 rounded-full animate-ping" style={{animationDelay: '2s'}}></div>
         <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-yellow-400 rounded-full animate-ping" style={{animationDelay: '3s'}}></div>
+        
+        <div className="absolute top-1/7 left-1/7 w-1 h-1 bg-green-400 rounded-full animate-ping"></div>
+        <div className="absolute top-1/6 right-1/6 w-1 h-1 bg-blue-400 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-1/7 left-1/7 w-1 h-1 bg-purple-400 rounded-full animate-ping" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-1/6 right-1/6 w-1 h-1 bg-yellow-400 rounded-full animate-ping" style={{animationDelay: '3s'}}></div>
       </div>
 
       <Canvas
