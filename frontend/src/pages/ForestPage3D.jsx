@@ -172,7 +172,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 2.5, 0]}>
         <coneGeometry args={[1.8, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#228b22"}
+          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -181,7 +181,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 3.5, 0]}>
         <coneGeometry args={[1.5, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#228b22"}
+          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -190,7 +190,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 4.5, 0]}>
         <coneGeometry args={[1.2, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#228b22"}
+          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -594,7 +594,8 @@ const Scene = () => {
       id: 'about-tent',
       component: TentPlaceholder,
       position: [-1.5, 0, 2.5],
-      title: about || "I'm a passionate professional who loves collaberating through immersive digital experiences."
+      title: 'About Me',
+      content:about || "I'm a passionate professional who loves collaberating through immersive digital experiences."
     },
     {
       id: 'name-tree',
@@ -641,7 +642,7 @@ const Scene = () => {
       id: 'skills-deer',
       component: AnimalPlaceholder,
       position: [3, 1, -2],
-      title: 'Projects & Achievements',
+      title: 'Skills',
       content: skills || "Discover the skills and meaningful achievements that define my journey."
     }
   ];
