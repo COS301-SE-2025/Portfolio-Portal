@@ -117,89 +117,7 @@ const CameraController = () => {
   return null;
 };
 
-// ADDED: TentPlaceholder Component
-const TentPlaceholder = ({ position, onClick, isHighlighted }) => {
-  const meshRef = useRef();
-  const [hovered, setHovered] = useState(false);
-  
-  useFrame((state) => {
-    if (meshRef.current && (isHighlighted || hovered)) {
-      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 2) * 0.1;
-    }
-  });
 
-  const { scale, emissiveIntensity } = useSpring({
-    scale: isHighlighted ? 1.2 : hovered ? 1.05 : 1,
-    emissiveIntensity: (isHighlighted || hovered) ? 0.3 : 0,
-    config: { tension: 300, friction: 10 }
-  });
-
-  const handlePointerOver = () => {
-    setHovered(true);
-    document.body.style.cursor = 'pointer';
-  };
-
-  const handlePointerOut = () => {
-    setHovered(false);
-    document.body.style.cursor = 'auto';
-  };
-
-  return (
-    <animated.group
-      ref={meshRef}
-      position={position}
-      onClick={onClick}
-      scale={scale}
-      onPointerOver={handlePointerOver}
-      onPointerOut={handlePointerOut}
-    >
-      {/* Tent base - rectangular floor */}
-      {/* <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[2.5, 0.2, 2]} />
-        <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#d2b48c" : "#f5e6d3"}
-          emissive={isHighlighted || hovered ? "#ffebcd" : "#000000"}
-          emissiveIntensity={emissiveIntensity}
-        />
-      </mesh> */}
-      
-      {/* Tent body - triangular prism */}
-      <mesh position={[1.8, 0, -8]} rotation={[0, 0, 0]}>
-        <coneGeometry args={[3.12, 5.72, 7.8]} />
-        <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#deb887" : "#f5deb3"}
-          emissive={isHighlighted || hovered ? "#fff8dc" : "#000000"}
-          emissiveIntensity={emissiveIntensity}
-        />
-      </mesh>
-      
-      {/* Tent door - triangular opening */}
-      {/* <mesh position={[0, 0.8, 1.05]} rotation={[0, 0, 0]}>
-        <planeGeometry args={[0.8, 1.2]} />
-        <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#8b7355" : "#a0522d"}
-          emissive={isHighlighted || hovered ? "#d2691e" : "#000000"}
-          emissiveIntensity={emissiveIntensity}
-          side={THREE.DoubleSide}
-          transparent={true}
-          opacity={0.8}
-        />
-      </mesh> */}
-      
-      {/* Tent pole in front */}
-      {/* <mesh position={[2, 0, -8]}>
-        <cylinderGeometry args={[0.03, 0.03, 2.2]} />
-        <meshLambertMaterial color="#8b4513" />
-      </mesh> */}
-      
-      {/* Small flag on top */}
-      {/* <mesh position={[2, 2.3, -6]}>
-        <boxGeometry args={[0.05, 0.3, 0.3]} />
-        <meshLambertMaterial color="#ff6b6b" />
-      </mesh> */}
-    </animated.group>
-  );
-};
 
 const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive = true }) => {
   const meshRef = useRef();
@@ -290,6 +208,48 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
   );
 };
 
+
+const TentPlaceholder = ({ position, onClick, isHighlighted }) => {
+  const [hovered, setHovered] = useState(false);
+
+  
+  const { emissiveIntensity } = useSpring({
+    // Removed scale animation - only emissive intensity changes
+    emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0,
+    config: { tension: 300, friction: 10 }
+  });
+
+  const handlePointerOver = () => {
+    setHovered(true);
+    document.body.style.cursor = 'pointer';
+  };
+
+  const handlePointerOut = () => {
+    setHovered(false);
+    document.body.style.cursor = 'auto';
+  };
+
+  return (
+    <group
+      position={position}
+      onClick={onClick}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+    >
+      {/* Tent body - triangular prism */}
+      <mesh position={[1.8, 0, -8]} rotation={[0, 0, 0]}>
+        <coneGeometry args={[3.12, 5.72, 7.8]} />
+        <animated.meshLambertMaterial 
+          color={(isHighlighted || hovered) ? "#e8c9a9" : "#f5deb3"} // Slightly brighter when highlighted
+          emissive={(isHighlighted || hovered) ? "#fff8dc" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+        />
+      </mesh>
+    </group>
+  );
+};
+
+
 const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
   const flameRef = useRef();
   const [hovered, setHovered] = useState(false);
@@ -303,9 +263,15 @@ const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
 
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.1 : hovered ? 1.05 : 1,
-    emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0.1,
+    emissiveIntensity: (isHighlighted || hovered) ? 0.8 : 0.3, 
     config: { tension: 300, friction: 10 }
   });
+
+  // Unified orange color for all parts when highlighted/hovered
+  const highlightColor = "#ff6600";
+  const baseNormalColor = "#444";
+  const logsNormalColor = "#8b5a3c";
+  const flameNormalColor = "#ff4500"; // Orange instead of white
 
   return (
     <animated.group 
@@ -325,34 +291,37 @@ const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
       <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[1, 1, 0.3, 8]} />
         <animated.meshLambertMaterial 
-          color="#444"
-          emissive={isHighlighted || hovered ? "#ca5e16ff" : "#000000"}
+          color={(isHighlighted || hovered) ? highlightColor : baseNormalColor}
+          emissive={(isHighlighted || hovered) ? highlightColor : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
+      
       {/* Logs */}
       <mesh position={[0.5, 0.2, 0]} rotation={[0, 0, Math.PI / 6]}>
         <cylinderGeometry args={[0.1, 0.15, 1.5, 8]} />
         <animated.meshLambertMaterial 
-          color="#8b5a3c"
-          emissive={isHighlighted || hovered ? "#ff6600" : "#000000"}
+          color={(isHighlighted || hovered) ? highlightColor : logsNormalColor}
+          emissive={(isHighlighted || hovered) ? highlightColor : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
+      
       <mesh position={[-0.5, 0.2, 0]} rotation={[0, 0, -Math.PI / 6]}>
         <cylinderGeometry args={[0.1, 0.15, 1.5, 8]} />
         <animated.meshLambertMaterial 
-          color="#8b5a3c"
-          emissive={isHighlighted || hovered ? "#ff6600" : "#000000"}
+          color={(isHighlighted || hovered) ? highlightColor : logsNormalColor}
+          emissive={(isHighlighted || hovered) ? highlightColor : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
+      
       {/* Flame */}
       <mesh ref={flameRef} position={[0, 1, 0]}>
         <coneGeometry args={[0.3, 1, 4]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#ff6b35" : "#ce651aff"}
-          emissive="#d7621eff"
+          color={(isHighlighted || hovered) ? "#ff8c00" : flameNormalColor} 
+          emissive={(isHighlighted || hovered) ? "#ff8c00" : "#ff4500"} 
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
@@ -445,7 +414,7 @@ const RockPlaceholder = ({ position, onClick, isHighlighted, isInteractive = tru
 };
 
 
-// Shrub Component - small bushes
+// Shrub Component 
 const ShrubPlaceholder = ({ position, scale = 1 }) => {
   return (
     <group position={position} scale={scale}>
@@ -621,12 +590,18 @@ const Scene = () => {
   const { name, about, experience, education, skills } = useCvData() || {};
 
   const interactiveObjects = [
+     {
+      id: 'about-tent',
+      component: TentPlaceholder,
+      position: [-1.5, 0, 2.5],
+      title: about || "I'm a passionate professional who loves collaberating through immersive digital experiences."
+    },
     {
-      id: 'about-tree',
+      id: 'name-tree',
       component: PineTreePlaceholder,
       position: [-4, 0, 4],
-      title: 'About Me',
-      content: about || "I'm a passionate developer who loves creating immersive digital experiences."
+      title: 'Who Am I?',
+      content: name || "I am..."
     },
     {
       id: 'experience-fireplace',
@@ -663,18 +638,11 @@ const Scene = () => {
       ) : "The foundation of knowledge that shapes my approach to problem-solving."
     },
     {
-      id: 'projects-deer',
+      id: 'skills-deer',
       component: AnimalPlaceholder,
       position: [3, 1, -2],
       title: 'Projects & Achievements',
-      content: "Discover the creative projects and meaningful achievements that define my journey."
-    },
-    {
-      id: 'camping-tent',
-      component: TentPlaceholder,
-      position: [-1.5, 0, 2.5],
-      title: '🏕️ Skills',
-      content: skills || "When I'm not coding, you'll find me exploring the great outdoors! I love camping, hiking, and finding inspiration in nature. This tent represents my adventurous spirit and love for discovering new places."
+      content: skills || "Discover the skills and meaningful achievements that define my journey."
     }
   ];
 
@@ -701,7 +669,7 @@ const Scene = () => {
         speed={0.5}
       />
 
-      {/* Ground - Large forest floor */}
+      {/* Ground - orest floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
         <planeGeometry args={[90, 90]} />
         <meshLambertMaterial color="#2d5016" />
@@ -862,9 +830,9 @@ const Scene = () => {
 <FlowerPlaceholder position={[-12, 0, 2]} color="#f15bb5" /> */}
 
 {/* Random Pebbles - small stones scattered around */}
-<PebblePlaceholder position={[1.5, 0, 1.2]} />
-<PebblePlaceholder position={[-1.8, 0, 2.3]} />
-<PebblePlaceholder position={[3.2, 0, -0.8]} />
+<PebblePlaceholder position={[3.5, 0, 1.2]} />
+<PebblePlaceholder position={[-4.8, 0, 2.3]} />
+<PebblePlaceholder position={[5.2, 0, -0.8]} />
 <PebblePlaceholder position={[-2.5, 0, -1.7]} />
 <PebblePlaceholder position={[4.1, 0, 2.8]} />
 <PebblePlaceholder position={[-3.3, 0, 3.9]} />
@@ -877,6 +845,8 @@ const Scene = () => {
 <PebblePlaceholder position={[8.3, 0, 3.2]} />
 <PebblePlaceholder position={[-7.5, 0, 4.1]} />
 <PebblePlaceholder position={[9.6, 0, -0.3]} />
+<PebblePlaceholder position={[7.5, 0, -4.1]} />
+<PebblePlaceholder position={[-9.6, 0, 6.3]} />
 
 {/* Random Mushrooms - decorative fungi */}
 <MushroomPlaceholder position={[2.2, 0, 1.7]} scale={0.8} />
@@ -963,7 +933,7 @@ const ForestPage3D = () => {
 
       <Canvas
         camera={{
-          position: [8, 6, 8],
+          position: [1, 6, 16],
           fov: 60,
           near: 0.1,
           far: 1000,
