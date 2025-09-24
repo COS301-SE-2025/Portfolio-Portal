@@ -698,6 +698,7 @@ module.exports = {
   references: {
     inline: [
       "references",
+      "reference",
       "referees",
       "referee",
       "references available",

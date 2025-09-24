@@ -427,9 +427,33 @@ describe("processCV end-to-end on OCR sample", () => {
     expect(exp).toContain("software developer");
     expect(exp).toContain("techlife");
 
-    expect(res.education).toEqual([]);
-    expect(res.skills).toEqual([]);
-    expect(res.languages).toEqual([]);
+    const edu = (res.education || []).join("\n").toLowerCase();
+    expect(edu.length).toBeGreaterThan(0);
+    expect(edu).toContain("bachelor of science in computer science");
+    expect(edu).toContain("mit");
+    expect(edu).toContain("2016 - 2020");
+    expect(edu).toContain("ba sales and commerce");
+    expect(edu).toContain("wardiere university");
+    expect(edu).toContain("2020 - 2023");
+
+    const skills = (res.skills || []).join("\n").toLowerCase();
+    expect(skills.length).toBeGreaterThan(0);
+    expect(skills).toContain("programming");
+    expect(skills).toContain("python");
+    expect(skills).toContain("java");
+    expect(skills).toContain("c++");
+    expect(skills).toContain("ethical hacking");
+    expect(skills).toContain("problem-solving");
+    expect(skills).toContain("time management");
+    expect(skills).toContain("networks");
+
+    const langs = (res.languages || []).join("\n").toLowerCase();
+    expect(langs.length).toBeGreaterThan(0);
+    expect(langs).toContain("english");
+    expect(langs).toContain("french");
+
+    expect(res.certifications).toEqual([]);
+
     expect(res.projects).toEqual([]);
 
     const refs = (res.references || []).join("\n");
@@ -439,5 +463,86 @@ describe("processCV end-to-end on OCR sample", () => {
     expect(refs).toMatch(/123-456-7890/);
     expect(refs).toMatch(/bailey@gmail\.com/);
     expect(refs).toMatch(/haru@gmail\.com/);
+  });
+});
+
+describe("processCV end-to-end on OCR sample (Brian Park)", () => {
+  const ocr = {
+    name: "BRIAN PARK",
+    remainingCV:
+      "CONTACT\n\n&% +123-456-8888\n™%_brianpark@gmail.com\n\nQ 123 Neptune St,, California\n\nEDUCATION\n\n2029 - 2030\nBORCELLE UNIVERSITY\n\n« Bachelor of Engineering\nMining Engineering\n\n2025 - 2029\n\nBORCELLE UNIVERSITY\n\ne Mining Engineering Masters\n\nSKILLS\n\n* mining\n\ngeological assessment\n\nTeamwork\n\n.\n\nTime Management\n\nEffective Communication\nCritical Thinking\n\nMINING ENGINEER\n\nPROFILE\n\nMining Engineer with a strong background in resource extraction,\ngeological assessment, and project management. Skilled in designing\nsafe and efficient mining operations, optimizing production processes,\nand ensuring compliance with environmental and safety regulations.\nPassionate about sustainable mining practices and delivering cost-\neffective solutions in both open-pit and underground environments.\n\nWORK EXPERIENCE\n\nMystique Mountains Lodge 2030 - PRESENT\nTour Guide\n\n¢ Led daily guided tours for groups of up to 25 guests, covering\nlocal wildlife, cultural history, and scenic landmarks. Delivered\nengaging presentations, ensured guest safety, and\ncoordinated logistics to provide memorable outdoor\nexperiences.\n\n@ = Survival Instructor 2025 - 2029\nTwin Eagles Wilderness\n\n* Conducted hands-on survival training programs focused on\nbushcraft, navigation, and emergency preparedness.\nDesigned and delivered customized courses for students,\ncorporate groups, and adventure travelers, emphasizing safety\nand confidence in remote environments.\n\nREFERENCE\nBenjamin Shah Ketut Susilo\nWardiere Inc. / CTO Wardiere Inc. / CEO\n\nLeadership\n\nPhone: 123-456-7890 Phone: 123-456-7891",
+  };
+
+  const expectedProfile =
+    "Mining Engineer with a strong background in resource extraction,\n" +
+    "geological assessment, and project management. Skilled in designing\n" +
+    "safe and efficient mining operations, optimizing production processes,\n" +
+    "and ensuring compliance with environmental and safety regulations.\n" +
+    "Passionate about sustainable mining practices and delivering cost-\n" +
+    "effective solutions in both open-pit and underground environments.";
+
+  test("returns expected structure and content", () => {
+    const res = processCV(ocr);
+
+    expect(res).toEqual(
+      expect.objectContaining({
+        personal_info: expect.any(Object),
+        experience: expect.any(Array),
+        education: expect.any(Array),
+        skills: expect.any(Array),
+        certifications: expect.any(Array),
+        languages: expect.any(Array),
+        projects: expect.any(Array),
+        references: expect.any(Array),
+      })
+    );
+
+    expect(res.personal_info.name).toBe("BRIAN PARK");
+    expect(res.personal_info.email).toBe("brianpark@gmail.com");
+    expect(res.personal_info.phone).toBe("+123-456-8888");
+    expect(res.personal_info.address).toBe("Q 123 Neptune St,, California");
+    expect(res.personal_info.linkedin).toBe("");
+    expect(res.personal_info.website).toBe("");
+    expect(res.personal_info.description).toBe(expectedProfile);
+
+    const exp = (res.experience || []).join("\n").toLowerCase();
+    expect(exp).toContain("work experience");
+    expect(exp).toContain("mystique mountains lodge");
+    expect(exp).toContain("2030 - present");
+    expect(exp).toContain("tour guide");
+    expect(exp).toContain("survival instructor");
+    expect(exp).toContain("twin eagles wilderness");
+    expect(exp).toContain("2025 - 2029");
+
+    const edu = (res.education || []).join("\n").toLowerCase();
+    expect(edu.length).toBeGreaterThan(0);
+    expect(edu).toContain("borcelle university");
+    expect(edu).toContain("bachelor of engineering");
+    expect(edu).toContain("mining engineering");
+    expect(edu).toContain("mining engineering masters");
+    expect(edu).toContain("2029 - 2030");
+    expect(edu).toContain("2025 - 2029");
+
+    const skills = (res.skills || []).join("\n").toLowerCase();
+    expect(skills.length).toBeGreaterThan(0);
+    expect(skills).toContain("mining");
+    expect(skills).toContain("geological assessment");
+    expect(skills).toContain("teamwork");
+    expect(skills).toContain("time management");
+    expect(skills).toContain("effective communication");
+    expect(skills).toContain("critical thinking");
+
+    expect(res.languages).toEqual([]);
+
+    expect(res.certifications).toEqual([]);
+    expect(res.projects).toEqual([]);
+
+    const refs = (res.references || []).join("\n");
+    expect(refs).toMatch(/Benjamin Shah/i);
+    expect(refs).toMatch(/Ketut Susilo/i);
+    expect(refs).toMatch(/Wardiere Inc\. \/ CTO/i);
+    expect(refs).toMatch(/Wardiere Inc\. \/ CEO/i);
+    expect(refs).toMatch(/123-456-7890/);
+    expect(refs).toMatch(/123-456-7891/);
   });
 });
