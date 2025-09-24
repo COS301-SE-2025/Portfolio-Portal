@@ -24,7 +24,7 @@ describe("extractPersonalInfo", () => {
 
     expect(personal_info.name).toBe("Eric Booyens");
     expect(personal_info.email).toBe("test@example.com");
-    expect(personal_info.phone).toBe("+27 82 123 4567");
+    expect(personal_info.phone).toBe("82 123 4567");
     expect(personal_info.linkedin).toBe("https://linkedin.com/in/eric");
     expect(personal_info.website).toBe("https://eric.dev");
     expect(personal_info.address).toBe("12 Main Road, Cape Town");

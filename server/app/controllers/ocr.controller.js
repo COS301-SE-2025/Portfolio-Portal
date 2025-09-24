@@ -1,6 +1,7 @@
 //server/app/controllers/ocr.controller.js
 const fs = require("fs");
-const { processCV } = require("../services/ocr.service");
+const { processCV: ocrProcessCV } = require("../services/ocr.service");
+const { processCV: sectionizeCV } = require("../utils/sectionizer");
 const { saveCVData } = require("../services/cv.service");
 const {
   selectTemplate,
@@ -18,8 +19,9 @@ const handleUpload = async (req, res) => {
         .json({ success: false, message: "Invalid request" });
     }
 
-    // process CV
-    const structuredCV = await processCV(file.path, file.mimetype);
+    // process CV: OCR -> sectionize into structured JSON
+    const rawOCR = await ocrProcessCV(file.path, file.mimetype);
+    const structuredCV = sectionizeCV(rawOCR);
 
     // save structured CV data to database
     try {

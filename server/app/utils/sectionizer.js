@@ -140,14 +140,36 @@ function extractLinksAll(lines) {
 }
 
 function removeStringsFromLines(lines, strings) {
-  const toRemove = new Set(strings.filter(Boolean));
-  if (!toRemove.size) return [...lines];
+  const needles = new Set();
+
+  const addUrlVariants = (u) => {
+    const l = (u || "").toLowerCase().trim();
+    if (!l) return;
+    const noProto = l.replace(/^https?:\/\//i, "");
+    const noWww = noProto.replace(/^www\./i, "");
+    [l, noProto, noWww, `https://${noProto}`, `https://${noWww}`].forEach(
+      (v) => {
+        if (v) needles.add(v);
+      }
+    );
+  };
+
+  for (const s of strings.filter(Boolean)) {
+    const lower = s.toLowerCase();
+    if (lower.includes("@")) {
+      needles.add(lower);
+    } else if (/\.[a-z]{2,}/i.test(lower)) {
+      addUrlVariants(lower);
+    } else {
+      needles.add(lower);
+    }
+  }
+
   return lines.filter((line) => {
-    const L = line.toLowerCase();
-    for (const s of toRemove) {
-      if (!s) continue;
-      const needle = s.toLowerCase();
-      if (L.includes(needle)) return false;
+    const L = (line || "").toLowerCase();
+    if (!L) return false;
+    for (const n of needles) {
+      if (n && L.includes(n)) return false;
     }
     return true;
   });
