@@ -6,7 +6,6 @@ import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
 import useCvData from "../hooks/useCVData";
 
-// WASD Movement & Zoom Hook
 const useWASDMovement = () => {
   const { camera } = useThree();
   const [keys, setKeys] = useState({
@@ -111,7 +110,6 @@ const useWASDMovement = () => {
   });
 };
 
-// Camera Controller Component
 const CameraController = () => {
   useWASDMovement();
   return null;
@@ -149,7 +147,6 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
     }
   };
 
-  // Consistent dark green color for all cones when not highlighted
   const normalGreenColor = "#1c681c";
   const highlightedGreenColor = "#32cd32";
 
@@ -278,7 +275,7 @@ const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
   const highlightColor = "#ff6600";
   const baseNormalColor = "#444";
   const logsNormalColor = "#8b5a3c";
-  const flameNormalColor = "#ff4500"; // Orange instead of white
+  const flameNormalColor = "#ff4500"; 
 
   return (
     <animated.group 
@@ -381,10 +378,7 @@ const LogPlaceholder = ({ position, onClick, isHighlighted, rotation = [0, 0, 0]
   );
 };
 
-
-
 //-----------------------------------------------------
-
 
 const RockPlaceholder = ({ position, onClick, isHighlighted, isInteractive = true }) => {
   const [hovered, setHovered] = useState(false);
@@ -427,9 +421,7 @@ const RockPlaceholder = ({ position, onClick, isHighlighted, isInteractive = tru
   );
 };
 
-
 //-----------------------------------------------------
-
 // Shrub Component 
 const ShrubPlaceholder = ({ position, scale = 1 }) => {
   return (
@@ -448,9 +440,7 @@ const ShrubPlaceholder = ({ position, scale = 1 }) => {
   );
 };
 
-
 //-----------------------------------------------------
-
 // Flower Component - small colourful flowers
 const FlowerPlaceholder = ({ position, scale = 1, color = "#ff6b6b" }) => {
   return (
@@ -469,9 +459,7 @@ const FlowerPlaceholder = ({ position, scale = 1, color = "#ff6b6b" }) => {
   );
 };
 
-
 //-----------------------------------------------------
-
 // Pebble Component 
 const PebblePlaceholder = ({ position, scale = 1 }) => {
   const size = 0.1 + Math.random() * 0.1;
@@ -483,10 +471,7 @@ const PebblePlaceholder = ({ position, scale = 1 }) => {
   );
 };
 
-
-
 //-----------------------------------------------------
-
 // Mushroom Component
 const MushroomPlaceholder = ({ position, scale = 1 }) => {
   return (
@@ -507,8 +492,6 @@ const MushroomPlaceholder = ({ position, scale = 1 }) => {
 
 
 //-----------------------------------------------------
-
-
 const AnimalPlaceholder = ({ position, onClick, isHighlighted, type = "deer" }) => {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
@@ -594,27 +577,23 @@ const AnimalPlaceholder = ({ position, onClick, isHighlighted, type = "deer" }) 
   );
 };
 
-
 //-----------------------------------------------------
-
-
-// Fix the InfoPanel component to remove the position prop
 const InfoPanel = ({ title, content, onClose, isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 w-[700px] h-[300px] text-white shadow-2xl">
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 max-w-4xl max-h-[90vh]">
+      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 text-white shadow-2xl mx-4">
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-green-400 text-xl font-bold">{title}</h3>
+          <h3 className="text-green-400 text-xl font-bold mr-4">{title}</h3>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl hover:bg-red-500/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+            className="text-gray-400 hover:text-white text-xl hover:bg-red-500/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors flex-shrink-0"
           >
             ×
           </button>
         </div>
-        <div className="text-sm leading-relaxed overflow-y-auto h-[220px] pr-2">
+        <div className="text-sm leading-relaxed overflow-y-auto max-h-[70vh] pr-2">
           {content}
         </div>
       </div>
@@ -650,7 +629,7 @@ const useCameraAnimation = () => {
     
     switch (objectType) {
       case 'tent':
-        cameraOffset = new THREE.Vector3(1, 1, -2);
+        cameraOffset = new THREE.Vector3(0.5, 1, 2);
         lookAtOffset = new THREE.Vector3(1, 1, 1);
         break;
       case 'tree':
@@ -829,7 +808,6 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     }
   };
 
-  // Remove the local selectedObject state and use the prop instead
   const selectedObjectData = selectedObject ? 
     interactiveObjects.find(obj => obj.id === selectedObject) : null;
 
@@ -976,9 +954,9 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
 
 
 {/* Random Shrubs - scattered around the forest */}
-{/* <ShrubPlaceholder position={[2, 0, 3]} scale={0.8} />
-<ShrubPlaceholder position={[-3, 0, 4]} scale={1.1} />
-<ShrubPlaceholder position={[5, 0, -2]} scale={0.9} /> */}
+<ShrubPlaceholder position={[5, 0, 8]} scale={0.8} />
+<ShrubPlaceholder position={[-8, 0, 7]} scale={1.1} />
+<ShrubPlaceholder position={[6, 0, -5]} scale={0.9} />
 <ShrubPlaceholder position={[-6, 0, -3]} scale={1.2} />
 <ShrubPlaceholder position={[8, 0, 1]} scale={0.7} />
 <ShrubPlaceholder position={[-9, 0, 2]} scale={1.0} />
@@ -997,16 +975,16 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
 <FlowerPlaceholder position={[-2, 0, 3]} color="#4ecdc4" />
 <FlowerPlaceholder position={[4, 0, -1]} color="#ffd166" />
 <FlowerPlaceholder position={[-5, 0, -2]} color="#ff9ff3" />
-<FlowerPlaceholder position={[6, 0, 4]} color="#6a0572" />
 <FlowerPlaceholder position={[-7, 0, 5]} color="#1a936f" />
 <FlowerPlaceholder position={[3, 0, -6]} color="#f28482" />
 <FlowerPlaceholder position={[-4, 0, -7]} color="#84a98c" />
 <FlowerPlaceholder position={[9, 0, -3]} color="#e76f51" />
-<FlowerPlaceholder position={[-10, 0, -4]} color="#2a9d8f" />
+<FlowerPlaceholder position={[-10, 0, -4]} color="#2a9d8f" />*/}
+<FlowerPlaceholder position={[6, 0, 14]} color="#6a0572" />
 <FlowerPlaceholder position={[5, 0, 8]} color="#9b5de5" />
 <FlowerPlaceholder position={[-6, 0, 9]} color="#00bbf9" />
-<FlowerPlaceholder position={[11, 0, 1]} color="#fee440" />
-<FlowerPlaceholder position={[-12, 0, 2]} color="#f15bb5" /> */}
+<FlowerPlaceholder position={[11, 0, 10]} color="#fee440" />
+<FlowerPlaceholder position={[-12, 0, 6]} color="#f15bb5" /> 
 
 {/* Random Pebbles - small stones scattered around */}
 <PebblePlaceholder position={[3.5, 0, 1.2]} />
@@ -1048,22 +1026,6 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
 <PebblePlaceholder position={[0.8, 0.05, 1.2]} />
 <MushroomPlaceholder position={[-1.2, 0, 1.5]} scale={0.8} />
 
-{/* <ShrubPlaceholder position={[-2, 0, -1]} scale={1.1} />
-<FlowerPlaceholder position={[-1.5, 0, -1.5]} color="#4ecdc4" />
-<PebblePlaceholder position={[-2.3, 0, -0.7]} /> */}
-
-       {/* Info Panel */}
-      {/* {selectedObjectData && (
-        <InfoPanel
-          title={selectedObjectData.title}
-          content={selectedObjectData.content}
-          onClose={() => {
-            setSelectedObject(null);
-            reset();
-          }}
-          position={[selectedObjectData.position[0], selectedObjectData.position[1] + 4, selectedObjectData.position[2]]}
-        />
-      )} */}
 
       {/* Enhanced Lighting */}
       <ambientLight intensity={0.3} />
@@ -1080,7 +1042,6 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     </>
   );
 };
-
 
 
 const ControlledOrbitControls = (props) => {
@@ -1111,7 +1072,7 @@ const ControlledOrbitControls = (props) => {
   );
 };
 
-
+//================================================================================
 // Updated ForestPage3D component
 const ForestPage3D = () => {
   const { name, about, experience, education, skills } = useCvData() || {};
@@ -1205,7 +1166,7 @@ const ForestPage3D = () => {
         </button>
       </div>
 
-      {/* Info Panel - Now rendered outside Canvas as an overlay */}
+      {/* Info Panel*/}
       {selectedObjectData && (
         <InfoPanel
           title={selectedObjectData.title}
