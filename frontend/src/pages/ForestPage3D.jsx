@@ -619,22 +619,145 @@ const InfoPanel = ({ title, content, onClose, position }) => {
   );
 };
 
+
+//-------------------------
+// Camera animation hook
+const useCameraAnimation = () => {
+  const { camera } = useThree();
+  const targetPosition = useRef(new THREE.Vector3());
+  const targetLookAt = useRef(new THREE.Vector3());
+  const originalPosition = useRef(new THREE.Vector3());
+  const originalLookAt = useRef(new THREE.Vector3());
+  const animating = useRef(false);
+  const animationProgress = useRef(0);
+
+  const moveTo = (objectPosition, objectType) => {
+    // Store original camera position if not already stored
+    if (originalPosition.current.length() === 0) {
+      originalPosition.current.copy(camera.position);
+      
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      originalLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
+    }
+    
+    // Calculate camera position based on object type and position
+    const objPos = new THREE.Vector3(...objectPosition);
+    let cameraOffset, lookAtOffset;
+    
+    switch (objectType) {
+      case 'tent':
+        cameraOffset = new THREE.Vector3(-2, 2, 3);
+        lookAtOffset = new THREE.Vector3(-1.5, 1.5, 0);
+        break;
+      case 'tree':
+        cameraOffset = new THREE.Vector3(-2, 6, 4.5);
+        lookAtOffset = new THREE.Vector3(-2, 3, 4);
+        break;
+      case 'fireplace':
+        cameraOffset = new THREE.Vector3(2, 1.5, 2);
+        lookAtOffset = new THREE.Vector3(0, 0.5, 0);
+        break;
+      case 'rock':
+        cameraOffset = new THREE.Vector3(-2, 1, 0.5);
+        lookAtOffset = new THREE.Vector3(0, 0.5, 0);
+        break;
+      case 'deer':
+        cameraOffset = new THREE.Vector3(-1, 1.5, 3);
+        lookAtOffset = new THREE.Vector3(0, 1, 0);
+        break;
+      default:
+        cameraOffset = new THREE.Vector3(-2, 2, 3);
+        lookAtOffset = new THREE.Vector3(0, 1, 0);
+    }
+    
+    // Set target position and lookAt
+    targetPosition.current.copy(objPos).add(cameraOffset);
+    targetLookAt.current.copy(objPos).add(lookAtOffset);
+    
+    animating.current = true;
+    animationProgress.current = 0;
+  };
+
+  const reset = () => {
+    if (originalPosition.current.length() > 0) {
+      targetPosition.current.copy(originalPosition.current);
+      targetLookAt.current.copy(originalLookAt.current);
+      animating.current = true;
+      animationProgress.current = 0;
+    }
+  };
+
+  useFrame((state, delta) => {
+    if (animating.current) {
+      animationProgress.current = Math.min(animationProgress.current + delta * 3, 1);
+      
+      // Smooth step easing
+      const t = animationProgress.current;
+      const smoothStep = t * t * (3 - 2 * t);
+      
+      // Interpolate position
+      const newPosition = new THREE.Vector3();
+      newPosition.lerpVectors(originalPosition.current, targetPosition.current, smoothStep);
+      camera.position.copy(newPosition);
+      
+      // Interpolate look at point
+      const newLookAt = new THREE.Vector3();
+      newLookAt.lerpVectors(originalLookAt.current, targetLookAt.current, smoothStep);
+      
+      // Make camera look at the interpolated point
+      camera.lookAt(newLookAt);
+      
+      // Update OrbitControls target if needed
+      if (window.orbitControls) {
+        window.orbitControls.target.lerpVectors(originalLookAt.current, targetLookAt.current, smoothStep);
+        window.orbitControls.update();
+      }
+      
+      if (animationProgress.current >= 1) {
+        animating.current = false;
+        camera.lookAt(targetLookAt.current);
+      }
+    }
+  });
+
+  return { moveTo, reset };
+};
+//-----------------------------------------
+
 const Scene = () => {
   const [selectedObject, setSelectedObject] = useState(null);
   const { name, about, experience, education, skills } = useCvData() || {};
+  const { moveTo, reset } = useCameraAnimation();
+  const { camera } = useThree();
 
-  const interactiveObjects = [
+  // Store orbit controls reference
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const controls = document.querySelector('canvas')?._r3f?.state?.controls;
+      if (controls) {
+        window.orbitControls = controls;
+        clearInterval(interval);
+      }
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+ const interactiveObjects = [
     {
       id: 'about-tent',
       component: TentPlaceholder,
       position: [-1.5, 0, 1.5],
+      type: 'tent',
       title: 'About Me',
-      content:about || "I'm a passionate professional who loves collaberating through immersive digital experiences."
+      content: about || "I'm a passionate professional who loves collaborating through immersive digital experiences."
     },
     {
       id: 'name-tree',
       component: PineTreePlaceholder,
       position: [-4, 0, 4],
+      type: 'tree',
       title: 'Who Am I?',
       content: name || "I am..."
     },
@@ -642,6 +765,7 @@ const Scene = () => {
       id: 'experience-fireplace',
       component: FireplacePlaceholder,
       position: [0, 0, 0],
+      type: 'fireplace',
       title: 'Experience',
       content: experience ? (
         <div>
@@ -659,6 +783,7 @@ const Scene = () => {
       id: 'education-rock',
       component: RockPlaceholder,
       position: [-2, 0.5, -1],
+      type: 'rock',
       title: 'Education',
       content: education ? (
         <div>
@@ -676,17 +801,36 @@ const Scene = () => {
       id: 'skills-deer',
       component: AnimalPlaceholder,
       position: [-3, 0.5, 5],
+      type: 'deer',
       title: 'Skills',
-      content: skills || "Discover the skills and meaningful achievements that define my journey."
+      content: skills ? (
+        <div className="grid grid-cols-2 gap-2">
+          {skills.map((skill, i) => (
+            <div key={i} className="bg-purple-500/20 border border-purple-400/30 px-2 py-1 rounded text-center">
+              <span className="text-purple-300 text-sm">{skill}</span>
+            </div>
+          ))}
+        </div>
+      ) : "Discover the skills and meaningful achievements that define my journey."
     }
   ];
 
   const handleObjectClick = (objectId) => {
-    setSelectedObject(selectedObject === objectId ? null : objectId);
+    if (selectedObject === objectId) {
+      setSelectedObject(null);
+      reset();
+    } else {
+      const obj = interactiveObjects.find(o => o.id === objectId);
+      if (obj) {
+        setSelectedObject(objectId);
+        moveTo(obj.position, obj.type); // Fixed: pass position and type
+      }
+    }
   };
 
   const selectedObjectData = selectedObject ? 
     interactiveObjects.find(obj => obj.id === selectedObject) : null;
+
 
   return (
     <>
@@ -704,7 +848,7 @@ const Scene = () => {
         speed={0.5}
       />
 
-      {/* Ground - orest floor */}
+      {/* Ground - forest floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
         <planeGeometry args={[70, 70]} />
         <meshLambertMaterial color="#2d5016" />
@@ -907,12 +1051,15 @@ const Scene = () => {
 <FlowerPlaceholder position={[-1.5, 0, -1.5]} color="#4ecdc4" />
 <PebblePlaceholder position={[-2.3, 0, -0.7]} /> */}
 
-      {/* Info Panel */}
+       {/* Info Panel */}
       {selectedObjectData && (
         <InfoPanel
           title={selectedObjectData.title}
           content={selectedObjectData.content}
-          onClose={() => setSelectedObject(null)}
+          onClose={() => {
+            setSelectedObject(null);
+            reset();
+          }}
           position={[selectedObjectData.position[0], selectedObjectData.position[1] + 4, selectedObjectData.position[2]]}
         />
       )}
@@ -930,6 +1077,34 @@ const Scene = () => {
       <pointLight position={[5, 3, 5]} intensity={0.3} color="#00ff88" />
       <pointLight position={[-5, 3, -5]} intensity={0.3} color="#0088ff" />
     </>
+  );
+};
+
+const ControlledOrbitControls = (props) => {
+  const { camera, gl } = useThree();
+  
+  const controlsRef = useRef();
+  
+  useFrame(() => {
+    if (controlsRef.current) {
+      controlsRef.current.update();
+    }
+  });
+  
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      args={[camera, gl.domElement]}
+      enablePan={true}
+      minPolarAngle={Math.PI / 6}
+      maxPolarAngle={Math.PI / 2.2}
+      minDistance={3}
+      maxDistance={25}
+      autoRotate={false}
+      enableDamping
+      dampingFactor={0.05}
+      {...props}
+    />
   );
 };
 
@@ -972,7 +1147,7 @@ const ForestPage3D = () => {
         <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-yellow-400 rounded-full animate-ping" style={{animationDelay: '3s'}}></div>
       </div>
 
-      <Canvas
+      {/* <Canvas
         camera={{
           position: [1, 6, 16],
           fov: 60,
@@ -995,7 +1170,23 @@ const ForestPage3D = () => {
             dampingFactor={0.05}
           />
         </Suspense>
-      </Canvas>
+      </Canvas> */}
+
+<Canvas
+  camera={{
+    position: [1, 6, 16],
+    fov: 60,
+    near: 0.1,
+    far: 1000,
+  }}
+  shadows
+>
+  <Suspense fallback={null}>
+    <Scene />
+    <Environment preset="forest" />
+    <ControlledOrbitControls />
+  </Suspense>
+</Canvas>
 
       {/* Loading overlay */}
       <Suspense fallback={
