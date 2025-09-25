@@ -117,7 +117,7 @@ const CameraController = () => {
   return null;
 };
 
-
+//-----------------------------------------------------
 
 const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive = true }) => {
   const meshRef = useRef();
@@ -149,6 +149,10 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
     }
   };
 
+  // Consistent dark green color for all cones when not highlighted
+  const normalGreenColor = "#1c681c";
+  const highlightedGreenColor = "#32cd32";
+
   return (
     <animated.group
       ref={meshRef}
@@ -172,7 +176,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 2.5, 0]}>
         <coneGeometry args={[1.8, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
+          color={isHighlighted || hovered ? highlightedGreenColor : normalGreenColor}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -181,7 +185,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 3.5, 0]}>
         <coneGeometry args={[1.5, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
+          color={isHighlighted || hovered ? highlightedGreenColor : normalGreenColor}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -190,7 +194,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 4.5, 0]}>
         <coneGeometry args={[1.2, 2, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#1c681cff"}
+          color={isHighlighted || hovered ? highlightedGreenColor : normalGreenColor}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -199,7 +203,7 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
       <mesh position={[0, 5.5, 0]}>
         <coneGeometry args={[0.8, 1.5, 8]} />
         <animated.meshLambertMaterial 
-          color={isHighlighted || hovered ? "#32cd32" : "#228b22"}
+          color={isHighlighted || hovered ? highlightedGreenColor : normalGreenColor}
           emissive={isHighlighted || hovered ? "#00ff00" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
@@ -209,12 +213,13 @@ const PineTreePlaceholder = ({ position, onClick, isHighlighted, isInteractive =
 };
 
 
+//-----------------------------------------------------
+
 const TentPlaceholder = ({ position, onClick, isHighlighted }) => {
   const [hovered, setHovered] = useState(false);
 
   
   const { emissiveIntensity } = useSpring({
-    // Removed scale animation - only emissive intensity changes
     emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0,
     config: { tension: 300, friction: 10 }
   });
@@ -249,6 +254,8 @@ const TentPlaceholder = ({ position, onClick, isHighlighted }) => {
   );
 };
 
+
+//-----------------------------------------------------
 
 const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
   const flameRef = useRef();
@@ -330,6 +337,8 @@ const FireplacePlaceholder = ({ position, onClick, isHighlighted }) => {
 };
 
 
+//-----------------------------------------------------
+
 const LogPlaceholder = ({ position, onClick, isHighlighted, rotation = [0, 0, 0], isInteractive = true }) => {
   const [hovered, setHovered] = useState(false);
   
@@ -371,6 +380,11 @@ const LogPlaceholder = ({ position, onClick, isHighlighted, rotation = [0, 0, 0]
     </animated.mesh>
   );
 };
+
+
+
+//-----------------------------------------------------
+
 
 const RockPlaceholder = ({ position, onClick, isHighlighted, isInteractive = true }) => {
   const [hovered, setHovered] = useState(false);
@@ -414,6 +428,8 @@ const RockPlaceholder = ({ position, onClick, isHighlighted, isInteractive = tru
 };
 
 
+//-----------------------------------------------------
+
 // Shrub Component 
 const ShrubPlaceholder = ({ position, scale = 1 }) => {
   return (
@@ -431,6 +447,9 @@ const ShrubPlaceholder = ({ position, scale = 1 }) => {
     </group>
   );
 };
+
+
+//-----------------------------------------------------
 
 // Flower Component - small colourful flowers
 const FlowerPlaceholder = ({ position, scale = 1, color = "#ff6b6b" }) => {
@@ -450,6 +469,9 @@ const FlowerPlaceholder = ({ position, scale = 1, color = "#ff6b6b" }) => {
   );
 };
 
+
+//-----------------------------------------------------
+
 // Pebble Component 
 const PebblePlaceholder = ({ position, scale = 1 }) => {
   const size = 0.1 + Math.random() * 0.1;
@@ -460,6 +482,10 @@ const PebblePlaceholder = ({ position, scale = 1 }) => {
     </mesh>
   );
 };
+
+
+
+//-----------------------------------------------------
 
 // Mushroom Component
 const MushroomPlaceholder = ({ position, scale = 1 }) => {
@@ -478,6 +504,10 @@ const MushroomPlaceholder = ({ position, scale = 1 }) => {
     </group>
   );
 };
+
+
+//-----------------------------------------------------
+
 
 const AnimalPlaceholder = ({ position, onClick, isHighlighted, type = "deer" }) => {
   const meshRef = useRef();
@@ -564,10 +594,14 @@ const AnimalPlaceholder = ({ position, onClick, isHighlighted, type = "deer" }) 
   );
 };
 
+
+//-----------------------------------------------------
+
+
 const InfoPanel = ({ title, content, onClose, position }) => {
   return (
     <Html position={position} center>
-      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 max-w-md text-white shadow-2xl animate-pulse">
+      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 w-[400px] h-[260px] text-white shadow-2xl animate-pulse">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-green-400 text-xl font-bold">{title}</h3>
           <button 
@@ -577,7 +611,7 @@ const InfoPanel = ({ title, content, onClose, position }) => {
             ×
           </button>
         </div>
-        <div className="text-sm leading-relaxed">
+        <div className="text-sm leading-relaxed overflow-y-auto h-[220px] pr-2">
           {content}
         </div>
       </div>
@@ -590,10 +624,10 @@ const Scene = () => {
   const { name, about, experience, education, skills } = useCvData() || {};
 
   const interactiveObjects = [
-     {
+    {
       id: 'about-tent',
       component: TentPlaceholder,
-      position: [-1.5, 0, 2.5],
+      position: [-1.5, 0, 1.5],
       title: 'About Me',
       content:about || "I'm a passionate professional who loves collaberating through immersive digital experiences."
     },
@@ -641,7 +675,7 @@ const Scene = () => {
     {
       id: 'skills-deer',
       component: AnimalPlaceholder,
-      position: [3, 1, -2],
+      position: [-3, 0.5, 5],
       title: 'Skills',
       content: skills || "Discover the skills and meaningful achievements that define my journey."
     }
@@ -672,7 +706,7 @@ const Scene = () => {
 
       {/* Ground - orest floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-        <planeGeometry args={[90, 90]} />
+        <planeGeometry args={[70, 70]} />
         <meshLambertMaterial color="#2d5016" />
       </mesh>
 
@@ -731,7 +765,6 @@ const Scene = () => {
       <PineTreePlaceholder position={[13, 0, 15]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <PineTreePlaceholder position={[-14, 0, 16]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <PineTreePlaceholder position={[22, 0, -3]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
-      <PineTreePlaceholder position={[-21, 0, -2]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
 
 
       <PineTreePlaceholder position={[10, 0, 18]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
@@ -778,7 +811,7 @@ const Scene = () => {
       <LogPlaceholder position={[-6, 0.1, -4]} rotation={[0, -Math.PI / 4, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <LogPlaceholder position={[8, 0.1, -6]} rotation={[0, Math.PI / 6, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <LogPlaceholder position={[-9, 0.1, 5]} rotation={[0, -Math.PI / 2, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
-      <LogPlaceholder position={[10, 0.1, 9]} rotation={[0, Math.PI / 5, 0]} onClick={() => {}} isHighlighted={false} />
+      <LogPlaceholder position={[10, 0.1, 9]} rotation={[0, Math.PI / 5, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <LogPlaceholder position={[-11, 0.1, -8]} rotation={[0, -Math.PI / 3, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <LogPlaceholder position={[14, 0.1, 7]} rotation={[0, Math.PI / 7, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
       <LogPlaceholder position={[-13, 0.1, -10]} rotation={[0, -Math.PI / 6, 0]} onClick={() => {}} isHighlighted={false} isInteractive={false} />
@@ -848,6 +881,13 @@ const Scene = () => {
 <PebblePlaceholder position={[9.6, 0, -0.3]} />
 <PebblePlaceholder position={[7.5, 0, -4.1]} />
 <PebblePlaceholder position={[-9.6, 0, 6.3]} />
+<PebblePlaceholder position={[5.4, 0, -11.6]} />
+<PebblePlaceholder position={[7.8, 0, 11.9]} />
+<PebblePlaceholder position={[6.7, 0, -12.8]} />
+<PebblePlaceholder position={[10.3, 0, 6.2]} />
+<PebblePlaceholder position={[7.5, 0, -9.1]} />
+<PebblePlaceholder position={[-9.6, 0, 5.3]} />
+<PebblePlaceholder position={[-7.5, 0, 6.1]} />
 
 {/* Random Mushrooms - decorative fungi */}
 <MushroomPlaceholder position={[2.2, 0, 1.7]} scale={0.8} />
@@ -908,7 +948,7 @@ const ForestPage3D = () => {
           <p className="text-blue-300 text-xs font-semibold mb-1">🎮 Controls:</p>
           <p className="text-blue-200 text-xs">
             <span className="font-mono bg-blue-400/20 px-1 rounded">W A S D</span> keys to move around<br/>
-            <span className="font-mono bg-blue-400/20 px-1 rounded">+ -</span> keys to zoom in/out<br/>
+            <span className="font-mono bg-blue-400/20 px-1 rounded">+ -</span> keys to zoom in/out of camp site<br/>
             <span className="font-mono bg-blue-400/20 px-1 rounded">Mouse</span> to look around
           </p>
         </div>
