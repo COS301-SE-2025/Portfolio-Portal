@@ -598,15 +598,18 @@ const AnimalPlaceholder = ({ position, onClick, isHighlighted, type = "deer" }) 
 //-----------------------------------------------------
 
 
-const InfoPanel = ({ title, content, onClose, position }) => {
+// Fix the InfoPanel component to remove the position prop
+const InfoPanel = ({ title, content, onClose, isVisible }) => {
+  if (!isVisible) return null;
+
   return (
-    <Html position={position} center>
-      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 w-[400px] h-[260px] text-white shadow-2xl animate-pulse">
+    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+      <div className="bg-[#0e0e2c]/95 backdrop-blur-sm border border-green-400/30 rounded-lg p-6 w-[700px] h-[300px] text-white shadow-2xl">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-green-400 text-xl font-bold">{title}</h3>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl hover:bg-red-500/20 rounded px-2"
+            className="text-gray-400 hover:text-white text-xl hover:bg-red-500/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors"
           >
             ×
           </button>
@@ -615,7 +618,7 @@ const InfoPanel = ({ title, content, onClose, position }) => {
           {content}
         </div>
       </div>
-    </Html>
+    </div>
   );
 };
 
@@ -647,11 +650,11 @@ const useCameraAnimation = () => {
     
     switch (objectType) {
       case 'tent':
-        cameraOffset = new THREE.Vector3(-2, 2, 3);
-        lookAtOffset = new THREE.Vector3(-1.5, 1.5, 0);
+        cameraOffset = new THREE.Vector3(1, 1, -2);
+        lookAtOffset = new THREE.Vector3(1, 1, 1);
         break;
       case 'tree':
-        cameraOffset = new THREE.Vector3(-2, 6, 4.5);
+        cameraOffset = new THREE.Vector3(-2, 7, 4.5);
         lookAtOffset = new THREE.Vector3(-2, 3, 4);
         break;
       case 'fireplace':
@@ -725,11 +728,9 @@ const useCameraAnimation = () => {
 };
 //-----------------------------------------
 
-const Scene = () => {
-  const [selectedObject, setSelectedObject] = useState(null);
+const Scene = ({ selectedObject, setSelectedObject }) => {
   const { name, about, experience, education, skills } = useCvData() || {};
   const { moveTo, reset } = useCameraAnimation();
-  const { camera } = useThree();
 
   // Store orbit controls reference
   useEffect(() => {
@@ -744,7 +745,7 @@ const Scene = () => {
     return () => clearInterval(interval);
   }, []);
 
- const interactiveObjects = [
+  const interactiveObjects = [
     {
       id: 'about-tent',
       component: TentPlaceholder,
@@ -823,14 +824,14 @@ const Scene = () => {
       const obj = interactiveObjects.find(o => o.id === objectId);
       if (obj) {
         setSelectedObject(objectId);
-        moveTo(obj.position, obj.type); // Fixed: pass position and type
+        moveTo(obj.position, obj.type);
       }
     }
   };
 
+  // Remove the local selectedObject state and use the prop instead
   const selectedObjectData = selectedObject ? 
     interactiveObjects.find(obj => obj.id === selectedObject) : null;
-
 
   return (
     <>
@@ -854,7 +855,7 @@ const Scene = () => {
         <meshLambertMaterial color="#2d5016" />
       </mesh>
 
-      {/* Interactive Objects */}
+        {/* Interactive Objects */}
       {interactiveObjects.map((obj) => {
         const Component = obj.component;
         return (
@@ -1052,7 +1053,7 @@ const Scene = () => {
 <PebblePlaceholder position={[-2.3, 0, -0.7]} /> */}
 
        {/* Info Panel */}
-      {selectedObjectData && (
+      {/* {selectedObjectData && (
         <InfoPanel
           title={selectedObjectData.title}
           content={selectedObjectData.content}
@@ -1062,7 +1063,7 @@ const Scene = () => {
           }}
           position={[selectedObjectData.position[0], selectedObjectData.position[1] + 4, selectedObjectData.position[2]]}
         />
-      )}
+      )} */}
 
       {/* Enhanced Lighting */}
       <ambientLight intensity={0.3} />
@@ -1079,6 +1080,8 @@ const Scene = () => {
     </>
   );
 };
+
+
 
 const ControlledOrbitControls = (props) => {
   const { camera, gl } = useThree();
@@ -1108,8 +1111,71 @@ const ControlledOrbitControls = (props) => {
   );
 };
 
+
+// Updated ForestPage3D component
 const ForestPage3D = () => {
-  const { name } = useCvData() || {};
+  const { name, about, experience, education, skills } = useCvData() || {};
+  const [selectedObject, setSelectedObject] = useState(null);
+
+  // Function to get selected object data for the popup
+  const getSelectedObjectData = () => {
+    if (!selectedObject) return null;
+  
+    const objectsData = {
+      'about-tent': {
+        title: 'About Me',
+        content: about || "I'm a passionate professional who loves collaborating through immersive digital experiences."
+      },
+      'name-tree': {
+        title: 'Who Am I?',
+        content: name || "Welcome to my portfolio! I am..."
+      },
+      'experience-fireplace': {
+        title: 'Professional Experience',
+        content: experience ? (
+          <div>
+            {experience.slice(0, 2).map((exp, i) => (
+              <div key={i} className="mb-3">
+                <div className="font-semibold text-green-300">{exp.title}</div>
+                <div className="text-gray-300">{exp.company}</div>
+                <div className="text-sm text-gray-400">{exp.startDate} - {exp.endDate}</div>
+              </div>
+            ))}
+          </div>
+        ) : "Click to explore my professional journey and the projects that fuel my passion."
+      },
+      'education-rock': {
+        title: 'Education & Learning',
+        content: education ? (
+          <div>
+            {education.slice(0, 2).map((edu, i) => (
+              <div key={i} className="mb-3">
+                <div className="font-semibold text-green-300">{edu.degree}</div>
+                <div className="text-gray-300">{edu.institution}</div>
+                <div className="text-sm text-gray-400">{edu.endDate}</div>
+              </div>
+            ))}
+          </div>
+        ) : "The foundation of knowledge that shapes my approach to problem-solving and continuous learning."
+      },
+      'skills-deer': {
+        title: 'Skills & Expertise',
+        content: skills ? (
+          <div className="grid grid-cols-2 gap-2">
+            {skills.map((skill, i) => (
+              <div key={i} className="bg-purple-500/20 border border-purple-400/30 px-2 py-1 rounded text-center">
+                <span className="text-purple-300 text-sm">{skill}</span>
+              </div>
+            ))}
+          </div>
+        ) : "Discover the technical skills and meaningful achievements that define my professional journey."
+      }
+    };
+
+    return objectsData[selectedObject];
+  };
+
+  const selectedObjectData = getSelectedObjectData();
 
   return (
     <div className="relative w-full h-screen bg-gradient-to-b from-[#0a0a1a] via-[#0e0e2c] to-[#1a1a2e] overflow-hidden">
@@ -1139,6 +1205,16 @@ const ForestPage3D = () => {
         </button>
       </div>
 
+      {/* Info Panel - Now rendered outside Canvas as an overlay */}
+      {selectedObjectData && (
+        <InfoPanel
+          title={selectedObjectData.title}
+          content={selectedObjectData.content}
+          onClose={() => setSelectedObject(null)}
+          isVisible={true}
+        />
+      )}
+
       {/* Magical particles overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-30">
         <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-green-400 rounded-full animate-ping"></div>
@@ -1147,7 +1223,7 @@ const ForestPage3D = () => {
         <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-yellow-400 rounded-full animate-ping" style={{animationDelay: '3s'}}></div>
       </div>
 
-      {/* <Canvas
+      <Canvas
         camera={{
           position: [1, 6, 16],
           fov: 60,
@@ -1157,36 +1233,11 @@ const ForestPage3D = () => {
         shadows
       >
         <Suspense fallback={null}>
-          <Scene />
+          <Scene selectedObject={selectedObject} setSelectedObject={setSelectedObject} />
           <Environment preset="forest" />
-          <OrbitControls
-            enablePan={true}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2.2}
-            minDistance={3}
-            maxDistance={25}
-            autoRotate={false}
-            enableDamping
-            dampingFactor={0.05}
-          />
+          <ControlledOrbitControls />
         </Suspense>
-      </Canvas> */}
-
-<Canvas
-  camera={{
-    position: [1, 6, 16],
-    fov: 60,
-    near: 0.1,
-    far: 1000,
-  }}
-  shadows
->
-  <Suspense fallback={null}>
-    <Scene />
-    <Environment preset="forest" />
-    <ControlledOrbitControls />
-  </Suspense>
-</Canvas>
+      </Canvas>
 
       {/* Loading overlay */}
       <Suspense fallback={
