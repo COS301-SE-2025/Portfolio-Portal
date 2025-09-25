@@ -633,7 +633,7 @@ const useCameraAnimation = () => {
         lookAtOffset = new THREE.Vector3(1, 1, 1);
         break;
       case 'tree':
-        cameraOffset = new THREE.Vector3(-2, 7, 4.5);
+        cameraOffset = new THREE.Vector3(2, 7, 4.5);
         lookAtOffset = new THREE.Vector3(-2, 3, 4);
         break;
       case 'fireplace':
