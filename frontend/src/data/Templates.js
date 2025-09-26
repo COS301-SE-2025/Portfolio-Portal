@@ -24,16 +24,16 @@ const professionalTemplates = [
     isImmersive: false, // 2D-ish template
   },
   {
-    title: "Cave v2",
+    title: "Cave",
     description: "Man like Cave - Professional Edition",
     image: "/images/cave.png",
-    href: "/cavePage",
+    href: "/cavev2",
     category: "professional",
     isImmersive: false, // 2D-ish template
   },
   {
     title: "Lab",
-    description: "Waltah White - Professional Edition",
+    description: "Professional laboratory environment for scientific presentations.",
     image: "/images/lab.png",
     href: "/lab",
     category: "professional",
@@ -43,7 +43,7 @@ const professionalTemplates = [
 
 const funTemplates = [
   {
-    title: "Space 3D",
+    title: "Space",
     description: "A futuristic scene that showcases innovation and ambition - Fully Immersive 3D.",
     image: "/images/space.png",
     href: "/space3d",
@@ -51,7 +51,7 @@ const funTemplates = [
     isImmersive: true, // Fully immersive 3D template
   },
   {
-    title: "Forest 3D",
+    title: "Forest",
     description: "Serene and natural — ideal for calm, grounded presentation - Fully Immersive 3D.",
     image: "/images/forest.png",
     href: "/forest3d",
@@ -59,7 +59,7 @@ const funTemplates = [
     isImmersive: true, // Fully immersive 3D template
   },
   {
-    title: "Office 3D",
+    title: "Office",
     description: "Corporate and professional with a sleek modern look - Fully Immersive 3D.",
     image: "/images/office.png",
     href: "/office3d",
@@ -67,7 +67,7 @@ const funTemplates = [
     isImmersive: true, // Fully immersive 3D template
   },
   {
-    title: "Cave v1",
+    title: "Cave",
     description: "Man like Cave - Fully Immersive 3D Edition",
     image: "/images/cave.png",
     href: "/cave",
@@ -75,7 +75,7 @@ const funTemplates = [
     isImmersive: true, // Fully immersive 3D template
   },
   {
-    title: "Lab 3D",
+    title: "Lab",
     description: "Waltah White - Fully Immersive 3D Edition",
     image: "/images/lab.png",
     href: "/lab3d",

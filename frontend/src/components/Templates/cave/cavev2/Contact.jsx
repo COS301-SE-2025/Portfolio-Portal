@@ -10,7 +10,8 @@ const Contact = () => {
   const { cvData } = useCVData();
 
   const handleDownload = async () => {
-    const result = await downloadPortfolio(setIsDownloading, "cave");
+    const result = await downloadPortfolio(setIsDownloading, 'cave');
+
     if (!result.success) {
       alert(result.error);
     }
@@ -75,6 +76,7 @@ const Contact = () => {
               Send Message
             </button>
           </form>
+
         </motion.div>
 
         {/* Download Portfolio Section */}
@@ -85,19 +87,19 @@ const Contact = () => {
           viewport={{ once: true }}
           className="bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20 mt-8"
         >
-          <h3 className="text-emerald-400 text-2xl font-bold mb-4">
-            Download Your Portfolio
-          </h3>
+          <h3 className="text-emerald-400 text-2xl font-bold mb-4">Download Your Portfolio</h3>
           <p className="text-white mb-6">
             Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
           </p>
-          <DownloadButton
+          <DownloadButton 
+
             isDownloading={isDownloading}
             onClick={handleDownload}
             variant="default"
             className="bg-gradient-to-r from-emerald-600 to-emerald-400 hover:from-emerald-700 hover:to-emerald-500"
           />
         </motion.div>
+
       </div>
     </section>
   );
