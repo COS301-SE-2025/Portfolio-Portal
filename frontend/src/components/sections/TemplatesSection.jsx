@@ -118,6 +118,13 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
 
           </div>
 
+          {/* Decorative Divider */}
+          <div className="flex items-center justify-center my-16">
+            <div className={`h-0.5 w-40 ${isDark ? 'bg-gradient-to-r from-transparent via-blue-400 to-transparent' : 'bg-gradient-to-r from-transparent via-purple-500 to-transparent'}`}></div>
+            <div className={`mx-6 w-3 h-3 rounded-full ${isDark ? 'bg-blue-400' : 'bg-purple-500'}`}></div>
+            <div className={`h-0.5 w-40 ${isDark ? 'bg-gradient-to-r from-transparent via-blue-400 to-transparent' : 'bg-gradient-to-r from-transparent via-purple-500 to-transparent'}`}></div>
+          </div>
+
           {/* Fun Templates Section */}
           <div>
             <h2 className={`text-3xl font-bold text-center mb-8 ${isDark ? 'text-white' : 'text-slate-800'}`}>
