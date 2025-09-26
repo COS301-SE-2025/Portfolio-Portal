@@ -75,7 +75,8 @@ export const downloadPortfolio = async (setIsDownloading, templateName = 'defaul
     const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
     
     try {
-      const response = await fetch('/api/portfolio/download', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+      const response = await fetch(`${API_BASE_URL}/api/portfolio/download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
