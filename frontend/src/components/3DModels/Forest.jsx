@@ -1,3 +1,4 @@
+//frontend/src/components/Forest.jsx
 // Model Information:
 // * title:	Low Poly Forest Campfire [Updated]
 // * source:	https://sketchfab.com/3d-models/low-poly-forest-campfire-updated-af086b62a4c84ea89eda895b23d64813

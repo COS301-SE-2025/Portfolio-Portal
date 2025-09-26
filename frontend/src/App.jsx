@@ -1,7 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import OfficePage from './pages/OfficePage';
-import Office3DPage from './pages/Office3DPage'
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Navbar from './components/Navbar';
@@ -14,9 +12,12 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
+import ForestPage3D from "./pages/ForestPage3D";
 import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
 import Space from './pages/Space';
+import OfficePage from './pages/OfficePage';
+import Office3DPage from './pages/Office3DPage'
 
 const HIDDEN_NAVBAR_PATHS = [
   '/',
@@ -25,6 +26,7 @@ const HIDDEN_NAVBAR_PATHS = [
   '/office',
   '/office3d', 
   '/forest',
+  '/forest3d',
   '/space',
   '/profile',
   '/lab',
@@ -37,6 +39,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/office',
   '/office3d', 
   '/forest',
+  '/forest3d',
   '/space',
   '/lab',
   '/cave',
@@ -61,6 +64,7 @@ function App() {
           <Route path="/office" element={<OfficePage />} />
           <Route path="/office3d" element={<Office3DPage />} />
           <Route path="/forest" element={<ForestPage />} />
+          <Route path="/forest3d" element={<ForestPage3D />} />
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
