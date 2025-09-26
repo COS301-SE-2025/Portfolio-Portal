@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { User, Home, Upload, Info, FileText, Settings, Menu, X, LogOut } from 'lucide-react';
+import { User, Home, Upload, Info, FileText, Settings, Menu, X, LogOut, Users } from 'lucide-react';
 import { authService } from '../services/auth.service'; // Adjust path if necessary
 
 const navLinks = [
@@ -10,6 +10,7 @@ const navLinks = [
   { sectionId: 'upload-section', label: 'Upload', icon: Upload },
   { sectionId: 'templates-section', label: 'Templates', icon: FileText },
   { sectionId: 'about-section', label: 'About', icon: Settings },
+  { sectionId: 'community', label: 'Community', icon: Users, route: '/social' },
 ];
 
 const Navbar = () => {
@@ -60,24 +61,32 @@ const Navbar = () => {
       }, observerOptions);
 
       navLinks.forEach((link) => {
-        const element = document.getElementById(link.sectionId);
-        if (element) observer.observe(element);
+        if (!link.route) {
+          const element = document.getElementById(link.sectionId);
+          if (element) observer.observe(element);
+        }
       });
 
       return () => {
         navLinks.forEach((link) => {
-          const element = document.getElementById(link.sectionId);
-          if (element) observer.unobserve(element);
+          if (!link.route) {
+            const element = document.getElementById(link.sectionId);
+            if (element) observer.unobserve(element);
+          }
         });
       };
     }
   }, [location.pathname]);
 
-  const handleScrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setActiveSection(sectionId);
+  const handleNavigation = (link) => {
+    if (link.route) {
+      navigate(link.route);
+    } else {
+      const element = document.getElementById(link.sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setActiveSection(link.sectionId);
+      }
     }
     // Close mobile menu after navigation
     if (isMobile) {
@@ -163,12 +172,13 @@ const Navbar = () => {
             <ul className="space-y-2">
               {navLinks.map((link) => {
                 const Icon = link.icon;
-                const isActive = activeSection === link.sectionId && location.pathname === '/';
+                const isActive = (!link.route && activeSection === link.sectionId && location.pathname === '/') || 
+                               (link.route && location.pathname === link.route);
                 
                 return (
                   <li key={link.sectionId}>
                     <button
-                      onClick={() => handleScrollToSection(link.sectionId)}
+                      onClick={() => handleNavigation(link)}
                       className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all ${
                         isActive
                           ? isDark
@@ -244,12 +254,13 @@ const Navbar = () => {
           <ul className="space-y-4">
             {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = activeSection === link.sectionId && location.pathname === '/';
+              const isActive = (!link.route && activeSection === link.sectionId && location.pathname === '/') || 
+                             (link.route && location.pathname === link.route);
               
               return (
                 <li key={link.sectionId} className="flex justify-center">
                   <button
-                    onClick={() => handleScrollToSection(link.sectionId)}
+                    onClick={() => handleNavigation(link)}
                     className={`p-3 rounded-lg transition-all relative ${
                       isActive
                         ? isDark

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe, Download } from 'lucide-react';
-import { useCVData } from '../../../hooks/useCVData';
-import { downloadPortfolio, DownloadButton } from '../../../services/portfolioDownload.jsx';
-import GitHubDeploy from '../../GitHubDeploy.jsx';
+import { useCVData } from '../../../../hooks/useCVData';
+//import { downloadPortfolio, DownloadButton } from '../../../services/portfolioDownload.jsx';
+//import GitHubDeploy from '../../GitHubDeploy.jsx';
+
 
 const Contact = () => {
   const [formData, setFormData] = useState({

@@ -8,7 +8,7 @@ import Profile from './pages/Profile';
 import GitHubCallback from './pages/GitHubCallback';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
-
+import Social from './pages/Social';
 
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
@@ -17,7 +17,9 @@ import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
 import Space from './pages/Space';
 import OfficePage from './pages/OfficePage';
-import Office3DPage from './pages/Office3DPage'
+import Office3DPage from './pages/Office3DPage';
+import CavePagev2 from './pages/CavePagev2';
+
 
 const HIDDEN_NAVBAR_PATHS = [
   '/',
@@ -31,7 +33,10 @@ const HIDDEN_NAVBAR_PATHS = [
   '/profile',
   '/lab',
   '/cave',
-  '/github/callback'
+  '/github/callback',
+  '/social',
+  '/cavev2',
+
 ];
 
 const HIDDEN_THEME_BUTTON_PATHS = [
@@ -43,6 +48,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/space',
   '/lab',
   '/cave',
+  '/cavev2',
   '/github/callback',
 ];
 
@@ -56,6 +62,7 @@ function App() {
       <div className="min-h-screen">
         {!shouldHideNavbar && <Navbar />}
         <Routes>
+
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -68,7 +75,9 @@ function App() {
           <Route path="/lab" element={<LabPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
-          
+          <Route path="/cavev2" element={<CavePagev2 />} />
+          <Route path="/social" element={<Social />} />
+
 
           {/* Protected routes */}
           <Route path="/home" element={<Home />} />
