@@ -331,17 +331,30 @@ exports.downloadPortfolio = async (req, res) => {
     // Check if template directory exists
     try {
       await fs.access(templateDir);
+      console.log('Template directory exists and is accessible');
     } catch (error) {
-      console.error('Template directory does not exist:', templateDir);
+      console.error('Template directory does not exist or is not accessible:', templateDir);
+      console.error('Error details:', error.message);
       return res.status(400).json({
         success: false,
         message: `Template directory not found: ${template}`,
+        details: error.message,
       });
     }
 
     // Create temp directory
     console.log('Creating temp directory...');
-    await fs.mkdir(tempDir, { recursive: true });
+    try {
+      await fs.mkdir(tempDir, { recursive: true });
+      console.log('Temp directory created successfully');
+    } catch (error) {
+      console.error('Error creating temp directory:', error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create temporary directory",
+        error: error.message,
+      });
+    }
 
     // Copy template files to temp directory with progress tracking
     console.log('Copying template files...');
@@ -493,6 +506,7 @@ exports.downloadPortfolio = async (req, res) => {
         success: false,
         message: "Failed to generate portfolio download",
         error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       });
     }
   }
