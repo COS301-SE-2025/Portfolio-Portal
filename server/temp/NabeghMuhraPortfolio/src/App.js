@@ -1,14 +1,14 @@
-import React from "react";
-import './App.css';
-import Navbar from './components/Navbar';
+import React from 'react';
 import Hero from './components/Hero';
 import About from './components/About';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
+import Navbar from './components/Navbar';
+import './App.css';
 
 function App() {
   return (
-    <div className="space-app">
+    <div className="office-app">
       {/* Navigation */}
       <Navbar />
 
@@ -25,7 +25,7 @@ function App() {
       <Contact />
 
       {/* Footer */}
-      <footer className="space-footer">
+      <footer className="office-footer">
         <div className="footer-content">
           <p>&copy; 2024 Portfolio. All rights reserved.</p>
         </div>

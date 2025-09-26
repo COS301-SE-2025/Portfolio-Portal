@@ -1,4 +1,4 @@
-# {{USER_NAME}} - Portfolio Website
+# Nabegh Muhra - Portfolio Website
 
 This is a React-based portfolio website generated automatically from your CV data.
 
