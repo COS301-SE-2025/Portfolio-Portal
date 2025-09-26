@@ -10,7 +10,7 @@ const Index = () => {
       {/* Custom CSS for green gradient */}
       <style jsx>{`
         .green-gradient {
-          background: linear-gradient(180deg, #065f46 0%, #10b981 100%);
+          background: linear-gradient(180deg, #064e3b 0%, #10b981 50%, #059669 100%);
         }
       `}</style>
       

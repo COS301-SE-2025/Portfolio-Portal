@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { fadeIn } from "../../../utils/motion";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
-import GitHubDeploy from "../../GitHubDeploy.jsx";
 import { useCVData } from "../../../hooks/useCVData.js";
 
 const Contact = () => {
@@ -96,26 +95,6 @@ const Contact = () => {
           />
         </motion.div>
 
-        {/* GitHub Pages Deployment Section */}
-        <motion.div
-          variants={fadeIn("up", "spring", 0.8, 1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="bg-[#0e0e2c]/70 p-8 rounded-2xl backdrop-blur-sm border border-green-400/20 mt-8"
-        >
-          <h3 className="text-green-400 text-2xl font-bold mb-4">Deploy to GitHub Pages</h3>
-          <p className="text-white mb-6">
-            Automatically deploy your portfolio to GitHub Pages with a single click. Your portfolio will be live at username.github.io/portfolio-name
-          </p>
-          <GitHubDeploy 
-            userData={cvData}
-            username={cvData?.name?.toLowerCase().replace(/\s+/g, '') || 'portfolio'}
-            template="forest"
-            variant="success"
-            className="text-white"
-          />
-        </motion.div>
       </div>
     </section>
   );

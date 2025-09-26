@@ -10,9 +10,9 @@ const Contact = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-purple-400/20"
+          className="bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20"
         >
-          <h2 className="text-purple-400 text-4xl font-bold mb-6">Contact Me</h2>
+          <h2 className="text-emerald-400 text-4xl font-bold mb-6">Contact Me</h2>
           <p className="text-white mb-6">
             Ready to explore digital caverns together? Let's connect and create
             something extraordinary!
@@ -26,7 +26,7 @@ const Contact = () => {
               <input
                 type="text"
                 id="name"
-                className="bg-[#0a0a2e] border border-purple-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
 
@@ -37,7 +37,7 @@ const Contact = () => {
               <input
                 type="email"
                 id="email"
-                className="bg-[#0a0a2e] border border-purple-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
 
@@ -48,14 +48,14 @@ const Contact = () => {
               <textarea
                 id="message"
                 rows="5"
-                className="bg-[#0a0a2e] border border-purple-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 placeholder="Tell me about your digital exploration project or how we might collaborate..."
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="bg-purple-400 hover:bg-purple-500 text-[#0a0a2e] font-bold py-3 px-6 rounded-lg transition-colors duration-300 self-start"
+              className="bg-emerald-400 hover:bg-emerald-500 text-[#0a0a2e] font-bold py-3 px-6 rounded-lg transition-colors duration-300 self-start"
             >
               Send Message
             </button>
