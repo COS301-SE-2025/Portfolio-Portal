@@ -1,6 +1,7 @@
 import React from "react";
 import Hero from "./Hero";
 import About from "./About";
+import Navbar from "./Navbar";
 import Experience from "./Experience";
 import Contact from "./Contact";
 
@@ -14,6 +15,7 @@ const Index = () => {
         }
       `}</style>
       
+      <Navbar />
       <Hero />
       <About />
       <Experience />
