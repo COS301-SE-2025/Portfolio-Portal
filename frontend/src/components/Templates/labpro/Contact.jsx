@@ -1,4 +1,4 @@
-// components/Templates/labpro/Contact.jsx
+// components/Templates/labpro/Contact.jsx - Enhanced with chemistry themes
 import { email } from "./index";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
@@ -12,17 +12,27 @@ const Contact = () => {
       alert(result.error);
     }
   };
+
   return (
     <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/30">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-emerald-400 text-4xl font-bold mb-4">Research Collaboration</h2>
+          {/* Enhanced header with chemistry icons */}
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="text-emerald-400 text-3xl animate-shimmer">🤝</div>
+            <h2 className="text-emerald-400 text-4xl font-bold">Research Collaboration</h2>
+            <div className="text-emerald-400 text-3xl animate-shimmer">📧</div>
+          </div>
           <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 mx-auto" />
         </div>
 
         <div className="grid md:grid-cols-2 gap-10">
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20">
-            <h3 className="text-white text-2xl font-bold mb-4">Contact Information</h3>
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20 hover:border-emerald-400/50 transition-all duration-500">
+            {/* Enhanced contact info section */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-emerald-400 text-2xl">📞</div>
+              <h3 className="text-white text-2xl font-bold">Contact Information</h3>
+            </div>
             <p className="text-gray-300 mb-6">
               Interested in collaborative research or academic partnerships? Reach out to discuss potential projects and scientific inquiries.
             </p>
@@ -41,14 +51,19 @@ const Contact = () => {
             </div>
           </div>
 
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20 hover:border-teal-400/50 transition-all duration-500">
+            {/* Enhanced form section */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="text-teal-400 text-2xl">✍️</div>
+              <h3 className="text-white text-2xl font-bold">Send Message</h3>
+            </div>
             <form className="space-y-6">
               <div>
                 <label htmlFor="name" className="text-white block mb-2">Full Name</label>
                 <input
                   type="text"
                   id="name"
-                  className="w-full bg-gray-800 border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="w-full bg-gray-800 border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all duration-300"
                 />
               </div>
               <div>
@@ -56,7 +71,7 @@ const Contact = () => {
                 <input
                   type="email"
                   id="email"
-                  className="w-full bg-gray-800 border border-teal-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  className="w-full bg-gray-800 border border-teal-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-300"
                 />
               </div>
               <div>
@@ -64,23 +79,32 @@ const Contact = () => {
                 <textarea
                   id="message"
                   rows="5"
-                  className="w-full bg-gray-800 border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="w-full bg-gray-800 border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400 transition-all duration-300"
                 />
               </div>
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-gray-900 font-bold rounded-lg transition-colors duration-300"
+                className="px-8 py-3 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-500 hover:to-teal-500 text-gray-900 font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-400/50"
               >
-                Submit Inquiry
+                {/* Enhanced button with icon */}
+                <div className="flex items-center gap-2">
+                  <span>Submit Inquiry</span>
+                  <span className="text-lg">🚀</span>
+                </div>
               </button>
             </form>
           </div>
         </div>
 
-        {/* Download Portfolio Section */}
+        {/* Enhanced Download Portfolio Section */}
         <div className="mt-16 text-center">
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20 max-w-2xl mx-auto">
-            <h3 className="text-white text-2xl font-bold mb-4">Download Research Portfolio</h3>
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20 max-w-2xl mx-auto relative hover:border-teal-400/50 transition-all duration-500">
+            {/* Enhanced download section header */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="text-teal-400 text-2xl">📄</div>
+              <h3 className="text-white text-2xl font-bold">Download Research Portfolio</h3>
+              <div className="text-teal-400 text-2xl">💾</div>
+            </div>
             <p className="text-gray-300 mb-6">
               Obtain a complete copy of my research portfolio as a standalone application for academic review and collaboration.
             </p>
@@ -92,6 +116,21 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
+      {/* Add CSS for shimmer animation */}
+      <style>
+        {`
+        @keyframes shimmer {
+          0% { opacity: 0.3; }
+          50% { opacity: 0.8; }
+          100% { opacity: 0.3; }
+        }
+        
+        .animate-shimmer {
+          animation: shimmer 2s ease-in-out infinite;
+        }
+        `}
+      </style>
     </section>
   );
 };
