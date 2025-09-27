@@ -26,6 +26,7 @@ export function LabProvider({ children }) {
     education,
     experience,
     links,
+    references,
   } = useCVData() || {};
 
   // 3D overlays expect
@@ -67,6 +68,7 @@ export function LabProvider({ children }) {
       experience: exp,
       education: edu,
       projects: cvData?.projects || [],
+      references: cvData?.references || references || [],
     };
   }, [
     cvData,
@@ -80,6 +82,7 @@ export function LabProvider({ children }) {
     education,
     experience,
     links,
+    references,
   ]);
 
   const reset = useCallback(() => {

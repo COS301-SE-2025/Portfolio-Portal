@@ -264,7 +264,6 @@ module.exports = {
       "ncs",
       "national senior certificate",
       "admission point score",
-      "assessment",
       "classroom",
       "curriculum",
       "student",
