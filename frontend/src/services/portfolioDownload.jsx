@@ -1,5 +1,4 @@
 import api from './api.service.js';
-import { deployToGitHubPages, isGitHubAuthenticated } from './github.service.js';
 
 /**
  * Portfolio Download Service
@@ -142,93 +141,6 @@ export const downloadPortfolio = async (setIsDownloading, templateName = 'defaul
   }
 };
 
-/**
- * Deploy portfolio to GitHub Pages
- * @param {Function} setIsDeploying - State setter for deployment status
- * @param {string} templateName - Template name
- * @returns {Promise<Object>} Deployment result
- */
-export const deployPortfolioToGitHub = async (setIsDeploying, templateName = 'default') => {
-  setIsDeploying(true);
-  
-  try {
-    // Check if user is authenticated with GitHub
-    const authenticated = await isGitHubAuthenticated();
-    if (!authenticated) {
-      return {
-        success: false,
-        error: 'GitHub authorization required. Please authorize your GitHub account first.',
-        requiresAuth: true
-      };
-    }
-
-    let cvData = null;
-    
-    // Try to fetch CV data from API, but don't fail if it's not available
-    try {
-      const cvResponse = await api.get('/cv/me');
-      cvData = cvResponse.data;
-    } catch (cvError) {
-      console.warn('Could not fetch CV data:', cvError.message);
-      // Continue with default data
-    }
-
-    // Map CV data to required format, with fallbacks
-    const userData = {
-      name: cvData?.personal_info?.name || 'Portfolio User',
-      title: cvData?.personal_info?.description || 'Professional',
-      summary: cvData?.summary || 'A passionate professional with expertise in various domains.',
-      skills: cvData?.skills || ['JavaScript', 'React', 'Node.js', 'Python', 'Problem Solving'],
-      experience: cvData?.experience || [
-        {
-          title: 'Software Developer',
-          company: 'Tech Company',
-          startDate: '2022',
-          endDate: 'Present',
-          description: 'Developed and maintained web applications using modern technologies.'
-        }
-      ],
-      education: cvData?.education || [
-        {
-          degree: 'Bachelor of Science',
-          institution: 'University',
-          startDate: '2018',
-          endDate: '2022',
-          fieldOfStudy: 'Computer Science'
-        }
-      ],
-      projects: cvData?.projects || [
-        {
-          title: 'Portfolio Website',
-          description: 'A modern, responsive portfolio website built with React and Three.js.',
-          technologies: ['React', 'Three.js', 'Tailwind CSS']
-        }
-      ],
-      contact: {
-        email: cvData?.personal_info?.email || 'contact@example.com',
-        phone: cvData?.personal_info?.phone || '+1 (555) 123-4567',
-        linkedin: cvData?.personal_info?.linkedin || 'https://linkedin.com/in/yourprofile',
-        github: cvData?.personal_info?.github || 'https://github.com/yourusername'  
-      }
-    };
-
-    const username = userData.name.replace(/\s+/g, '') || 'User';
-
-    // Deploy to GitHub Pages
-    const result = await deployToGitHubPages(userData, username, templateName);
-    
-    return result;
-    
-  } catch (error) {
-    console.error('Error deploying portfolio to GitHub:', error);
-    return { 
-      success: false, 
-      error: error.message || 'Failed to deploy portfolio to GitHub Pages. Please try again.' 
-    };
-  } finally {
-    setIsDeploying(false);
-  }
-};
 
 /**
  * Download Button Component
