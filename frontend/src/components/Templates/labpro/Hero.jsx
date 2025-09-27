@@ -9,18 +9,18 @@ const Hero = () => {
   const { name, description } = useCvData() || {};
 
   return (
-    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-50 via-cyan-50/30 to-emerald-50/30 flex items-center">
+    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-purple-900/20 to-cyan-900/20 flex items-center">
       <div className="max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between h-full">
         <div className="flex-1 max-w-2xl space-y-6">
-          <h1 className="text-gray-800 font-black text-5xl sm:text-6xl lg:text-7xl">
-            Dr. <span className="text-cyan-600">{name || "Researcher"}</span>
+          <h1 className="text-white font-black text-5xl sm:text-6xl lg:text-7xl">
+            Dr. <span className="text-cyan-400">{name || "Researcher"}</span>
           </h1>
-          <p className="text-gray-600 text-lg sm:text-xl max-w-lg">
+          <p className="text-gray-300 text-lg sm:text-xl max-w-lg">
             {description || "Leading research scientist pioneering innovative solutions through rigorous experimentation and data-driven analysis."}
           </p>
           <button 
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-600 hover:to-emerald-600 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             View Research Portfolio
           </button>
