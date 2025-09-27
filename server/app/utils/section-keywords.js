@@ -450,7 +450,6 @@ module.exports = {
       "mandela university",
       "dut",
       "ctu",
-      "training",
       "mit",
       "oxford",
       "harvard",

@@ -39,13 +39,16 @@ export function LabProvider({ children }) {
       skills: [],
     }));
 
-    const edu = (education || []).map((ed) => ({
-      institution: ed.institution || "",
-      degree: ed.degree || "",
-      field: ed.field || "",
-      year: ed.endDate || "",
-      gpa: ed.gpa || "",
-    }));
+    const edu = (education || []).map((ed) => {
+      if (typeof ed === "string") return ed;
+      return {
+        institution: ed.institution || "",
+        degree: ed.degree || "",
+        field: ed.field || "",
+        year: ed.year || ed.endDate || "",
+        gpa: ed.gpa || "",
+      };
+    });
 
     return {
       user: {

@@ -71,21 +71,41 @@ export default function FlaskBOverlay({
               <div style={titleStyle}>Education</div>
               <div style={{ height: 8 }} />
               <ul style={ulStyle}>
-                {(data?.education || []).map((e, i) => (
-                  <li key={i}>
-                    <div style={{ fontWeight: 700 }}>
-                      {e.degree}{" "}
-                      <span style={{ fontWeight: 600 }}>{e.field}</span>
-                    </div>
-                    <div style={{ opacity: 0.95 }}>
-                      {e.institution}{" "}
-                      <span style={{ opacity: 0.8 }}>({e.year})</span>
-                    </div>
-                    <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
-                      GPA {e.gpa}
-                    </div>
-                  </li>
-                ))}
+                {(data?.education || []).map((e, i) => {
+                  if (typeof e === "string") {
+                    return <li key={i}>{e}</li>;
+                  }
+
+                  const degreeField = [e.degree, e.field]
+                    .filter(Boolean)
+                    .join(" ");
+                  const inst = e.institution || "";
+                  const year = e.year || e.endDate || "";
+                  const gpa = e.gpa;
+
+                  return (
+                    <li key={i}>
+                      {degreeField ? (
+                        <div style={{ fontWeight: 700 }}>{degreeField}</div>
+                      ) : null}
+
+                      {inst || year ? (
+                        <div style={{ opacity: 0.95 }}>
+                          {inst}
+                          {year ? (
+                            <span style={{ opacity: 0.8 }}> ({year})</span>
+                          ) : null}
+                        </div>
+                      ) : null}
+
+                      {gpa ? (
+                        <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
+                          GPA {gpa}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             </section>
 
