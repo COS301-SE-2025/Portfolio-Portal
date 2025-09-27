@@ -399,8 +399,6 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 permissions:
   contents: read
@@ -423,10 +421,14 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
         
     - name: Install dependencies
-      run: npm ci
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
       
     - name: Build
       run: npm run build
@@ -437,7 +439,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./dist
+        path: ./build
 
   deploy:
     environment:
@@ -481,18 +483,35 @@ jobs:
     console.log(`Template files with workflow: ${Object.keys(templateFiles).length} files`);
     
     // Upload files to repository (including workflow)
-    await this.uploadFiles(accessToken, user.login, repoName, templateFiles);
+    const uploadResult = await this.uploadFiles(accessToken, user.login, repoName, templateFiles);
     console.log('Files uploaded to repository');
     
     // Enable GitHub Pages
     await this.enableGitHubPages(accessToken, user.login, repoName);
     console.log('GitHub Pages enabled');
     
+    // Check if workflow was uploaded successfully
+    const workflowUploaded = uploadResult.uploadedFiles?.some(file => 
+      file.path === '.github/workflows/deploy.yml'
+    );
+
     return {
       success: true,
       repository: repo,
       user: user,
       pagesUrl: `https://${user.login}.github.io/${repoName}`,
+      workflowUploaded,
+      manualWorkflowInstructions: !workflowUploaded ? {
+        message: "GitHub Actions workflow needs to be added manually for automatic builds",
+        steps: [
+          "1. Go to your repository on GitHub",
+          "2. Click 'Actions' tab",
+          "3. Click 'New workflow' or 'set up a workflow yourself'",
+          "4. Replace the default content with the provided workflow YAML",
+          "5. Commit the file as '.github/workflows/deploy.yml'"
+        ],
+        workflowContent: this.generateWorkflowYaml(template)
+      } : null
     };
   }
 
@@ -622,8 +641,31 @@ isBinaryFile(filename) {
         .replace(/{{USER_GITHUB}}/g, userData.contact?.github || '');
     }
 
-    // Add Vite config for GitHub Pages deployment
-    files['vite.config.js'] = this.generateViteConfig(userData);
+    // Fix asset paths for GitHub Pages deployment
+    const repoName = userData.name ? userData.name.toLowerCase().replace(/\s+/g, '-') + '-portfolio' : 'portfolio-website';
+    
+    // Update 3D model paths in Office component
+    if (files['src/components/3DModels/Office.jsx']) {
+      files['src/components/3DModels/Office.jsx'] = files['src/components/3DModels/Office.jsx']
+        .replace(/useGLTF\('\/office\/office\.gltf'\)/g, `useGLTF(process.env.PUBLIC_URL + '/office/office.gltf')`)
+        .replace(/useGLTF\.preload\('\/office\/office\.gltf'\)/g, `useGLTF.preload(process.env.PUBLIC_URL + '/office/office.gltf')`);
+    }
+
+    // Update other 3D model components if they exist
+    Object.keys(files).forEach(filePath => {
+      if (filePath.includes('3DModels') && (filePath.endsWith('.js') || filePath.endsWith('.jsx'))) {
+        // Fix absolute paths to 3D models and other assets
+        files[filePath] = files[filePath]
+          .replace(/useGLTF\('\/([^']+)'\)/g, `useGLTF(process.env.PUBLIC_URL + '/$1')`)
+          .replace(/useGLTF\.preload\('\/([^']+)'\)/g, `useGLTF.preload(process.env.PUBLIC_URL + '/$1')`);
+      }
+    });
+
+    // Don't add Vite config if template already uses react-scripts
+    // Only add Vite config for templates that actually use Vite
+    if (!files['package.json'] || !files['package.json'].includes('react-scripts')) {
+      files['vite.config.js'] = this.generateViteConfig(userData);
+    }
   }
 
   /**

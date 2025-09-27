@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Github, ExternalLink, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Github, ExternalLink, CheckCircle, AlertCircle, Loader2, Copy, Info } from 'lucide-react';
 import githubService from '../services/githubService';
 const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -103,6 +103,15 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
     }
   };
 
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
   if (deploymentResult && deploymentResult.success) {
     return (
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -150,6 +159,48 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
                 If the site isn't immediately available, please wait 5-10 minutes and try again.
               </p>
             </div>
+
+            {/* Manual Workflow Instructions */}
+            {deploymentResult.manualWorkflowInstructions && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start space-x-2">
+                  <Info className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="font-medium text-orange-800 mb-2">
+                      Additional Setup Required
+                    </h4>
+                    <p className="text-sm text-orange-700 mb-3">
+                      {deploymentResult.manualWorkflowInstructions.message}
+                    </p>
+                    
+                    <div className="mb-3">
+                      <h5 className="font-medium text-orange-800 text-sm mb-2">Steps to complete setup:</h5>
+                      <ol className="text-sm text-orange-700 space-y-1 list-decimal list-inside">
+                        {deploymentResult.manualWorkflowInstructions.steps.map((step, index) => (
+                          <li key={index}>{step}</li>
+                        ))}
+                      </ol>
+                    </div>
+
+                    <div className="bg-orange-100 border border-orange-200 rounded p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-orange-800 text-sm">Workflow YAML Content:</h5>
+                        <button
+                          onClick={() => copyToClipboard(deploymentResult.manualWorkflowInstructions.workflowContent)}
+                          className="flex items-center space-x-1 text-xs text-orange-600 hover:text-orange-800"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </button>
+                      </div>
+                      <pre className="text-xs text-orange-800 bg-white p-2 rounded border overflow-x-auto max-h-40">
+                        {deploymentResult.manualWorkflowInstructions.workflowContent}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="flex space-x-3">
               <button
