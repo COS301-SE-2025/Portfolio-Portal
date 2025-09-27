@@ -26,7 +26,7 @@ const Contact = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20"
+          className="bg-stone-900/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20"
         >
           <h2 className="text-orange-200 text-4xl font-bold mb-6">Contact Me</h2>
           <p className="text-white mb-6">
@@ -42,7 +42,7 @@ const Contact = () => {
               <input
                 type="text"
                 id="name"
-                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
+                className="bg-stone-900/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
               />
             </div>
 
@@ -53,7 +53,7 @@ const Contact = () => {
               <input
                 type="email"
                 id="email"
-                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
+                className="bg-stone-900/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
               />
             </div>
 
@@ -64,7 +64,7 @@ const Contact = () => {
               <textarea
                 id="message"
                 rows="5"
-                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
+                className="bg-stone-900/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
                 placeholder="Tell me about your digital exploration project or how we might collaborate..."
               ></textarea>
             </div>
@@ -85,9 +85,9 @@ const Contact = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20 mt-8"
+          className="bg-stone-900/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20 mt-8"
         >
-          <h3 className="text-stone-500 text-2xl font-bold mb-4">Download Your Portfolio</h3>
+          <h3 className="text-orange-200 text-2xl font-bold mb-4">Download Your Portfolio</h3>
           <p className="text-white mb-6">
             Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
           </p>
