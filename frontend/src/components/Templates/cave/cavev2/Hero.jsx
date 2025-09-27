@@ -85,7 +85,7 @@ const Hero = () => {
       </div>
 
       {/* Scrollable Content Section - This will scroll over the fixed 3D scene */}
-      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-yellow-950/60 backdrop-blur-sm">
+      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-stone-700/60 backdrop-blur-sm">
         {/* Content Layout */}
         <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto px-6 flex flex-row items-start gap-5">
           <div className="flex flex-col justify-center items-center mt-5">
@@ -100,7 +100,7 @@ const Hero = () => {
               animate="show"
               className="text-white font-black text-5xl sm:text-6xl lg:text-7xl"
             >
-              Hi, I'm <span className="text-stone-500">{name || "Explorer"}</span>
+              Hi, I'm <span className="text-orange-200">{name || "Explorer"}</span>
             </motion.h1>
             <motion.p
               variants={fadeIn("up", "spring", 0.7, 1)}
