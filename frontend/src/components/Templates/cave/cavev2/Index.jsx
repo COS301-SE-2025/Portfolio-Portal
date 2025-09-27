@@ -7,14 +7,7 @@ import Contact from "./Contact";
 
 const Index = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-800">
-      {/* Custom CSS for green gradient */}
-      <style jsx>{`
-        .green-gradient {
-          background: linear-gradient(180deg, #064e3b 0%, #10b981 50%, #059669 100%);
-        }
-      `}</style>
-      
+    <div className="relative min-h-screen bg-gradient-to-br from-yellow-950 via-stone-800 to-stone-900">
       <Navbar />
       <Hero />
       <About />
