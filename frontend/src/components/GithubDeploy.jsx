@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Github, ExternalLink, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-
+import githubService from '../services/githubService';
 const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [githubUser, setGithubUser] = useState(null);
