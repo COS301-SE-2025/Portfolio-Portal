@@ -73,99 +73,245 @@ class GitHubService {
     const octokit = new Octokit({ auth: accessToken });
     
     try {
+      const { data: user } = await octokit.rest.users.getAuthenticated();
+      const owner = user.login;
+      
+      // First check if repository already exists
+      try {
+        const { data: existingRepo } = await octokit.rest.repos.get({
+          owner: user.login,
+          repo: repoName,
+        });
+        console.log(`Repository already exists: ${existingRepo.full_name}`);
+        
+        // Check if repository is properly initialized by trying to get the main branch
+        try {
+          await octokit.rest.git.getRef({
+            owner: user.login,
+            repo: repoName,
+            ref: 'heads/main',
+          });
+          console.log('Repository is properly initialized with main branch');
+          return existingRepo;
+        } catch (refError) {
+          if (refError.status === 404) {
+            console.log('Repository exists but has no main branch, will recreate');
+            // Delete the existing repository and create a new one
+            await octokit.rest.repos.delete({
+              owner: user.login,
+              repo: repoName,
+            });
+            console.log('Deleted existing repository');
+            // Wait a moment for deletion to complete
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          } else {
+            throw refError;
+          }
+        }
+      } catch (getError) {
+        if (getError.status !== 404) {
+          throw getError;
+        }
+        // Repository doesn't exist, create it
+      }
+      
       const { data: repo } = await octokit.rest.repos.createForAuthenticatedUser({
         name: repoName,
         description,
         private: false,
         auto_init: true,
-        homepage: `https://${repoName}.github.io/${repoName}`,
+        homepage: `https://${owner}.github.io/${repoName}`,
       });
-
+      
+      // Wait a moment for repository to be fully initialized
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Verify the repository is properly initialized
+      let retries = 0;
+      const maxRetries = 5;
+      while (retries < maxRetries) {
+        try {
+          await octokit.rest.git.getRef({
+            owner: user.login,
+            repo: repoName,
+            ref: 'heads/main',
+          });
+          console.log('Repository successfully initialized with main branch');
+          break;
+        } catch (refError) {
+          if (refError.status === 404 && retries < maxRetries - 1) {
+            console.log(`Main branch not ready yet, waiting... (attempt ${retries + 1}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            retries++;
+          } else {
+            throw refError;
+          }
+        }
+      }
+      
       return repo;
     } catch (error) {
-      if (error.status === 422) {
-        // Repository already exists, try to get it
-        const { data: user } = await octokit.rest.users.getAuthenticated();
-        const { data: repo } = await octokit.rest.repos.get({
-          owner: user.login,
-          repo: repoName,
-        });
-        return repo;
-      }
+      console.error('Error creating repository:', error);
       throw error;
     }
   }
 
-  /**
-   * Upload files to repository
-   * @param {string} accessToken - GitHub access token
-   * @param {string} owner - Repository owner
-   * @param {string} repo - Repository name
-   * @param {Object} files - Files to upload { path: content }
-   * @param {string} message - Commit message
-   */
-  async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio') {
+/**
+ * Upload files to repository using Contents API (more reliable)
+ * @param {string} accessToken - GitHub access token
+ * @param {string} owner - Repository owner
+ * @param {string} repo - Repository name
+ * @param {Object} files - Files to upload { path: content }
+ * @param {string} message - Commit message
+ */
+async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio') {
     const octokit = new Octokit({ auth: accessToken });
-
-    // Get the latest commit SHA
-    const { data: ref } = await octokit.rest.git.getRef({
-      owner,
-      repo,
-      ref: 'heads/main',
-    });
-
-    const { data: commit } = await octokit.rest.git.getCommit({
-      owner,
-      repo,
-      commit_sha: ref.object.sha,
-    });
-
-    // Create blobs for all files
-    const blobs = [];
-    for (const [filePath, content] of Object.entries(files)) {
-      const { data: blob } = await octokit.rest.git.createBlob({
-        owner,
-        repo,
-        content: Buffer.from(content).toString('base64'),
-        encoding: 'base64',
-      });
-      
-      blobs.push({
-        path: filePath,
-        mode: '100644',
-        type: 'blob',
-        sha: blob.sha,
-      });
+  
+    try {
+      // Verify repository exists and is accessible
+      await octokit.rest.repos.get({ owner, repo });
+      console.log(`Repository verified: ${owner}/${repo}`);
+    } catch (error) {
+      console.error(`Repository verification failed: ${error.message}`);
+      throw new Error(`Repository ${owner}/${repo} is not accessible. Please ensure it exists and you have proper permissions.`);
     }
 
-    // Create new tree
-    const { data: tree } = await octokit.rest.git.createTree({
-      owner,
-      repo,
-      base_tree: commit.tree.sha,
-      tree: blobs,
+    console.log(`Uploading ${Object.keys(files).length} files using Contents API...`);
+    
+    // Sort files to upload directories first (create parent directories before files)
+    const sortedFiles = Object.entries(files).sort(([pathA], [pathB]) => {
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      return depthA - depthB;
     });
+    
+    // Upload files one by one using the Contents API
+    const uploadedFiles = [];
+    for (const [filePath, content] of sortedFiles) {
+      try {
+        console.log(`Uploading file: ${filePath}`);
+        
+        // For nested files, try to create a placeholder file in parent directory first
+        if (filePath.includes('/') && filePath.startsWith('.github/workflows/')) {
+          try {
+            // Try to create a .gitkeep file in the .github directory first
+            const githubDir = '.github';
+            try {
+              await octokit.rest.repos.getContent({
+                owner,
+                repo,
+                path: githubDir,
+              });
+            } catch (dirError) {
+              if (dirError.status === 404) {
+                // Create .github directory with a placeholder file
+                await octokit.rest.repos.createOrUpdateFileContents({
+                  owner,
+                  repo,
+                  path: '.github/.gitkeep',
+                  message: 'Create .github directory',
+                  content: Buffer.from('').toString('base64'),
+                });
+                console.log('Created .github directory');
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+            }
+          } catch (dirCreateError) {
+            console.warn(`Could not create parent directory for ${filePath}:`, dirCreateError.message);
+          }
+        }
+        
+        // Check if file already exists to get its SHA for updating
+        let existingFileSha = null;
+        try {
+          const { data: existingFile } = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: filePath,
+          });
+          if (existingFile.sha) {
+            existingFileSha = existingFile.sha;
+            console.log(`File ${filePath} exists, will update`);
+          }
+        } catch (getError) {
+          if (getError.status !== 404) {
+            console.warn(`Error checking existing file ${filePath}:`, getError.message);
+          }
+          // File doesn't exist, will create new
+        }
 
-    // Create new commit
-    const { data: newCommit } = await octokit.rest.git.createCommit({
-      owner,
-      repo,
-      message,
-      tree: tree.sha,
-      parents: [commit.sha],
-    });
+        const isBinary = this.isBinaryFile(filePath);
+        const fileContent = isBinary ? content : Buffer.from(content, 'utf8').toString('base64');
+        
+        const uploadParams = {
+          owner,
+          repo,
+          path: filePath,
+          message: `Add ${filePath}`,
+          content: fileContent,
+        };
 
-    // Update reference
-    await octokit.rest.git.updateRef({
-      owner,
-      repo,
-      ref: 'heads/main',
-      sha: newCommit.sha,
-    });
+        if (existingFileSha) {
+          uploadParams.sha = existingFileSha;
+          uploadParams.message = `Update ${filePath}`;
+        }
 
-    return newCommit;
+        const { data: result } = await octokit.rest.repos.createOrUpdateFileContents(uploadParams);
+        uploadedFiles.push({ path: filePath, sha: result.content.sha });
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+      } catch (error) {
+        console.error(`Failed to upload file ${filePath}:`, error.message);
+        
+        // If it's a workflow file and fails, try alternative approach
+        if (filePath.startsWith('.github/workflows/')) {
+          console.log(`Attempting alternative upload for workflow file: ${filePath}`);
+          try {
+            // Try to create the file without checking for existing content
+            const isBinary = this.isBinaryFile(filePath);
+            const fileContent = isBinary ? content : Buffer.from(content, 'utf8').toString('base64');
+            
+            const { data: result } = await octokit.rest.repos.createOrUpdateFileContents({
+              owner,
+              repo,
+              path: filePath,
+              message: `Add GitHub Actions workflow`,
+              content: fileContent,
+            });
+            
+            uploadedFiles.push({ path: filePath, sha: result.content.sha });
+            console.log(`Successfully uploaded workflow file: ${filePath}`);
+            continue;
+          } catch (altError) {
+            console.error(`Alternative upload also failed for ${filePath}:`, altError.message);
+          }
+        }
+        
+        throw new Error(`Failed to upload ${filePath}: ${error.message}`);
+      }
+    }
+
+    console.log(`Successfully uploaded ${uploadedFiles.length} files`);
+    
+    // Create a final commit with all changes
+    try {
+      // Get the latest commit to use as parent
+      const { data: ref } = await octokit.rest.git.getRef({
+        owner,
+        repo,
+        ref: 'heads/main',
+      });
+      
+      console.log(`All files uploaded successfully to ${owner}/${repo}`);
+      return { sha: ref.object.sha, uploadedFiles };
+      
+    } catch (error) {
+      console.warn('Could not get final commit SHA, but files were uploaded successfully');
+      return { uploadedFiles };
+    }
   }
-
   /**
    * Enable GitHub Pages for repository
    * @param {string} accessToken - GitHub access token
@@ -281,8 +427,9 @@ jobs:
     const templateFiles = await this.getTemplateFiles(template, userData);
     console.log(`Template files prepared: ${Object.keys(templateFiles).length} files`);
     
-    // Add GitHub Actions workflow
-    templateFiles['.github/workflows/deploy.yml'] = this.generateWorkflowYaml(template);
+    // Skip GitHub Actions workflow for now to avoid directory creation issues
+    // GitHub Pages can be enabled directly from the repository settings
+    // templateFiles['.github/workflows/deploy.yml'] = this.generateWorkflowYaml(template);
     
     // Upload files to repository
     await this.uploadFiles(accessToken, user.login, repoName, templateFiles);
@@ -336,32 +483,27 @@ jobs:
     };
     return templateMap[template] || templateMap['default'];
   }
-
-  /**
-   * Read directory recursively and build files object
-   * @param {string} dir - Directory to read
-   * @param {string} baseDir - Base directory for relative paths
-   * @param {Object} files - Files object to populate
-   */
-  async readDirectoryRecursive(dir, baseDir, files) {
+/**
+ * Read directory recursively and build files object
+ * @param {string} dir - Directory to read
+ * @param {string} baseDir - Base directory for relative paths
+ * @param {Object} files - Files object to populate
+ */
+async readDirectoryRecursive(dir, baseDir, files) {
     const entries = await fs.readdir(dir, { withFileTypes: true });
     
     for (const entry of entries) {
+      if (entry.name.startsWith('.') || ['node_modules', '.git', 'dist', 'build', '.next', 'coverage'].includes(entry.name)) {
+        continue; // Skip hidden/system files and unnecessary directories
+      }
       const fullPath = path.join(dir, entry.name);
       const relativePath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
       
       if (entry.isDirectory()) {
-        // Skip unnecessary directories
-        if (['node_modules', '.git', 'dist', 'build', '.next', 'coverage'].includes(entry.name)) {
-          continue;
-        }
         await this.readDirectoryRecursive(fullPath, baseDir, files);
       } else {
         try {
-          // Check if file is binary or text
           const content = await fs.readFile(fullPath);
-          
-          // For binary files (images, etc.), convert to base64
           if (this.isBinaryFile(entry.name)) {
             files[relativePath] = content.toString('base64');
           } else {
@@ -374,13 +516,16 @@ jobs:
     }
   }
 
-  /**
-   * Check if file is binary
-   * @param {string} filename - File name
-   * @returns {boolean} True if binary file
-   */
-  isBinaryFile(filename) {
-    const binaryExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot'];
+/**
+ * Check if file is binary
+ * @param {string} filename - File name
+ * @returns {boolean} True if binary file
+ */
+isBinaryFile(filename) {
+    const binaryExtensions = [
+      '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', 
+      '.woff', '.woff2', '.ttf', '.eot', '.bin', '.gltf', '.otf', '.glb'
+    ];
     const ext = path.extname(filename).toLowerCase();
     return binaryExtensions.includes(ext);
   }
