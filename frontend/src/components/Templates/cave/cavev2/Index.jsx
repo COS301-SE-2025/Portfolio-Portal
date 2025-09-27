@@ -1,3 +1,4 @@
+//frontend/src/components/Templates/cave/cavev2/index.jsx
 import React from "react";
 import Hero from "./Hero";
 import About from "./About";
