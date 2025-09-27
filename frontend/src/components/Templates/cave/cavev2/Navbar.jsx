@@ -7,7 +7,7 @@ const Navbar = () => {
     const { name } = useCvData() || {};
 
   return (
-    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-stone-800/80 backdrop-blur-sm">
+    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-stone-900/80 backdrop-blur-sm">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
         <Link
           to="/"
@@ -17,7 +17,7 @@ const Navbar = () => {
             window.scrollTo(0, 0);
           }}
         >
-          <p className="text-yellow-950 text-[18px] font-bold cursor-pointer">
+          <p className="text-orange-200 text-[18px] font-bold cursor-pointer">
             {name}'s <span className="text-white">Portfolio</span>
           </p>
         </Link>
