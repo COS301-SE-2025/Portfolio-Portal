@@ -28,23 +28,29 @@ const Hero = () => {
 
         <div className="flex-1 w-full h-full max-w-2xl">
           <Canvas
-            camera={{ position: [350, 250, 350], fov: 35 }}
+            camera={{ 
+              position: [2000, 1000, 2000], 
+              fov: 45,
+              near: 0.1,    // Very close near plane
+              far: 10000    // Very far far plane to prevent clipping
+            }}
             gl={{ preserveDrawingBuffer: true }}
             className="w-full h-full"
           >
             <Suspense fallback={null}>
               <ambientLight intensity={0.7} />
-              <directionalLight position={[100, 100, 100]} intensity={0.6} />
-              <pointLight position={[-50, -50, -50]} intensity={0.4} />
-              <LabProModel scale={[0.3, 0.3, 0.3]} position={[0, -50, 0]} />
+              <directionalLight position={[1000, 1000, 1000]} intensity={0.8} />
+              <pointLight position={[-500, -500, -500]} intensity={0.5} />
+              <LabProModel scale={[0.3, 0.3, 0.3]} position={[0, -100, 0]} />
               <OrbitControls
-                enableZoom={false}
+                enableZoom={true}
                 enablePan={false}
-                autoRotate={false}
-                maxDistance={500}
-                minDistance={100}
-                maxPolarAngle={Math.PI / 2.1}
-                minPolarAngle={Math.PI / 6}
+                autoRotate={true}
+                autoRotateSpeed={1}
+                maxDistance={5000}    // Allow very far zoom out
+                minDistance={800}     // Prevent getting too close
+                maxPolarAngle={Math.PI / 2}
+                minPolarAngle={0}
               />
             </Suspense>
           </Canvas>
