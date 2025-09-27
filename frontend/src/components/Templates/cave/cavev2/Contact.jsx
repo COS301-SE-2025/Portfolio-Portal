@@ -1,3 +1,4 @@
+//frontend/src/components/Templates/cave/cavev2/Contact.jsx
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../../utils/motion";
 import { useState } from "react";
@@ -27,7 +28,7 @@ const Contact = () => {
           viewport={{ once: true }}
           className="bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20"
         >
-          <h2 className="text-stone-500 text-4xl font-bold mb-6">Contact Me</h2>
+          <h2 className="text-orange-200 text-4xl font-bold mb-6">Contact Me</h2>
           <p className="text-white mb-6">
             Ready to explore digital caverns together? Let's connect and create
             something extraordinary!
