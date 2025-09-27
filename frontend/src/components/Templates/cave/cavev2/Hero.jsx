@@ -1,3 +1,5 @@
+//frontend/src/components/Templates/cave/cavev2/Hero.jsx
+import React from "react";
 import React, { useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { motion } from "framer-motion";
@@ -34,7 +36,7 @@ function TexturedFloor() {
   );
 }
 
-// Static Cave Scene (removed animations)
+// Static Cave Scene (removed animations) - MOVED ABOVE Hero component
 function CaveScene() {
   return (
     <group>
@@ -58,13 +60,13 @@ const Hero = () => {
           shadows
           gl={{ antialias: true }}
         >
-          {/* Professional Lighting Setup - Green Tinted */}
-          <ambientLight intensity={0.6} color="#10b981" />
+          {/* Professional Lighting Setup - Earth Tones */}
+          <ambientLight intensity={0.6} color="#78350f" />
           
           <directionalLight
             position={[10, 15, 10]}
             intensity={1.5}
-            color="#ffffff"
+            color="#fef3c7"
             castShadow
             shadow-mapSize={[2048, 2048]}
           />
@@ -72,12 +74,12 @@ const Hero = () => {
           <directionalLight
             position={[-8, 12, 8]}
             intensity={1}
-            color="#f0fdf4"
+            color="#fef3c7"
           />
           
-          <pointLight position={[0, 5, 0]} intensity={2.5} color="#059669" />
-          <pointLight position={[15, 8, 15]} intensity={1.5} color="#ffffff" />
-          <pointLight position={[-15, 8, 15]} intensity={1.5} color="#ffffff" />
+          <pointLight position={[0, 5, 0]} intensity={2.5} color="#451a03" />
+          <pointLight position={[15, 8, 15]} intensity={1.5} color="#fef3c7" />
+          <pointLight position={[-15, 8, 15]} intensity={1.5} color="#fef3c7" />
           
           {/* 3D Cave Scene - Now Static */}
           <CaveScene />
@@ -85,12 +87,12 @@ const Hero = () => {
       </div>
 
       {/* Scrollable Content Section - This will scroll over the fixed 3D scene */}
-      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-slate-900/60 backdrop-blur-sm">
+      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-stone-800/60 backdrop-blur-sm">
         {/* Content Layout */}
         <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto px-6 flex flex-row items-start gap-5">
           <div className="flex flex-col justify-center items-center mt-5">
-            <div className="w-5 h-5 rounded-full bg-emerald-500" />
-            <div className="w-1 sm:h-80 h-40 green-gradient" />
+            <div className="w-5 h-5 rounded-full bg-stone-500" />
+            <div className="w-1 sm:h-80 h-40 bg-gradient-to-b from-stone-500 to-stone-700" />
           </div>
 
           <div>
@@ -100,13 +102,13 @@ const Hero = () => {
               animate="show"
               className="text-white font-black text-5xl sm:text-6xl lg:text-7xl"
             >
-              Hi, I'm <span className="text-emerald-400">{name || "Explorer"}</span>
+              Hi, I'm <span className="text-orange-200">{name || "Explorer"}</span>
             </motion.h1>
             <motion.p
               variants={fadeIn("up", "spring", 0.7, 1)}
               initial="hidden"
               animate="show"
-              className="text-slate-200 mt-4 text-lg sm:text-xl max-w-3xl"
+              className="text-stone-200 mt-4 text-lg sm:text-xl max-w-3xl"
             >
               {description ||
                 "Digital cave explorer crafting immersive experiences from the depths of cutting-edge technology."}
@@ -117,7 +119,7 @@ const Hero = () => {
         {/* Scroll Indicator */}
         <div className="absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center">
           <a href="#about">
-            <div className="w-[35px] h-[64px] rounded-3xl border-4 border-emerald-500 flex justify-center items-start p-2">
+            <div className="w-[35px] h-[64px] rounded-3xl border-4 border-stone-500 flex justify-center items-start p-2">
               <motion.div
                 animate={{ y: [0, 24, 0] }}
                 transition={{
@@ -125,7 +127,7 @@ const Hero = () => {
                   repeat: Infinity,
                   repeatType: "loop",
                 }}
-                className="w-3 h-3 rounded-full bg-emerald-500 mb-1"
+                className="w-3 h-3 rounded-full bg-stone-500 mb-1"
               />
             </div>
           </a>
