@@ -1,6 +1,6 @@
-// index.js
+// components/Templates/labpro/index.js
 export const userName = "John Doe";
-export const jobTitle = "Research Scientist";
+export const jobTitle = "Senior Research Scientist";
 export const email = "chris@example.com";
 
 export { default as Navbar } from './Navbar';
