@@ -5,10 +5,23 @@ const PHONE_RE =
   /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?)?\d{2,5}([-.\\s]?\d{2,5}){1,3}/g;
 const URL_RE =
   /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-z]{2,})(\/[\S]*)?\b/g;
+
 const ADDRESS_LABELS =
   /(address|location|residential\s*address|physical\s*address)/i;
 const ADDRESS_LIKE =
   /\b(\d+\s+[^,\n]+\b(st(\.|reet)?|rd|road|ave|avenue|dr|drive|ln|lane|ct|court|blvd|boulevard)\b|\b(?:suburb|town|city|province|postal|zip)\b)/i;
+
+const COMMON_EMAIL_DOMAINS = [
+  "gmail.com",
+  "googlemail.com",
+  "outlook.com",
+  "hotmail.com",
+  "live.com",
+  "icloud.com",
+  "yahoo.com",
+  "protonmail.com",
+  "proton.me",
+];
 
 const norm = (s) => (s ?? "").toString().trim();
 const toLower = (s) => norm(s).toLowerCase();
@@ -93,6 +106,33 @@ function extractSectionByHeader(lines, sectionName) {
   return { sectionLines, cleanedLines, range: [startHeader, contentEnd] };
 }
 
+/** ---------- Email / link / phone helpers ---------- */
+
+function restoreBrokenEmails(lines) {
+  // Fix common OCR case: "nameegmail.com" -> "name@gmail.com"
+  // We do this in-place on the text before running EMAIL_RE/URL_RE.
+  const domainParts = COMMON_EMAIL_DOMAINS.map((d) =>
+    d.replace(/\./g, "\\.")
+  ).join("|");
+  // Pattern A: local + "e" + domain (no @)
+  const rxE = new RegExp(
+    `\\b([a-z0-9._%+-]{2,})\\s*e\\s*(${domainParts})\\b`,
+    "ig"
+  );
+  // Pattern B: local + space + domain (lost '@')
+  const rxSpace = new RegExp(
+    `\\b([a-z0-9._%+-]{2,})\\s+(${domainParts})\\b`,
+    "ig"
+  );
+
+  return lines.map((line) => {
+    let fixed = line;
+    fixed = fixed.replace(rxE, (_m, u, d) => `${u}@${d}`);
+    fixed = fixed.replace(rxSpace, (_m, u, d) => `${u}@${d}`);
+    return fixed;
+  });
+}
+
 function extractEmails(lines) {
   const matches = [...(lines.join(" ").matchAll(EMAIL_RE) || [])].map(
     (m) => m[0]
@@ -139,6 +179,12 @@ function extractLinksAll(lines) {
   return { linkedIn, other: others };
 }
 
+function removeContactLabelOnlyLines(lines) {
+  const rx =
+    /^(email|e-?mail|mail|phone|tel|mobile|cell|linkedin|website|address|contact)\s*[:\-–]?\s*$/i;
+  return lines.filter((l) => !rx.test((l || "").trim()));
+}
+
 function removeStringsFromLines(lines, strings) {
   const needles = new Set();
 
@@ -174,6 +220,8 @@ function removeStringsFromLines(lines, strings) {
     return true;
   });
 }
+
+/** ---------- Name/Address helpers ---------- */
 
 function extractNameFallback(lines, currentName) {
   if (norm(currentName)) return currentName;
@@ -224,6 +272,8 @@ function guessAddress(lines, contactHitIdxs) {
   return "";
 }
 
+/** ---------- References first ---------- */
+
 function extractReferencesFirst(lines) {
   const { sectionLines, cleanedLines } = extractSectionByHeader(
     lines,
@@ -232,14 +282,20 @@ function extractReferencesFirst(lines) {
   return { references: sectionLines, remaining: cleanedLines };
 }
 
+/** ---------- Personal info ---------- */
+
 function extractPersonalInfo(lines, ocrName = "") {
-  const emails = extractEmails(lines);
-  const phones = extractPhones(lines);
-  const { linkedIn, other } = extractLinksAll(lines);
+  // 1) repair common OCR email glitches BEFORE extracting
+  const repairedLines = restoreBrokenEmails(lines);
+
+  const emails = extractEmails(repairedLines);
+  const phones = extractPhones(repairedLines);
+  const { linkedIn, other } = extractLinksAll(repairedLines);
 
   const linkedin = linkedIn[0] || "";
   const website = other[0] || "";
 
+  // 2) remove contacts so they don't bleed into other sections
   const cleanupNeedles = unique([
     linkedin,
     website,
@@ -247,15 +303,21 @@ function extractPersonalInfo(lines, ocrName = "") {
     ...phones,
     ...other,
   ]);
-  const linesAfterContactRemoval = removeStringsFromLines(
-    lines,
+
+  let linesAfterContactRemoval = removeStringsFromLines(
+    repairedLines,
     cleanupNeedles
   );
+  // Also drop label-only lines like "Email:" / "Phone:"
+  linesAfterContactRemoval = removeContactLabelOnlyLines(
+    linesAfterContactRemoval
+  );
 
+  // approximate contact area to help find address
   const hitIdxs = [];
   const needles = new Set(cleanupNeedles.map((s) => s.toLowerCase()));
-  lines.forEach((line, idx) => {
-    const L = line.toLowerCase();
+  repairedLines.forEach((line, idx) => {
+    const L = (line || "").toLowerCase();
     for (const n of needles) {
       if (n && L.includes(n)) {
         hitIdxs.push(idx);
@@ -264,10 +326,10 @@ function extractPersonalInfo(lines, ocrName = "") {
     }
   });
 
-  const address = guessAddress(lines, hitIdxs);
-
+  const address = guessAddress(repairedLines, hitIdxs);
   const name = extractNameFallback(linesAfterContactRemoval, ocrName);
 
+  // profile/summary block
   const personalHeaderKey = SECTION_KEYWORDS.about ? "about" : null;
   let description = "";
   let linesAfterPI = [...linesAfterContactRemoval];
@@ -294,7 +356,8 @@ function extractPersonalInfo(lines, ocrName = "") {
   };
 }
 
-// Extract a simple block for each of the remaining sections using the generic header-based extractor
+/** ---------- Simple blocks ---------- */
+
 function extractSimpleBlocks(lines) {
   const sections = [
     "experience",
@@ -317,7 +380,7 @@ function extractSimpleBlocks(lines) {
   return { blocks: out, remaining: rest };
 }
 
-// keyword-based line assignment
+/** ---------- Keyword-based assignment ---------- */
 
 const SECTION_FILL_ORDER = [
   "experience",
@@ -327,6 +390,13 @@ const SECTION_FILL_ORDER = [
   "languages",
   "projects",
 ];
+
+const ALLOW_DATE_SECTIONS = new Set([
+  "experience",
+  "education",
+  "projects",
+  "certifications",
+]);
 
 function getSectionLineKeywords(sectionName) {
   const meta = SECTION_KEYWORDS[sectionName] || {};
@@ -414,8 +484,12 @@ function distributeLeftoverLines(leftover, blocks) {
     const line = norm(raw);
     if (!line) continue;
 
+    // Don't let date-only lines ever match skills/languages
     let matched = null;
     for (const s of SECTION_FILL_ORDER) {
+      if ((s === "skills" || s === "languages") && isDateOnlyLine(line)) {
+        continue; // skip matching to these
+      }
       if (
         sectionKeywords[s].length &&
         lineContainsAnyKeyword(line, sectionKeywords[s])
@@ -431,8 +505,11 @@ function distributeLeftoverLines(leftover, blocks) {
       continue;
     }
 
+    // Only propagate "date-only" lines if the previous section allows dates
     if (prevSection && isDateOnlyLine(line)) {
-      bySection[prevSection].push(line);
+      if (ALLOW_DATE_SECTIONS.has(prevSection)) {
+        bySection[prevSection].push(line);
+      }
       continue;
     }
 
@@ -448,6 +525,8 @@ function distributeLeftoverLines(leftover, blocks) {
 
   return bySection;
 }
+
+/** ---------- Public API ---------- */
 
 function processCV(ocr) {
   const ocrNameLocal = (ocr && ocr.name) || "";
