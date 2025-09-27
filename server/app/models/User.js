@@ -1,5 +1,6 @@
+//server/app/models/User.js
 const { createClient } = require('@supabase/supabase-js');
-const supabase = require('../config/supabase'); // Your Supabase client instance
+const supabase = require('../config/supabase'); 
 
 class User {
   static async create(email, password, name, professional = true) {
@@ -65,7 +66,7 @@ class User {
         throw new Error(error.message);
       }
 
-      // If user found, generate and attach signed URL for profile picture
+      // If user found, generate & attach signed URL for profile picture
       if (data) {
         data.profile_picture_url = await this.getSignedProfileUrl(data.profile_picture_path);
       }
@@ -93,7 +94,7 @@ class User {
         throw new Error(error.message);
       }
 
-      // If user found, generate and attach signed URL for profile picture
+      // If user found, generate & attach signed URL for profile picture
       if (data) {
         data.profile_picture_url = await this.getSignedProfileUrl(data.profile_picture_path);
       }
@@ -126,7 +127,7 @@ class User {
 
   static async updateProfile(authId, updateData) {
     try {
-      // Validate and sanitize update data (basic level, more can be in service)
+      // Validate & sanitize update data (basic level, more can be in service)
       const allowedFields = [
         'name', 'bio', 'cv_url', 'profile_picture_path',
         'about_paragraphs', 'certifications', 'skills',
@@ -180,11 +181,11 @@ class User {
       // Define the storage path: e.g., 'user_auth_id/profile.png'
       const filePath = `${authId}/profile.${fileExt}`;
 
-      // First, attempt to remove any existing profile picture for this user
-      // This prevents orphaned files and ensures only one profile pic per user
+      // 1st, attempt to remove any existing profile picture for this user
+      // This prevents orphaned files & ensures only one profile pic per user
       await this.deleteProfilePicture(authId); // Use existing method for deletion
 
-      // Upload file with proper cache control and upsert (overwrite if exists)
+      // Upload file with proper cache control & upsert (overwrite if exists)
       const { error: uploadError } = await supabaseAuth.storage
         .from('profile-pictures')
         .upload(filePath, fileBuffer, {
