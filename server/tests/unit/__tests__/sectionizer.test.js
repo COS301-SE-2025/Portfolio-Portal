@@ -382,6 +382,184 @@ describe("extractEducation", () => {
   });
 });
 
+describe("phones vs IDs", () => {
+  test("does not treat SA-style ID as phone when a real phone is present", () => {
+    const lines = [
+      "Full Name: An Bra",
+      "ID Number: 8001015009087",
+      "Phone: 079 123 6885",
+      "Email: an@gmail.com",
+      "Education",
+    ];
+    const { personal_info } = extractPersonalInfo(lines, "");
+    expect(personal_info.phone).toBe("079 123 6885");
+    expect(personal_info.phone).not.toBe("8001015009087");
+  });
+
+  test("does not produce a phone if only an ID number is present", () => {
+    const lines = [
+      "Name: John Doe",
+      "South African ID: 0401110080082",
+      "Email: john@example.com",
+      "Education",
+    ];
+    const { personal_info } = extractPersonalInfo(lines, "");
+    expect(personal_info.phone).toBe("");
+  });
+
+  test("reference phone numbers do not leak into personal_info.phone", () => {
+    const ocr = {
+      name: "Ref Only Person",
+      remainingCV:
+        "References\n" +
+        "Jane Ref — Manager\n" +
+        "Phone: +27 82 000 1111\n" +
+        "Email: jane.ref@org.com\n" +
+        "Education\n" +
+        "BSc Computer Science\n",
+    };
+    const res = processCV(ocr);
+    expect(res.personal_info.phone).toBe("");
+    const refs = (res.references || []).join("\n");
+    expect(refs).toMatch(/\+27 82 000 1111/);
+  });
+});
+
+describe("email restoration and URL filtering", () => {
+  test("restores broken emails with 'e' and single-space formats", () => {
+    const lines = [
+      "Contact",
+      "john.doe e gmail.com",
+      "jane.doe gmail.com",
+      "About",
+      "I am available.",
+    ];
+    const { personal_info } = extractPersonalInfo(lines, "");
+    expect(personal_info.email).toMatch(/(john\.doe|jane\.doe)@gmail\.com/);
+  });
+
+  test("does not treat tech tokens like node.js as a website", () => {
+    const lines = [
+      "Skills: Node.js, React",
+      "About",
+      "I build things.",
+      "Experience",
+    ];
+    const { personal_info } = extractPersonalInfo(lines, "");
+    expect(personal_info.website).toBe("");
+  });
+});
+
+test("siphons language lines out of skills into languages", () => {
+  const ocr = {
+    name: "LANG SIPHON",
+    remainingCV:
+      "Skills\n" +
+      "English (Fluent)\n" +
+      "Afrikaans (Native)\n" +
+      "Python\n" +
+      "Education\n" +
+      "BSc Something\n",
+  };
+  const res = processCV(ocr);
+  const skills = (res.skills || []).join("\n").toLowerCase();
+  const langs = (res.languages || []).join("\n").toLowerCase();
+  expect(langs).toContain("english");
+  expect(langs).toContain("afrikaans");
+  expect(skills).toContain("python");
+  expect(skills).not.toContain("english (fluent)");
+  expect(skills).not.toContain("afrikaans (native)");
+});
+
+test("skills are deduplicated where appropriate", () => {
+  const ocr = {
+    name: "DUP TEST",
+    remainingCV:
+      "Skills\n" + "Python\n" + "Python\n" + "JavaScript\n" + "JavaScript\n",
+  };
+  const res = processCV(ocr);
+  const skills = res.skills || [];
+  expect(skills.filter((s) => /python/i.test(s)).length).toBe(1);
+  expect(skills.filter((s) => /javascript/i.test(s)).length).toBe(1);
+});
+
+test("standalone name lines are removed from the body", () => {
+  const ocr = {
+    name: "AVA REYNOLDS",
+    remainingCV:
+      "AVA\n" + "REYNOLDS\n" + "Education\n" + "MIT\n" + "2016 - 2020\n",
+  };
+  const res = processCV(ocr);
+  const body = [
+    ...res.education,
+    ...res.experience,
+    ...res.skills,
+    ...res.languages,
+    ...res.projects,
+    ...res.certifications,
+    ...res.references,
+  ]
+    .join("\n")
+    .toLowerCase();
+
+  expect(body).not.toContain("ava reynolds");
+  expect(body).not.toContain("ava");
+  expect(body).not.toContain("reynolds");
+});
+
+test("captures address from alternative labels (residential/physical)", () => {
+  const lines = [
+    "Email: foo@bar.com",
+    "Physical Address: 25 Seventh Ave, Pretoria",
+    "About",
+    "Curious student.",
+    "Education",
+  ];
+  const { personal_info } = extractPersonalInfo(lines, "");
+  expect(personal_info.address).toBe("25 Seventh Ave, Pretoria");
+});
+
+test("extracts a top summary paragraph without an explicit header", () => {
+  const lines = [
+    "I am a motivated developer with a strong interest in backend systems and data.",
+    "I have worked with APIs and relational databases.",
+    "Contact",
+    "Email: someone@example.com",
+    "Experience",
+  ];
+  const { personal_info } = extractPersonalInfo(lines, "");
+  expect(personal_info.description).toMatch(/motivated developer/i);
+  expect(personal_info.description.length).toBeGreaterThan(40);
+});
+
+test("does not include contact lines in summary", () => {
+  const lines = [
+    "I am an adaptable problem solver focused on results and learning.",
+    "Phone: +27 11 222 3333",
+    "Email: a@b.com",
+    "Experience",
+  ];
+  const { personal_info } = extractPersonalInfo(lines, "");
+  expect(personal_info.description).toMatch(/adaptable problem solver/i);
+  expect(personal_info.description).not.toMatch(/\+27 11 222 3333/);
+  expect(personal_info.description).not.toMatch(/a@b\.com/);
+});
+
+test("keeps references intact and removes them from remaining", () => {
+  const lines = [
+    "References",
+    "1) Annalie Eybers - 082 900 0829",
+    "2) Karli Engelbecht - 082 324 7657",
+    "Education",
+    "Some Degree",
+  ];
+  const { references, remaining } = extractReferencesFirst(lines);
+  expect(references.join("\n")).toMatch(/Annalie/i);
+  expect(references.join("\n")).toMatch(/082 900 0829/);
+  expect(remaining.join("\n")).toMatch(/Education/);
+  expect(remaining.join("\n")).not.toMatch(/082 900 0829/);
+});
+
 describe("processCV end-to-end on OCR sample", () => {
   const ocr = {
     name: "AVA REYNOLDS",
@@ -643,5 +821,140 @@ describe("processCV end-to-end on OCR sample (Daniel Brooks)", () => {
 
     expect(res.certifications).toEqual([]);
     expect(res.projects).toEqual([]);
+  });
+});
+
+describe("processCV end-to-end on OCR sample (Alex Omari)", () => {
+  test("with explicit About header (preferred: minimal change, matches current extractor)", () => {
+    const ocr = {
+      name: "ALEX OMARI",
+      remainingCV: [
+        "Email: alex@gmail.com",
+        "Phone: +123-456-7890",
+        "Address: g 128 Anywhere St, Any City,",
+        "www.reallygreatsite.com",
+
+        "About",
+        "Creative designer dedicated to environmentally friendly architecture,",
+        "conservation, and organic living spaces. Skilled in graphic design,",
+        "sustainability planning, ecology, photography, and creative writing, |",
+        "blend artistry with a commitment to environmental stewardship.",
+        "From 2019 to 2024, | worked as an Environmental Designer at GreenLeaf",
+        "Studios, creating sustainable housing projects that incorporated natural",
+        "materials, renewable energy solutions, and eco-conscious landscaping.",
+        "Between 2016 and 2019, she served as a Conservation Educator at",
+        "NatureFirst, leading workshops on environmental conservation, organic",
+        "farming techniques, and sustainable living practices.",
+        "| hold a Bachelor of Arts in Sustainable Design from the University of Arts",
+        "London and a Diploma in Environmental Biology from Oxford College. |",
+        "believe design should work in harmony with nature, inspiring communities",
+        "to embrace sustainability in everyday life.",
+
+        "Experience",
+        "Jan 2022- Present",
+        "© ArtForFun 1123 Anywhere St., Any City",
+        "Artist",
+        "Created and showeased original artworks across various mediums, including acrylics,",
+        "digital illustration, and mixed media. Collaborated with local galleries to curate",
+        "exhibitions, delivering compelling visual narratives that resonated with diverse",
+        "audiences. Worked on commissioned projects tailored to client vision, while",
+        "maintaining a consistent artistic style and brand identity. Built strong connections with",
+        "the art community through workshops, live painting sessions, and creative",
+        "collaborations.",
+        "© 2017 - 2019",
+        "Trendies | 123 Anywhere St., Any City",
+        "Social Media Manager",
+        "Managed multi-platform social media accounts for clients across industries, growing",
+        "online engagement by up to 60% through targeted campaigns and original content",
+        "strategies. Designed visually appealing posts, crafted engaging copy, and analyzed",
+        "performance metrics to optimize results,",
+
+        "Education",
+        "Bachelor of Design",
+        "Wardiere University",
+        "2006 - 2008",
+        "Bachelor of Art",
+        "Wardiere University",
+        "2006 - 2008",
+
+        "Skills",
+        "Art",
+        "Branding",
+        "Graphic Design",
+        "SEO",
+        "Design",
+
+        "Languages",
+        "English",
+        "French",
+        "Art Director | Environmental enthusiast",
+
+        "References",
+        "Estelle Darcy",
+        "Wardiere Inc. / CEO",
+        "Phone: +123-456-7890",
+        "Harper Russo",
+        "Wardiere Inc. / CEO",
+        "Phone: +123-456-7890",
+        "harperrussoegmail.com",
+        "Email : estelledarcyegmail.com",
+      ].join("\n"),
+    };
+
+    const res = processCV(ocr);
+
+    expect(res.personal_info.name).toBe("ALEX OMARI");
+    expect(res.personal_info.email).toBe("alex@gmail.com");
+    expect(res.personal_info.phone).toBe("+123-456-7890");
+    expect(res.personal_info.address).toContain("Anywhere St");
+    expect(res.personal_info.website).toBe("https://www.reallygreatsite.com");
+
+    expect(res.personal_info.description).toMatch(
+      /Creative designer dedicated to environmentally friendly architecture/i
+    );
+    expect(res.personal_info.description.length).toBeGreaterThan(120);
+
+    const exp = (res.experience || []).join("\n");
+    expect(exp).toMatch(/Jan 2022- Present/i);
+    expect(exp).toMatch(/ArtForFun/i);
+    expect(exp).toMatch(/Artist/i);
+    expect(exp).toMatch(/2017 - 2019/i);
+    expect(exp).toMatch(/Trendies/i);
+    expect(exp).toMatch(/Social Media Manager/i);
+
+    const edu = (res.education || []).join("\n");
+    expect(edu).toMatch(/Bachelor of Design/i);
+    expect(edu).toMatch(/Bachelor of Art/i);
+    expect(edu).toMatch(/Wardiere University/i);
+    expect(edu.match(/2006 - 2008/g)?.length || 0).toBeGreaterThanOrEqual(2);
+
+    expect(res.skills).toEqual(
+      expect.arrayContaining([
+        "Art",
+        "Branding",
+        "Graphic Design",
+        "SEO",
+        "Design",
+      ])
+    );
+
+    expect(res.languages).toEqual(
+      expect.arrayContaining([
+        "English",
+        "French",
+        "Art Director | Environmental enthusiast",
+      ])
+    );
+
+    expect(res.projects).toEqual([]);
+    expect(res.certifications).toEqual([]);
+
+    const refs = (res.references || []).join("\n");
+    expect(refs).toMatch(/Estelle\s+Darcy/i);
+    expect(refs).toMatch(/Harper\s+Russo/i);
+    expect(refs).toMatch(/Wardiere Inc\. \/ CEO/i);
+    expect(refs).toMatch(/\+123-456-7890/);
+    expect(refs).toMatch(/harperrussoegmail\.com/);
+    expect(refs).toMatch(/estelledarcyegmail\.com/);
   });
 });
