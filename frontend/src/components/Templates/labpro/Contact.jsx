@@ -16,20 +16,20 @@ const Contact = () => {
     <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/30">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-amber-400 text-4xl font-bold mb-4">Research Collaboration</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-amber-400 to-red-400 mx-auto" />
+          <h2 className="text-blue-400 text-4xl font-bold mb-4">Research Collaboration</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-blue-400 to-amber-400 mx-auto" />
         </div>
 
         <div className="grid md:grid-cols-2 gap-10">
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-amber-400/20">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20">
             <h3 className="text-white text-2xl font-bold mb-4">Contact Information</h3>
             <p className="text-gray-300 mb-6">
               Interested in collaborative research or academic partnerships? Reach out to discuss potential projects and scientific inquiries.
             </p>
             <div className="space-y-4">
               <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full bg-amber-400/10 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 rounded-full bg-blue-400/10 flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
@@ -41,14 +41,14 @@ const Contact = () => {
             </div>
           </div>
 
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-red-400/20">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-amber-400/20">
             <form className="space-y-6">
               <div>
                 <label htmlFor="name" className="text-white block mb-2">Full Name</label>
                 <input
                   type="text"
                   id="name"
-                  className="w-full bg-gray-800 border border-amber-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
               <div>
@@ -56,7 +56,7 @@ const Contact = () => {
                 <input
                   type="email"
                   id="email"
-                  className="w-full bg-gray-800 border border-red-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-red-400"
+                  className="w-full bg-gray-800 border border-amber-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-400"
                 />
               </div>
               <div>
@@ -64,12 +64,12 @@ const Contact = () => {
                 <textarea
                   id="message"
                   rows="5"
-                  className="w-full bg-gray-800 border border-orange-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full bg-gray-800 border border-blue-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
               </div>
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-red-400 to-amber-400 hover:from-red-500 hover:to-amber-500 text-gray-900 font-bold rounded-lg transition-colors duration-300"
+                className="px-8 py-3 bg-gradient-to-r from-blue-400 to-amber-400 hover:from-blue-500 hover:to-amber-500 text-gray-900 font-bold rounded-lg transition-colors duration-300"
               >
                 Submit Inquiry
               </button>
@@ -79,7 +79,7 @@ const Contact = () => {
 
         {/* Download Portfolio Section */}
         <div className="mt-16 text-center">
-          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-pink-400/20 max-w-2xl mx-auto">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
             <h3 className="text-white text-2xl font-bold mb-4">Download Research Portfolio</h3>
             <p className="text-gray-300 mb-6">
               Obtain a complete copy of my research portfolio as a standalone application for academic review and collaboration.

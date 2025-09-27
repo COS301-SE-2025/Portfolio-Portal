@@ -7,7 +7,7 @@ const Navbar = () => {
   const [active, setActive] = useState("");
   const { name } = useCvData() || {};
   return (
-    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/90 backdrop-blur-sm border-b border-red-400/30">
+    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/90 backdrop-blur-sm border-b border-blue-400/30">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
         <Link
           to="hero"
@@ -18,8 +18,8 @@ const Navbar = () => {
             setActive("");
           }}
         >
-          <p className="text-red-400 text-[20px] font-bold">
-            {name}'s <span className="text-orange-400">Research Lab</span>
+          <p className="text-blue-400 text-[20px] font-bold">
+            {name}'s <span className="text-amber-400">Research Lab</span>
           </p>
         </Link>
 
@@ -28,8 +28,8 @@ const Navbar = () => {
             <li
               key={item}
               className={`${
-                active === item ? "text-red-400" : "text-white"
-              } hover:text-orange-400 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
+                active === item ? "text-blue-400" : "text-white"
+              } hover:text-amber-400 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
             >
               <Link
                 to={item}
