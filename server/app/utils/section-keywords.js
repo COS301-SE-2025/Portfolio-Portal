@@ -687,7 +687,6 @@ module.exports = {
       "native",
       "bilingual",
       "fluent",
-      "proficient",
       "intermediate",
       "basic",
       "mother tongue",
