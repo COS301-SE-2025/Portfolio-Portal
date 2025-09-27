@@ -28,14 +28,17 @@ const ExperienceAndEducation = () => {
                 <div className={`ml-12 md:ml-0 md:w-1/2 ${index % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8 md:ml-auto md:text-left'}`}>
                   <div className="bg-gray-800/70 p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition-all duration-300">
                     <h3 className="font-bold text-xl text-blue-400">
-                      {item.position}
+                      {item.title}
                     </h3>
                     <div className="mb-2">
                       <p className="text-gray-300">{item.company}</p>
-                      <p className="text-gray-400 text-sm">{item.duration}</p>
+                      <p className="text-gray-400 text-sm">{`${item.startDate} - ${item.endDate}`}</p>
                     </div>
-                    <p className="text-gray-400">{item.description}</p>
-                  </div>
+                    <ul className="text-white list-disc pl-5">
+                  {item.extra?.map((bullet, bulletIndex) => (
+                    <li key={`bullet-${index}-${bulletIndex}`}>{bullet}</li>
+                  ))}
+                </ul>                  </div>
                 </div>
               </div>
             ))}
@@ -69,11 +72,12 @@ const ExperienceAndEducation = () => {
                     </h3>
                     <div className="mb-2">
                       <p className="text-gray-300">{item.institution}</p>
-                      <p className="text-gray-400 text-sm">{item.year}</p>
+                      <p className="text-gray-400 text-sm">{item.endDate}</p>
                     </div>
                     {item.field && (
                       <p className="text-gray-400">{item.field}</p>
                     )}
+                    {item.gpa && <p className="text-white">GPA: {item.gpa}</p>}
                   </div>
                 </div>
               </div>

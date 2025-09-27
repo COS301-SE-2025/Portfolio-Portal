@@ -19,7 +19,7 @@ const Experience = () => {
               className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 hover:border-blue-400/50 transition-all duration-300"
             >
               <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
-                <h3 className="text-white text-2xl font-bold">{exp.position}</h3>
+                <h3 className="text-white text-2xl font-bold">{exp.title}</h3>
                 <span className="text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full text-sm">
                   {exp.duration}
                 </span>
