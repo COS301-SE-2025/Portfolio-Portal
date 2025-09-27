@@ -16,7 +16,7 @@ const About = () => {
           className="flex flex-col lg:flex-row gap-10"
         >
           <div className="flex-1 bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20">
-            <h3 className="text-stone-500 text-2xl font-bold mb-4">About Me</h3>
+            <h3 className="text-orange-200 text-2xl font-bold mb-4">About Me</h3>
             <p className="text-white text-lg mb-4">
               {about ||
                 "I explore the digital underground, crafting immersive experiences from the depths of cutting-edge technology."}
