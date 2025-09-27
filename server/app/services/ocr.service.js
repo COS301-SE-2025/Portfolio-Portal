@@ -308,6 +308,7 @@ const HEADER_ALIASES = [
   "contact information",
   "contact details",
   "professional skills",
+  "professional profile",
 ];
 
 const normalize = (t) =>

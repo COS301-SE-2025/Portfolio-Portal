@@ -44,10 +44,12 @@ const TOP_LEVEL_SECTIONS = [
   "personal_info",
 ];
 
+const HEADER_TRIM_RE = /^[\s|>•*·●\-–—@©]+|[\s|>•*·●\-–—@©:]+$/g;
+
 function isHeader(line, sectionName) {
   const meta = SECTION_KEYWORDS[sectionName];
   const variants = meta?.inline || [];
-  const L = norm(line).toLowerCase();
+  const L = (norm(line).replace(HEADER_TRIM_RE, "") || "").toLowerCase();
   return variants.some((v) => {
     if (!v) return false;
     const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -77,7 +79,7 @@ function findNextHeaderIndex(lines, startIdx) {
   return lines.length;
 }
 
-/** ---------- Header extractor ---------- */
+// section header extraction
 function extractSectionByHeader(lines, sectionName) {
   const startHeader = findHeaderIndex(lines, sectionName);
   if (startHeader === -1) {
@@ -100,10 +102,34 @@ function extractSectionByHeader(lines, sectionName) {
   return { sectionLines, cleanedLines, range: [startHeader, contentEnd] };
 }
 
-/** ---------- Email / link / phone helpers ---------- */
+// fallback, no header detected
+function extractSectionByHeaderRegex(lines, regex) {
+  let startHeader = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const L = (norm(lines[i]).replace(HEADER_TRIM_RE, "") || "").toLowerCase();
+    if (regex.test(L)) {
+      startHeader = i;
+      break;
+    }
+  }
+  if (startHeader === -1) {
+    return { sectionLines: [], cleanedLines: [...lines], range: null };
+  }
+  const contentStart = startHeader + 1;
+  const nextHeader = findNextHeaderIndex(lines, contentStart);
+  const contentEnd = nextHeader;
+  const sectionLines = lines
+    .slice(contentStart, contentEnd)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const cleanedLines = [
+    ...lines.slice(0, startHeader),
+    ...lines.slice(contentEnd),
+  ];
+  return { sectionLines, cleanedLines, range: [startHeader, contentEnd] };
+}
 
 function restoreBrokenEmails(lines) {
-  // Fix common OCR case: "nameegmail.com" or "name gmail.com"
   const domainParts = COMMON_EMAIL_DOMAINS.map((d) =>
     d.replace(/\./g, "\\.")
   ).join("|");
@@ -150,11 +176,30 @@ function looksLikeDateSpan(s) {
   return false;
 }
 
-/** NEW: greedy per-line phone extractor that keeps full number (+country code) */
+const ID_LABEL_RE =
+  /\b(id(\s*no\.?)?|id\s*number|identity|passport|national\s*id)\b/i;
+
+function looksLikeSAID13(d) {
+  if (!/^\d{13}$/.test(d)) return false;
+  const mm = parseInt(d.slice(2, 4), 10);
+  const dd = parseInt(d.slice(4, 6), 10);
+  if (mm < 1 || mm > 12) return false;
+  if (dd < 1 || dd > 31) return false;
+  return true;
+}
+
+function isLikelyIDNumber(raw, lineText) {
+  const d = digits(raw);
+  if (ID_LABEL_RE.test(lineText || "")) return true;
+  if (/^\d{13,}$/.test(d) && !/[+\-().\s]/.test(raw)) {
+    if (looksLikeSAID13(d)) return true;
+    return true;
+  }
+  return false;
+}
+
 function extractPhones(lines) {
-  // Unicode separators we commonly see from OCR (thin/nb spaces, dashes, etc.)
   const SEP = `[\\s.\\-()\\u00A0\\u202F\\u2009\\u2007\\u2060\\u2013\\u2014]`;
-  // At least 7 digits overall, allow separators between them
   const GREEDY_LINE_PHONE = new RegExp(`(\\+?\\d(?:${SEP}*\\d){6,})`, "g");
 
   const candidates = [];
@@ -167,8 +212,8 @@ function extractPhones(lines) {
       const dcount = digits(raw).length;
       if (dcount < 7) continue;
       if (looksLikeDateSpan(raw)) continue;
+      if (isLikelyIDNumber(raw, text)) continue;
 
-      // Score: prefer longer, leading '+', nice grouping, early lines, and label
       let score = dcount;
       if (/^\+/.test(raw)) score += 3;
       if (/[()]/.test(raw)) score += 1;
@@ -180,7 +225,6 @@ function extractPhones(lines) {
     }
   });
 
-  // Fallback to old pattern if greedy found nothing
   if (!candidates.length) {
     const text = lines.join("\n");
     const m = [...(text.matchAll(PHONE_RE) || [])].map((x) => x[0].trim());
@@ -188,6 +232,7 @@ function extractPhones(lines) {
       const dcount = digits(raw).length;
       if (dcount < 7) continue;
       if (looksLikeDateSpan(raw)) continue;
+      if (isLikelyIDNumber(raw, text)) continue;
       let score = dcount + (/^\+/.test(raw) ? 3 : 0);
       candidates.push({ raw, score });
     }
@@ -286,8 +331,7 @@ function removeStringsFromLines(lines, strings) {
   });
 }
 
-/** ---------- Name/Address helpers ---------- */
-
+// name and adress helpers
 function extractNameFallback(lines, currentName) {
   if (norm(currentName)) return currentName;
 
@@ -337,8 +381,211 @@ function guessAddress(lines, contactHitIdxs) {
   return "";
 }
 
-/** ---------- References first ---------- */
+// detect about with no header
+const BULLET_LIKE = /^[•*·●\-–—@©]\s*/i;
+const I_LIKE = "[iIl\\|!1]";
+const SUMMARY_STARTERS = [
+  new RegExp(`^${I_LIKE}\\s*['’]?\\s*m\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+am\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+have\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+do\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+can\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+aim\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+strive\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+believe\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+bring\\b`, "i"),
+  new RegExp(`^${I_LIKE}\\s+possess\\b`, "i"),
+  /^personally\b/i,
+  /^as\s+(an?|the)\b/i,
+  /^with\b/i,
+  /^motivated\b/i,
+  /^driven\b/i,
+  /^experienced\b/i,
+  /^creative\b/i,
+  /^dedicated\b/i,
+  /^results[-\s]?oriented\b/i,
+];
 
+function isParagraphy(line) {
+  const t = norm(line);
+  if (!t) return false;
+  if (t.length < 40) return false;
+  if (/@|https?:|www\./i.test(t)) return false;
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length < 8) return false;
+  return true;
+}
+
+function looksLikeSummaryStart(line) {
+  const L = norm(line);
+  if (!isParagraphy(L)) return false;
+  if (BULLET_LIKE.test(L)) return false;
+  return SUMMARY_STARTERS.some((re) => re.test(L));
+}
+
+function isContactish(line) {
+  const t = norm(line);
+  if (!t) return false;
+  const labelish = (t.replace(HEADER_TRIM_RE, "") || "").toLowerCase();
+  if (/^contact(s| details| info)?$/i.test(labelish)) return true;
+  if (EMAIL_RE.test(t)) return true;
+  if (URL_RE.test(t)) return true;
+  if (PHONE_RE.test(t)) return true;
+  if (/\b(@|linkedin|github|website)\b/i.test(t)) return true;
+  return false;
+}
+
+function extractTopSummaryNearTop(lines) {
+  if (!lines?.length) return { about: "", remaining: [...lines] };
+
+  const limit = Math.min(
+    lines.length,
+    Math.max(20, Math.floor(lines.length * 0.35)),
+    80
+  );
+
+  let start = -1;
+  for (let i = 0; i < limit; i++) {
+    if (isTopLevelHeaderLine(lines[i])) break;
+    if (looksLikeSummaryStart(lines[i])) {
+      start = i;
+      break;
+    }
+  }
+  if (start < 0) return { about: "", remaining: [...lines] };
+
+  const endBoundary = (() => {
+    for (let i = start + 1; i < lines.length; i++) {
+      const L = lines[i];
+      if (isTopLevelHeaderLine(L)) return i;
+      const trimmed = (norm(L).replace(HEADER_TRIM_RE, "") || "").toLowerCase();
+      if (/^contact(s| details| info)?$/i.test(trimmed)) return i;
+    }
+    return lines.length;
+  })();
+
+  const picked = [];
+  for (let i = start; i < endBoundary; i++) {
+    const L = lines[i];
+    if (!L) continue;
+    if (isContactish(L)) break;
+    if (BULLET_LIKE.test(L)) continue;
+    picked.push(L);
+  }
+
+  const joined = norm(picked.join("\n"));
+  if (joined.length < 60) {
+    return { about: "", remaining: [...lines] };
+  }
+
+  const remaining = [...lines.slice(0, start), ...lines.slice(endBoundary)];
+  return { about: joined, remaining };
+}
+
+const PROF_RE =
+  /\b(fluent|native|bilingual|professional|proficient|intermediate|basic|beginner|mother\s*tongue|conversational)\b/i;
+
+function levenshtein(a, b) {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+  const dp = Array(b.length + 1)
+    .fill(0)
+    .map((_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = dp[0];
+    dp[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = dp[j];
+      dp[j] =
+        a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, dp[j - 1], dp[j]);
+      prev = tmp;
+    }
+  }
+  return dp[b.length];
+}
+
+function normalizeLangToken(tok) {
+  return tok
+    .toLowerCase()
+    .replace(/[0]/g, "o")
+    .replace(/[1l!]/g, "i")
+    .replace(/[2]/g, "a")
+    .replace(/[3]/g, "e")
+    .replace(/[4]/g, "a")
+    .replace(/[5]/g, "s")
+    .replace(/[6]/g, "g")
+    .replace(/[7]/g, "t")
+    .replace(/[8]/g, "b")
+    .replace(/[9]/g, "g")
+    .replace(/[^a-z\u00c0-\u024f]+/g, "");
+}
+
+const LANG_KEYWORDS = (() => {
+  const k = new Set(
+    [
+      ...(SECTION_KEYWORDS.languages?.kw || []),
+      ...(SECTION_KEYWORDS.languages?.inline || []),
+    ]
+      .map((x) => x && x.toLowerCase())
+      .filter(Boolean)
+  );
+  ["language", "languages", "ielts", "toefl"].forEach((w) => k.delete(w));
+  return k;
+})();
+
+function tokenMatchesAnyLanguage(tok) {
+  const n = normalizeLangToken(tok);
+  if (!n) return false;
+  if (LANG_KEYWORDS.has(n)) return true;
+  for (const kw of LANG_KEYWORDS) {
+    const d = levenshtein(n, kw);
+    if (
+      d <= 1 ||
+      (Math.abs(n.length - kw.length) <= 2 &&
+        Math.max(n.length, kw.length) >= 7 &&
+        d <= 2)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isProbablyLanguageLine(line) {
+  const raw = norm(line);
+  if (!raw) return false;
+
+  const t = raw.replace(BULLET_LIKE, "").toLowerCase();
+
+  const tokens = t.split(/[^0-9a-z\u00c0-\u024f]+/i).filter(Boolean);
+  if (!tokens.length) return false;
+
+  if (PROF_RE.test(t)) {
+    return tokens.some((w) => tokenMatchesAnyLanguage(w));
+  }
+  if (tokens.length <= 4) {
+    return tokens.some((w) => tokenMatchesAnyLanguage(w));
+  }
+  return false;
+}
+
+function siphonLanguagesFromSkills(sections) {
+  const skills = Array.isArray(sections.skills) ? sections.skills : [];
+  const langs = Array.isArray(sections.languages) ? sections.languages : [];
+
+  const moved = [];
+  const kept = [];
+  for (const line of skills) {
+    if (isProbablyLanguageLine(line)) moved.push(line);
+    else kept.push(line);
+  }
+
+  sections.skills = kept;
+  sections.languages = unique([...langs, ...moved]);
+  return sections;
+}
+
+// extract references first
 function extractReferencesFirst(lines) {
   const { sectionLines, cleanedLines } = extractSectionByHeader(
     lines,
@@ -347,8 +594,7 @@ function extractReferencesFirst(lines) {
   return { references: sectionLines, remaining: cleanedLines };
 }
 
-/** ---------- Personal info ---------- */
-
+// personal info
 function extractPersonalInfo(lines, ocrName = "") {
   // Repair email glitches before extracting
   const repairedLines = restoreBrokenEmails(lines);
@@ -397,13 +643,26 @@ function extractPersonalInfo(lines, ocrName = "") {
   const personalHeaderKey = SECTION_KEYWORDS.about ? "about" : null;
   let description = "";
   let linesAfterPI = [...linesAfterContactRemoval];
+
+  // 1) If there is an explicit "About"/"Summary" header, use it.
   if (personalHeaderKey) {
     const { sectionLines, cleanedLines } = extractSectionByHeader(
       linesAfterContactRemoval,
       personalHeaderKey
     );
-    description = (sectionLines || []).join("\n");
-    linesAfterPI = cleanedLines;
+    if (sectionLines?.length) {
+      description = (sectionLines || []).join("\n");
+      linesAfterPI = cleanedLines;
+    }
+  }
+
+  // 2) Otherwise, look for a header-less top summary near the top
+  if (!description) {
+    const det = extractTopSummaryNearTop(linesAfterPI);
+    if (det.about) {
+      description = det.about;
+      linesAfterPI = det.remaining;
+    }
   }
 
   return {
@@ -419,8 +678,6 @@ function extractPersonalInfo(lines, ocrName = "") {
     remaining: linesAfterPI,
   };
 }
-
-/** ---------- Simple blocks ---------- */
 
 function extractSimpleBlocks(lines) {
   const sections = [
@@ -441,10 +698,19 @@ function extractSimpleBlocks(lines) {
     rest = cleanedLines;
   }
 
+  if (!out.languages?.length) {
+    const { sectionLines, cleanedLines } = extractSectionByHeaderRegex(
+      rest,
+      /^(language|languages)\b/i
+    );
+    if (sectionLines.length) {
+      out.languages = sectionLines;
+      rest = cleanedLines;
+    }
+  }
+
   return { blocks: out, remaining: rest };
 }
-
-/** ---------- Keyword-based assignment ---------- */
 
 const SECTION_FILL_ORDER = [
   "experience",
@@ -455,7 +721,6 @@ const SECTION_FILL_ORDER = [
   "projects",
 ];
 
-// sections where duplicate lines are OK (don’t dedupe)
 const SECTIONS_ALLOW_DUPES = new Set([
   "experience",
   "education",
@@ -520,13 +785,9 @@ function removeNameLines(lines, name) {
       .trim();
     if (!L) return false;
 
-    // exact full name
     if (L === full) return false;
-
-    // single-token lines that equal a name token (e.g., "Calvyn" or "Van")
     if (tokens.some((t) => t.length > 2 && L === t)) return false;
 
-    // any line composed entirely of a subset of name tokens (e.g., "Calvyn Van")
     const words = L.split(/\s+/).filter(Boolean);
     if (words.length && words.every((w) => tokSet.has(w))) return false;
 
@@ -551,6 +812,13 @@ function distributeLeftoverLines(leftover, blocks) {
     const line = norm(raw);
     if (!line) continue;
 
+    // classify obvious language lines first
+    if (isProbablyLanguageLine(line)) {
+      bySection.languages.push(line);
+      prevSection = "languages";
+      continue;
+    }
+
     // Don't let date-only lines ever match skills/languages
     let matched = null;
     for (const s of SECTION_FILL_ORDER) {
@@ -572,7 +840,6 @@ function distributeLeftoverLines(leftover, blocks) {
       continue;
     }
 
-    // Only propagate "date-only" lines if the previous section allows dates
     if (prevSection && isDateOnlyLine(line)) {
       if (ALLOW_DATE_SECTIONS.has(prevSection)) {
         bySection[prevSection].push(line);
@@ -586,7 +853,6 @@ function distributeLeftoverLines(leftover, blocks) {
     }
   }
 
-  // Dedupe only the list-like sections
   for (const s of SECTION_FILL_ORDER) {
     if (!SECTIONS_ALLOW_DUPES.has(s)) {
       bySection[s] = unique(bySection[s]);
@@ -596,8 +862,37 @@ function distributeLeftoverLines(leftover, blocks) {
   return bySection;
 }
 
-/** ---------- Public API ---------- */
+function salvageSummaryFromSkills(sections, currentDescription = "") {
+  if (currentDescription) return { description: currentDescription, sections };
 
+  const skillLines = Array.isArray(sections.skills) ? sections.skills : [];
+  const maybes = skillLines.filter((ln) => {
+    const t = norm(ln);
+    if (!isParagraphy(t)) return false;
+    return (
+      /^([iIl\|!1]\s+|personally\b|as\s+(an?|the)\b)/i.test(t) ||
+      /\b(personality|work ethic|passion|aim|goal|strengths|reliable|responsible)\b/i.test(
+        t
+      )
+    );
+  });
+
+  let description = currentDescription;
+  if (maybes.length) {
+    const joined = maybes.join("\n");
+    if (joined.length >= 80) {
+      description = joined;
+      const keep = [];
+      const rm = new Set(maybes);
+      for (const l of skillLines) if (!rm.has(l)) keep.push(l);
+      sections.skills = keep;
+    }
+  }
+
+  return { description, sections };
+}
+
+// main function
 function processCV(ocr) {
   const ocrNameLocal = (ocr && ocr.name) || "";
   let lines = (ocr && ocr.remainingCV ? ocr.remainingCV : "")
@@ -619,7 +914,15 @@ function processCV(ocr) {
   lines = remainingAfterPI;
 
   const { blocks, remaining: leftover } = extractSimpleBlocks(lines);
-  const filled = distributeLeftoverLines(leftover, blocks);
+  let filled = distributeLeftoverLines(leftover, blocks);
+
+  // move any leaked language lines out of skills
+  filled = siphonLanguagesFromSkills(filled);
+
+  // salvage a summary paragraph from Skills if still empty
+  const salvage = salvageSummaryFromSkills(filled, personal_info.description);
+  filled = salvage.sections;
+  personal_info.description = salvage.description || personal_info.description;
 
   return {
     personal_info,
