@@ -1,5 +1,3 @@
-//frontend/src/components/Templates/cave/cavev2/Hero.jsx
-import React from "react";
 import React, { useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { motion } from "framer-motion";
