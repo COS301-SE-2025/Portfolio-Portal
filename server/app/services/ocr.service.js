@@ -258,10 +258,20 @@ const rowsToBlocks = (rows) => {
     if (!lines.length) continue;
     const left = Math.min(...lines.map((l) => l.left));
     const top = Math.min(...lines.map((l) => l.top));
+    const right = Math.max(...lines.map((l) => l.left + l.width));
     const bottom = Math.max(...lines.map((l) => l.top + l.height));
-    blocks.push({ block_num, left, top, bottom, lines });
+    blocks.push({
+      block_num,
+      left,
+      top,
+      right,
+      bottom,
+      width: right - left,
+      height: bottom - top,
+      lines,
+    });
   }
-  blocks.sort((a, b) => a.top - b.top);
+  blocks.sort((a, b) => a.top - b.top || a.left - b.left);
   return blocks;
 };
 
@@ -448,28 +458,92 @@ const pickNameFromTopUntilHeading = (blocks) => {
   return candidates[0]?.text || "";
 };
 
-// Column-aware
 /**
- * Concatenate text column-aware: left column first, then right column.
- * Inside each column: top->bottom, lines kept in order.
+ * Column-aware page text reconstruction.
+ * - Ignore very-wide header blocks for column split, then add them back.
+ * - Split at the largest gap between horizontal centers (if significant).
+ * - Render: full left column (top->bottom), then full right column (top->bottom).
  */
 const pageTextByColumns = (blocks) => {
   if (!blocks?.length) return "";
-  const lefts = blocks.map((b) => b.left).sort((a, b) => a - b);
-  const median = lefts[Math.floor(lefts.length / 2)];
-  const leftBlocks = [];
-  const rightBlocks = [];
-  for (const b of blocks) (b.left <= median ? leftBlocks : rightBlocks).push(b);
 
-  const render = (blkArr) =>
-    blkArr
+  const minLeft = Math.min(...blocks.map((b) => b.left));
+  const maxRight = Math.max(...blocks.map((b) => b.right));
+  const pageSpan = Math.max(1, maxRight - minLeft);
+
+  // Wide blocks (e.g., full-width name band) should not decide columns
+  const wideThreshold = pageSpan * 0.7;
+  const wideBlocks = blocks.filter((b) => b.width >= wideThreshold);
+  const colCandidates = blocks.filter((b) => b.width < wideThreshold);
+
+  // If too few candidates, just return basic top->bottom text
+  if (colCandidates.length < 3) {
+    return blocks
+      .sort((a, b) => a.top - b.top || a.left - b.left)
+      .map((b) => b.lines.map((l) => l.text).join("\n"))
+      .join("\n\n");
+  }
+
+  // 1D clustering by largest horizontal gap between centers
+  const centers = colCandidates
+    .map((b) => ({
+      b,
+      c: b.left + b.width / 2,
+    }))
+    .sort((a, b) => a.c - b.c);
+
+  let bestGap = -1;
+  let bestIdx = -1;
+  for (let i = 0; i < centers.length - 1; i++) {
+    const gap = centers[i + 1].c - centers[i].c;
+    if (gap > bestGap) {
+      bestGap = gap;
+      bestIdx = i;
+    }
+  }
+
+  const significantGap = bestGap >= Math.max(40, pageSpan * 0.08);
+  if (!significantGap) {
+    // Fall back: simple top->bottom
+    return blocks
+      .sort((a, b) => a.top - b.top || a.left - b.left)
+      .map((b) => b.lines.map((l) => l.text).join("\n"))
+      .join("\n\n");
+  }
+
+  const leftGroup = centers.slice(0, bestIdx + 1).map((o) => o.b);
+  const rightGroup = centers.slice(bestIdx + 1).map((o) => o.b);
+
+  // If the split produced a tiny group, it's probably noise; fallback
+  if (Math.min(leftGroup.length, rightGroup.length) < 2) {
+    return blocks
+      .sort((a, b) => a.top - b.top || a.left - b.left)
+      .map((b) => b.lines.map((l) => l.text).join("\n"))
+      .join("\n\n");
+  }
+
+  const renderBlocks = (arr) =>
+    arr
       .sort((a, b) => a.top - b.top)
       .map((b) => b.lines.map((l) => l.text).join("\n"))
       .join("\n\n");
 
-  const leftTxt = render(leftBlocks);
-  const rightTxt = render(rightBlocks);
-  return [leftTxt, rightTxt].filter(Boolean).join("\n\n");
+  const wideText = wideBlocks
+    .sort((a, b) => a.top - b.top)
+    .map((b) => b.lines.map((l) => l.text).join("\n"))
+    .join("\n\n");
+
+  // Ensure left column is actually the left-most
+  const leftAvg = leftGroup.reduce((s, b) => s + b.left, 0) / leftGroup.length;
+  const rightAvg =
+    rightGroup.reduce((s, b) => s + b.left, 0) / rightGroup.length;
+  const [firstCol, secondCol] =
+    leftAvg <= rightAvg ? [leftGroup, rightGroup] : [rightGroup, leftGroup];
+
+  const leftText = renderBlocks(firstCol);
+  const rightText = renderBlocks(secondCol);
+
+  return [wideText, leftText, rightText].filter(Boolean).join("\n\n");
 };
 
 const getExt = (p) =>
