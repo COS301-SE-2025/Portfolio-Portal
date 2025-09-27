@@ -96,6 +96,14 @@ export default function FlaskAOverlay({
     margin: "10px 0",
   };
 
+  const hasItems = (arr) =>
+    Array.isArray(arr) &&
+    arr.some((x) => (typeof x === "string" ? x.trim().length > 0 : !!x));
+
+  const hasSkills = hasItems(data?.skills);
+  const hasCerts = hasItems(data?.certifications);
+  const hasLangs = hasItems(data?.languages);
+
   return (
     <>
       <Html
@@ -109,30 +117,42 @@ export default function FlaskAOverlay({
           <div style={splatterMask} />
 
           <div style={contentScroll} onWheel={(e) => e.stopPropagation()}>
-            <div style={sectionTitle}>Skills</div>
-            <ul style={{ margin: 0, paddingLeft: 16 }}>
-              {(data?.skills || []).map((s, i) => (
-                <li key={i}>{s}</li>
-              ))}
-            </ul>
+            {hasSkills && (
+              <>
+                <div style={sectionTitle}>Skills</div>
+                <ul style={{ margin: 0, paddingLeft: 16 }}>
+                  {(data?.skills || []).map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-            <div style={divider} />
+            {hasSkills && (hasCerts || hasLangs) && <div style={divider} />}
 
-            <div style={sectionTitle}>Certifications</div>
-            <ul style={{ margin: 0, paddingLeft: 16 }}>
-              {(data?.certifications || []).map((c, i) => (
-                <li key={i}>{c}</li>
-              ))}
-            </ul>
+            {hasCerts && (
+              <>
+                <div style={sectionTitle}>Certifications</div>
+                <ul style={{ margin: 0, paddingLeft: 16 }}>
+                  {(data?.certifications || []).map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-            <div style={divider} />
+            {hasCerts && hasLangs && <div style={divider} />}
 
-            <div style={sectionTitle}>Languages</div>
-            <ul style={{ margin: 0, paddingLeft: 16 }}>
-              {(data?.languages || []).map((l, i) => (
-                <li key={i}>{l}</li>
-              ))}
-            </ul>
+            {hasLangs && (
+              <>
+                <div style={sectionTitle}>Languages</div>
+                <ul style={{ margin: 0, paddingLeft: 16 }}>
+                  {(data?.languages || []).map((l, i) => (
+                    <li key={i}>{l}</li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           <style>{`
