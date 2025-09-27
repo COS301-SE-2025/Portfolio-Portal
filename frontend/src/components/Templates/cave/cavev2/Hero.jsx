@@ -1,3 +1,5 @@
+//frontend/src/components/Templates/cave/cavev2/Hero.jsx
+import React from "react";
 import React, { useRef } from "react";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { motion } from "framer-motion";
@@ -85,7 +87,7 @@ const Hero = () => {
       </div>
 
       {/* Scrollable Content Section - This will scroll over the fixed 3D scene */}
-      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-stone-700/60 backdrop-blur-sm">
+      <section className="relative w-full min-h-screen mx-auto overflow-hidden bg-stone-800/60 backdrop-blur-sm">
         {/* Content Layout */}
         <div className="absolute inset-0 top-[120px] max-w-7xl mx-auto px-6 flex flex-row items-start gap-5">
           <div className="flex flex-col justify-center items-center mt-5">
