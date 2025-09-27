@@ -1,13 +1,13 @@
-// Navbar.jsx
+// components/Templates/labpro/Navbar.jsx
 import { Link } from "react-scroll";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useCvData from '../../../hooks/useCVData' 
 
 const Navbar = () => {
   const [active, setActive] = useState("");
   const { name } = useCvData() || {};
   return (
-    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
+    <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/90 backdrop-blur-sm border-b border-emerald-400/20">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">
         <Link
           to="hero"
@@ -18,8 +18,8 @@ const Navbar = () => {
             setActive("");
           }}
         >
-          <p className="text-green-400 text-[18px] font-bold">
-            {name}'s <span className="text-white">Lab</span>
+          <p className="text-emerald-400 text-[20px] font-bold">
+            {name}'s <span className="text-white">Research Lab</span>
           </p>
         </Link>
 
@@ -28,8 +28,8 @@ const Navbar = () => {
             <li
               key={item}
               className={`${
-                active === item ? "text-green-400" : "text-white"
-              } hover:text-green-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
+                active === item ? "text-emerald-400" : "text-white"
+              } hover:text-emerald-300 text-[18px] font-medium cursor-pointer transition-colors duration-300`}
             >
               <Link
                 to={item}
