@@ -1,3 +1,5 @@
+//frontend/src/components/Templates/cave/cavev2/About.jsx
+import React from "react";
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../../utils/motion";
 import useCvData from "../../../../hooks/useCVData";
