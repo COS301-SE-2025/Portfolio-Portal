@@ -11,6 +11,7 @@ const ocrRoutes = require("./app/routes/ocr.routes");
 const portfolioRoutes = require("./app/routes/portfolio.routes");
 const userRoutes = require("./app/routes/users.routes");
 const cvRoutes = require('./app/routes/cv.routes');
+const githubRoutes = require('./app/routes/github.routes');
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
@@ -61,6 +62,7 @@ app.use("/api/ocr", ocrRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/users", userRoutes);
 app.use('/api/cv', cvRoutes);
+app.use('/api/github', githubRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
