@@ -15,6 +15,7 @@ import ForestPage from "./pages/ForestPage";
 import ForestPage3D from "./pages/ForestPage3D";
 import CavePage from "./pages/CavePage";
 import LabPage from "./pages/LabPage";
+import LabProPage from "./pages/LabProPage";
 import Space from './pages/Space';
 import SpacePage3D from './pages/SpacePage3D';
 import OfficePage from './pages/OfficePage';
@@ -34,6 +35,7 @@ const HIDDEN_NAVBAR_PATHS = [
   '/space3d',
   '/profile',
   '/lab',
+  '/labpro',
   '/cave',
   '/github/callback',
   '/social',
@@ -50,6 +52,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/space',
   '/space3d',
   '/lab',
+  '/labpro',
   '/cave',
   '/cavev2',
   '/github/callback',
@@ -76,6 +79,7 @@ function App() {
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/forest3d" element={<ForestPage3D />} />
           <Route path="/lab" element={<LabPage />} />
+          <Route path="/labpro" element={<LabProPage />} /> 
           <Route path="/profile" element={<Profile />} />
           <Route path="/cave" element={<CavePage />} />
           <Route path="/cavev2" element={<CavePagev2 />} />
