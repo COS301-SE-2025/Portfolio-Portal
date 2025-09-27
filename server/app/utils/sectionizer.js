@@ -74,16 +74,10 @@ function findNextHeaderIndex(lines, startIdx) {
   for (let i = startIdx; i < lines.length; i++) {
     if (isTopLevelHeaderLine(lines[i])) return i;
   }
-  return lines.length; // no more headers
+  return lines.length;
 }
 
-/**
- * Generic: find header for `sectionName`, collect every line below it until the
- * next header (of ANY section) or EOF. Returns { sectionLines, cleanedLines, range }
- *
- * - Does NOT include the header line itself in `sectionLines`.
- * - "cleanedLines" removes the header and the captured block.
- */
+/** ---------- Header extractor ---------- */
 function extractSectionByHeader(lines, sectionName) {
   const startHeader = findHeaderIndex(lines, sectionName);
   if (startHeader === -1) {
@@ -109,17 +103,15 @@ function extractSectionByHeader(lines, sectionName) {
 /** ---------- Email / link / phone helpers ---------- */
 
 function restoreBrokenEmails(lines) {
-  // Fix common OCR case: "nameegmail.com" -> "name@gmail.com"
-  // We do this in-place on the text before running EMAIL_RE/URL_RE.
+  // Fix common OCR case: "nameegmail.com" or "name gmail.com"
   const domainParts = COMMON_EMAIL_DOMAINS.map((d) =>
     d.replace(/\./g, "\\.")
   ).join("|");
-  // Pattern A: local + "e" + domain (no @)
+
   const rxE = new RegExp(
     `\\b([a-z0-9._%+-]{2,})\\s*e\\s*(${domainParts})\\b`,
     "ig"
   );
-  // Pattern B: local + space + domain (lost '@')
   const rxSpace = new RegExp(
     `\\b([a-z0-9._%+-]{2,})\\s+(${domainParts})\\b`,
     "ig"
@@ -140,12 +132,84 @@ function extractEmails(lines) {
   return unique(matches);
 }
 
+// True for "2022-2024", "2019 – present", "Jan 2020 - Mar 2022", etc.
+const MONTHS =
+  "(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)";
+const DATE_SPAN_RE = new RegExp(
+  `^\\s*(?:${MONTHS}\\.?\\s+)?(19|20)\\d{2}\\s*[–—-]\\s*(?:${MONTHS}\\.?\\s+)?((19|20)\\d{2}|present|current)\\s*$`,
+  "i"
+);
+const SINGLE_YEAR_RE = /^\s*(19|20)\d{2}\s*$/;
+
+function looksLikeDateSpan(s) {
+  const t = norm(s)
+    .toLowerCase()
+    .replace(/[•*·●]/g, "");
+  if (!t) return false;
+  if (DATE_SPAN_RE.test(t)) return true;
+  return false;
+}
+
+/** NEW: greedy per-line phone extractor that keeps full number (+country code) */
 function extractPhones(lines) {
-  const allMatches = [...(lines.join(" ").matchAll(PHONE_RE) || [])]
-    .map((m) => m[0])
-    .map((num) => num.trim())
-    .filter((num) => digits(num).length >= 7);
-  return [...new Set(allMatches)];
+  // Unicode separators we commonly see from OCR (thin/nb spaces, dashes, etc.)
+  const SEP = `[\\s.\\-()\\u00A0\\u202F\\u2009\\u2007\\u2060\\u2013\\u2014]`;
+  // At least 7 digits overall, allow separators between them
+  const GREEDY_LINE_PHONE = new RegExp(`(\\+?\\d(?:${SEP}*\\d){6,})`, "g");
+
+  const candidates = [];
+
+  lines.forEach((ln, idx) => {
+    const text = ln || "";
+    const matches = [...text.matchAll(GREEDY_LINE_PHONE)];
+    for (const m of matches) {
+      const raw = norm(m[1]);
+      const dcount = digits(raw).length;
+      if (dcount < 7) continue;
+      if (looksLikeDateSpan(raw)) continue;
+
+      // Score: prefer longer, leading '+', nice grouping, early lines, and label
+      let score = dcount;
+      if (/^\+/.test(raw)) score += 3;
+      if (/[()]/.test(raw)) score += 1;
+      if (/\d+\s+\d+\s+\d+/.test(raw)) score += 1;
+      if (idx <= TOP_WINDOW) score += 2;
+      if (/(phone|tel|mobile|cell)\s*[:\-–]?/i.test(text)) score += 4;
+
+      candidates.push({ raw, score });
+    }
+  });
+
+  // Fallback to old pattern if greedy found nothing
+  if (!candidates.length) {
+    const text = lines.join("\n");
+    const m = [...(text.matchAll(PHONE_RE) || [])].map((x) => x[0].trim());
+    for (const raw of m) {
+      const dcount = digits(raw).length;
+      if (dcount < 7) continue;
+      if (looksLikeDateSpan(raw)) continue;
+      let score = dcount + (/^\+/.test(raw) ? 3 : 0);
+      candidates.push({ raw, score });
+    }
+  }
+
+  candidates.sort((a, b) => b.score - a.score || b.raw.length - a.raw.length);
+  const best = candidates.length ? [candidates[0].raw] : [];
+  return best;
+}
+
+// Avoid treating tech tokens like 'node.js', 'next.js', etc. as URLs
+function looksLikeTechDotToken(u) {
+  const s = (u || "").toLowerCase();
+  if (/^(https?:\/\/|www\.)/.test(s)) return false; // real URL: keep
+  if (/\b[a-z0-9+-]+\.(js|ts|jsx|tsx)\b/i.test(s)) return true;
+  if (
+    /\b(node|next|react|vue|svelte|angular|nuxt|nestjs|express|koa|hapi)\.js\b/i.test(
+      s
+    )
+  )
+    return true;
+  return false;
 }
 
 function extractLinksAll(lines) {
@@ -155,9 +219,10 @@ function extractLinksAll(lines) {
     m[0].toLowerCase()
   );
 
-  const urls = [...(text.matchAll(URL_RE) || [])].map((m) => m[0]);
+  const rawUrls = [...(text.matchAll(URL_RE) || [])].map((m) => m[0]);
+  const rawFiltered = rawUrls.filter((u) => !looksLikeTechDotToken(u));
 
-  const normalized = urls
+  const normalized = rawFiltered
     .filter((u) => !u.includes("@"))
     .map((u) => (u.startsWith("http") ? u : `https://${u}`));
 
@@ -285,7 +350,7 @@ function extractReferencesFirst(lines) {
 /** ---------- Personal info ---------- */
 
 function extractPersonalInfo(lines, ocrName = "") {
-  // 1) repair common OCR email glitches BEFORE extracting
+  // Repair email glitches before extracting
   const repairedLines = restoreBrokenEmails(lines);
 
   const emails = extractEmails(repairedLines);
@@ -295,7 +360,7 @@ function extractPersonalInfo(lines, ocrName = "") {
   const linkedin = linkedIn[0] || "";
   const website = other[0] || "";
 
-  // 2) remove contacts so they don't bleed into other sections
+  // remove contacts from remaining lines
   const cleanupNeedles = unique([
     linkedin,
     website,
@@ -308,7 +373,6 @@ function extractPersonalInfo(lines, ocrName = "") {
     repairedLines,
     cleanupNeedles
   );
-  // Also drop label-only lines like "Email:" / "Phone:"
   linesAfterContactRemoval = removeContactLabelOnlyLines(
     linesAfterContactRemoval
   );
@@ -391,6 +455,14 @@ const SECTION_FILL_ORDER = [
   "projects",
 ];
 
+// sections where duplicate lines are OK (don’t dedupe)
+const SECTIONS_ALLOW_DUPES = new Set([
+  "experience",
+  "education",
+  "projects",
+  "certifications",
+]);
+
 const ALLOW_DATE_SECTIONS = new Set([
   "experience",
   "education",
@@ -417,30 +489,15 @@ function lineContainsAnyKeyword(line, keywords) {
   return false;
 }
 
-const MONTHS =
-  "(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)";
-
 function isDateOnlyLine(line) {
   const t = norm(line)
     .toLowerCase()
     .replace(/[•*·●]/g, "")
     .trim();
   if (!t) return false;
-
-  if (
-    /^((19|20)\d{2})\s*[–—-]\s*((19|20)\d{2}|present|current)$/i.test(t) ||
-    /^((19|20)\d{2})$/.test(t)
-  )
-    return true;
-
-  const monthSpan = new RegExp(
-    `^${MONTHS}\\.?\\s+(19|20)\\d{2}(\\s*[–—-]\\s*(${MONTHS}\\.?\\s+(19|20)\\d{2}|present|current))?$`,
-    "i"
-  );
-  if (monthSpan.test(t)) return true;
-
+  if (DATE_SPAN_RE.test(t)) return true;
+  if (SINGLE_YEAR_RE.test(t)) return true;
   if (/^(19|20)\d{2}\s*[\/\-]\s*(19|20)\d{2}$/i.test(t)) return true;
-
   return false;
 }
 
@@ -453,16 +510,26 @@ function removeNameLines(lines, name) {
     .split(/\s+/)
     .filter(Boolean)
     .map((s) => s.toLowerCase());
-
+  const tokSet = new Set(tokens);
   const full = tokens.join(" ");
 
   return lines.filter((line) => {
-    const L = norm(line)
-      .replace(/[^A-Za-z\s'-]/g, " ")
-      .toLowerCase();
+    const Lraw = norm(line);
+    const L = Lraw.replace(/[^A-Za-z\s'-]/g, " ")
+      .toLowerCase()
+      .trim();
     if (!L) return false;
+
+    // exact full name
     if (L === full) return false;
+
+    // single-token lines that equal a name token (e.g., "Calvyn" or "Van")
     if (tokens.some((t) => t.length > 2 && L === t)) return false;
+
+    // any line composed entirely of a subset of name tokens (e.g., "Calvyn Van")
+    const words = L.split(/\s+/).filter(Boolean);
+    if (words.length && words.every((w) => tokSet.has(w))) return false;
+
     return true;
   });
 }
@@ -488,7 +555,7 @@ function distributeLeftoverLines(leftover, blocks) {
     let matched = null;
     for (const s of SECTION_FILL_ORDER) {
       if ((s === "skills" || s === "languages") && isDateOnlyLine(line)) {
-        continue; // skip matching to these
+        continue;
       }
       if (
         sectionKeywords[s].length &&
@@ -519,8 +586,11 @@ function distributeLeftoverLines(leftover, blocks) {
     }
   }
 
+  // Dedupe only the list-like sections
   for (const s of SECTION_FILL_ORDER) {
-    bySection[s] = unique(bySection[s]);
+    if (!SECTIONS_ALLOW_DUPES.has(s)) {
+      bySection[s] = unique(bySection[s]);
+    }
   }
 
   return bySection;
@@ -549,7 +619,6 @@ function processCV(ocr) {
   lines = remainingAfterPI;
 
   const { blocks, remaining: leftover } = extractSimpleBlocks(lines);
-
   const filled = distributeLeftoverLines(leftover, blocks);
 
   return {
