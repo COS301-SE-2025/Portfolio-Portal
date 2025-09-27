@@ -14,7 +14,7 @@ const Experience = () => {
           whileInView="show"
           viewport={{ once: true }}
         >
-          <h2 className="text-stone-500 text-4xl font-bold mb-10">
+          <h2 className="text-orange-200 text-4xl font-bold mb-10">
             Professional Journey
           </h2>
 
