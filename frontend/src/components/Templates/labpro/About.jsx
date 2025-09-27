@@ -5,42 +5,42 @@ const About = () => {
   const { cvData } = useCvData() || {};
 
   return (
-    <section id="about" className="relative w-full py-20 mx-auto bg-white">
+    <section id="about" className="relative w-full py-20 mx-auto bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-blue-600 text-4xl font-bold mb-4">Research Methodology</h2>
-          <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto" />
+          <h2 className="text-cyan-600 text-4xl font-bold mb-4">Research Methodology</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-cyan-500 to-emerald-500 mx-auto" />
         </div>
 
         <div className="grid md:grid-cols-2 gap-10">
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl border border-blue-200/50 shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl border border-cyan-200/50 shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-gray-800 text-2xl font-bold mb-6">Scientific Approach</h3>
             <p className="text-gray-600 mb-4">
               {cvData?.about}
             </p>
             <div className="flex items-center mt-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 border border-blue-300 flex items-center justify-center mr-4">
-                <span className="text-blue-600 text-2xl">🔬</span>
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-100 to-emerald-100 border border-cyan-300 flex items-center justify-center mr-4">
+                <span className="text-cyan-600 text-2xl">🔬</span>
               </div>
               <div>
                 <p className="text-gray-800 font-medium">Available for research collaborations</p>
-                <p className="text-purple-600 text-sm">Peer-reviewed projects only</p>
+                <p className="text-emerald-600 text-sm">Peer-reviewed projects only</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl border border-blue-200/50 shadow-sm">
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl border border-cyan-200/50 shadow-sm hover:shadow-md transition-shadow duration-300">
             <h3 className="text-gray-800 text-2xl font-bold mb-6">Research Domains</h3>
             <div className="space-y-6">
               {cvData?.skills?.slice(0, 4).map((skill, index) => (
                 <div key={index}>
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-800">{skill}</span>
-                    <span className="text-blue-600">{95 - (index * 5)}%</span>
+                    <span className="text-cyan-600">{95 - (index * 5)}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-1000 ease-out" 
+                      className="bg-gradient-to-r from-cyan-500 to-emerald-500 h-2 rounded-full transition-all duration-1000 ease-out" 
                       style={{ width: `${95 - (index * 5)}%` }}
                     />
                   </div>
@@ -55,7 +55,7 @@ const About = () => {
                   {cvData.skills.slice(4).map((skill, index) => (
                     <span 
                       key={index}
-                      className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 rounded-full text-sm border border-blue-200"
+                      className="px-3 py-1 bg-gradient-to-r from-cyan-100 to-emerald-100 text-cyan-700 rounded-full text-sm border border-cyan-200"
                     >
                       {skill}
                     </span>
