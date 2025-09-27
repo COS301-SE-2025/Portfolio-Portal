@@ -47,7 +47,8 @@ router.get('/users', async (req, res) => {
         selected_template,
         followers_count,
         likes_received,
-        created_at
+        created_at,
+        auth_id
       `)
       .eq('is_profile_public', true)
       .in('auth_id', authIdsWithCV)

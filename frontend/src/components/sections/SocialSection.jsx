@@ -429,6 +429,7 @@ const SocialSection = () => {
   const [error, setError] = useState(null);
 
   const currentUser = authService.getCurrentUser();
+  const [currentDbUser, setCurrentDbUser] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -443,14 +444,21 @@ const SocialSection = () => {
       const usersResponse = await socialService.getAllUsers();
       const usersData = usersResponse.data;
 
-      // Fetch current user's interactions if logged in
+      // Find current user's database record
+      let dbUser = null;
       let interactions = [];
-      if (currentUser) {
-        try {
-          const interactionsResponse = await socialService.getUserInteractions(currentUser.id);
-          interactions = interactionsResponse.data;
-        } catch (err) {
-          console.warn('Could not fetch user interactions:', err);
+      if (currentUser && currentUser.id) {
+        // Find current user in the users list by auth_id
+        dbUser = usersData.find(user => user.auth_id === currentUser.id);
+        setCurrentDbUser(dbUser);
+        
+        if (dbUser) {
+          try {
+            const interactionsResponse = await socialService.getUserInteractions(dbUser.id);
+            interactions = interactionsResponse.data;
+          } catch (err) {
+            console.warn('Could not fetch user interactions:', err);
+          }
         }
       }
 
@@ -464,7 +472,7 @@ const SocialSection = () => {
         selected_template: user.selected_template || 'space',
         template_title: `${user.name || 'User'}'s Portfolio`,
         template_image: `/images/${user.selected_template || 'space'}.png`,
-        template_route: `/${user.selected_template || 'space'}`,
+        template_route: `/${user.selected_template || 'space'}?userId=${user.id}`,
         followers: user.followers_count || 0,
         following: 0, // This would need a separate query if needed
         likes: user.likes_received || 0,
@@ -485,14 +493,14 @@ const SocialSection = () => {
   };
 
   const handleLike = async (targetUserId, liked) => {
-    if (!currentUser) {
+    if (!currentDbUser) {
       alert('Please log in to like portfolios');
       return;
     }
 
     try {
       await socialService.likePortfolio(
-        currentUser.id, 
+        currentDbUser.id, 
         targetUserId, 
         liked ? 'like' : 'unlike'
       );
@@ -525,14 +533,14 @@ const SocialSection = () => {
   };
 
   const handleFollow = async (targetUserId, following) => {
-    if (!currentUser) {
+    if (!currentDbUser) {
       alert('Please log in to follow users');
       return;
     }
 
     try {
       await socialService.followUser(
-        currentUser.id, 
+        currentDbUser.id, 
         targetUserId, 
         following ? 'follow' : 'unfollow'
       );
