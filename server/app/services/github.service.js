@@ -191,33 +191,54 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
       try {
         console.log(`Uploading file: ${filePath}`);
         
-        // For nested files, try to create a placeholder file in parent directory first
-        if (filePath.includes('/') && filePath.startsWith('.github/workflows/')) {
+        // For workflow files, create the directory structure step by step
+        if (filePath.startsWith('.github/workflows/')) {
           try {
-            // Try to create a .gitkeep file in the .github directory first
-            const githubDir = '.github';
+            // Step 1: Create .github directory
             try {
               await octokit.rest.repos.getContent({
                 owner,
                 repo,
-                path: githubDir,
+                path: '.github',
               });
+              console.log('.github directory already exists');
             } catch (dirError) {
               if (dirError.status === 404) {
-                // Create .github directory with a placeholder file
                 await octokit.rest.repos.createOrUpdateFileContents({
                   owner,
                   repo,
                   path: '.github/.gitkeep',
                   message: 'Create .github directory',
-                  content: Buffer.from('').toString('base64'),
+                  content: Buffer.from('# GitHub directory').toString('base64'),
                 });
                 console.log('Created .github directory');
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            }
+
+            // Step 2: Create workflows directory
+            try {
+              await octokit.rest.repos.getContent({
+                owner,
+                repo,
+                path: '.github/workflows',
+              });
+              console.log('.github/workflows directory already exists');
+            } catch (workflowDirError) {
+              if (workflowDirError.status === 404) {
+                await octokit.rest.repos.createOrUpdateFileContents({
+                  owner,
+                  repo,
+                  path: '.github/workflows/.gitkeep',
+                  message: 'Create workflows directory',
+                  content: Buffer.from('# Workflows directory').toString('base64'),
+                });
+                console.log('Created .github/workflows directory');
+                await new Promise(resolve => setTimeout(resolve, 1000));
               }
             }
           } catch (dirCreateError) {
-            console.warn(`Could not create parent directory for ${filePath}:`, dirCreateError.message);
+            console.warn(`Could not create directory structure for ${filePath}:`, dirCreateError.message);
           }
         }
         
@@ -265,7 +286,7 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
       } catch (error) {
         console.error(`Failed to upload file ${filePath}:`, error.message);
         
-        // If it's a workflow file and fails, try alternative approach
+        // If it's a workflow file and fails, skip it but continue with other files
         if (filePath.startsWith('.github/workflows/')) {
           console.log(`Attempting alternative upload for workflow file: ${filePath}`);
           try {
@@ -286,6 +307,8 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
             continue;
           } catch (altError) {
             console.error(`Alternative upload also failed for ${filePath}:`, altError.message);
+            console.warn(`Skipping workflow file ${filePath} - deployment will continue without GitHub Actions`);
+            continue; // Skip this file and continue with others
           }
         }
         
@@ -313,7 +336,7 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
     }
   }
   /**
-   * Enable GitHub Pages for repository
+   * Enable GitHub Pages for repository with GitHub Actions
    * @param {string} accessToken - GitHub access token
    * @param {string} owner - Repository owner
    * @param {string} repo - Repository name
@@ -322,6 +345,7 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
     const octokit = new Octokit({ auth: accessToken });
 
     try {
+      // Try to create Pages site with GitHub Actions as source
       await octokit.rest.repos.createPagesSite({
         owner,
         repo,
@@ -330,13 +354,37 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
           path: '/',
         },
       });
+      console.log('GitHub Pages enabled with main branch source');
+      
+      // Update to use GitHub Actions for deployment
+      try {
+        await octokit.rest.repos.updateInformationAboutPagesSite({
+          owner,
+          repo,
+          source: 'gh-actions',
+        });
+        console.log('GitHub Pages updated to use GitHub Actions');
+      } catch (updateError) {
+        console.warn('Could not update Pages to use GitHub Actions, but Pages is enabled:', updateError.message);
+      }
+      
     } catch (error) {
       if (error.status === 409) {
-        // Pages already enabled
-        console.log('GitHub Pages already enabled for repository');
-        return;
+        // Pages already enabled, try to update it to use GitHub Actions
+        console.log('GitHub Pages already enabled, updating to use GitHub Actions');
+        try {
+          await octokit.rest.repos.updateInformationAboutPagesSite({
+            owner,
+            repo,
+            source: 'gh-actions',
+          });
+          console.log('GitHub Pages updated to use GitHub Actions');
+        } catch (updateError) {
+          console.warn('Could not update existing Pages to use GitHub Actions:', updateError.message);
+        }
+      } else {
+        throw error;
       }
-      throw error;
     }
   }
 
@@ -427,11 +475,12 @@ jobs:
     const templateFiles = await this.getTemplateFiles(template, userData);
     console.log(`Template files prepared: ${Object.keys(templateFiles).length} files`);
     
-    // Skip GitHub Actions workflow for now to avoid directory creation issues
-    // GitHub Pages can be enabled directly from the repository settings
-    // templateFiles['.github/workflows/deploy.yml'] = this.generateWorkflowYaml(template);
+    // Add GitHub Actions workflow for dependency installation and building
+    templateFiles['.github/workflows/deploy.yml'] = this.generateWorkflowYaml(template);
     
-    // Upload files to repository
+    console.log(`Template files with workflow: ${Object.keys(templateFiles).length} files`);
+    
+    // Upload files to repository (including workflow)
     await this.uploadFiles(accessToken, user.login, repoName, templateFiles);
     console.log('Files uploaded to repository');
     
