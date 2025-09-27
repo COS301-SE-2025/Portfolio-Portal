@@ -1,12 +1,10 @@
-import React, { useRef } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import React from "react";
+import { Canvas } from "@react-three/fiber";
 import { motion } from "framer-motion";
 import portfolioData from "../data/portfolioData";
-import * as THREE from "three";
 
 // Import 3D Models
 import Cave2 from "./3DModels/Cave2";
-import floor from "./floor.png";
 
 // Simple fadeIn animation function
 const fadeIn = (direction, type, delay, duration) => ({
@@ -28,31 +26,6 @@ const fadeIn = (direction, type, delay, duration) => ({
   },
 });
 
-// Textured Floor Component
-function TexturedFloor() {
-  const floorTexture = useLoader(THREE.TextureLoader, floor);
-  
-  React.useMemo(() => {
-    floorTexture.wrapS = THREE.RepeatWrapping;
-    floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(15, 15);
-    floorTexture.anisotropy = 16;
-  }, [floorTexture]);
-
-  return (
-    <mesh position={[0, -8, 0]} rotation={[-Math.PI / 2, 0, 0]} >
-      <planeGeometry args={[150, 150]} />
-      <meshStandardMaterial 
-        map={floorTexture}
-        transparent 
-        opacity={0.6} 
-        roughness={0.8}
-        metalness={0.1}
-      />
-    </mesh>
-  );
-}
-
 // Static Cave Scene (removed animations)
 function CaveScene() {
   return (
@@ -66,7 +39,7 @@ function CaveScene() {
 }
 
 const Hero = () => {
-  const { name, title, summary } = portfolioData.header;
+  const { name, summary } = portfolioData.header;
 
   return (
     <>

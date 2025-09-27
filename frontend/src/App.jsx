@@ -5,7 +5,6 @@ import Register from './pages/Register';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/Landing';
 import Profile from './pages/Profile';
-import GitHubCallback from './pages/GitHubCallback';
 import { ThemeProvider } from './contexts/ThemeContext';
 import ThemeToggleButton from './components/ThemeToggleButton';
 import Social from './pages/Social';
@@ -35,7 +34,6 @@ const HIDDEN_NAVBAR_PATHS = [
   '/profile',
   '/lab',
   '/cave',
-  '/github/callback',
   '/social',
   '/cavev2',
 
@@ -52,7 +50,6 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/lab',
   '/cave',
   '/cavev2',
-  '/github/callback',
 ];
 
 function App() {
@@ -70,7 +67,6 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/github/callback" element={<GitHubCallback />} />
           <Route path="/office" element={<OfficePage />} />
           <Route path="/office3d" element={<Office3DPage />} />
           <Route path="/forest" element={<ForestPage />} />

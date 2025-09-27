@@ -33,8 +33,6 @@ app.use((req, res, next) => {
   if (req.url.includes('/download')) {
     req.setTimeout(300000); // 5 minutes for download requests
     res.setTimeout(300000);
-  } else if (req.url.includes('/github/deploy')) {
-    req.setTimeout(600000); // 10 minutes for GitHub deployment requests
     res.setTimeout(600000);
   }
   next();
@@ -55,17 +53,6 @@ app.use(session({
 }));
 
 // Debug middleware for sessions
-app.use((req, res, next) => {
-  if (req.path.includes('/github/')) {
-    console.log('Session debug:', {
-      sessionID: req.sessionID,
-      hasSession: !!req.session,
-      githubOAuthState: req.session?.githubOAuthState,
-      path: req.path
-    });
-  }
-  next();
-});
 
 // File upload middleware
 const upload = multer({ dest: path.join(__dirname, "uploads/") });

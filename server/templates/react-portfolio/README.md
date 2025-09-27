@@ -38,14 +38,30 @@ This creates a `build` folder with optimized files ready for deployment.
 
 ### Deployment Options
 
-#### GitHub Pages
+#### GitHub Pages (Recommended)
+This template includes a pre-configured GitHub Actions workflow for automatic deployment:
 
-This portfolio is automatically deployed to GitHub Pages using GitHub Actions. The deployment workflow is configured in `.github/workflows/deploy.yml` and will automatically build and deploy your portfolio whenever you push changes to the main branch.
+1. Create a new repository on GitHub
+2. Push your code to the repository:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git branch -M main
+   git remote add origin https://github.com/yourusername/your-portfolio.git
+   git push -u origin main
+   ```
+3. Go to your repository's **Settings > Pages**
+4. Under **Source**, select **GitHub Actions**
+5. Your portfolio will be automatically built and deployed!
+
+**Your site will be available at:** `https://yourusername.github.io/your-portfolio`
 
 #### Netlify
 
-1. Drag and drop the `build` folder to [Netlify](https://netlify.com)
-2. Or connect your GitHub repository for automatic deployments
+1. Build the project locally using `npm run build`
+2. Drag and drop the `build` folder to [Netlify](https://netlify.com)
+3. Or connect your repository for automatic deployments
 
 #### Vercel
 
