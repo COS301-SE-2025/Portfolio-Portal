@@ -1,4 +1,3 @@
-// frontend/src/components/Templates/cave/cavev2/Contact.jsx
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../../utils/motion";
 import { useState } from "react";
@@ -26,9 +25,9 @@ const Contact = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20"
+          className="bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20"
         >
-          <h2 className="text-emerald-400 text-4xl font-bold mb-6">Contact Me</h2>
+          <h2 className="text-stone-500 text-4xl font-bold mb-6">Contact Me</h2>
           <p className="text-white mb-6">
             Ready to explore digital caverns together? Let's connect and create
             something extraordinary!
@@ -42,7 +41,7 @@ const Contact = () => {
               <input
                 type="text"
                 id="name"
-                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
               />
             </div>
 
@@ -53,7 +52,7 @@ const Contact = () => {
               <input
                 type="email"
                 id="email"
-                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
               />
             </div>
 
@@ -64,14 +63,14 @@ const Contact = () => {
               <textarea
                 id="message"
                 rows="5"
-                className="bg-[#0a0a2e] border border-emerald-400/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="bg-yellow-950/70 border border-stone-500/30 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-stone-500"
                 placeholder="Tell me about your digital exploration project or how we might collaborate..."
               ></textarea>
             </div>
 
             <button
               type="submit"
-              className="bg-emerald-400 hover:bg-emerald-500 text-[#0a0a2e] font-bold py-3 px-6 rounded-lg transition-colors duration-300 self-start"
+              className="bg-stone-500 hover:bg-stone-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 self-start"
             >
               Send Message
             </button>
@@ -85,18 +84,17 @@ const Contact = () => {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20 mt-8"
+          className="bg-yellow-950/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20 mt-8"
         >
-          <h3 className="text-emerald-400 text-2xl font-bold mb-4">Download Your Portfolio</h3>
+          <h3 className="text-stone-500 text-2xl font-bold mb-4">Download Your Portfolio</h3>
           <p className="text-white mb-6">
             Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
           </p>
           <DownloadButton 
-
             isDownloading={isDownloading}
             onClick={handleDownload}
             variant="default"
-            className="bg-gradient-to-r from-emerald-600 to-emerald-400 hover:from-emerald-700 hover:to-emerald-500"
+            className="bg-gradient-to-r from-stone-600 to-stone-500 hover:from-stone-700 hover:to-stone-600"
           />
         </motion.div>
 
