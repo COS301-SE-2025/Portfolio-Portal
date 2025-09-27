@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
+import GitHubDeploy from "../../GithubDeploy.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -7,6 +9,11 @@ const Contact = () => {
     email: '',
     message: ''
   });
+
+  const { cvData } = useCVData();
+  const handleDeploySuccess = (result) => {
+    console.log("Portfolio deployed successfully:", result);
+  };
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleChange = (e) => {
@@ -122,8 +129,18 @@ const Contact = () => {
               />
             </div>
           </div>
+
+          <div className="mt-16">
+  <GitHubDeploy
+    userData={cvData}
+    template="space"
+    onDeploySuccess={handleDeploySuccess}
+  />
+</div>
         </div>
       </div>
+
+ 
       
       {/* Background elements */}
       <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl"></div>

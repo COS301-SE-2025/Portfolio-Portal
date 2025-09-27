@@ -4,6 +4,7 @@ import { fadeIn } from "../../../../utils/motion";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../../services/portfolioDownload.jsx";
 import { useCVData } from "../../../../hooks/useCVData.js";
+import GitHubDeploy from "../../../GithubDeploy.jsx";
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -15,6 +16,10 @@ const Contact = () => {
     if (!result.success) {
       alert(result.error);
     }
+  };
+
+  const handleDeploySuccess = (result) => {
+    console.log("Portfolio deployed successfully:", result);
   };
 
   return (
@@ -100,7 +105,17 @@ const Contact = () => {
           />
         </motion.div>
 
-      </div>
+<motion.div className="mt-16">
+<GitHubDeploy
+    userData={cvData}
+    template="cave"
+    onDeploySuccess={handleDeploySuccess}
+  />
+</motion.div>
+
+</div>
+
+    
     </section>
   );
 };
