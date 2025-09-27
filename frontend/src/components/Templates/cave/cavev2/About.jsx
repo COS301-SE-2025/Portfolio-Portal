@@ -1,3 +1,5 @@
+//frontend/src/components/Templates/cave/cavev2/About.jsx
+import React from "react";
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../../utils/motion";
 import useCvData from "../../../../hooks/useCVData";
@@ -15,8 +17,8 @@ const About = () => {
           viewport={{ once: true }}
           className="flex flex-col lg:flex-row gap-10"
         >
-          <div className="flex-1 bg-[#0a0a2e]/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20">
-            <h3 className="text-emerald-400 text-2xl font-bold mb-4">About Me</h3>
+          <div className="flex-1 bg-stone-900/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20">
+            <h3 className="text-orange-200 text-2xl font-bold mb-4">About Me</h3>
             <p className="text-white text-lg mb-4">
               {about ||
                 "I explore the digital underground, crafting immersive experiences from the depths of cutting-edge technology."}
@@ -27,12 +29,12 @@ const About = () => {
             {skills?.map((skill, index) => (
               <div
                 key={`skill-${index}`}
-                className="w-full lg:w-[45%] bg-[#0a0a2e]/70 p-6 rounded-2xl backdrop-blur-sm border border-emerald-400/20"
+                className="w-full lg:w-[45%] bg-stone-900/50 p-6 rounded-2xl backdrop-blur-sm border border-stone-500/20"
               >
                 <h4 className="text-white font-bold text-xl mb-2">{skill}</h4>
-                <div className="w-full bg-gray-700 rounded-full h-2.5">
+                <div className="w-full bg-stone-700 rounded-full h-2.5">
                   <div
-                    className="bg-emerald-400 h-2.5 rounded-full"
+                    className="bg-orange-200 h-2.5 rounded-full"
                     style={{ width: `${Math.floor(Math.random() * 50) + 50}%` }}
                   ></div>
                 </div>

@@ -1,4 +1,4 @@
-// models/CVData.js
+// server/app/models/CVData.js
 const supabase = require('../config/supabase');
 
 class CVData {

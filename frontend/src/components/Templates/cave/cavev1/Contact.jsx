@@ -1,8 +1,7 @@
+//frontend/src/components/Templates/cave/cavev1/Contact.jsx
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe, Download } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin, Twitter, Send, Globe } from 'lucide-react';
 import { useCVData } from '../../../../hooks/useCVData';
-//import { downloadPortfolio, DownloadButton } from '../../../services/portfolioDownload.jsx';
-
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +9,6 @@ const Contact = () => {
     email: '',
     message: ''
   });
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const { name, email, phone, links } = useCVData();
 
@@ -75,13 +73,6 @@ const Contact = () => {
     e.preventDefault();
     console.log('Form submitted:', formData);
     // Add your form submission logic here
-  };
-
-  const handleDownload = async () => {
-    const result = await downloadPortfolio(setIsDownloading, 'cave');
-    if (!result.success) {
-      alert(result.error);
-    }
   };
 
   return (
@@ -216,7 +207,6 @@ const Contact = () => {
           </p>
         </div>
       </div>
-
       {/* Download Portfolio Section */}
       <div className="space-y-6">
         <h2 className="text-3xl font-bold text-purple-400">Download Portfolio</h2>
@@ -236,7 +226,6 @@ const Contact = () => {
           </p>
         </div>
       </div>
-
 
     </div>
   );
