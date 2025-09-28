@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Html, useCamera } from '@react-three/drei';
+import { OrbitControls, Environment, Html } from '@react-three/drei';
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -20,11 +20,27 @@ export default function Office3DPage() {
       const camera = sceneRef.current.getObjectByName(cameraName);
       
       if (camera) {
-        // Switch to the predefined camera
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
-        controlsRef.current.target.set(0, 0, 0); // Look at center
+        controlsRef.current.target.set(0, 0, 0);
         controlsRef.current.update();
+      } else {
+        // Fallback positions if cameras aren't in the model
+        const fallbackPositions = {
+          name: { position: [0, 3, 12], target: [0, 2, 0] },
+          about: { position: [12, 3, 0], target: [8, 2, 0] },
+          experience: { position: [0, 3, -12], target: [0, 2, -8] },
+          education: { position: [-12, 3, 0], target: [-8, 2, 0] },
+          skills: { position: [8, 3, 8], target: [5, 2, 5] },
+          reference: { position: [-8, 3, -8], target: [-5, 2, -5] },
+          contact: { position: [0, 6, 0], target: [0, 2, 0] }
+        };
+        const pos = fallbackPositions[section];
+        if (pos) {
+          controlsRef.current.object.position.set(...pos.position);
+          controlsRef.current.target.set(...pos.target);
+          controlsRef.current.update();
+        }
       }
     }
   };
@@ -54,15 +70,15 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 5, 10],
+          position: [0, 3, 12],
           fov: 50
         }}
         gl={{ alpha: true }}
       >
         <color attach="background" args={['#e5e7eb']} />
-        <ambientLight intensity={1.2} />
-        <directionalLight position={[10, 15, 10]} intensity={1.5} />
-        <pointLight position={[0, 8, 0]} intensity={0.8} />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[10, 15, 10]} intensity={1.8} />
+        <pointLight position={[0, 8, 0]} intensity={1.0} />
         <Environment preset="city" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
@@ -95,27 +111,50 @@ function Office3DScene({ cvData, sceneRef }) {
     skills: ["JAVASCRIPT", "REACT", "NODE.JS", "THREE.JS", "UI/UX DESIGN", "WEBGL", "3D GRAPHICS"],
     experience: [
       {
-        company: "TECH INNOVATIONS INC.",
-        title: "SENIOR DEVELOPER",
+        company: "Tech Innovations Inc.",
+        title: "Senior Developer",
         startDate: "2020",
         endDate: "2023",
         description: "Led frontend development team for flagship product. Implemented modern React architecture and improved performance by 40%. Managed team of 5 developers."
+      },
+      {
+        company: "Web Solutions Ltd.",
+        title: "Frontend Developer",
+        startDate: "2018",
+        endDate: "2020",
+        description: "Developed responsive web applications and collaborated with design team to implement user interfaces."
       }
     ],
     education: [
       {
-        institution: "TECH UNIVERSITY",
-        degree: "BACHELOR OF COMPUTER SCIENCE",
+        institution: "Tech University",
+        degree: "Bachelor of Computer Science",
         startDate: "2014",
         endDate: "2018",
         gpa: "3.8/4.0"
+      },
+      {
+        institution: "Code Academy",
+        degree: "Advanced Web Development Certification",
+        startDate: "2017",
+        endDate: "2018"
       }
     ],
     references: [
       {
-        name: "JANE SMITH",
-        position: "CTO AT TECH INNOVATIONS",
-        contact: "JANE.SMITH@TECHINNOVATIONS.COM"
+        name: "Jane Smith",
+        position: "CTO at Tech Innovations",
+        contact: "jane.smith@techinnovations.com"
+      },
+      {
+        name: "Mike Johnson",
+        position: "Lead Developer at Web Solutions",
+        contact: "mike.johnson@websolutions.com"
+      },
+      {
+        name: "Sarah Wilson",
+        position: "Professor at Tech University",
+        contact: "sarah.wilson@techuniversity.edu"
       }
     ]
   };
@@ -127,7 +166,9 @@ function Office3DScene({ cvData, sceneRef }) {
     if (gltf?.scene) {
       sceneRef.current = gltf.scene;
       
-      // Make sure all text planes are visible and have materials
+      console.log("Scene loaded, traversing objects...");
+      
+      // First pass: Ensure all text planes are visible
       gltf.scene.traverse((object) => {
         if (object.isMesh && object.name && (
           object.name.includes('Name') || 
@@ -138,38 +179,48 @@ function Office3DScene({ cvData, sceneRef }) {
           object.name.includes('Reference') || 
           object.name.includes('Contact')
         )) {
-          console.log(`Found text plane: ${object.name}`); // Debug log
+          console.log(`Found text plane: ${object.name}`);
           object.visible = true;
-          
-          // Ensure material exists
-          if (!object.material) {
-            object.material = new THREE.MeshBasicMaterial({ color: 0xf3f4f6 });
-          }
         }
       });
       
-      // Apply text to all planes
+      // Second pass: Apply text content
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
+          let isMainHeading = false;
           
           switch(object.name) {
             case 'Name':
               textContent = data.name || 'JOHN DOE';
+              isMainHeading = true;
+              console.log(`Applying Name: ${textContent}`);
               break;
             case 'About':
               textContent = data.about || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
+              console.log(`Applying About: ${textContent}`);
               break;
             case 'Experience':
               if (data.experience?.length > 0) {
-                const exp = data.experience[0];
-                textContent = `${exp.title.toUpperCase()}\nAT ${exp.company.toUpperCase()}\n${exp.startDate} - ${exp.endDate}\n\n${exp.description}`;
+                const expTexts = data.experience.map(exp => 
+                  `${exp.title.toUpperCase()}\n${exp.company.toUpperCase()}\n${exp.startDate} - ${exp.endDate}\n${exp.description || ''}`
+                );
+                textContent = expTexts.join('\n\n');
               }
               break;
             case 'Education':
               if (data.education?.length > 0) {
-                const edu = data.education[0];
-                textContent = `${edu.degree.toUpperCase()}\n${edu.institution.toUpperCase()}\n${edu.startDate} - ${edu.endDate}\nGPA: ${edu.gpa}`;
+                const eduTexts = data.education.map(edu => {
+                  let eduText = `${edu.degree.toUpperCase()}\n${edu.institution.toUpperCase()}`;
+                  if (edu.startDate && edu.endDate) {
+                    eduText += `\n${edu.startDate} - ${edu.endDate}`;
+                  }
+                  if (edu.gpa) {
+                    eduText += `\nGPA: ${edu.gpa}`;
+                  }
+                  return eduText;
+                });
+                textContent = eduTexts.join('\n\n');
               }
               break;
             case 'Skills':
@@ -179,22 +230,26 @@ function Office3DScene({ cvData, sceneRef }) {
               break;
             case 'Reference':
               if (data.references?.length > 0) {
-                const ref = data.references[0];
-                textContent = `${ref.name.toUpperCase()}\n${ref.position.toUpperCase()}\n${ref.contact.toUpperCase()}`;
+                const refTexts = data.references.map(ref => 
+                  `${ref.name.toUpperCase()}\n${ref.position.toUpperCase()}\n${ref.contact}`
+                );
+                textContent = refTexts.join('\n\n');
               }
               break;
             case 'Contact':
               let contactText = '';
-              if (data.email) contactText += `${data.email.toUpperCase()}\n`;
+              if (data.email) contactText += `${data.email}\n`;
               if (data.phone) contactText += `${data.phone}\n`;
-              if (data.location) contactText += `${data.location.toUpperCase()}`;
+              if (data.location) contactText += `${data.location}`;
               textContent = contactText || 'JOHN.DOE@EXAMPLE.COM\n+1 (555) 123-4567';
               break;
           }
           
           if (textContent) {
-            console.log(`Applying text to ${object.name}:`, textContent); // Debug log
-            applyTextToMesh(object, textContent, object.name === 'Name');
+            console.log(`Applying text to ${object.name}`);
+            applyTextToMesh(object, textContent, isMainHeading);
+          } else {
+            console.log(`No text content for ${object.name}`);
           }
         }
       });
@@ -205,9 +260,9 @@ function Office3DScene({ cvData, sceneRef }) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // HUGE canvas for massive text
-    canvas.width = 4096;
-    canvas.height = 2048;
+    // MASSIVE canvas for extremely large text
+    canvas.width = 8192; // Double the previous size
+    canvas.height = 4096;
     
     // LIGHT GREY background
     context.fillStyle = '#f3f4f6';
@@ -216,48 +271,48 @@ function Office3DScene({ cvData, sceneRef }) {
     // PURE BLACK text
     context.fillStyle = '#000000';
     
-    // MASSIVE font sizes
+    // EXTREMELY LARGE font sizes
     let fontSize, lineHeight, startX, startY;
     
     if (isMainHeading) {
-      fontSize = 240;
+      fontSize = 400; // HUGE for name
       context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      lineHeight = 280;
+      lineHeight = 450;
       startX = canvas.width / 2;
       startY = canvas.height / 2;
     } else {
-      fontSize = 120;
+      fontSize = 200; // Still massive for other sections
       context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
       context.textAlign = 'left';
       context.textBaseline = 'top';
-      lineHeight = 150;
-      startX = 100;
-      startY = 100;
+      lineHeight = 240;
+      startX = 200; // More padding
+      startY = 200;
     }
     
     const lines = textContent.split('\n');
     
-    // Strong shadow for visibility
-    context.shadowColor = 'rgba(0,0,0,0.4)';
-    context.shadowBlur = 15;
-    context.shadowOffsetX = 5;
-    context.shadowOffsetY = 5;
+    // Strong shadow for maximum visibility
+    context.shadowColor = 'rgba(0,0,0,0.5)';
+    context.shadowBlur = 20;
+    context.shadowOffsetX = 8;
+    context.shadowOffsetY = 8;
 
     lines.forEach((line, index) => {
       if (isMainHeading) {
         context.fillText(line, startX, startY + index * lineHeight);
-      } else if (index === 0) {
-        // First line - extra massive
+      } else if (index === 0 && (mesh.name === 'Experience' || mesh.name === 'Education' || mesh.name === 'Reference')) {
+        // First line of multi-item sections - extra large
         context.save();
-        context.font = `bold 180px "Arial Black", Arial, sans-serif`;
+        context.font = `bold 280px "Arial Black", Arial, sans-serif`;
         context.fillText(line, startX, startY + index * lineHeight);
         context.restore();
       } else {
-        // Regular content - still huge
+        // Regular content - still extremely large
         context.save();
-        context.font = `bold 100px "Arial Black", Arial, sans-serif`;
+        context.font = `bold 180px "Arial Black", Arial, sans-serif`;
         context.fillText(line, startX, startY + index * lineHeight);
         context.restore();
       }
@@ -280,6 +335,7 @@ function Office3DScene({ cvData, sceneRef }) {
     });
     
     mesh.visible = true;
+    console.log(`Text applied to ${mesh.name} successfully`);
   };
 
   return (
@@ -291,6 +347,7 @@ function Office3DScene({ cvData, sceneRef }) {
 
 // Custom hook for CV data
 function useCvData() {
+  // Mock implementation - replace with your actual hook
   return { cvData: null };
 }
 
