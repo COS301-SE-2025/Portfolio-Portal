@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Html } from '@react-three/drei';
+import { OrbitControls, Environment, Html, useCamera } from '@react-three/drei';
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -11,35 +11,27 @@ export default function Office3DPage() {
   const { cvData } = useCvData();
   const [activeSection, setActiveSection] = useState('name');
   const controlsRef = useRef();
+  const sceneRef = useRef();
   
-  const cameraPositions = {
-    name: { position: [0, 3, 10], target: [0, 2, 0] },
-    about: { position: [12, 3, 0], target: [8, 2, 0] },
-    experience: { position: [0, 3, -12], target: [0, 2, -8] },
-    education: { position: [-12, 3, 0], target: [-8, 2, 0] },
-    skills: { position: [8, 3, 8], target: [5, 2, 5] },
-    reference: { position: [-8, 3, -8], target: [-5, 2, -5] },
-    contact: { position: [0, 6, 0], target: [0, 2, 0] }
-  };
-
   const navigateToSection = (section) => {
     setActiveSection(section);
-    if (controlsRef.current && cameraPositions[section]) {
-      const { position, target } = cameraPositions[section];
+    if (sceneRef.current && controlsRef.current) {
+      const cameraName = `Camera${section.charAt(0).toUpperCase() + section.slice(1)}`;
+      const camera = sceneRef.current.getObjectByName(cameraName);
       
-      // Reset controls first
-      controlsRef.current.reset();
-      
-      // Set new target and position
-      controlsRef.current.target.set(...target);
-      controlsRef.current.object.position.set(...position);
-      controlsRef.current.update();
+      if (camera) {
+        // Switch to the predefined camera
+        controlsRef.current.object.position.copy(camera.position);
+        controlsRef.current.object.rotation.copy(camera.rotation);
+        controlsRef.current.target.set(0, 0, 0); // Look at center
+        controlsRef.current.update();
+      }
     }
   };
 
   return (
     <div className="relative h-screen overflow-hidden">
-      {/* Navigation Bar - Light Grey */}
+      {/* Navigation Bar */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
         <div className="bg-gray-200/95 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-300/50 shadow-lg">
           <div className="flex gap-3 flex-wrap justify-center">
@@ -62,7 +54,7 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 3, 10],
+          position: [0, 5, 10],
           fov: 50
         }}
         gl={{ alpha: true }}
@@ -75,7 +67,7 @@ export default function Office3DPage() {
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
-            <Office3DScene cvData={cvData} />
+            <Office3DScene cvData={cvData} sceneRef={sceneRef} />
           </Suspense>
         </ErrorBoundary>
 
@@ -87,14 +79,13 @@ export default function Office3DPage() {
           maxPolarAngle={Math.PI/1.2}
           rotateSpeed={0.8}
           panSpeed={0.8}
-          target={[0, 2, 0]} // Initial target
         />
       </Canvas>
     </div>
   );
 }
 
-function Office3DScene({ cvData }) {
+function Office3DScene({ cvData, sceneRef }) {
   const mockData = {
     name: "JOHN DOE",
     title: "FULL STACK DEVELOPER",
@@ -134,6 +125,9 @@ function Office3DScene({ cvData }) {
 
   useEffect(() => {
     if (gltf?.scene) {
+      sceneRef.current = gltf.scene;
+      
+      // Make sure all text planes are visible and have materials
       gltf.scene.traverse((object) => {
         if (object.isMesh && object.name && (
           object.name.includes('Name') || 
@@ -144,23 +138,24 @@ function Office3DScene({ cvData }) {
           object.name.includes('Reference') || 
           object.name.includes('Contact')
         )) {
-          object.material.transparent = true;
-          object.material.opacity = 1;
-          object.material.needsUpdate = true;
-          object.renderOrder = 999;
+          console.log(`Found text plane: ${object.name}`); // Debug log
+          object.visible = true;
+          
+          // Ensure material exists
+          if (!object.material) {
+            object.material = new THREE.MeshBasicMaterial({ color: 0xf3f4f6 });
+          }
         }
       });
       
+      // Apply text to all planes
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
-          let isHeading = false;
-          let isMainHeading = false;
           
           switch(object.name) {
             case 'Name':
               textContent = data.name || 'JOHN DOE';
-              isMainHeading = true;
               break;
             case 'About':
               textContent = data.about || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
@@ -198,88 +193,94 @@ function Office3DScene({ cvData }) {
           }
           
           if (textContent) {
-            if (object.material) {
-              const canvas = document.createElement('canvas');
-              const context = canvas.getContext('2d');
-              canvas.width = 4096; // Large canvas for massive text
-              canvas.height = 2048;
-              
-              // LIGHT GREY background for planes
-              context.fillStyle = '#f3f4f6';
-              context.fillRect(0, 0, canvas.width, canvas.height);
-              
-              // PURE BLACK text for maximum visibility
-              context.fillStyle = '#000000';
-              
-              if (isMainHeading) {
-                context.font = 'bold 240px "Arial Black", Arial, sans-serif';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-              } else {
-                context.font = 'bold 120px "Arial Black", Arial, sans-serif';
-                context.textAlign = 'left';
-                context.textBaseline = 'top';
-              }
-              
-              const lines = textContent.split('\n');
-              const lineHeight = isMainHeading ? 280 : 150;
-              const startX = isMainHeading ? canvas.width / 2 : 100;
-              const startY = isMainHeading ? canvas.height / 2 : 100;
-
-              // Strong text shadow for maximum visibility
-              context.shadowColor = 'rgba(0,0,0,0.4)';
-              context.shadowBlur = 15;
-              context.shadowOffsetX = 5;
-              context.shadowOffsetY = 5;
-
-              lines.forEach((line, index) => {
-                if (isMainHeading) {
-                  context.fillText(line, startX, startY + index * lineHeight);
-                } else if (index === 0) {
-                  // First line of section - EXTRA MASSIVE
-                  context.save();
-                  context.font = 'bold 180px "Arial Black", Arial, sans-serif';
-                  context.fillText(line, startX, startY + index * lineHeight);
-                  context.restore();
-                } else if (index === 1 && (object.name === 'Experience' || object.name === 'Education')) {
-                  // Second line for experience/education - still huge
-                  context.save();
-                  context.font = 'bold 150px "Arial Black", Arial, sans-serif';
-                  context.fillText(line, startX, startY + index * lineHeight);
-                  context.restore();
-                } else {
-                  // Regular content - still very large
-                  context.save();
-                  context.font = 'bold 100px "Arial Black", Arial, sans-serif';
-                  context.fillText(line, startX, startY + index * lineHeight);
-                  context.restore();
-                }
-              });
-
-              // Reset shadow
-              context.shadowColor = 'transparent';
-              context.shadowBlur = 0;
-              context.shadowOffsetX = 0;
-              context.shadowOffsetY = 0;
-              
-              const texture = new THREE.CanvasTexture(canvas);
-              texture.needsUpdate = true;
-              
-              const newMaterial = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: false,
-                side: THREE.DoubleSide,
-                toneMapped: false
-              });
-              
-              object.material = newMaterial;
-              object.visible = true;
-            }
+            console.log(`Applying text to ${object.name}:`, textContent); // Debug log
+            applyTextToMesh(object, textContent, object.name === 'Name');
           }
         }
       });
     }
   }, [gltf, data]);
+
+  const applyTextToMesh = (mesh, textContent, isMainHeading = false) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    // HUGE canvas for massive text
+    canvas.width = 4096;
+    canvas.height = 2048;
+    
+    // LIGHT GREY background
+    context.fillStyle = '#f3f4f6';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // PURE BLACK text
+    context.fillStyle = '#000000';
+    
+    // MASSIVE font sizes
+    let fontSize, lineHeight, startX, startY;
+    
+    if (isMainHeading) {
+      fontSize = 240;
+      context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      lineHeight = 280;
+      startX = canvas.width / 2;
+      startY = canvas.height / 2;
+    } else {
+      fontSize = 120;
+      context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
+      context.textAlign = 'left';
+      context.textBaseline = 'top';
+      lineHeight = 150;
+      startX = 100;
+      startY = 100;
+    }
+    
+    const lines = textContent.split('\n');
+    
+    // Strong shadow for visibility
+    context.shadowColor = 'rgba(0,0,0,0.4)';
+    context.shadowBlur = 15;
+    context.shadowOffsetX = 5;
+    context.shadowOffsetY = 5;
+
+    lines.forEach((line, index) => {
+      if (isMainHeading) {
+        context.fillText(line, startX, startY + index * lineHeight);
+      } else if (index === 0) {
+        // First line - extra massive
+        context.save();
+        context.font = `bold 180px "Arial Black", Arial, sans-serif`;
+        context.fillText(line, startX, startY + index * lineHeight);
+        context.restore();
+      } else {
+        // Regular content - still huge
+        context.save();
+        context.font = `bold 100px "Arial Black", Arial, sans-serif`;
+        context.fillText(line, startX, startY + index * lineHeight);
+        context.restore();
+      }
+    });
+
+    // Reset shadow
+    context.shadowColor = 'transparent';
+    context.shadowBlur = 0;
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    
+    mesh.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: false,
+      side: THREE.DoubleSide,
+      toneMapped: false
+    });
+    
+    mesh.visible = true;
+  };
 
   return (
     <group position={[0, 0, 0]}>
