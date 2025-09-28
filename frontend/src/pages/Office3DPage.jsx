@@ -13,13 +13,13 @@ export default function Office3DPage() {
   const controlsRef = useRef();
   
   const cameraPositions = {
-    name: { position: [0, 5, 8], target: [0, 4, 0] },
-    about: { position: [8, 5, 0], target: [5, 4, 0] },
-    experience: { position: [0, 5, -8], target: [0, 4, -5] },
-    education: { position: [-8, 5, 0], target: [-5, 4, 0] },
-    skills: { position: [6, 5, 6], target: [4, 4, 4] },
-    reference: { position: [-6, 5, -6], target: [-4, 4, -4] },
-    contact: { position: [0, 8, 0], target: [0, 4, 0] }
+    name: { position: [0, 3, 10], target: [0, 2, 0] },
+    about: { position: [12, 3, 0], target: [8, 2, 0] },
+    experience: { position: [0, 3, -12], target: [0, 2, -8] },
+    education: { position: [-12, 3, 0], target: [-8, 2, 0] },
+    skills: { position: [8, 3, 8], target: [5, 2, 5] },
+    reference: { position: [-8, 3, -8], target: [-5, 2, -5] },
+    contact: { position: [0, 6, 0], target: [0, 2, 0] }
   };
 
   const navigateToSection = (section) => {
@@ -27,21 +27,15 @@ export default function Office3DPage() {
     if (controlsRef.current && cameraPositions[section]) {
       const { position, target } = cameraPositions[section];
       
-      // Smoothly animate camera to new position
+      // Reset controls first
+      controlsRef.current.reset();
+      
+      // Set new target and position
       controlsRef.current.target.set(...target);
       controlsRef.current.object.position.set(...position);
       controlsRef.current.update();
     }
   };
-
-  // Set initial camera position
-  useEffect(() => {
-    if (controlsRef.current) {
-      controlsRef.current.target.set(0, 4, 0);
-      controlsRef.current.object.position.set(0, 5, 8);
-      controlsRef.current.update();
-    }
-  }, []);
 
   return (
     <div className="relative h-screen overflow-hidden">
@@ -68,15 +62,15 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 5, 8], // Start position for name section
-          fov: 60
+          position: [0, 3, 10],
+          fov: 50
         }}
         gl={{ alpha: true }}
       >
         <color attach="background" args={['#e5e7eb']} />
-        <ambientLight intensity={1.0} />
-        <directionalLight position={[10, 20, 10]} intensity={1.2} />
-        <pointLight position={[0, 10, 0]} intensity={0.8} />
+        <ambientLight intensity={1.2} />
+        <directionalLight position={[10, 15, 10]} intensity={1.5} />
+        <pointLight position={[0, 8, 0]} intensity={0.8} />
         <Environment preset="city" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
@@ -89,10 +83,11 @@ export default function Office3DPage() {
           ref={controlsRef}
           enableZoom={true}
           enablePan={true}
-          minPolarAngle={Math.PI/8}
-          maxPolarAngle={Math.PI/1.3}
+          minPolarAngle={Math.PI/12}
+          maxPolarAngle={Math.PI/1.2}
           rotateSpeed={0.8}
           panSpeed={0.8}
+          target={[0, 2, 0]} // Initial target
         />
       </Canvas>
     </div>
@@ -206,54 +201,58 @@ function Office3DScene({ cvData }) {
             if (object.material) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
-              canvas.width = 4096;
+              canvas.width = 4096; // Large canvas for massive text
               canvas.height = 2048;
               
               // LIGHT GREY background for planes
-              context.fillStyle = '#f8fafc';
+              context.fillStyle = '#f3f4f6';
               context.fillRect(0, 0, canvas.width, canvas.height);
               
-              // Dark grey text for better contrast
-              context.fillStyle = '#1f2937';
+              // PURE BLACK text for maximum visibility
+              context.fillStyle = '#000000';
               
               if (isMainHeading) {
-                context.font = 'bold 200px "Arial Black", Arial, sans-serif';
+                context.font = 'bold 240px "Arial Black", Arial, sans-serif';
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
               } else {
-                context.font = 'bold 96px "Arial Black", Arial, sans-serif';
+                context.font = 'bold 120px "Arial Black", Arial, sans-serif';
                 context.textAlign = 'left';
                 context.textBaseline = 'top';
               }
               
               const lines = textContent.split('\n');
-              const lineHeight = isMainHeading ? 240 : 120;
-              const startX = isMainHeading ? canvas.width / 2 : 120;
-              const startY = isMainHeading ? canvas.height / 2 : 120;
+              const lineHeight = isMainHeading ? 280 : 150;
+              const startX = isMainHeading ? canvas.width / 2 : 100;
+              const startY = isMainHeading ? canvas.height / 2 : 100;
 
-              // Subtle text shadow for better readability
-              context.shadowColor = 'rgba(0,0,0,0.2)';
-              context.shadowBlur = 8;
-              context.shadowOffsetX = 3;
-              context.shadowOffsetY = 3;
+              // Strong text shadow for maximum visibility
+              context.shadowColor = 'rgba(0,0,0,0.4)';
+              context.shadowBlur = 15;
+              context.shadowOffsetX = 5;
+              context.shadowOffsetY = 5;
 
               lines.forEach((line, index) => {
                 if (isMainHeading) {
                   context.fillText(line, startX, startY + index * lineHeight);
                 } else if (index === 0) {
-                  // First line of section - extra massive
+                  // First line of section - EXTRA MASSIVE
                   context.save();
-                  context.font = 'bold 144px "Arial Black", Arial, sans-serif';
+                  context.font = 'bold 180px "Arial Black", Arial, sans-serif';
                   context.fillText(line, startX, startY + index * lineHeight);
                   context.restore();
                 } else if (index === 1 && (object.name === 'Experience' || object.name === 'Education')) {
-                  // Second line for experience/education - still large
+                  // Second line for experience/education - still huge
                   context.save();
-                  context.font = 'bold 120px "Arial Black", Arial, sans-serif';
+                  context.font = 'bold 150px "Arial Black", Arial, sans-serif';
                   context.fillText(line, startX, startY + index * lineHeight);
                   context.restore();
                 } else {
+                  // Regular content - still very large
+                  context.save();
+                  context.font = 'bold 100px "Arial Black", Arial, sans-serif';
                   context.fillText(line, startX, startY + index * lineHeight);
+                  context.restore();
                 }
               });
 
