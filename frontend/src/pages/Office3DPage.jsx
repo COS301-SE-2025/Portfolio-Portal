@@ -17,28 +17,6 @@ export default function Office3DPage() {
   const sceneRef = useRef();
   const isInitialLoad = useRef(true);
   
-  // Set initial camera position on first load
-  useEffect(() => {
-    if (sceneRef.current && controlsRef.current && isInitialLoad.current) {
-      const startCamera = sceneRef.current.getObjectByName('CameraStart');
-      
-      if (startCamera && startCamera.isCamera) {
-        console.log('Setting initial camera to CameraStart');
-        // Set initial position and target directly without animation
-        controlsRef.current.object.position.copy(startCamera.position);
-        controlsRef.current.object.rotation.copy(startCamera.rotation);
-        
-        const direction = new THREE.Vector3();
-        startCamera.getWorldDirection(direction);
-        const target = startCamera.position.clone().add(direction.multiplyScalar(10));
-        controlsRef.current.target.copy(target);
-        
-        controlsRef.current.update();
-      }
-      isInitialLoad.current = false;
-    }
-  }, []);
-  
   const navigateToSection = (section) => {
     setActiveSection(section);
     if (sceneRef.current && controlsRef.current) {
@@ -62,6 +40,30 @@ export default function Office3DPage() {
         controlsRef.current.update();
       } else {
         console.log(`Camera ${cameraName} not found in model.`);
+      }
+    }
+  };
+
+  // Function to set initial camera - will be called from Office3DScene
+  const setInitialCamera = () => {
+    if (sceneRef.current && controlsRef.current && isInitialLoad.current) {
+      const startCamera = sceneRef.current.getObjectByName('CameraStart');
+      
+      if (startCamera && startCamera.isCamera) {
+        console.log('Setting initial camera to CameraStart');
+        // Set initial position and target directly without animation
+        controlsRef.current.object.position.copy(startCamera.position);
+        controlsRef.current.object.rotation.copy(startCamera.rotation);
+        
+        const direction = new THREE.Vector3();
+        startCamera.getWorldDirection(direction);
+        const target = startCamera.position.clone().add(direction.multiplyScalar(10));
+        controlsRef.current.target.copy(target);
+        
+        controlsRef.current.update();
+        isInitialLoad.current = false;
+      } else {
+        console.log('CameraStart not found, using default camera position');
       }
     }
   };
@@ -91,7 +93,7 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 3, 8],
+          position: [0, 3, 8], // This will be overridden by CameraStart
           fov: 50
         }}
         gl={{ alpha: true }}
@@ -104,7 +106,11 @@ export default function Office3DPage() {
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
-            <Office3DScene cvData={cvData} sceneRef={sceneRef} />
+            <Office3DScene 
+              cvData={cvData} 
+              sceneRef={sceneRef} 
+              onSceneLoaded={setInitialCamera}
+            />
           </Suspense>
         </ErrorBoundary>
 
@@ -124,7 +130,7 @@ export default function Office3DPage() {
   );
 }
 
-function Office3DScene({ cvData, sceneRef }) {
+function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
   const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
 
   useEffect(() => {
@@ -142,6 +148,10 @@ function Office3DScene({ cvData, sceneRef }) {
       console.log("Email:", cvData?.email);
       console.log("Phone:", cvData?.phone);
       console.log("=====================");
+      
+      // Check if CameraStart exists
+      const startCamera = gltf.scene.getObjectByName('CameraStart');
+      console.log('CameraStart found:', startCamera);
       
       // Apply text to all planes
       gltf.scene.traverse((object) => {
@@ -263,8 +273,16 @@ function Office3DScene({ cvData, sceneRef }) {
           }
         }
       });
+      
+      // Call the onSceneLoaded callback after everything is set up
+      if (onSceneLoaded) {
+        // Small timeout to ensure everything is ready
+        setTimeout(() => {
+          onSceneLoaded();
+        }, 100);
+      }
     }
-  }, [gltf, cvData]);
+  }, [gltf, cvData, onSceneLoaded]);
 
   const applyTextToMesh = (mesh, textContent, isNameAbout = false) => {
     const canvas = document.createElement('canvas');
