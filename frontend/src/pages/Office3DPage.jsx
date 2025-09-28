@@ -36,13 +36,12 @@ export default function Office3DPage() {
         // SPECIAL CASE: For Contact camera, apply different rotation
         if (section === 'contact') {
           console.log('Applying special rotation for Contact camera');
-          // Try different rotation approach
-          const contactRotation = new THREE.Euler(
-            camera.rotation.x,
-            camera.rotation.y + Math.PI / 2, // 90 degrees right
-            camera.rotation.z
+          // Set rotation to look down from above but rotated 90 degrees right
+          controlsRef.current.object.rotation.set(
+            -Math.PI / 2, // Looking down from above
+            Math.PI / 2,  // Rotated 90 degrees right
+            0
           );
-          controlsRef.current.object.rotation.copy(contactRotation);
         }
         
         // Calculate target based on camera direction
@@ -168,6 +167,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       console.log("Title:", cvData && cvData.title);
       console.log("Job Title:", cvData && cvData.jobTitle);
       console.log("Profession:", cvData && cvData.profession);
+      console.log("Summary:", cvData && cvData.summary);
       
       // Check if all cameras exist
       const cameras = ['CameraStart', 'CameraNameabout', 'CameraExperience', 'CameraEducation', 'CameraSkills', 'CameraReference', 'CameraContact'];
@@ -189,13 +189,14 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           switch(object.name) {
             case 'NameAbout':
               const name = (cvData && cvData.name) || 'Default Name';
-              // Use actual profession from CV data - check multiple possible fields
-              const profession = (cvData && (cvData.title || cvData.jobTitle || cvData.profession)) || 'Full Stack Developer';
+              // Use the same pattern as Hero.jsx to get job title/profession
+              const { summary } = cvData || {};
+              const profession = summary || (cvData && (cvData.title || cvData.jobTitle || cvData.profession)) || 'Full Stack Developer';
               const about = (cvData && (cvData.about || cvData.summary)) || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
               
               textContent = `${name}\n\n${profession}\n\n${about}`;
               isNameAbout = true;
-              console.log('NameAbout data:', { name, profession, about });
+              console.log('NameAbout data:', { name, profession, about, summary });
               break;
               
             case 'Experience':
@@ -206,7 +207,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
                   
                   if (exp.extra && Array.isArray(exp.extra) && exp.extra.length > 0) {
                     exp.extra.forEach(extra => {
-                      const cleanExtra = extra.replace('¢ ', '');
+                      const cleanExtra = extra.replace('Â¢ ', '');
                       experienceContent += `\n• ${cleanExtra}`;
                     });
                   } else if (exp.description) {
@@ -288,6 +289,10 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               if (location) {
                 contactContent += `\n${location}`;
               }
+              
+              // Add accreditation with smaller, lighter text
+              contactContent += `\n\n\n3D Model Credit:\nBased on "office_props_pack" by ap-school\nCC-BY-4.0 License\nAuthor:ap-school (https://sketchfab.com/ap-school)`;
+              
               textContent = contactContent;
               console.log('Contact text content applied to Contact plane');
               break;
@@ -330,9 +335,6 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     context.fillStyle = '#c8c8c8ff';
     context.fillRect(0, 0, canvas.width, canvas.height);
     
-    // PURE BLACK text for maximum contrast
-    context.fillStyle = '#000000';
-    
     const lines = textContent.split('\n');
     
     if (isNameAbout) {
@@ -345,20 +347,23 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       lines.forEach((line, index) => {
         if (index === 0) {
           // Name - EXTRA LARGE
+          context.fillStyle = '#000000';
           context.font = 'bold 400px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
           currentY += 450;
         } else if (index === 2) {
           // Profession - EXTRA LARGE
+          context.fillStyle = '#000000';
           context.font = 'bold 300px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
           currentY += 400;
         } else if (index === 4) {
           // About - LARGER with proper wrapping
-          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
-          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 140);
+          context.fillStyle = '#000000';
+          context.font = 'bold 160px "Arial Black", Arial, sans-serif'; // Increased from 140px
+          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 160); // Updated font size for wrapping
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 170));
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 190)); // Increased line height
           });
         }
       });
@@ -371,6 +376,24 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       const maxWidth = canvas.width - 450;
       
       lines.forEach((line, index) => {
+        // Check if this is the Contact section AND we're in the accreditation part
+        const isContactSection = mesh.name === 'Contact';
+        const isAccreditation = isContactSection && (
+                               line.includes('3D Model Credit') || 
+                               line.includes('Based on') || 
+                               line.includes('CC-BY') ||
+                               line.includes('Author:') ||
+                               currentY > 1500); // After contact info
+        
+        if (isAccreditation) {
+          // Accreditation text - darker gray and larger
+          context.fillStyle = '#444444';
+          context.font = 'bold 90px "Arial Black", Arial, sans-serif';
+        } else {
+          // Regular text - always black for all sections
+          context.fillStyle = '#000000';
+        }
+        
         if (index === 0) {
           // Section heading - EXTRA LARGE
           context.font = 'bold 320px "Arial Black", Arial, sans-serif';
@@ -378,7 +401,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           currentY += 380;
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 150;
+          currentY += isAccreditation ? 60 : 150;
         } else if (line.startsWith('•')) {
           // Bullet points - LARGER
           context.font = 'bold 120px "Arial Black", Arial, sans-serif';
@@ -389,6 +412,13 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
             context.fillText(prefix + wrappedLine, 260, currentY + (wrappedIndex * 145));
           });
           currentY += (wrappedBulletLines.length * 145);
+        } else if (isAccreditation) {
+          // Accreditation text - consistent styling with wrapping
+          const wrappedLines = wrapText(context, line, maxWidth, 90);
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 110));
+          });
+          currentY += (wrappedLines.length * 110);
         } else {
           // Content - LARGER with wrapping
           context.font = 'bold 150px "Arial Black", Arial, sans-serif';
@@ -494,7 +524,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-          <h2 className="font-bold">Something went wrong.</h2>
+          <div className="font-bold">Something went wrong.</div>
           <p>Please refresh the page or try again later.</p>
         </div>
       );
