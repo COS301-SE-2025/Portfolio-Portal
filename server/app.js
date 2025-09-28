@@ -14,7 +14,7 @@ const cvRoutes = require('./app/routes/cv.routes');
 const githubRoutes = require('./app/routes/github.routes');
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
+const socialRoutes = require('./app/routes/social.routes');
 const app = express();
 
 // Middleware
@@ -63,6 +63,7 @@ app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/users", userRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/github', githubRoutes);
+app.use('/api/social', socialRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -75,6 +76,7 @@ app.get('/health', (req, res) => {
 
 // Serve static files from frontend build directory
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
 
 // Root route - serve the frontend application
 app.get('/', (req, res) => {
