@@ -162,9 +162,12 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     if (gltf && gltf.scene) {
       sceneRef.current = gltf.scene;
       
-      console.log("=== SCENE DEBUG ===");
-      console.log("All objects in scene:", 
-        Array.from(gltf.scene.children).map(obj => obj.name));
+      console.log("=== CV DATA DEBUG ===");
+      console.log("Full CV Data:", cvData);
+      console.log("Name:", cvData && cvData.name);
+      console.log("Title:", cvData && cvData.title);
+      console.log("Job Title:", cvData && cvData.jobTitle);
+      console.log("Profession:", cvData && cvData.profession);
       
       // Check if all cameras exist
       const cameras = ['CameraStart', 'CameraNameabout', 'CameraExperience', 'CameraEducation', 'CameraSkills', 'CameraReference', 'CameraContact'];
@@ -186,11 +189,13 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           switch(object.name) {
             case 'NameAbout':
               const name = (cvData && cvData.name) || 'Default Name';
-              const title = (cvData && cvData.title) || 'Default Title';
-              const about = (cvData && (cvData.about || cvData.summary)) || 'Default about text describing professional experience and skills.';
+              // Use actual profession from CV data - check multiple possible fields
+              const profession = (cvData && (cvData.title || cvData.jobTitle || cvData.profession)) || 'Full Stack Developer';
+              const about = (cvData && (cvData.about || cvData.summary)) || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
               
-              textContent = `${name}\n\n${title}\n\n${about}`;
+              textContent = `${name}\n\n${profession}\n\n${about}`;
               isNameAbout = true;
+              console.log('NameAbout data:', { name, profession, about });
               break;
               
             case 'Experience':
@@ -340,20 +345,20 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       lines.forEach((line, index) => {
         if (index === 0) {
           // Name - EXTRA LARGE
-          context.font = 'bold 400px "Arial Black", Arial, sans-serif'; // Increased from 345px
+          context.font = 'bold 400px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 450; // Increased line height
+          currentY += 450;
         } else if (index === 2) {
-          // Title - EXTRA LARGE
-          context.font = 'bold 300px "Arial Black", Arial, sans-serif'; // Increased from 255px
+          // Profession - EXTRA LARGE
+          context.font = 'bold 300px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 400; // Increased line height
+          currentY += 400;
         } else if (index === 4) {
           // About - LARGER with proper wrapping
-          context.font = 'bold 140px "Arial Black", Arial, sans-serif'; // Increased from 120px
+          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
           const wrappedLines = wrapText(context, line, canvas.width * 0.8, 140);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 170)); // Increased line height
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 170));
           });
         }
       });
@@ -368,28 +373,28 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       lines.forEach((line, index) => {
         if (index === 0) {
           // Section heading - EXTRA LARGE
-          context.font = 'bold 320px "Arial Black", Arial, sans-serif'; // Increased from 285px
+          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
           context.fillText(line, 225, currentY);
-          currentY += 380; // Increased line height
+          currentY += 380;
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 150; // Increased spacing
+          currentY += 150;
         } else if (line.startsWith('•')) {
           // Bullet points - LARGER
-          context.font = 'bold 120px "Arial Black", Arial, sans-serif'; // Increased from 105px
+          context.font = 'bold 120px "Arial Black", Arial, sans-serif';
           const bulletText = line.substring(1).trim();
           const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 75, 120);
           wrappedBulletLines.forEach((wrappedLine, wrappedIndex) => {
             const prefix = wrappedIndex === 0 ? '• ' : '  ';
-            context.fillText(prefix + wrappedLine, 260, currentY + (wrappedIndex * 145)); // Increased line height
+            context.fillText(prefix + wrappedLine, 260, currentY + (wrappedIndex * 145));
           });
           currentY += (wrappedBulletLines.length * 145);
         } else {
           // Content - LARGER with wrapping
-          context.font = 'bold 150px "Arial Black", Arial, sans-serif'; // Increased from 135px
+          context.font = 'bold 150px "Arial Black", Arial, sans-serif';
           const wrappedLines = wrapText(context, line, maxWidth, 150);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 185)); // Increased line height
+            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 185));
           });
           currentY += (wrappedLines.length * 185);
         }
