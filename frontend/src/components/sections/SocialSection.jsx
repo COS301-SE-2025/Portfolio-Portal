@@ -9,7 +9,8 @@ import {
   Users,
   Star,
   TrendingUp,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import socialService from '../../services/social.service';
@@ -453,6 +454,8 @@ const UserCard = ({ user, onLike, onFollow, onViewTemplate }) => {
 const SocialSection = () => {
   const { isDark } = useTheme();
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -470,6 +473,32 @@ const SocialSection = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  /*
+   * SEARCH FUNCTIONALITY
+   * Filter users based on search query matching name or email
+   * Updates filteredUsers whenever users or searchQuery changes
+   */
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredUsers(users);
+    } else {
+      const query = searchQuery.toLowerCase().trim();
+      const filtered = users.filter(user => 
+        user.name.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [users, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
 
   /*
    * DATA FETCHING AND USER MATCHING PROCESS
@@ -713,14 +742,14 @@ const SocialSection = () => {
 
   /*
    * COMMUNITY STATISTICS CALCULATION
-   * Calculate real-time stats from current users data for header display
-   * These numbers reflect the actual loaded data and user interactions
+   * Calculate real-time stats from current filtered users data for header display
+   * These numbers reflect the actual loaded and filtered data and user interactions
    */
   const stats = {
-    totalUsers: users.length,
-    totalLikes: users.reduce((sum, user) => sum + user.likes, 0),
-    totalFollows: users.reduce((sum, user) => sum + user.followers, 0),
-    activeToday: Math.floor(users.length * 0.3)
+    totalUsers: filteredUsers.length,
+    totalLikes: filteredUsers.reduce((sum, user) => sum + user.likes, 0),
+    totalFollows: filteredUsers.reduce((sum, user) => sum + user.followers, 0),
+    activeToday: Math.floor(filteredUsers.length * 0.3)
   };
 
   return (
@@ -768,20 +797,89 @@ const SocialSection = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className={`rounded-2xl shadow-xl p-6 mb-8 ${
+          isDark ? "bg-slate-800" : "bg-white"
+        }`}>
+          <div className="relative max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                isDark ? "text-gray-400" : "text-gray-500"
+              }`} />
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className={`w-full pl-12 pr-12 py-4 rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500"
+                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white"
+                }`}
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full transition-colors ${
+                    isDark ? "text-gray-400 hover:text-white hover:bg-gray-600" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <div className={`mt-3 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                {filteredUsers.length === 0 ? (
+                  <span>No users found matching "{searchQuery}"</span>
+                ) : (
+                  <span>
+                    Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* User Grid */}
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <div className={`text-center py-12 rounded-2xl ${isDark ? "bg-slate-800" : "bg-white"}`}>
-            <Users className={`w-12 h-12 mx-auto mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
-            <h3 className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
-              No users found
-            </h3>
-            <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
-              Be the first to join the community!
-            </p>
+            {searchQuery ? (
+              <>
+                <Search className={`w-12 h-12 mx-auto mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+                <h3 className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                  No users found
+                </h3>
+                <p className={`mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  No users match your search for "{searchQuery}"
+                </p>
+                <button
+                  onClick={clearSearch}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 ${
+                    isDark
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
+                      : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
+                  }`}
+                >
+                  Clear Search
+                </button>
+              </>
+            ) : (
+              <>
+                <Users className={`w-12 h-12 mx-auto mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+                <h3 className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                  No users found
+                </h3>
+                <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  Be the first to join the community!
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <UserCard
                 key={user.id}
                 user={user}
