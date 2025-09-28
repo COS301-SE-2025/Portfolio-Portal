@@ -26,17 +26,20 @@ export default function Office3DPage() {
       if (camera && camera.isCamera) {
         console.log(`Moving to camera: ${cameraName}`);
         
-        // Disable smooth transitions by setting position and rotation directly
+        // Reset controls first to prevent rotation issues
+        controlsRef.current.reset();
+        
+        // Set position and rotation directly
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
         
         // Calculate target based on camera direction
         const direction = new THREE.Vector3();
         camera.getWorldDirection(direction);
-        const target = camera.position.clone().add(direction.multiplyScalar(10));
+        const target = camera.position.clone().add(direction.multiplyScalar(5)); // Shorter distance for more precise targeting
         controlsRef.current.target.copy(target);
         
-        // Force immediate update without smooth transition
+        // Force immediate update
         controlsRef.current.update();
       } else {
         console.log(`Camera ${cameraName} not found in model.`);
@@ -51,13 +54,16 @@ export default function Office3DPage() {
       
       if (startCamera && startCamera.isCamera) {
         console.log('Setting initial camera to CameraStart');
-        // Set initial position and target directly without animation
+        // Reset controls first
+        controlsRef.current.reset();
+        
+        // Set initial position and target directly
         controlsRef.current.object.position.copy(startCamera.position);
         controlsRef.current.object.rotation.copy(startCamera.rotation);
         
         const direction = new THREE.Vector3();
         startCamera.getWorldDirection(direction);
-        const target = startCamera.position.clone().add(direction.multiplyScalar(10));
+        const target = startCamera.position.clone().add(direction.multiplyScalar(5));
         controlsRef.current.target.copy(target);
         
         controlsRef.current.update();
@@ -93,7 +99,7 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 3, 8], // This will be overridden by CameraStart
+          position: [0, 3, 8],
           fov: 50
         }}
         gl={{ alpha: true }}
@@ -122,7 +128,6 @@ export default function Office3DPage() {
           maxPolarAngle={Math.PI/1.2}
           rotateSpeed={0.8}
           panSpeed={0.8}
-          // Disable smooth damping for instant camera moves
           enableDamping={false}
         />
       </Canvas>
@@ -139,15 +144,6 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       
       console.log("=== CV DATA DEBUG ===");
       console.log("Full CV Data:", cvData);
-      console.log("Name:", cvData?.name);
-      console.log("About:", cvData?.about);
-      console.log("Experience:", cvData?.experience);
-      console.log("Education:", cvData?.education);
-      console.log("Skills:", cvData?.skills);
-      console.log("References:", cvData?.references);
-      console.log("Email:", cvData?.email);
-      console.log("Phone:", cvData?.phone);
-      console.log("=====================");
       
       // Check if CameraStart exists
       const startCamera = gltf.scene.getObjectByName('CameraStart');
@@ -161,14 +157,12 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           
           switch(object.name) {
             case 'NameAbout':
-              // Use the exact data structure from your components
               const name = cvData?.name || 'Default Name';
               const title = cvData?.title || 'Default Title';
               const about = cvData?.about || cvData?.summary || 'Default about text describing professional experience and skills.';
               
               textContent = `${name}\n\n${title}\n\n${about}`;
               isNameAbout = true;
-              console.log('Applying NameAbout:', { name, title, about });
               break;
               
             case 'Experience':
@@ -177,10 +171,11 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
                 cvData.experience.forEach((exp, index) => {
                   experienceContent += `${exp.title || 'Position'}\n${exp.company || 'Company'}\n${exp.startDate || 'Start'} - ${exp.endDate || 'End'}`;
                   
-                  // Handle bullet points - check both 'extra' and 'description'
+                  // Handle bullet points with proper wrapping
                   if (exp.extra && Array.isArray(exp.extra) && exp.extra.length > 0) {
                     exp.extra.forEach(extra => {
-                      experienceContent += `\n• ${extra.replace('¢ ', '')}`;
+                      const cleanExtra = extra.replace('¢ ', '');
+                      experienceContent += `\n• ${cleanExtra}`;
                     });
                   } else if (exp.description) {
                     experienceContent += `\n• ${exp.description}`;
@@ -266,7 +261,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           }
           
           if (textContent) {
-            console.log(`Applying text to ${object.name}:`, textContent);
+            console.log(`Applying text to ${object.name}`);
             applyTextToMesh(object, textContent, isNameAbout);
           } else {
             console.log(`No text content for ${object.name}`);
@@ -276,7 +271,6 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       
       // Call the onSceneLoaded callback after everything is set up
       if (onSceneLoaded) {
-        // Small timeout to ensure everything is ready
         setTimeout(() => {
           onSceneLoaded();
         }, 100);
@@ -288,7 +282,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // Large canvas for sharp text
+    // Even larger canvas for bigger text
     canvas.width = 8192;
     canvas.height = 4096;
     
@@ -296,8 +290,8 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = 'high';
     
-    // LIGHT GREY background (softer than white)
-    context.fillStyle = '#f1f5f9';
+    // LIGHT GREY background
+    context.fillStyle = '#c8c8c8ff';
     context.fillRect(0, 0, canvas.width, canvas.height);
     
     // PURE BLACK text for maximum contrast
@@ -314,37 +308,21 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Name - LARGE
-          context.font = 'bold 380px "Arial Black", Arial, sans-serif';
+          // Name - EXTREMELY LARGE
+          context.font = 'bold 460px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 550;
+        } else if (index === 2) {
+          // Title - VERY LARGE
+          context.font = 'bold 340px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
           currentY += 500;
-        } else if (index === 2) {
-          // Title - LARGE
-          context.font = 'bold 280px "Arial Black", Arial, sans-serif';
-          context.fillText(line, canvas.width / 2, currentY);
-          currentY += 450;
         } else if (index === 4) {
-          // About - readable size
-          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
-          // Split long about text into multiple lines if needed
-          const words = line.split(' ');
-          let currentLine = '';
-          let aboutLines = [];
-          
-          for (let i = 0; i < words.length; i++) {
-            const testLine = currentLine + words[i] + ' ';
-            const metrics = context.measureText(testLine);
-            if (metrics.width > canvas.width * 0.8 && currentLine !== '') {
-              aboutLines.push(currentLine);
-              currentLine = words[i] + ' ';
-            } else {
-              currentLine = testLine;
-            }
-          }
-          aboutLines.push(currentLine);
-          
-          aboutLines.forEach((aboutLine, aboutIndex) => {
-            context.fillText(aboutLine, canvas.width / 2, currentY + (aboutIndex * 180));
+          // About - LARGE with proper wrapping
+          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
+          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 160);
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 200));
           });
         }
       });
@@ -354,26 +332,35 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       context.textBaseline = 'top';
       
       let currentY = 300;
+      const maxWidth = canvas.width - 600; // Leave padding on sides
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Section heading - LARGE
-          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
+          // Section heading - MASSIVE
+          context.font = 'bold 380px "Arial Black", Arial, sans-serif';
           context.fillText(line, 300, currentY);
-          currentY += 400;
+          currentY += 450;
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 150;
+          currentY += 180;
         } else if (line.startsWith('•')) {
-          // Bullet points
-          context.font = 'bold 120px "Arial Black", Arial, sans-serif';
-          context.fillText(line, 350, currentY);
-          currentY += 160;
+          // Bullet points - larger
+          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
+          const bulletText = line.substring(1).trim(); // Remove the bullet
+          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 100, 140);
+          wrappedBulletLines.forEach((wrappedLine, wrappedIndex) => {
+            const prefix = wrappedIndex === 0 ? '• ' : '  ';
+            context.fillText(prefix + wrappedLine, 350, currentY + (wrappedIndex * 170));
+          });
+          currentY += (wrappedBulletLines.length * 170);
         } else {
-          // Content
-          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
-          context.fillText(line, 300, currentY);
-          currentY += 200;
+          // Content - LARGE with wrapping
+          context.font = 'bold 180px "Arial Black", Arial, sans-serif';
+          const wrappedLines = wrapText(context, line, maxWidth, 180);
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, 300, currentY + (wrappedIndex * 220));
+          });
+          currentY += (wrappedLines.length * 220);
         }
       });
     }
@@ -394,6 +381,26 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     
     mesh.visible = true;
     console.log(`✅ Text applied to ${mesh.name}`);
+  };
+
+  // Helper function to wrap text to fit within maxWidth
+  const wrapText = (context, text, maxWidth, fontSize) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i];
+      const width = context.measureText(currentLine + " " + word).width;
+      if (width < maxWidth) {
+        currentLine += " " + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    lines.push(currentLine);
+    return lines;
   };
 
   return (
