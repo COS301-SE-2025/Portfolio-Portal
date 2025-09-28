@@ -35,7 +35,7 @@ const professionalTemplates = [
     title: "Lab",
     description: "Professional laboratory environment for scientific presentations.",
     image: "/images/lab.png",
-    href: "/lab",
+    href: "/labpro",
     category: "professional",
     isImmersive: false, // 2D-ish template
   }
