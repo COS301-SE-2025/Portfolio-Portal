@@ -9,7 +9,7 @@ const Hero = () => {
   const { name, description } = useCvData() || {};
 
   return (
-    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-gray-900/30 to-gray-800/20 flex items-center">
+    <section className="relative w-full h-screen mx-auto flex items-center">
       <div className="max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between h-full">
         <div className="flex-1 max-w-2xl space-y-6">
           {/* Original hero title - no emojis, no Dr. */}
