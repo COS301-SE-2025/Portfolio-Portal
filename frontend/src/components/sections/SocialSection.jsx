@@ -748,7 +748,6 @@ const SocialSection = () => {
   const stats = {
     totalUsers: filteredUsers.length,
     totalLikes: filteredUsers.reduce((sum, user) => sum + user.likes, 0),
-    totalFollows: filteredUsers.reduce((sum, user) => sum + user.followers, 0),
     activeToday: Math.floor(filteredUsers.length * 0.3)
   };
 
@@ -778,7 +777,7 @@ const SocialSection = () => {
               {[
                 { icon: Users, label: "Members", value: stats.totalUsers, color: "blue" },
                 { icon: Heart, label: "Total Likes", value: stats.totalLikes, color: "red" },
-                { icon: TrendingUp, label: "Followers", value: stats.totalFollows, color: "green" },
+             
                 { icon: Star, label: "Active Today", value: stats.activeToday, color: "purple" }
               ].map(({ icon: Icon, label, value, color }) => (
                 <div key={label} className={`text-center p-4 rounded-xl ${
