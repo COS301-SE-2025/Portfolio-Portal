@@ -2,9 +2,16 @@
 import { email } from "./index";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
+import GitHubDeploy from "../../GithubDeploy.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { cvData } = useCVData();
+
+  const handleDeploySuccess = (result) => {
+    console.log("Portfolio deployed successfully:", result);
+  };
 
   const handleDownload = async () => {
     const result = await downloadPortfolio(setIsDownloading, 'labpro');
@@ -114,6 +121,15 @@ const Contact = () => {
               variant="labpro"
             />
           </div>
+        </div>
+
+        {/* GitHub Deploy Section */}
+        <div className="mt-16">
+          <GitHubDeploy
+            userData={cvData}
+            template="labpro"
+            onDeploySuccess={handleDeploySuccess}
+          />
         </div>
       </div>
 

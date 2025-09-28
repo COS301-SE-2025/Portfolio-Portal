@@ -46,7 +46,7 @@ const About = () => {
         <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-gradient-to-r from-cyan-500/6 to-blue-500/6 rounded-full blur-3xl animate-pulse delay-2000 opacity-50"></div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes twinkle {
           0%,
           100% {
@@ -201,7 +201,7 @@ const About = () => {
         ))}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%,
           100% {

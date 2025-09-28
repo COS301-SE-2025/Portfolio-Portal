@@ -526,7 +526,7 @@ function getTemplateDirectory(template) {
     'office': path.join(templatesBaseDir, 'office-portfolio'),
     'forest': path.join(templatesBaseDir, 'forest-portfolio'),
     'cave': path.join(templatesBaseDir, 'cave-portfolio'),
-    'lab': path.join(templatesBaseDir, 'lab-portfolio')
+    'labpro': path.join(templatesBaseDir, 'lab-portfolio')
   };
 
   return templateMap[template] || templateMap['default'];

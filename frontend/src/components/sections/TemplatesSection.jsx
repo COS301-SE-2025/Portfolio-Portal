@@ -199,7 +199,7 @@ const TemplatesSection = forwardRef(({ id, show }, ref) => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

@@ -255,11 +255,15 @@ async uploadFiles(accessToken, owner, repo, files, message = 'Deploy portfolio')
             console.log(`File ${filePath} exists, will update`);
           }
         } catch (getError) {
-          if (getError.status !== 404) {
-            console.warn(`Error checking existing file ${filePath}:`, getError.message);
+          if (getError.status === 404) {
+            console.log(`File ${filePath} does not exist, will create new`);
+          } else {
+            console.error(`Error checking existing file ${filePath}:`, getError.message);
+            // Skip this file if we couldn’t verify existence
+            continue; 
           }
-          // File doesn't exist, will create new
         }
+        
 
         const isBinary = this.isBinaryFile(filePath);
         const fileContent = isBinary ? content : Buffer.from(content, 'utf8').toString('base64');
@@ -547,7 +551,7 @@ jobs:
       'office': path.join(templatesBaseDir, 'office-portfolio'),
       'forest': path.join(templatesBaseDir, 'forest-portfolio'),
       'cave': path.join(templatesBaseDir, 'cave-portfolio'),
-      'lab': path.join(templatesBaseDir, 'lab-portfolio')
+      'labpro': path.join(templatesBaseDir, 'lab-portfolio')
     };
     return templateMap[template] || templateMap['default'];
   }
