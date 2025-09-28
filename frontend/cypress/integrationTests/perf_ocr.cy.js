@@ -6,55 +6,71 @@
 // - cypress.env.json with { "loginEmail": "...", "loginPassword": "...", "ocrMaxMs": 15000 }
 // - A test CV in cypress/fixtures
 
-describe("OCR upload performance (non-functional, backend-only)", () => {
+describe("OCR upload performance (backend-only)", () => {
   const API_BASE = "http://localhost:5050";
   const OCR_URL = `${API_BASE}/api/ocr/upload`;
-
-  const FIXTURE_FILE = "Ava Reynolds CV (demo3 - software engineer).pdf";
-
   const SLA_MS = Number(Cypress.env("ocrMaxMs") || 15000);
 
-  it("measures backend OCR time via Node task (reliable multipart)", () => {
-    // Get JWT by logging in through API
+  const FILES = [
+    "Alex Omari CV (artist & environmentalist).pdf",
+    "Ava Reynolds CV (demo3 - software engineer).pdf",
+    "Brian Park CV (mining engineer).pdf",
+    "Daniel Brooks CV (demo2 - finance).pdf",
+  ];
+
+  const RUNS = 3; // how many runs per file
+
+  it(`runs ${RUNS} iterations per CV and reports min/max/avg`, () => {
     cy.loginByApi().then((token) => {
-      cy.log("Logged in via API");
+      const results = [];
 
-      // Resolve absolute path to fixture
-      const filePath = `${Cypress.config(
-        "projectRoot"
-      )}/cypress/fixtures/${FIXTURE_FILE}`;
+      const runForFile = (fileName, run = 1, times = []) => {
+        if (run > RUNS) {
+          const min = Math.min(...times);
+          const max = Math.max(...times);
+          const avg = Math.round(
+            times.reduce((a, b) => a + b, 0) / times.length
+          );
 
-      // Call the Node task to upload the file with FormData
-      const start = Date.now();
-      cy.task("ocrUpload", {
-        url: OCR_URL,
-        token,
-        filePath,
-        filename: FIXTURE_FILE,
-      }).then((res) => {
-        const elapsed = Date.now() - start;
+          results.push({ file: fileName, min, max, avg });
 
-        cy.log(`HTTP status: ${res.status}`);
-        cy.log(`OCR processing time: ${elapsed} ms`);
+          cy.log(` ${fileName}`);
+          cy.log(`   min=${min}ms, max=${max}ms, avg=${avg}ms`);
 
-        console.log(
-          "OCR elapsed (ms):",
-          elapsed,
-          "status:",
-          res.status,
-          res.body
-        );
-
-        expect(res.status, "HTTP status").to.eq(200);
-        expect(
-          elapsed,
-          `OCR should complete under ${SLA_MS} ms`
-        ).to.be.lessThan(SLA_MS);
-
-        if (res.body && typeof res.body === "object") {
-          expect(res.body.success, "response.success").to.be.true;
-          expect(res.body.data, "response.data").to.exist;
+          expect(avg, `${fileName} avg under SLA`).to.be.lessThan(SLA_MS);
+          return cy.wrap(null);
         }
+
+        const filePath = `${Cypress.config(
+          "projectRoot"
+        )}/cypress/fixtures/${fileName}`;
+
+        return cy
+          .task("ocrUpload", {
+            url: OCR_URL,
+            token,
+            filePath,
+            filename: fileName,
+          })
+          .then((res) => {
+            expect(res.status, "HTTP status").to.eq(200);
+            expect(res.elapsed, "under SLA").to.be.lessThan(SLA_MS);
+            expect(res.body?.success, "response.success").to.be.true;
+
+            cy.log(`   run ${run}: ${res.elapsed}ms`);
+            times.push(res.elapsed);
+
+            return runForFile(fileName, run + 1, times);
+          });
+      };
+
+      let chain = cy.wrap(null);
+      FILES.forEach((f) => {
+        chain = chain.then(() => runForFile(f));
+      });
+
+      chain.then(() => {
+        console.table(results);
       });
     });
   });
