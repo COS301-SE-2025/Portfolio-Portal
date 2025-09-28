@@ -77,19 +77,22 @@ const convertToStructuredCV = async (rawText) => {
     const prompt = `
     Please convert the following CV/Resume text into a structured JSON format. 
     Extract and organize the information into these categories:
-    for the description field, please assume the user's Occupation based on other data
+    
+    IMPORTANT: 
+    - "personal_info.description": Brief professional title/occupation (1-3 words, e.g., "Software Engineer", "Marketing Manager")
+    - "summary": Main professional summary/objective paragraph (2-3 sentences describing the person's professional background and goals)
     
     {
         "personal_info": {
             "name": "",
-            "description": "",
+            "description": "Brief professional title/occupation (e.g., 'Software Engineer', 'Marketing Manager')",
             "email": "",
             "phone": "",
             "address": "",
             "linkedin": "",
             "website": ""
         },
-        "summary": "",
+        "summary": "Main professional summary/objective paragraph from the CV",
         "experience": [
             {
                 "company": "",

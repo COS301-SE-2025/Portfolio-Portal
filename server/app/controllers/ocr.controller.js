@@ -43,17 +43,21 @@ const normalizeCVStructure = (cvData) => {
   }
   
   // AI format - ensure all required fields exist
+  // Keep description as brief professional title, summary as longer description
+  const briefDescription = cvData.personal_info?.description || "";
+  const longSummary = cvData.summary || "";
+  
   return {
     personal_info: {
       name: cvData.personal_info?.name || "",
-      description: cvData.personal_info?.description || "",
+      description: briefDescription, // Brief professional title for Hero
       email: cvData.personal_info?.email || "",
       phone: cvData.personal_info?.phone || "",
       address: cvData.personal_info?.address || "",
       linkedin: cvData.personal_info?.linkedin || "",
       website: cvData.personal_info?.website || ""
     },
-    summary: cvData.summary || "",
+    summary: longSummary, // Longer summary for About Me sections
     experience: Array.isArray(cvData.experience) ? cvData.experience : [],
     education: Array.isArray(cvData.education) ? cvData.education : [],
     skills: Array.isArray(cvData.skills) ? cvData.skills : [],
