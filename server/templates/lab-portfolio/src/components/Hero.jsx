@@ -3,10 +3,11 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import portfolioData from '../data/portfolioData';
-import LabProModel from '../3DModels/Labpro';
+import LabProModel from './3DModels/Labpro';
 
 const Hero = () => {
-  const { name, description } = useCvData() || {};
+  const  name  = portfolioData.header.name;
+  const  summary = portfolioData.header.summary;
 
   return (
     <section className="relative w-full h-screen mx-auto flex items-center">
@@ -17,7 +18,7 @@ const Hero = () => {
             Hi, I'm <span className="text-emerald-400">{name || "Researcher"}</span>
           </h1>
           <p className="text-gray-300 text-lg sm:text-xl max-w-lg">
-            {description || "Leading research scientist pioneering innovative solutions through rigorous experimentation and data-driven analysis."}
+            {summary || "Leading research scientist pioneering innovative solutions through rigorous experimentation and data-driven analysis."}
           </p>
           <button 
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}

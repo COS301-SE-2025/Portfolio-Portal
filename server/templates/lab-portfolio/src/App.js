@@ -8,7 +8,7 @@ import './App.css';
 
 function App() {
   return (
-    <div className="office-app">
+    <div className="lab-app">
       {/* Navigation */}
       <Navbar />
 
@@ -25,7 +25,7 @@ function App() {
       <Contact />
 
       {/* Footer */}
-      <footer className="office-footer">
+      <footer className="lab-footer">
         <div className="footer-content">
           <p>&copy; 2024 Portfolio. All rights reserved.</p>
         </div>

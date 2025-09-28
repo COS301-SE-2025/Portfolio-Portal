@@ -1,6 +1,5 @@
 // components/Templates/labpro/Contact.jsx - Enhanced with chemistry themes
 import { email } from "./index";
-import { useState } from "react";
 
 const Contact = () => {
 

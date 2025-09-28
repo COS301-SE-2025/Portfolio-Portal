@@ -2,8 +2,8 @@
 import portfolioData from "../data/portfolioData.js";
 
 const About = () => {
-  const { cvData } = portfolioData() || {};
-
+  const  about  = portfolioData.header.summary;
+  const  skills  = portfolioData.skills;
   return (
     <section id="about" className="relative w-full py-20 mx-auto bg-gray-900/40">
       <div className="max-w-7xl mx-auto px-6">
@@ -25,7 +25,7 @@ const About = () => {
               <h3 className="text-white text-2xl font-bold">Scientific Approach</h3>
             </div>
             <p className="text-gray-300 mb-4">
-              {cvData?.about}
+              {about}
             </p>
             <div className="flex items-center mt-6">
               <div className="w-16 h-16 rounded-full bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center mr-4">
@@ -45,7 +45,7 @@ const About = () => {
               <h3 className="text-white text-2xl font-bold">Research Domains</h3>
             </div>
             <div className="space-y-6">
-              {cvData?.skills?.slice(0, 4).map((skill, index) => (
+              {skills?.slice(0, 4).map((skill, index) => (
                 <div key={index}>
                   <div className="flex justify-between mb-2">
                     <span className="text-white">{skill}</span>
@@ -61,7 +61,7 @@ const About = () => {
               ))}
             </div>
             
-            {cvData?.skills?.length > 4 && (
+            {skills?.length > 4 && (
               <div className="mt-6 pt-6 border-t border-gray-700">
                 {/* Enhanced additional expertise section */}
                 <div className="flex items-center gap-2 mb-3">
@@ -69,7 +69,7 @@ const About = () => {
                   <h4 className="text-white text-lg font-semibold">Additional Expertise</h4>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {cvData.skills.slice(4).map((skill, index) => (
+                  {skills.slice(4).map((skill, index) => (
                     <span 
                       key={index}
                       className="px-3 py-1 bg-emerald-400/10 text-emerald-400 rounded-full text-sm border border-emerald-400/30 hover:bg-emerald-400/20 transition-all duration-300"

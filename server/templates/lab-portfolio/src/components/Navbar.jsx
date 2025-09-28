@@ -5,7 +5,7 @@ import portfolioData from '../data/portfolioData'
 
 const Navbar = () => {
   const [active, setActive] = useState("");
-  const { name } = useCvData() || {};
+  const  name  = portfolioData.header.name;
   return (
     <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-gray-900/90 backdrop-blur-sm border-b border-teal-900/40">
       <div className="w-full flex justify-between items-center max-w-7xl mx-auto px-4">

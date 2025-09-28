@@ -2,7 +2,8 @@
 import portfolioData from "../data/portfolioData";
 
 const Experience = () => {
-  const { cvData } = portfolioData() || {};
+  const  experience  = portfolioData.experience;
+  const education = portfolioData.education;
 
   return (
     <section id="experience" className="relative w-full py-20 mx-auto bg-gray-900/20">
@@ -14,7 +15,7 @@ const Experience = () => {
 
         {/* Experience Section */}
         <div className="space-y-8">
-          {cvData?.experience?.map((exp, index) => (
+          {experience.map((exp, index) => (
             <div 
               key={index}
               className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-emerald-400/20 hover:border-teal-400/50 transition-all duration-300"
@@ -38,7 +39,7 @@ const Experience = () => {
         </div>
 
         {/* Education Section */}
-        {cvData?.education?.length > 0 && (
+        {education.length > 0 && (
           <div className="mt-20">
             <div className="text-center mb-16">
               <h2 className="text-emerald-50 text-4xl font-bold mb-4">Academic Credentials</h2>
@@ -46,7 +47,7 @@ const Experience = () => {
             </div>
 
             <div className="space-y-8">
-              {cvData.education.map((edu, index) => (
+              {education.map((edu, index) => (
                 <div 
                   key={index}
                   className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20 hover:border-emerald-400/50 transition-all duration-300"
