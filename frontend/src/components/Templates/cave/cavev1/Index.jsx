@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import About from './About';
 import Experience from './Experience';
 import Contact from './Contact';
-import LoadingScreen from './LoadingScreen';
 import './Index.css';
 
 import Cave2 from '../../../3DModels/Cave';
-import Crystal from '../../../3DModels/Crystal';
-import Campfire from '../../../3DModels/Campfire';
-import Pickaxe from '../../../3DModels/Pickaxe';
-import Shovel from '../../../3DModels/Shovel';
 import Skull from '../../../3DModels/Skull';
 import floor from './floor.png';
 import Lamp from '../../../3DModels/Lamp';
@@ -51,29 +45,8 @@ const TexturedFloorAndWalls = React.memo(() => {
         />
       </mesh>
       
-      <mesh position={[0, -7.8, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[180, 180]} />
-        <meshStandardMaterial 
-          map={floorTexture}
-          color="#9a9a9a"
-          transparent 
-          opacity={0.25} 
-          roughness={0.7}
-          metalness={0.05}
-        />
-      </mesh>
-      
-      <mesh position={[0, -8.2, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[250, 250]} />
-        <meshStandardMaterial 
-          map={floorTexture}
-          color="#6a6a6a"
-          transparent 
-          opacity={0.2} 
-          roughness={0.8}
-          metalness={0.0}
-        />
-      </mesh>
+   
+     
     </>
   );
 });
@@ -90,7 +63,6 @@ const DecorativeCrystal = React.memo(({ position, color = "#8b5cf6", scale = [4,
   
   return (
     <group ref={meshRef} position={position} scale={scale}>
-      <Crystal />
       <pointLight position={[0, 2, 0]} intensity={4} color={color} />
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[1.5, 16, 16]} />
@@ -221,21 +193,7 @@ const MiniModel = React.memo(({ model, scale = [0.3, 0.3, 0.3], position = [0, 0
     return scale;
   }, [model, scale]);
 
-  const renderModel = useMemo(() => {
-    switch(model) {
-      case 'pickaxe':
-        return <Pickaxe />;
-      case 'shovel':
-        return <Shovel />;
-      case 'crystal':
-        return <Crystal />;
-      case 'campfire':
-        return <Campfire />;
-      default:
-        return null;
-    }
-  }, [model]);
-
+  
   return (
     <group 
       ref={groupRef}
@@ -244,7 +202,7 @@ const MiniModel = React.memo(({ model, scale = [0.3, 0.3, 0.3], position = [0, 0
     >
       <ambientLight intensity={1.2} />
       <pointLight position={[0.5, 0.5, 0.5]} intensity={0.8} />
-      {renderModel}
+      
     </group>
   );
 });
@@ -373,9 +331,7 @@ const Index = () => {
     { key: 'contact', label: 'Contact', icon: '💎', color: 'cyan', description: 'Let\'s Connect' }
   ], []);
 
-  if (isLoading) {
-    return <LoadingScreen onLoadComplete={handleLoadComplete} />;
-  }
+
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 overflow-hidden">
