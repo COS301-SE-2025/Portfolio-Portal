@@ -24,7 +24,7 @@ export default function Office3DPage() {
       const camera = sceneRef.current.getObjectByName(cameraName);
       
       if (camera && camera.isCamera) {
-        console.log(`Moving to camera: ${cameraName}`);
+        console.log(`Moving to camera: ${cameraName}`, camera.position, camera.rotation);
         
         // Reset controls first to prevent rotation issues
         controlsRef.current.reset();
@@ -33,16 +33,16 @@ export default function Office3DPage() {
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
         
-        // SPECIAL CASE: For Contact camera, rotate 180 degrees to fix downward view
+        // SPECIAL CASE: For Contact camera, apply different rotation
         if (section === 'contact') {
-          console.log('Applying 180-degree rotation for Contact camera');
-          // Create a new rotation by adding 180 degrees (π radians) to the Y rotation
-          const newRotation = new THREE.Euler(
-            controlsRef.current.object.rotation.x,
-            controlsRef.current.object.rotation.y + Math.PI, // 180 degrees
-            controlsRef.current.object.rotation.z
+          console.log('Applying special rotation for Contact camera');
+          // Try different rotation approach
+          const contactRotation = new THREE.Euler(
+            camera.rotation.x,
+            camera.rotation.y + Math.PI / 2, // 90 degrees right
+            camera.rotation.z
           );
-          controlsRef.current.object.rotation.copy(newRotation);
+          controlsRef.current.object.rotation.copy(contactRotation);
         }
         
         // Calculate target based on camera direction
@@ -54,7 +54,8 @@ export default function Office3DPage() {
         // Force immediate update
         controlsRef.current.update();
       } else {
-        console.log(`Camera ${cameraName} not found in model.`);
+        console.log(`Camera ${cameraName} not found in model. Available objects:`, 
+          Array.from(sceneRef.current.children).map(obj => obj.name));
       }
     }
   };
@@ -116,10 +117,10 @@ export default function Office3DPage() {
         }}
         gl={{ 
           alpha: true,
-          powerPreference: "high-performance", // Performance optimization
-          antialias: false // Disable antialiasing for better performance
+          powerPreference: "high-performance",
+          antialias: true
         }}
-        dpr={[1, 1.5]} // Lower pixel ratio for better performance
+        dpr={[1, 2]}
       >
         <color attach="background" args={['#e5e7eb']} />
         <ambientLight intensity={1.5} />
@@ -153,9 +154,7 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
-  // Use a simpler loader with performance optimizations
   const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb', (loader) => {
-    // Optimize loading
     loader.manager.onStart = () => console.log('Loading model...');
   });
 
@@ -163,14 +162,19 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     if (gltf && gltf.scene) {
       sceneRef.current = gltf.scene;
       
-      console.log("=== CV DATA DEBUG ===");
-      console.log("Full CV Data:", cvData);
+      console.log("=== SCENE DEBUG ===");
+      console.log("All objects in scene:", 
+        Array.from(gltf.scene.children).map(obj => obj.name));
       
       // Check if all cameras exist
       const cameras = ['CameraStart', 'CameraNameabout', 'CameraExperience', 'CameraEducation', 'CameraSkills', 'CameraReference', 'CameraContact'];
       cameras.forEach(camName => {
         const camera = gltf.scene.getObjectByName(camName);
         console.log(`${camName} found:`, !!camera);
+        if (camera) {
+          console.log(`${camName} position:`, camera.position);
+          console.log(`${camName} rotation:`, camera.rotation);
+        }
       });
       
       // Apply text to all planes
@@ -280,18 +284,18 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
                 contactContent += `\n${location}`;
               }
               textContent = contactContent;
-              console.log('Contact text content:', contactContent);
+              console.log('Contact text content applied to Contact plane');
               break;
 
             default:
-              console.log('Unknown plane name:', object.name);
+              if (object.name.includes('Contact') || object.name.includes('contact')) {
+                console.log('Found potential contact plane:', object.name);
+              }
           }
           
           if (textContent) {
             console.log(`Applying text to ${object.name}`);
             applyTextToMesh(object, textContent, isNameAbout);
-          } else {
-            console.log(`No text content for ${object.name}`);
           }
         }
       });
@@ -309,11 +313,11 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // Reduced canvas size for better performance (was 8192x4096)
-    canvas.width = 4096; // Reduced by 50%
-    canvas.height = 2048; // Reduced by 50%
+    // HIGH RES for text
+    canvas.width = 6144;
+    canvas.height = 3072;
     
-    // Enable image smoothing for better text rendering
+    // Enable high quality rendering for text
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = 'high';
     
@@ -331,25 +335,25 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       
-      let currentY = 300; // Adjusted for smaller canvas
+      let currentY = 450;
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Name - LARGE (reduced font size)
-          context.font = 'bold 230px "Arial Black", Arial, sans-serif';
+          // Name - EXTRA LARGE
+          context.font = 'bold 400px "Arial Black", Arial, sans-serif'; // Increased from 345px
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 275;
+          currentY += 450; // Increased line height
         } else if (index === 2) {
-          // Title - LARGE (reduced font size)
-          context.font = 'bold 170px "Arial Black", Arial, sans-serif';
+          // Title - EXTRA LARGE
+          context.font = 'bold 300px "Arial Black", Arial, sans-serif'; // Increased from 255px
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 250;
+          currentY += 400; // Increased line height
         } else if (index === 4) {
-          // About - LARGE with proper wrapping (reduced font size)
-          context.font = 'bold 80px "Arial Black", Arial, sans-serif';
-          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 80);
+          // About - LARGER with proper wrapping
+          context.font = 'bold 140px "Arial Black", Arial, sans-serif'; // Increased from 120px
+          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 140);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 100));
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 170)); // Increased line height
           });
         }
       });
@@ -358,53 +362,61 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       context.textAlign = 'left';
       context.textBaseline = 'top';
       
-      let currentY = 150; // Adjusted for smaller canvas
-      const maxWidth = canvas.width - 300; // Leave padding on sides
+      let currentY = 225;
+      const maxWidth = canvas.width - 450;
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Section heading - MASSIVE (reduced font size)
-          context.font = 'bold 190px "Arial Black", Arial, sans-serif';
-          context.fillText(line, 150, currentY);
-          currentY += 225;
+          // Section heading - EXTRA LARGE
+          context.font = 'bold 320px "Arial Black", Arial, sans-serif'; // Increased from 285px
+          context.fillText(line, 225, currentY);
+          currentY += 380; // Increased line height
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 90;
+          currentY += 150; // Increased spacing
         } else if (line.startsWith('•')) {
-          // Bullet points - larger (reduced font size)
-          context.font = 'bold 70px "Arial Black", Arial, sans-serif';
+          // Bullet points - LARGER
+          context.font = 'bold 120px "Arial Black", Arial, sans-serif'; // Increased from 105px
           const bulletText = line.substring(1).trim();
-          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 50, 70);
+          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 75, 120);
           wrappedBulletLines.forEach((wrappedLine, wrappedIndex) => {
             const prefix = wrappedIndex === 0 ? '• ' : '  ';
-            context.fillText(prefix + wrappedLine, 175, currentY + (wrappedIndex * 85));
+            context.fillText(prefix + wrappedLine, 260, currentY + (wrappedIndex * 145)); // Increased line height
           });
-          currentY += (wrappedBulletLines.length * 85);
+          currentY += (wrappedBulletLines.length * 145);
         } else {
-          // Content - LARGE with wrapping (reduced font size)
-          context.font = 'bold 90px "Arial Black", Arial, sans-serif';
-          const wrappedLines = wrapText(context, line, maxWidth, 90);
+          // Content - LARGER with wrapping
+          context.font = 'bold 150px "Arial Black", Arial, sans-serif'; // Increased from 135px
+          const wrappedLines = wrapText(context, line, maxWidth, 150);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, 150, currentY + (wrappedIndex * 110));
+            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 185)); // Increased line height
           });
-          currentY += (wrappedLines.length * 110);
+          currentY += (wrappedLines.length * 185);
         }
       });
     }
     
-    // Create texture with better filtering for sharper text
+    // Create texture with optimized settings
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 8; // Reduced from 16 for performance
+    texture.anisotropy = 4;
     texture.needsUpdate = true;
     
+    // Apply material to the mesh
     mesh.material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: false,
       side: THREE.DoubleSide,
       toneMapped: false
     });
+    
+    // Reduce mesh complexity for non-text objects
+    if (!mesh.name.includes('NameAbout') && !mesh.name.includes('Experience') && 
+        !mesh.name.includes('Education') && !mesh.name.includes('Skills') && 
+        !mesh.name.includes('Reference') && !mesh.name.includes('Contact')) {
+      mesh.material.map.anisotropy = 2;
+    }
     
     mesh.visible = true;
     console.log(`✅ Text applied to ${mesh.name}`);
