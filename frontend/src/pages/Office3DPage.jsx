@@ -11,8 +11,8 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-80);
-  const [targetScrollPosition, setTargetScrollPosition] = useState(-80);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [targetScrollPosition, setTargetScrollPosition] = useState(0);
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
   const animationFrameRef = useRef();
@@ -49,7 +49,7 @@ export default function Office3DPage() {
       
       setTargetScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.04;
-        return Math.max(-60, Math.min(newPos, 60));
+        return Math.max(-40, Math.min(newPos, 40)); // Reduced scroll range for centered view
       });
 
       scrollTimeoutRef.current = setTimeout(() => {
@@ -69,23 +69,22 @@ export default function Office3DPage() {
     }
   }, []);
 
-  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 140) * 100));
+  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 40) / 80) * 100));
 
   return (
     <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 5, 8], // Centered camera position
-          rotation: [-Math.PI/6, 0, 0],
-          fov: 45
+          position: [0, 3, 0], // Centered and elevated camera
+          fov: 60
         }}
         gl={{ alpha: true }}
       >
-        <color attach="background" args={['#1a202c']} />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[15, 15, 10]} intensity={0.8} />
-        <Environment preset="apartment" />
+        <color attach="background" args={['#f5f5f7']} /> {/* Light grey background */}
+        <ambientLight intensity={0.8} />
+        <directionalLight position={[10, 15, 10]} intensity={0.9} />
+        <Environment preset="city" /> {/* Lighter environment */}
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
@@ -94,10 +93,12 @@ export default function Office3DPage() {
         </ErrorBoundary>
 
         <OrbitControls 
-          enableZoom={false}
-          enablePan={false}
+          enableZoom={true}
+          enablePan={true}
           minPolarAngle={Math.PI/6}
-          maxPolarAngle={Math.PI/2}
+          maxPolarAngle={Math.PI/1.5}
+          rotateSpeed={0.5}
+          panSpeed={0.5}
         />
       </Canvas>
       
@@ -119,7 +120,7 @@ export default function Office3DPage() {
 
 function Office3DScene({ cvData, scrollPosition }) {
   const groupRef = useRef();
-  const targetZ = useRef(0);
+  const targetRotation = useRef(0);
   
   const mockData = {
     name: "John Doe",
@@ -156,13 +157,13 @@ function Office3DScene({ cvData, scrollPosition }) {
   };
 
   const data = cvData || mockData;
-  // Updated model path - replace with your new model
   const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
   
   useFrame(() => {
     if (groupRef.current) {
-      targetZ.current = -scrollPosition * 0.9;
-      groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
+      // Use scroll for rotation instead of position
+      targetRotation.current = scrollPosition * 0.01;
+      groupRef.current.rotation.y += (targetRotation.current - groupRef.current.rotation.y) * 0.1;
     }
   });
 
@@ -251,10 +252,14 @@ function Office3DScene({ cvData, scrollPosition }) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
               canvas.width = 512;
-              canvas.height = 256; // Increased height for more content
+              canvas.height = 256;
               
-              context.clearRect(0, 0, canvas.width, canvas.height);
-              context.fillStyle = object.name === 'Name' ? '#3b82f6' : '#ffffff';
+              // White background for the text plane
+              context.fillStyle = '#ffffff';
+              context.fillRect(0, 0, canvas.width, canvas.height);
+              
+              // Black text
+              context.fillStyle = '#000000';
               
               // Font sizes based on section
               if (object.name === 'Name') {
@@ -301,7 +306,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               
               const newMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
-                transparent: true,
+                transparent: false, // Opaque white background
                 side: THREE.DoubleSide
               });
               
@@ -315,7 +320,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   }, [gltf, data]);
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]} rotation={[0, 0, 0]}>
       {gltf?.scene && <primitive object={gltf.scene} />}
     </group>
   );
@@ -324,8 +329,8 @@ function Office3DScene({ cvData, scrollPosition }) {
 function LoadingModel() {
   return (
     <Html center>
-      <div className="text-white text-center bg-black/70 p-6 rounded-lg backdrop-blur-sm">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+      <div className="text-gray-800 text-center bg-white/80 p-6 rounded-lg backdrop-blur-sm border border-gray-300">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600 mx-auto mb-4"></div>
         <p className="text-lg">Loading 3D environment...</p>
       </div>
     </Html>
@@ -335,7 +340,7 @@ function LoadingModel() {
 function FallbackModel() {
   return (
     <Html center>
-      <div className="text-red-500 text-center bg-black/70 p-6 rounded-lg">
+      <div className="text-red-600 text-center bg-white/80 p-6 rounded-lg border border-gray-300">
         <p className="text-lg">Failed to load 3D office</p>
         <p className="text-sm mt-2">Please check if the model file exists</p>
       </div>
