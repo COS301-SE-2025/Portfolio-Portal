@@ -19,7 +19,7 @@ const Navbar = () => {
           }}
         >
           <p className="text-emerald-400 text-[20px] font-bold">
-            {name}'s <span className="text-teal-400">Research Lab</span>
+            {name}'s <span className="text-teal-50">Research Lab</span>
           </p>
         </Link>
 

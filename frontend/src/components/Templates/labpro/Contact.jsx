@@ -20,7 +20,7 @@ const Contact = () => {
           {/* Enhanced header with chemistry icons */}
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="text-emerald-400 text-3xl animate-shimmer"></div>
-            <h2 className="text-emerald-400 text-4xl font-bold">Research Collaboration</h2>
+            <h2 className="text-emerald-50 text-4xl font-bold">Research Collaboration</h2>
             <div className="text-emerald-400 text-3xl animate-shimmer"></div>
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 mx-auto" />

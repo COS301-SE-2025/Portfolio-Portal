@@ -8,7 +8,7 @@ const Experience = () => {
     <section id="experience" className="relative w-full py-20 mx-auto bg-gray-900/20">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-teal-400 text-4xl font-bold mb-4">Research Career</h2>
+          <h2 className="text-teal-50 text-4xl font-bold mb-4">Research Career</h2>
           <div className="w-20 h-1 bg-gradient-to-r from-teal-400 to-emerald-400 mx-auto" />
         </div>
 
@@ -41,7 +41,7 @@ const Experience = () => {
         {cvData?.education?.length > 0 && (
           <div className="mt-20">
             <div className="text-center mb-16">
-              <h2 className="text-emerald-400 text-4xl font-bold mb-4">Academic Credentials</h2>
+              <h2 className="text-emerald-50 text-4xl font-bold mb-4">Academic Credentials</h2>
               <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 mx-auto" />
             </div>
 
