@@ -22,7 +22,6 @@ const Register = () => {
     1: { title: "What's your name?", subtitle: "Enter your name" },
     2: { title: "Add your email", subtitle: "We'll use this for your account" },
     3: { title: "Create a password", subtitle: "Make it strong and secure" },
-    4: { title: "Choose your style", subtitle: "Select your portfolio preference" },
   };
 
   const handleInputChange = (e) => {
@@ -31,11 +30,6 @@ const Register = () => {
     if (error) setError('');
   };
 
-  // Update to handle boolean selection
-  const handlePreferenceSelect = (isProfessional) => {
-    setFormData(prev => ({ ...prev, professional: isProfessional }));
-    if (error) setError('');
-  };
 
   const validateStep = () => {
     switch (step) {
@@ -65,9 +59,6 @@ const Register = () => {
           return false;
         }
         break;
-      case 4:
-        // No validation needed since default is true and user can choose
-        break;
       default:
         break;
     }
@@ -77,7 +68,7 @@ const Register = () => {
 
   const nextStep = () => {
     if (validateStep()) {
-      if (step === 4) {
+      if (step === 3) {
         handleRegister();
       } else {
         setStep(step + 1);
@@ -207,62 +198,6 @@ const Register = () => {
               <button
                 type="button"
                 onClick={nextStep}
-                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-500 dark:to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 dark:hover:from-purple-600 dark:hover:to-pink-600"
-              >
-                Continue
-              </button>
-            </div>
-          </>
-        );
-      case 4:
-        return (
-          <>
-            <div className="space-y-3">
-              <div 
-                onClick={() => handlePreferenceSelect(true)}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                  formData.professional === true 
-                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
-                    : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500'
-                }`}
-              >
-                <h3 className="font-medium text-gray-900 dark:text-white">Professional</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Create and download a clean, professional portfolio design. Perfect for job applications and corporate profiles.
-                </p>
-                {formData.professional === true && (
-                  <div className="mt-2 text-xs text-purple-600 dark:text-purple-400">
-                    ✓ Professional template selected
-                  </div>
-                )}
-              </div>
-              
-              <div 
-                onClick={() => handlePreferenceSelect(false)}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                  formData.professional === false 
-                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
-                    : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500'
-                }`}
-              >
-                <h3 className="font-medium text-gray-900 dark:text-white">Playful & Creative</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  A creative, interactive portfolio with unique design elements, animations, and experimental features for personal branding.
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="w-1/2 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700 text-white"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
                 disabled={isLoading}
                 className={`w-1/2 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
                   isLoading
@@ -296,7 +231,7 @@ const Register = () => {
       <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2.5 mb-6">
         <div 
           className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
-          style={{ width: `${(step / 4) * 100}%` }}
+          style={{ width: `${(step / 3) * 100}%` }}
         ></div>
       </div>
       <p className="text-center text-sm text-gray-600 dark:text-gray-300">
