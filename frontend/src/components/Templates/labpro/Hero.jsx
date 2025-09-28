@@ -1,30 +1,20 @@
-// components/Templates/labpro/Hero.jsx - Enhanced with chemistry themes
+// components/Templates/labpro/Hero.jsx - Restored to original with transparent background
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import useCvData from '../../../hooks/useCVData';
 import LabProModel from '../../3DModels/Labpro';
 
-// Placeholder ChemistryFlask component until you place the file
-const ChemistryFlask = ({ scale, position }) => (
-  <div className="absolute w-24 h-24 bg-emerald-400/10 rounded-full border border-emerald-400/30 flex items-center justify-center backdrop-blur-sm">
-    <div className="text-3xl text-emerald-400 animate-pulse">🧪</div>
-    <div className="absolute -bottom-6 text-white/50 text-xs whitespace-nowrap">Flask</div>
-  </div>
-);
-
 const Hero = () => {
   const { name, description } = useCvData() || {};
 
   return (
-    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 flex items-center">
+    <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-emerald-900/30 to-teal-900/20 flex items-center">
       <div className="max-w-7xl mx-auto px-6 w-full flex flex-col md:flex-row items-center justify-between h-full">
         <div className="flex-1 max-w-2xl space-y-6">
-          {/* Restored original hero title with subtle chemistry icons */}
+          {/* Original hero title - no emojis, no Dr. */}
           <h1 className="text-white font-black text-5xl sm:text-6xl lg:text-7xl">
-            <span className="text-emerald-300 text-2xl mr-2">⚛️</span>
-            Dr. <span className="text-emerald-400">{name || "Researcher"}</span>
-            <span className="text-emerald-300 text-2xl ml-2">🧪</span>
+            Hi, I'm <span className="text-emerald-400">{name || "Researcher"}</span>
           </h1>
           <p className="text-gray-300 text-lg sm:text-xl max-w-lg">
             {description || "Leading research scientist pioneering innovative solutions through rigorous experimentation and data-driven analysis."}
@@ -37,12 +27,7 @@ const Hero = () => {
           </button>
         </div>
 
-        <div className="flex-1 w-full h-full max-w-2xl relative">
-          {/* Chemistry Flask positioned in hero - made smaller and more subtle */}
-          <div className="absolute top-1/4 right-1/4 z-20">
-            <ChemistryFlask scale={[0.8, 0.8, 0.8]} position={[0, 0, 0]} />
-          </div>
-
+        <div className="flex-1 w-full h-full max-w-2xl">
           <Canvas
             camera={{ 
               position: [1800, 900, 1800], 
