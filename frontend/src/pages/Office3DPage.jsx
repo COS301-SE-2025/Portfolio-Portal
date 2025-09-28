@@ -20,7 +20,6 @@ export default function Office3DPage() {
       const camera = sceneRef.current.getObjectByName(cameraName);
       
       if (camera) {
-        // Smooth transition to the predefined camera
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
         controlsRef.current.target.set(0, 2, 0);
@@ -88,59 +87,6 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData, sceneRef }) {
-  const mockData = {
-    name: "JOHN DOE",
-    title: "FULL STACK DEVELOPER",
-    about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions and user-friendly experiences. Specializing in modern web frameworks and 3D interactive experiences.",
-    email: "JOHN.DOE@EXAMPLE.COM",
-    phone: "+1 (555) 123-4567",
-    skills: ["JAVASCRIPT", "REACT", "NODE.JS", "THREE.JS", "UI/UX DESIGN", "WEBGL", "3D GRAPHICS"],
-    experience: [
-      {
-        company: "Tech Innovations Inc.",
-        title: "Senior Developer",
-        startDate: "2020",
-        endDate: "2023",
-        description: "Led frontend development team for flagship product. Implemented modern React architecture and improved performance by 40%. Managed team of 5 developers."
-      },
-      {
-        company: "Web Solutions Ltd.",
-        title: "Frontend Developer",
-        startDate: "2018",
-        endDate: "2020",
-        description: "Developed responsive web applications and collaborated with design team to implement user interfaces."
-      }
-    ],
-    education: [
-      {
-        institution: "Tech University",
-        degree: "Bachelor of Computer Science",
-        startDate: "2014",
-        endDate: "2018",
-        gpa: "3.8/4.0"
-      },
-      {
-        institution: "Code Academy",
-        degree: "Advanced Web Development Certification",
-        startDate: "2017",
-        endDate: "2018"
-      }
-    ],
-    references: [
-      {
-        name: "Jane Smith",
-        position: "CTO at Tech Innovations",
-        contact: "jane.smith@techinnovations.com"
-      },
-      {
-        name: "Mike Johnson",
-        position: "Lead Developer at Web Solutions",
-        contact: "mike.johnson@websolutions.com"
-      }
-    ]
-  };
-
-  const data = cvData || mockData;
   const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
 
   useEffect(() => {
@@ -148,6 +94,7 @@ function Office3DScene({ cvData, sceneRef }) {
       sceneRef.current = gltf.scene;
       
       console.log("Scene loaded, applying text to planes...");
+      console.log("CV Data:", cvData); // Debug log to see what data we have
       
       // Apply text to all planes
       gltf.scene.traverse((object) => {
@@ -157,65 +104,107 @@ function Office3DScene({ cvData, sceneRef }) {
           
           switch(object.name) {
             case 'NameAbout':
-              textContent = `${data.name || 'JOHN DOE'}\n\n${data.title || 'FULL STACK DEVELOPER'}\n\n${data.about || 'Experienced professional with a passion for innovation.'}`;
+              // Use actual CV data with fallbacks
+              const name = cvData?.name || cvData?.userName || 'JOHN DOE';
+              const title = cvData?.title || cvData?.jobTitle || 'FULL STACK DEVELOPER';
+              const about = cvData?.about || cvData?.summary || 'Experienced professional with a passion for innovation.';
+              
+              textContent = `${name}\n\n${title}\n\n${about}`;
               isNameAbout = true;
-              console.log(`Applying NameAbout text`);
+              console.log(`Applying NameAbout: ${name}`);
               break;
+              
             case 'Experience':
               let experienceContent = "EXPERIENCE\n\n";
-              if (data.experience?.length > 0) {
-                data.experience.forEach((exp, index) => {
-                  experienceContent += `${exp.title.toUpperCase()}\n${exp.company.toUpperCase()}\n${exp.startDate} - ${exp.endDate}\n${exp.description || ''}`;
-                  if (index < data.experience.length - 1) {
+              if (cvData?.experience?.length > 0) {
+                cvData.experience.forEach((exp, index) => {
+                  experienceContent += `${exp.title?.toUpperCase() || 'POSITION'}\n${exp.company?.toUpperCase() || 'COMPANY'}\n${exp.startDate || 'START'} - ${exp.endDate || 'END'}`;
+                  
+                  // Add extra bullet points if they exist
+                  if (exp.extra?.length > 0) {
+                    exp.extra.forEach(extra => {
+                      experienceContent += `\n• ${extra.replace('¢ ', '')}`;
+                    });
+                  } else if (exp.description) {
+                    experienceContent += `\n• ${exp.description}`;
+                  }
+                  
+                  if (index < cvData.experience.length - 1) {
                     experienceContent += '\n\n';
                   }
                 });
+              } else {
+                experienceContent += "No experience data available";
               }
               textContent = experienceContent;
               break;
+              
             case 'Education':
               let educationContent = "EDUCATION\n\n";
-              if (data.education?.length > 0) {
-                data.education.forEach((edu, index) => {
-                  educationContent += `${edu.degree.toUpperCase()}\n${edu.institution.toUpperCase()}`;
+              if (cvData?.education?.length > 0) {
+                cvData.education.forEach((edu, index) => {
+                  educationContent += `${edu.degree?.toUpperCase() || 'DEGREE'}\n${edu.institution?.toUpperCase() || 'INSTITUTION'}`;
+                  
                   if (edu.startDate && edu.endDate) {
                     educationContent += `\n${edu.startDate} - ${edu.endDate}`;
+                  } else if (edu.endDate) {
+                    educationContent += `\n${edu.endDate}`;
                   }
+                  
+                  if (edu.field) {
+                    educationContent += `\nField: ${edu.field}`;
+                  }
+                  
                   if (edu.gpa) {
                     educationContent += `\nGPA: ${edu.gpa}`;
                   }
-                  if (index < data.education.length - 1) {
+                  
+                  if (index < cvData.education.length - 1) {
                     educationContent += '\n\n';
                   }
                 });
+              } else {
+                educationContent += "No education data available";
               }
               textContent = educationContent;
               break;
+              
             case 'Skills':
               let skillsContent = "SKILLS\n\n";
-              if (data.skills?.length > 0) {
-                skillsContent += data.skills.join('\n').toUpperCase();
+              if (cvData?.skills?.length > 0) {
+                skillsContent += cvData.skills.join('\n').toUpperCase();
+              } else {
+                skillsContent += "No skills data available";
               }
               textContent = skillsContent;
               break;
+              
             case 'Reference':
               let referenceContent = "REFERENCES\n\n";
-              if (data.references?.length > 0) {
-                data.references.forEach((ref, index) => {
-                  referenceContent += `${ref.name.toUpperCase()}\n${ref.position.toUpperCase()}\n${ref.contact}`;
-                  if (index < data.references.length - 1) {
+              if (cvData?.references?.length > 0) {
+                cvData.references.forEach((ref, index) => {
+                  referenceContent += `${ref.name?.toUpperCase() || 'NAME'}\n${ref.position?.toUpperCase() || 'POSITION'}\n${ref.contact || 'CONTACT INFO'}`;
+                  if (index < cvData.references.length - 1) {
                     referenceContent += '\n\n';
                   }
                 });
+              } else {
+                referenceContent += "No references available";
               }
               textContent = referenceContent;
               break;
+              
             case 'Contact':
               let contactContent = "CONTACT\n\n";
-              if (data.email) contactContent += `${data.email}\n`;
-              if (data.phone) contactContent += `${data.phone}\n`;
-              if (data.location) contactContent += `${data.location}`;
-              textContent = contactContent || 'CONTACT\n\nJOHN.DOE@EXAMPLE.COM\n+1 (555) 123-4567';
+              const email = cvData?.email || 'EMAIL@EXAMPLE.COM';
+              const phone = cvData?.phone || '+1 (555) 123-4567';
+              const location = cvData?.location || '';
+              
+              contactContent += `${email}\n${phone}`;
+              if (location) {
+                contactContent += `\n${location}`;
+              }
+              textContent = contactContent;
               break;
           }
           
@@ -226,13 +215,13 @@ function Office3DScene({ cvData, sceneRef }) {
         }
       });
     }
-  }, [gltf, data]);
+  }, [gltf, cvData]);
 
   const applyTextToMesh = (mesh, textContent, isNameAbout = false) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // LARGE canvas for sharp text
+    // Large canvas for sharp text
     canvas.width = 8192;
     canvas.height = 4096;
     
@@ -240,8 +229,8 @@ function Office3DScene({ cvData, sceneRef }) {
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = 'high';
     
-    // LIGHT GREY background
-    context.fillStyle = '#f3f4f6';
+    // LIGHT GREY background (softer than white)
+    context.fillStyle = '#f1f5f9';
     context.fillRect(0, 0, canvas.width, canvas.height);
     
     // PURE BLACK text for maximum contrast
@@ -320,9 +309,48 @@ function Office3DScene({ cvData, sceneRef }) {
   );
 }
 
-// Custom hook for CV data
+// Custom hook for CV data - using your actual hook
 function useCvData() {
-  return { cvData: null };
+  // This should use your actual useCVData hook
+  try {
+    const useCVData = require('../../../hooks/useCVData').default;
+    return useCVData() || {};
+  } catch (error) {
+    console.log('Using mock data for development');
+    return {
+      name: "JOHN DOE",
+      title: "FULL STACK DEVELOPER", 
+      about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions.",
+      email: "JOHN.DOE@EXAMPLE.COM",
+      phone: "+1 (555) 123-4567",
+      skills: ["JAVASCRIPT", "REACT", "NODE.JS", "THREE.JS"],
+      experience: [
+        {
+          company: "Tech Innovations Inc.",
+          title: "Senior Developer",
+          startDate: "2020",
+          endDate: "2023",
+          description: "Led frontend development team for flagship product."
+        }
+      ],
+      education: [
+        {
+          institution: "Tech University",
+          degree: "Bachelor of Computer Science",
+          startDate: "2014",
+          endDate: "2018",
+          gpa: "3.8/4.0"
+        }
+      ],
+      references: [
+        {
+          name: "Jane Smith",
+          position: "CTO at Tech Innovations",
+          contact: "jane.smith@techinnovations.com"
+        }
+      ]
+    };
+  }
 }
 
 function LoadingModel() {
