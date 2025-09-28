@@ -72,7 +72,7 @@ const Contact = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    // Add your form submission logic here
+    // form submission logic 
   };
 
   return (
@@ -207,26 +207,6 @@ const Contact = () => {
           </p>
         </div>
       </div>
-      {/* Download Portfolio Section */}
-      <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-purple-400">Download Portfolio</h2>
-        <div className="p-6 bg-purple-500/10 border border-purple-400/30 rounded-lg text-center">
-          <h3 className="text-white text-2xl font-bold mb-4">Get Your Portfolio Website</h3>
-          <p className="text-white/90 mb-6">
-            Download your complete portfolio as a standalone React application that you can customize and deploy anywhere.
-          </p>
-          <DownloadButton 
-            isDownloading={isDownloading}
-            onClick={handleDownload}
-            variant="default"
-            className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700"
-          />
-          <p className="text-white/70 text-sm mt-4">
-            Includes complete React app with your data, ready to run with npm install && npm start
-          </p>
-        </div>
-      </div>
-
     </div>
   );
 };
