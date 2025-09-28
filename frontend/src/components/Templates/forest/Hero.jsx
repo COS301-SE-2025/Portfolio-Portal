@@ -1,10 +1,37 @@
 // //frontend/src/components/Templates/forest/Hero.jsx
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../utils/motion";
-import useCvData from "../../../hooks/useCVData";
+import useCVData from "../../../hooks/useCVData";
 
 const Hero = () => {
-  const { name, description } = useCvData() || {};
+  const { name, description, summary, about, _raw } = useCVData();
+
+  // Extract just professional tagline from raw OCR data
+  const getProfessionalTagline = () => {
+    // 1st, try find a tagline pattern in the raw OCR text
+    if (_raw && typeof _raw === 'string') {
+      // Look for patterns like "Art Director | Environmental enthusiast"
+      const taglineMatch = _raw.match(/^([^\.\n]+\|[^\.\n]+|[^\.\n]+–[^\.\n]+|[^\.\n]+\|[^\.\n]+)/);
+      if (taglineMatch) return taglineMatch[0].trim();
+    }
+    
+    // Fallback: use 1st line before "ABOUT ME" / similar sections
+    if (description) {
+      const lines = description.split('\n');
+      for (let line of lines) {
+        if (line && line.length > 10 && line.length < 100 && 
+            !line.toLowerCase().includes('about') && 
+            !line.toLowerCase().includes('experience') &&
+            !line.toLowerCase().includes('education')) {
+          return line.trim();
+        }
+      }
+    }
+    
+    return "...";
+  };
+
+  const heroDescription = getProfessionalTagline();
 
   return (
     <section className="relative w-full h-screen mx-auto">
@@ -21,16 +48,15 @@ const Hero = () => {
             animate="show"
             className="text-white font-black text-5xl sm:text-6xl lg:text-7xl"
           >
-            Hi, I'm <span className="text-green-400">{name || "Alex"}</span>
+            Hi, I'm <span className="text-green-400">{name || " "}</span>
           </motion.h1>
           <motion.p
             variants={fadeIn("up", "spring", 0.7, 1)}
             initial="hidden"
             animate="show"
-            className="text-white mt-4 text-lg sm:text-xl max-w-3xl"
+            className="text-green-200 mt-4 text-xl sm:text-2xl max-w-3xl font-medium"
           >
-            {description ||
-              "Digital storyteller & environmental advocate using technology to protect our planet's wild spaces."}
+            {heroDescription}
           </motion.p>
         </div>
       </div>
