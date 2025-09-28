@@ -25,5 +25,4 @@ dist-ssr
 .DS_Store
 .env.development
 .env.production
-
-
+cypress.env.json
