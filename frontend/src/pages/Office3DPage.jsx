@@ -33,10 +33,22 @@ export default function Office3DPage() {
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
         
+        // SPECIAL CASE: For Contact camera, rotate 180 degrees to fix downward view
+        if (section === 'contact') {
+          console.log('Applying 180-degree rotation for Contact camera');
+          // Create a new rotation by adding 180 degrees (π radians) to the Y rotation
+          const newRotation = new THREE.Euler(
+            controlsRef.current.object.rotation.x,
+            controlsRef.current.object.rotation.y + Math.PI, // 180 degrees
+            controlsRef.current.object.rotation.z
+          );
+          controlsRef.current.object.rotation.copy(newRotation);
+        }
+        
         // Calculate target based on camera direction
         const direction = new THREE.Vector3();
         camera.getWorldDirection(direction);
-        const target = camera.position.clone().add(direction.multiplyScalar(5)); // Shorter distance for more precise targeting
+        const target = camera.position.clone().add(direction.multiplyScalar(5));
         controlsRef.current.target.copy(target);
         
         // Force immediate update
@@ -102,7 +114,12 @@ export default function Office3DPage() {
           position: [0, 3, 8],
           fov: 50
         }}
-        gl={{ alpha: true }}
+        gl={{ 
+          alpha: true,
+          powerPreference: "high-performance", // Performance optimization
+          antialias: false // Disable antialiasing for better performance
+        }}
+        dpr={[1, 1.5]} // Lower pixel ratio for better performance
       >
         <color attach="background" args={['#e5e7eb']} />
         <ambientLight intensity={1.5} />
@@ -136,18 +153,25 @@ export default function Office3DPage() {
 }
 
 function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
-  const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
+  // Use a simpler loader with performance optimizations
+  const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb', (loader) => {
+    // Optimize loading
+    loader.manager.onStart = () => console.log('Loading model...');
+  });
 
   useEffect(() => {
-    if (gltf?.scene) {
+    if (gltf && gltf.scene) {
       sceneRef.current = gltf.scene;
       
       console.log("=== CV DATA DEBUG ===");
       console.log("Full CV Data:", cvData);
       
-      // Check if CameraStart exists
-      const startCamera = gltf.scene.getObjectByName('CameraStart');
-      console.log('CameraStart found:', startCamera);
+      // Check if all cameras exist
+      const cameras = ['CameraStart', 'CameraNameabout', 'CameraExperience', 'CameraEducation', 'CameraSkills', 'CameraReference', 'CameraContact'];
+      cameras.forEach(camName => {
+        const camera = gltf.scene.getObjectByName(camName);
+        console.log(`${camName} found:`, !!camera);
+      });
       
       // Apply text to all planes
       gltf.scene.traverse((object) => {
@@ -157,9 +181,9 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           
           switch(object.name) {
             case 'NameAbout':
-              const name = cvData?.name || 'Default Name';
-              const title = cvData?.title || 'Default Title';
-              const about = cvData?.about || cvData?.summary || 'Default about text describing professional experience and skills.';
+              const name = (cvData && cvData.name) || 'Default Name';
+              const title = (cvData && cvData.title) || 'Default Title';
+              const about = (cvData && (cvData.about || cvData.summary)) || 'Default about text describing professional experience and skills.';
               
               textContent = `${name}\n\n${title}\n\n${about}`;
               isNameAbout = true;
@@ -167,11 +191,10 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               
             case 'Experience':
               let experienceContent = "EXPERIENCE\n\n";
-              if (cvData?.experience && Array.isArray(cvData.experience) && cvData.experience.length > 0) {
+              if (cvData && cvData.experience && Array.isArray(cvData.experience) && cvData.experience.length > 0) {
                 cvData.experience.forEach((exp, index) => {
                   experienceContent += `${exp.title || 'Position'}\n${exp.company || 'Company'}\n${exp.startDate || 'Start'} - ${exp.endDate || 'End'}`;
                   
-                  // Handle bullet points with proper wrapping
                   if (exp.extra && Array.isArray(exp.extra) && exp.extra.length > 0) {
                     exp.extra.forEach(extra => {
                       const cleanExtra = extra.replace('¢ ', '');
@@ -193,7 +216,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               
             case 'Education':
               let educationContent = "EDUCATION\n\n";
-              if (cvData?.education && Array.isArray(cvData.education) && cvData.education.length > 0) {
+              if (cvData && cvData.education && Array.isArray(cvData.education) && cvData.education.length > 0) {
                 cvData.education.forEach((edu, index) => {
                   educationContent += `${edu.degree || 'Degree'}\n${edu.institution || 'Institution'}`;
                   
@@ -223,7 +246,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               
             case 'Skills':
               let skillsContent = "SKILLS\n\n";
-              if (cvData?.skills && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
+              if (cvData && cvData.skills && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
                 skillsContent += cvData.skills.join('\n');
               } else {
                 skillsContent += "JavaScript\nReact\nNode.js\nThree.js\nUI/UX Design";
@@ -233,7 +256,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               
             case 'Reference':
               let referenceContent = "REFERENCES\n\n";
-              if (cvData?.references && Array.isArray(cvData.references) && cvData.references.length > 0) {
+              if (cvData && cvData.references && Array.isArray(cvData.references) && cvData.references.length > 0) {
                 cvData.references.forEach((ref, index) => {
                   referenceContent += `${ref.name || 'Reference Name'}\n${ref.position || 'Position'}\n${ref.contact || 'Contact Info'}`;
                   if (index < cvData.references.length - 1) {
@@ -248,16 +271,20 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
               
             case 'Contact':
               let contactContent = "CONTACT\n\n";
-              const email = cvData?.email || 'email@example.com';
-              const phone = cvData?.phone || '+1 (555) 123-4567';
-              const location = cvData?.location || '';
+              const email = (cvData && cvData.email) || 'email@example.com';
+              const phone = (cvData && cvData.phone) || '+1 (555) 123-4567';
+              const location = (cvData && cvData.location) || '';
               
               contactContent += `${email}\n${phone}`;
               if (location) {
                 contactContent += `\n${location}`;
               }
               textContent = contactContent;
+              console.log('Contact text content:', contactContent);
               break;
+
+            default:
+              console.log('Unknown plane name:', object.name);
           }
           
           if (textContent) {
@@ -282,9 +309,9 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // Even larger canvas for bigger text
-    canvas.width = 8192;
-    canvas.height = 4096;
+    // Reduced canvas size for better performance (was 8192x4096)
+    canvas.width = 4096; // Reduced by 50%
+    canvas.height = 2048; // Reduced by 50%
     
     // Enable image smoothing for better text rendering
     context.imageSmoothingEnabled = true;
@@ -304,25 +331,25 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       
-      let currentY = 600;
+      let currentY = 300; // Adjusted for smaller canvas
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Name - EXTREMELY LARGE
-          context.font = 'bold 460px "Arial Black", Arial, sans-serif';
+          // Name - LARGE (reduced font size)
+          context.font = 'bold 230px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 550;
+          currentY += 275;
         } else if (index === 2) {
-          // Title - VERY LARGE
-          context.font = 'bold 340px "Arial Black", Arial, sans-serif';
+          // Title - LARGE (reduced font size)
+          context.font = 'bold 170px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
-          currentY += 500;
+          currentY += 250;
         } else if (index === 4) {
-          // About - LARGE with proper wrapping
-          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
-          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 160);
+          // About - LARGE with proper wrapping (reduced font size)
+          context.font = 'bold 80px "Arial Black", Arial, sans-serif';
+          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 80);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 200));
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 100));
           });
         }
       });
@@ -331,36 +358,36 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
       context.textAlign = 'left';
       context.textBaseline = 'top';
       
-      let currentY = 300;
-      const maxWidth = canvas.width - 600; // Leave padding on sides
+      let currentY = 150; // Adjusted for smaller canvas
+      const maxWidth = canvas.width - 300; // Leave padding on sides
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Section heading - MASSIVE
-          context.font = 'bold 380px "Arial Black", Arial, sans-serif';
-          context.fillText(line, 300, currentY);
-          currentY += 450;
+          // Section heading - MASSIVE (reduced font size)
+          context.font = 'bold 190px "Arial Black", Arial, sans-serif';
+          context.fillText(line, 150, currentY);
+          currentY += 225;
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 180;
+          currentY += 90;
         } else if (line.startsWith('•')) {
-          // Bullet points - larger
-          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
-          const bulletText = line.substring(1).trim(); // Remove the bullet
-          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 100, 140);
+          // Bullet points - larger (reduced font size)
+          context.font = 'bold 70px "Arial Black", Arial, sans-serif';
+          const bulletText = line.substring(1).trim();
+          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 50, 70);
           wrappedBulletLines.forEach((wrappedLine, wrappedIndex) => {
             const prefix = wrappedIndex === 0 ? '• ' : '  ';
-            context.fillText(prefix + wrappedLine, 350, currentY + (wrappedIndex * 170));
+            context.fillText(prefix + wrappedLine, 175, currentY + (wrappedIndex * 85));
           });
-          currentY += (wrappedBulletLines.length * 170);
+          currentY += (wrappedBulletLines.length * 85);
         } else {
-          // Content - LARGE with wrapping
-          context.font = 'bold 180px "Arial Black", Arial, sans-serif';
-          const wrappedLines = wrapText(context, line, maxWidth, 180);
+          // Content - LARGE with wrapping (reduced font size)
+          context.font = 'bold 90px "Arial Black", Arial, sans-serif';
+          const wrappedLines = wrapText(context, line, maxWidth, 90);
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, 300, currentY + (wrappedIndex * 220));
+            context.fillText(wrappedLine, 150, currentY + (wrappedIndex * 110));
           });
-          currentY += (wrappedLines.length * 220);
+          currentY += (wrappedLines.length * 110);
         }
       });
     }
@@ -369,7 +396,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 16;
+    texture.anisotropy = 8; // Reduced from 16 for performance
     texture.needsUpdate = true;
     
     mesh.material = new THREE.MeshBasicMaterial({
@@ -405,7 +432,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
 
   return (
     <group position={[0, 0, 0]}>
-      {gltf?.scene && <primitive object={gltf.scene} />}
+      {gltf && gltf.scene && <primitive object={gltf.scene} />}
     </group>
   );
 }
@@ -433,10 +460,29 @@ function FallbackModel() {
 }
 
 class ErrorBoundary extends React.Component {
-  state = { hasError: false };
-  static getDerivedStateFromError = () => ({ hasError: true });
-  componentDidCatch(error) { console.error('3D Error:', error); }
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
   render() {
-    return this.state.hasError ? this.props.fallback : this.props.children;
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <h2 className="font-bold">Something went wrong.</h2>
+          <p>Please refresh the page or try again later.</p>
+        </div>
+      );
+    }
+
+    return this.props.children; 
   }
 }
