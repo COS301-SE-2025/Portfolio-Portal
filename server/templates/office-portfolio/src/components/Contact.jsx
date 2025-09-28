@@ -8,7 +8,6 @@ const Contact = () => {
     email: '',
     message: ''
   });
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -228,11 +228,11 @@ const Register = () => {
               >
                 <h3 className="font-medium text-gray-900 dark:text-white">Professional</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Auto-deploy your portfolio on GitHub Pages with a clean, professional design. Perfect for job applications and corporate profiles.
+                  Create and download a clean, professional portfolio design. Perfect for job applications and corporate profiles.
                 </p>
                 {formData.professional === true && (
                   <div className="mt-2 text-xs text-purple-600 dark:text-purple-400">
-                    ✓ Includes GitHub Pages integration
+                    ✓ Professional template selected
                   </div>
                 )}
               </div>

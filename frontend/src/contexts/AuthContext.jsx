@@ -2,7 +2,13 @@
 import React, { createContext, useState, useEffect } from 'react';
 import api from '../services/api.service';
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({
+  isAuthenticated: false,
+  userId: null,
+  isLoadingAuth: true,
+  login: () => {},
+  logout: () => {}
+});
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

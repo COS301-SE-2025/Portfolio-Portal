@@ -4,6 +4,7 @@ import { fadeIn } from "../../../utils/motion";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
 import { useCVData } from "../../../hooks/useCVData.js";
+import GitHubDeploy from "../../GithubDeploy.jsx";
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
@@ -15,6 +16,12 @@ const Contact = () => {
       alert(result.error);
     }
   };
+
+  const handleDeploySuccess = (result) => {
+    console.log('Portfolio deployed successfully:', result);
+    // You could show a toast notification here or update some global state
+  };
+
   return (
     <section id="contact" className="relative w-full py-20 mx-auto">
       <div className="max-w-7xl mx-auto px-6">
@@ -95,6 +102,20 @@ const Contact = () => {
           />
         </motion.div>
 
+        {/* GitHub Deploy Section */}
+        <motion.div
+          variants={fadeIn("up", "spring", 0.9, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="mt-8"
+        >
+          <GitHubDeploy
+            userData={cvData}
+            template="forest"
+            onDeploySuccess={handleDeploySuccess}
+          />
+        </motion.div>
       </div>
     </section>
   );

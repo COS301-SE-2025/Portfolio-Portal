@@ -1,3 +1,5 @@
+//frontend/src/components/Templates/cave/cavev2/Experience.jsx
+import React from "react";
 import { motion } from "framer-motion";
 import { fadeIn } from "../../../../utils/motion";
 import useCvData from "../../../../hooks/useCVData";
@@ -14,7 +16,7 @@ const Experience = () => {
           whileInView="show"
           viewport={{ once: true }}
         >
-          <h2 className="text-emerald-400 text-4xl font-bold mb-10">
+          <h2 className="text-orange-200 text-4xl font-bold mb-10">
             Professional Journey
           </h2>
 
@@ -22,11 +24,11 @@ const Experience = () => {
             {experience?.map((exp, index) => (
               <div
                 key={`exp-${index}`}
-                className="bg-[#0a0a2e]/70 p-6 rounded-2xl backdrop-blur-sm border border-emerald-400/20"
+                className="bg-stone-900/50 p-6 rounded-2xl backdrop-blur-sm border border-stone-500/20"
               >
                 <h3 className="text-white text-2xl font-bold">{exp.title}</h3>
-                <p className="text-emerald-400 text-lg">{exp.company}</p>
-                <p className="text-gray-400 mb-4">{`${exp.startDate} - ${exp.endDate}`}</p>
+                <p className="text-orange-200 text-lg">{exp.company}</p>
+                <p className="text-orange-100 mb-4">{`${exp.startDate} - ${exp.endDate}`}</p>
                 <ul className="text-white list-disc pl-5">
                   {exp.extra?.map((bullet, bulletIndex) => (
                     <li key={`bullet-${index}-${bulletIndex}`}>{bullet}</li>
@@ -36,7 +38,7 @@ const Experience = () => {
             ))}
           </div>
 
-          <h2 className="text-emerald-400 text-4xl font-bold mt-20 mb-10">
+          <h2 className="text-orange-200 text-4xl font-bold mt-20 mb-10">
             Education
           </h2>
 
@@ -44,11 +46,11 @@ const Experience = () => {
             {education?.map((edu, index) => (
               <div
                 key={`edu-${index}`}
-                className="bg-[#0a0a2e]/70 p-6 rounded-2xl backdrop-blur-sm border border-emerald-400/20"
+                className="bg-stone-900/50 p-6 rounded-2xl backdrop-blur-sm border border-stone-500/20"
               >
                 <h3 className="text-white text-2xl font-bold">{edu.degree}</h3>
-                <p className="text-emerald-400 text-lg">{edu.institution}</p>
-                <p className="text-gray-400 mb-4">{edu.endDate}</p>
+                <p className="text-orange-200 text-lg">{edu.institution}</p>
+                <p className="text-orange-100 mb-4">{edu.endDate}</p>
                 {edu.field && <p className="text-white">{edu.field}</p>}
                 {edu.gpa && <p className="text-white">GPA: {edu.gpa}</p>}
               </div>

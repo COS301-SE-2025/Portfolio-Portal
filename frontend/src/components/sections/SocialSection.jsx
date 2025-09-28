@@ -9,127 +9,13 @@ import {
   Users,
   Star,
   TrendingUp,
-  X
+  X,
+  Search
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
-
-// Mock data for users and their portfolios
-const mockUsers = [
-  {
-    id: 1,
-    name: "Alex Chen",
-    bio: "Full-stack developer passionate about clean code",
-    email: "alex.chen@example.com",
-    profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    selected_template: "space",
-    template_title: "Cosmic Portfolio",
-    template_image: "/images/space.png",
-    template_route: "/space",
-    followers: 245,
-    following: 180,
-    likes: 89,
-    isFollowing: false,
-    isLiked: false,
-    created_at: "2024-01-15",
-    github: "https://github.com/alexchen",
-    linkedin: "https://linkedin.com/in/alexchen"
-  },
-  {
-    id: 2,
-    name: "Sarah Rodriguez",
-    bio: "UI/UX Designer & Frontend Developer",
-    email: "sarah.rodriguez@example.com",
-    profileImage: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    selected_template: "forest",
-    template_title: "Nature's Portfolio",
-    template_image: "/images/forest.png",
-    template_route: "/forest",
-    followers: 320,
-    following: 95,
-    likes: 156,
-    isFollowing: true,
-    isLiked: true,
-    created_at: "2023-11-22",
-    github: "https://github.com/sarahrodriguez",
-    linkedin: "https://linkedin.com/in/sarahrodriguez"
-  },
-  {
-    id: 3,
-    name: "Marcus Johnson",
-    bio: "Backend Engineer specializing in microservices",
-    email: "marcus.johnson@example.com",
-    profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    selected_template: "office",
-    template_title: "Professional Hub",
-    template_image: "/images/office.png",
-    template_route: "/office",
-    followers: 189,
-    following: 210,
-    likes: 67,
-    isFollowing: false,
-    isLiked: false,
-    created_at: "2024-03-08",
-    github: "https://github.com/marcusjohnson",
-    linkedin: "https://linkedin.com/in/marcusjohnson"
-  },
-  {
-    id: 4,
-    name: "Luna Kim",
-    bio: "Data Scientist & Machine Learning Engineer",
-    email: "luna.kim@example.com",
-    profileImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    selected_template: "lab",
-    template_title: "Research Lab",
-    template_image: "/images/lab.png",
-    template_route: "/lab",
-    followers: 412,
-    following: 156,
-    likes: 203,
-    isFollowing: true,
-    isLiked: false,
-    created_at: "2023-09-14",
-    github: "https://github.com/lunakim",
-    linkedin: "https://linkedin.com/in/lunakim"
-  },
-  {
-    id: 5,
-    name: "David Thompson",
-    bio: "Game Developer & 3D Artist",
-    email: "david.thompson@example.com",
-    profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    selected_template: "cave",
-    template_title: "Underground Studio",
-    template_image: "/images/cave.png",
-    template_route: "/cave",
-    followers: 278,
-    following: 134,
-    likes: 145,
-    isFollowing: false,
-    isLiked: true,
-    created_at: "2023-12-05",
-    github: "https://github.com/davidthompson",
-    linkedin: "https://linkedin.com/in/davidthompson"
-  },
-  {
-    id: 6,
-    name: "Emma Wilson",
-    bio: "Mobile App Developer & Tech Writer",
-    email: "emma.wilson@example.com",
-    profileImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    selected_template: "space",
-    template_title: "Stellar Showcase",
-    template_image: "/images/space.png",
-    template_route: "/space",
-    followers: 356,
-    following: 189,
-    likes: 234,
-    isFollowing: true,
-    isLiked: true,
-    created_at: "2024-02-18",
-    github: "https://github.com/emmawilson",
-    linkedin: "https://linkedin.com/in/emmawilson"
-  }
-];
+import socialService from '../../services/social.service';
+import { authService } from '../../services/cvDataService';
+import { profileService } from '../../services/profile.service';
 
 const templateThemes = {
   space: { color: "from-purple-600 to-indigo-600", name: "Space" },
@@ -152,6 +38,11 @@ const TemplatePreviewModal = ({ user, isOpen, onClose, onLike, onFollow }) => {
     }
   }, [user]);
 
+  /*
+   * MODAL INTERACTION HANDLERS
+   * Handle like/follow actions within the modal by updating local state
+   * and calling parent component handlers to sync with backend
+   */
   const handleLike = () => {
     setIsLiked(!isLiked);
     onLike(user.id, !isLiked);
@@ -346,11 +237,24 @@ const TemplatePreviewModal = ({ user, isOpen, onClose, onLike, onFollow }) => {
 
 const UserCard = ({ user, onLike, onFollow, onViewTemplate }) => {
   const { isDark } = useTheme();
+  
+  /*
+   * LOCAL STATE FOR LIKE/FOLLOW INTERACTIONS
+   * Each user card maintains its own state for immediate UI feedback
+   * before the backend API call completes. This provides responsive UX.
+   */
   const [isLiked, setIsLiked] = useState(user.isLiked);
   const [isFollowing, setIsFollowing] = useState(user.isFollowing);
   const [likes, setLikes] = useState(user.likes);
   const [followers, setFollowers] = useState(user.followers);
 
+  /*
+   * LIKE INTERACTION HANDLER
+   * 1. Immediately update local UI state for responsiveness
+   * 2. Update like count optimistically (+1 or -1)
+   * 3. Call parent handler which triggers backend API call
+   * 4. Parent will handle any API errors and revert state if needed
+   */
   const handleLike = (e) => {
     e.stopPropagation();
     const newLikedState = !isLiked;
@@ -359,6 +263,13 @@ const UserCard = ({ user, onLike, onFollow, onViewTemplate }) => {
     onLike(user.id, newLikedState);
   };
 
+  /*
+   * FOLLOW INTERACTION HANDLER
+   * 1. Immediately update local UI state for responsiveness
+   * 2. Update follower count optimistically (+1 or -1)
+   * 3. Call parent handler which triggers backend API call
+   * 4. Parent will handle any API errors and revert state if needed
+   */
   const handleFollow = (e) => {
     e.stopPropagation();
     const newFollowingState = !isFollowing;
@@ -481,7 +392,11 @@ const UserCard = ({ user, onLike, onFollow, onViewTemplate }) => {
           </p>
         )}
 
-        {/* Stats */}
+        {/* 
+         * SOCIAL STATS DISPLAY
+         * Shows current like/follower counts from local state
+         * These numbers update immediately when user interacts
+         */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex items-center space-x-1">
@@ -538,30 +453,242 @@ const UserCard = ({ user, onLike, onFollow, onViewTemplate }) => {
 
 const SocialSection = () => {
   const { isDark } = useTheme();
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleLike = (userId, liked) => {
-    console.log(`User ${userId} ${liked ? 'liked' : 'unliked'}`);
-    setUsers(prevUsers => 
-      prevUsers.map(user => 
-        user.id === userId 
-          ? { ...user, isLiked: liked, likes: liked ? user.likes + 1 : user.likes - 1 }
-          : user
-      )
-    );
+  /*
+   * USER AUTHENTICATION AND DATABASE RECORD MAPPING
+   * currentUser: Auth data from localStorage (contains auth_id as .id)
+   * currentDbUser: Actual database user record with integer primary key
+   * This mapping is crucial for API calls which require the database user.id
+   */
+  const currentUser = authService.getCurrentUser();
+  const [currentDbUser, setCurrentDbUser] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  /*
+   * SEARCH FUNCTIONALITY
+   * Filter users based on search query matching name or email
+   * Updates filteredUsers whenever users or searchQuery changes
+   */
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredUsers(users);
+    } else {
+      const query = searchQuery.toLowerCase().trim();
+      const filtered = users.filter(user => 
+        user.name.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [users, searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
-  const handleFollow = (userId, following) => {
-    console.log(`User ${userId} ${following ? 'followed' : 'unfollowed'}`);
-    setUsers(prevUsers => 
-      prevUsers.map(user => 
-        user.id === userId 
-          ? { ...user, isFollowing: following, followers: following ? user.followers + 1 : user.followers - 1 }
-          : user
-      )
-    );
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
+  /*
+   * DATA FETCHING AND USER MATCHING PROCESS
+   * 1. Fetch all users who have CV data from backend API
+   * 2. Get current user from localStorage and fetch their profile
+   * 3. Fetch current user's existing interactions (likes/follows)
+   * 4. Transform backend data into component-friendly format with interaction states
+   */
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get authentication token
+      const token = localStorage.getItem("token");
+      
+      // Fetch all users with CV data from backend
+      const usersResponse = await socialService.getAllUsers();
+      const usersData = usersResponse.data;
+
+      // Get current user's profile to find their database ID
+      let dbUser = null;
+      let interactions = [];
+      if (token) {
+        try {
+          // Fetch current user's profile using the same pattern as ProfileSection
+          const currentUserResponse = await profileService.getProfile(token);
+          dbUser = currentUserResponse.data;
+          setCurrentDbUser(dbUser);
+          
+          // Fetch current user's existing interactions if user found
+          if (dbUser && dbUser.id) {
+            const interactionsResponse = await socialService.getUserInteractions(dbUser.id);
+            interactions = interactionsResponse.data;
+          }
+        } catch (err) {
+          console.warn('Could not fetch current user profile or interactions:', err);
+        }
+      }
+
+      /*
+       * DATA TRANSFORMATION WITH INTERACTION STATE
+       * Transform raw backend data into component format including:
+       * - User profile information and social links
+       * - Like/follow status based on current user's interactions
+       * - Template information for portfolio previews
+       * - Social counts (followers_count, likes_received from database)
+       */
+      const transformedUsers = usersData.map(user => ({
+        id: user.id,
+        name: user.name || 'Anonymous User',
+        bio: user.bio || '',
+        email: user.email,
+        profileImage: user.profile_picture_path || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`,
+        selected_template: user.selected_template || 'space',
+        template_title: `${user.name || 'User'}'s Portfolio`,
+        template_image: `/images/${user.selected_template || 'space'}.png`,
+        template_route: `/${user.selected_template || 'space'}?userId=${user.id}`,
+        followers: user.followers_count || 0,
+        following: 0, // This would need a separate query if needed
+        likes: user.likes_received || 0,
+        // Check if current user has interacted with this user
+        isFollowing: interactions.some(i => i.target_user_id === user.id && i.interaction_type === 'follow'),
+        isLiked: interactions.some(i => i.target_user_id === user.id && i.interaction_type === 'like'),
+        created_at: user.created_at,
+        github: user.github,
+        linkedin: user.linkedin
+      }));
+
+      setUsers(transformedUsers);
+    } catch (error) {
+      console.error('Error fetching social data:', error);
+      setError('Failed to load community data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /*
+   * LIKE INTERACTION BACKEND HANDLER
+   * 1. Verify user is authenticated (has database record)
+   * 2. Call backend API to create/remove like interaction
+   * 3. Update local state for immediate UI feedback
+   * 4. Sync modal state if it's open for the same user
+   * 5. Handle API errors with user feedback
+   */
+  /*
+   * LIKE INTERACTION BACKEND HANDLER
+   * Since user is already authenticated to access this page,
+   * we proceed directly to API call without additional auth checks
+   */
+  const handleLike = async (targetUserId, liked) => {
+    try {
+      const userId = currentDbUser?.id || currentUser?.id;
+      
+      // Debug logging to identify the issue
+      console.log('Like API call data:', {
+        userId: userId,
+        targetUserId: targetUserId,
+        action: liked ? 'like' : 'unlike',
+        currentDbUser: currentDbUser,
+        currentUser: currentUser
+      });
+
+      // Call backend API - authentication handled by API layer
+      await socialService.likePortfolio(
+        userId, 
+        targetUserId, 
+        liked ? 'like' : 'unlike'
+      );
+      
+      // Update users list state with new like status and count
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === targetUserId 
+            ? { 
+                ...user, 
+                isLiked: liked, 
+                likes: liked ? user.likes + 1 : user.likes - 1 
+              }
+            : user
+        )
+      );
+
+      // Sync modal state if it's open for this user
+      if (selectedUser && selectedUser.id === targetUserId) {
+        setSelectedUser(prev => ({
+          ...prev,
+          isLiked: liked,
+          likes: liked ? prev.likes + 1 : prev.likes - 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating like:', error);
+      console.error('Error response data:', error.response?.data);
+      alert('Failed to update like status. Please try again.');
+    }
+  };
+
+  /*
+   * FOLLOW INTERACTION BACKEND HANDLER
+   * Since user is already authenticated to access this page,
+   * we proceed directly to API call without additional auth checks
+   */
+  const handleFollow = async (targetUserId, following) => {
+    try {
+      const userId = currentDbUser?.id || currentUser?.id;
+      
+      // Debug logging to identify the issue
+      console.log('Follow API call data:', {
+        userId: userId,
+        targetUserId: targetUserId,
+        action: following ? 'follow' : 'unfollow',
+        currentDbUser: currentDbUser,
+        currentUser: currentUser
+      });
+
+      // Call backend API - authentication handled by API layer
+      await socialService.followUser(
+        userId, 
+        targetUserId, 
+        following ? 'follow' : 'unfollow'
+      );
+      
+      // Update users list state with new follow status and count
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === targetUserId 
+            ? { 
+                ...user, 
+                isFollowing: following, 
+                followers: following ? user.followers + 1 : user.followers - 1 
+              }
+            : user
+        )
+      );
+
+      // Sync modal state if it's open for this user
+      if (selectedUser && selectedUser.id === targetUserId) {
+        setSelectedUser(prev => ({
+          ...prev,
+          isFollowing: following,
+          followers: following ? prev.followers + 1 : prev.followers - 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error updating follow:', error);
+      console.error('Error response data:', error.response?.data);
+      alert('Failed to update follow status. Please try again.');
+    }
   };
 
   const handleViewTemplate = (user) => {
@@ -574,11 +701,54 @@ const SocialSection = () => {
     setSelectedUser(null);
   };
 
+  if (loading) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${
+        isDark
+          ? "bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950"
+          : "bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100"
+      }`}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className={`text-lg ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+            Loading community...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${
+        isDark
+          ? "bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950"
+          : "bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-100"
+      }`}>
+        <div className="text-center">
+          <p className={`text-lg mb-4 ${isDark ? "text-red-400" : "text-red-600"}`}>
+            {error}
+          </p>
+          <button
+            onClick={fetchData}
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /*
+   * COMMUNITY STATISTICS CALCULATION
+   * Calculate real-time stats from current filtered users data for header display
+   * These numbers reflect the actual loaded and filtered data and user interactions
+   */
   const stats = {
-    totalUsers: users.length,
-    totalLikes: users.reduce((sum, user) => sum + user.likes, 0),
-    totalFollows: users.reduce((sum, user) => sum + user.followers, 0),
-    activeToday: Math.floor(users.length * 0.3)
+    totalUsers: filteredUsers.length,
+    totalLikes: filteredUsers.reduce((sum, user) => sum + user.likes, 0),
+    activeToday: Math.floor(filteredUsers.length * 0.3)
   };
 
   return (
@@ -607,7 +777,7 @@ const SocialSection = () => {
               {[
                 { icon: Users, label: "Members", value: stats.totalUsers, color: "blue" },
                 { icon: Heart, label: "Total Likes", value: stats.totalLikes, color: "red" },
-                { icon: TrendingUp, label: "Followers", value: stats.totalFollows, color: "green" },
+             
                 { icon: Star, label: "Active Today", value: stats.activeToday, color: "purple" }
               ].map(({ icon: Icon, label, value, color }) => (
                 <div key={label} className={`text-center p-4 rounded-xl ${
@@ -626,18 +796,99 @@ const SocialSection = () => {
           </div>
         </div>
 
-        {/* User Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {users.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              onLike={handleLike}
-              onFollow={handleFollow}
-              onViewTemplate={handleViewTemplate}
-            />
-          ))}
+        {/* Search Bar */}
+        <div className={`rounded-2xl shadow-xl p-6 mb-8 ${
+          isDark ? "bg-slate-800" : "bg-white"
+        }`}>
+          <div className="relative max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                isDark ? "text-gray-400" : "text-gray-500"
+              }`} />
+              <input
+                type="text"
+                placeholder="Search users by name or email..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className={`w-full pl-12 pr-12 py-4 rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isDark
+                    ? "bg-slate-700 border-slate-600 text-white placeholder-gray-400 focus:border-blue-500"
+                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:bg-white"
+                }`}
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full transition-colors ${
+                    isDark ? "text-gray-400 hover:text-white hover:bg-gray-600" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <div className={`mt-3 text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                {filteredUsers.length === 0 ? (
+                  <span>No users found matching "{searchQuery}"</span>
+                ) : (
+                  <span>
+                    Found {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* User Grid */}
+        {filteredUsers.length === 0 ? (
+          <div className={`text-center py-12 rounded-2xl ${isDark ? "bg-slate-800" : "bg-white"}`}>
+            {searchQuery ? (
+              <>
+                <Search className={`w-12 h-12 mx-auto mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+                <h3 className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                  No users found
+                </h3>
+                <p className={`mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  No users match your search for "{searchQuery}"
+                </p>
+                <button
+                  onClick={clearSearch}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 ${
+                    isDark
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
+                      : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
+                  }`}
+                >
+                  Clear Search
+                </button>
+              </>
+            ) : (
+              <>
+                <Users className={`w-12 h-12 mx-auto mb-4 ${isDark ? "text-gray-400" : "text-gray-500"}`} />
+                <h3 className={`text-xl font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>
+                  No users found
+                </h3>
+                <p className={`${isDark ? "text-gray-400" : "text-gray-500"}`}>
+                  Be the first to join the community!
+                </p>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredUsers.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                onLike={handleLike}
+                onFollow={handleFollow}
+                onViewTemplate={handleViewTemplate}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Template Preview Modal */}

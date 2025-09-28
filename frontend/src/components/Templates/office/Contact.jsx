@@ -1,15 +1,23 @@
 import { email } from "./index";
 import { useState } from "react";
 import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
+import GitHubDeploy from "../../GithubDeploy.jsx";
 
 const Contact = () => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { cvData } = useCVData();
 
   const handleDownload = async () => {
     const result = await downloadPortfolio(setIsDownloading, 'office');
     if (!result.success) {
       alert(result.error);
     }
+  };
+
+  const handleDeploySuccess = (result) => {
+    console.log('Portfolio deployed successfully:', result);
+    // You could show a toast notification here or update some global state
   };
   return (
     <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/20">
@@ -88,6 +96,17 @@ const Contact = () => {
               onClick={handleDownload}
               variant="office"
             />
+          </div>
+        </div>
+
+        {/* Deploy Portfolio Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
+          <GitHubDeploy
+            userData={cvData}
+            template="office"
+            onDeploySuccess={handleDeploySuccess}
+          />
           </div>
         </div>
       </div>

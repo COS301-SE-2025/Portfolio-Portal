@@ -24,11 +24,14 @@ const Experience = () => {
                 key={`exp-${index}`}
                 className="bg-[#0e0e2c]/70 p-6 rounded-2xl backdrop-blur-sm border border-green-400/20"
               >
-                <h3 className="text-white text-2xl font-bold">{exp.position}</h3>
+                <h3 className="text-white text-2xl font-bold">{exp.title}</h3>
                 <p className="text-green-400 text-lg">{exp.company}</p>
-                <p className="text-gray-400 mb-4">{exp.duration}</p>
-                <p className="text-white">{exp.description}</p>
-              </div>
+                <p className="text-gray-400 mb-4">{`${exp.startDate} - ${exp.endDate}`}</p>
+                <ul className="text-white list-disc pl-5">
+                  {exp.extra?.map((bullet, bulletIndex) => (
+                    <li key={`bullet-${index}-${bulletIndex}`}>{bullet}</li>
+                  ))}
+                </ul>              </div>
             ))}
           </div>
 
@@ -44,7 +47,7 @@ const Experience = () => {
               >
                 <h3 className="text-white text-2xl font-bold">{edu.degree}</h3>
                 <p className="text-green-400 text-lg">{edu.institution}</p>
-                <p className="text-gray-400 mb-4">{edu.year}</p>
+                <p className="text-gray-400 mb-4">{edu.endDate}</p>
                 {edu.field && <p className="text-white">{edu.field}</p>}
                 {edu.gpa && <p className="text-white">GPA: {edu.gpa}</p>}
               </div>

@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { fadeIn } from "../utils/motion";
-
 const Contact = () => {
+
+
   return (
     <section id="contact" className="relative w-full py-20 mx-auto">
       <div className="max-w-7xl mx-auto px-6">

@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import portfolioData from "../data/portfolioData";
 
 // Simple fadeIn animation function
 const fadeIn = (direction, type, delay, duration) => ({
@@ -22,8 +21,6 @@ const fadeIn = (direction, type, delay, duration) => ({
 });
 
 const Contact = () => {
-  const { contact } = portfolioData;
-
   return (
     <section id="contact" className="relative w-full py-20 mx-auto">
       <div className="max-w-7xl mx-auto px-6">
