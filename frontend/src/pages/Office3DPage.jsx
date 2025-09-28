@@ -13,39 +13,50 @@ export default function Office3DPage() {
   const controlsRef = useRef();
   
   const cameraPositions = {
-    name: { position: [0, 6, 3], target: [0, 5, 0] },
-    about: { position: [4, 6, 4], target: [3, 5, 3] },
-    experience: { position: [-4, 6, 4], target: [-3, 5, 3] },
-    education: { position: [4, 6, -4], target: [3, 5, -3] },
-    skills: { position: [-4, 6, -4], target: [-3, 5, -3] },
-    reference: { position: [0, 6, -3], target: [0, 5, 0] },
-    contact: { position: [0, 8, 0], target: [0, 0, 0] }
+    name: { position: [0, 5, 8], target: [0, 4, 0] },
+    about: { position: [8, 5, 0], target: [5, 4, 0] },
+    experience: { position: [0, 5, -8], target: [0, 4, -5] },
+    education: { position: [-8, 5, 0], target: [-5, 4, 0] },
+    skills: { position: [6, 5, 6], target: [4, 4, 4] },
+    reference: { position: [-6, 5, -6], target: [-4, 4, -4] },
+    contact: { position: [0, 8, 0], target: [0, 4, 0] }
   };
 
   const navigateToSection = (section) => {
     setActiveSection(section);
     if (controlsRef.current && cameraPositions[section]) {
       const { position, target } = cameraPositions[section];
+      
+      // Smoothly animate camera to new position
       controlsRef.current.target.set(...target);
       controlsRef.current.object.position.set(...position);
       controlsRef.current.update();
     }
   };
 
+  // Set initial camera position
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.target.set(0, 4, 0);
+      controlsRef.current.object.position.set(0, 5, 8);
+      controlsRef.current.update();
+    }
+  }, []);
+
   return (
     <div className="relative h-screen overflow-hidden">
-      {/* Navigation Bar */}
+      {/* Navigation Bar - Light Grey */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-        <div className="bg-black/90 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-700/50">
-          <div className="flex gap-4 flex-wrap justify-center">
+        <div className="bg-gray-200/95 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-300/50 shadow-lg">
+          <div className="flex gap-3 flex-wrap justify-center">
             {['Name', 'About', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
               <button
                 key={section.toLowerCase()}
                 onClick={() => navigateToSection(section.toLowerCase())}
                 className={`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 ${
                   activeSection === section.toLowerCase() 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/40' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-900 border border-gray-300'
                 }`}
               >
                 {section}
@@ -57,8 +68,7 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 8, 0],
-          rotation: [0, Math.PI, 0], // Facing opposite direction
+          position: [0, 5, 8], // Start position for name section
           fov: 60
         }}
         gl={{ alpha: true }}
@@ -196,15 +206,15 @@ function Office3DScene({ cvData }) {
             if (object.material) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
-              canvas.width = 4096; // HUGE canvas for massive text
+              canvas.width = 4096;
               canvas.height = 2048;
               
-              // White background for maximum contrast
-              context.fillStyle = '#ffffff';
+              // LIGHT GREY background for planes
+              context.fillStyle = '#f8fafc';
               context.fillRect(0, 0, canvas.width, canvas.height);
               
-              // Pure black text - EXTREMELY BOLD AND LARGE
-              context.fillStyle = '#000000';
+              // Dark grey text for better contrast
+              context.fillStyle = '#1f2937';
               
               if (isMainHeading) {
                 context.font = 'bold 200px "Arial Black", Arial, sans-serif';
@@ -221,11 +231,11 @@ function Office3DScene({ cvData }) {
               const startX = isMainHeading ? canvas.width / 2 : 120;
               const startY = isMainHeading ? canvas.height / 2 : 120;
 
-              // Add text shadow for better readability
-              context.shadowColor = 'rgba(0,0,0,0.3)';
-              context.shadowBlur = 10;
-              context.shadowOffsetX = 5;
-              context.shadowOffsetY = 5;
+              // Subtle text shadow for better readability
+              context.shadowColor = 'rgba(0,0,0,0.2)';
+              context.shadowBlur = 8;
+              context.shadowOffsetX = 3;
+              context.shadowOffsetY = 3;
 
               lines.forEach((line, index) => {
                 if (isMainHeading) {
@@ -287,8 +297,8 @@ function useCvData() {
 function LoadingModel() {
   return (
     <Html center>
-      <div className="text-gray-800 text-center bg-white/90 p-8 rounded-2xl backdrop-blur-sm border border-gray-300 shadow-2xl">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-6"></div>
+      <div className="text-gray-800 text-center bg-gray-100/90 p-8 rounded-2xl backdrop-blur-sm border border-gray-300 shadow-2xl">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-6"></div>
         <p className="text-2xl font-bold">LOADING 3D PORTFOLIO...</p>
       </div>
     </Html>
@@ -298,7 +308,7 @@ function LoadingModel() {
 function FallbackModel() {
   return (
     <Html center>
-      <div className="text-red-600 text-center bg-white/90 p-8 rounded-2xl border border-gray-300 shadow-2xl">
+      <div className="text-red-600 text-center bg-gray-100/90 p-8 rounded-2xl border border-gray-300 shadow-2xl">
         <p className="text-2xl font-bold">FAILED TO LOAD 3D OFFICE</p>
         <p className="text-lg mt-4">Please check if the model file exists at /office/new-office-model.glb</p>
       </div>
