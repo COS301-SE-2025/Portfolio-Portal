@@ -16,6 +16,7 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
   const [isEntering, setIsEntering] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [useAIFormatting, setUseAIFormatting] = useState(true);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -63,46 +64,48 @@ const UploadSection = forwardRef(({ id, show, isDark }, ref) => {
 
   const triggerFileInput = () => fileInputRef.current.click();
 
-const handleSubmitCV = async () => {
-  if (!file) {
-    setError("No file selected");
-    return;
-  }
-
-  setIsProcessing(true);
-  setError(null);
-
-  const formData = new FormData();
-  formData.append("cv", file);
-
-  try {
-    // Use api.service instead of direct fetch
-    const response = await api.post('/ocr/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    const result = response.data; // axios returns data in response.data
-
-    console.log("CV processing Result:", result);
-    if (result.success) {
-      cvDataService.setData(result.data);
-
-      // immediately redirect to the selected template
-      const template = result.template || "space"; // default to space if none selected
-      console.log("Redirecting to template:", template);
-      window.location.href = `/${template}`;
-    } else {
-      setError("Failed to process CV");
+  const handleSubmitCV = async () => {
+    if (!file) {
+      setError("No file selected");
+      return;
     }
-  } catch (err) {
-    console.error("Upload error:", err);
-    setError(`Upload failed: ${err.response?.data?.message || err.message}`);
-  } finally {
-    setIsProcessing(false);
-  }
-};
+
+    setIsProcessing(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("cv", file);
+    formData.append("useAI", useAIFormatting.toString());
+
+    try {
+      // Use api.service instead of direct fetch
+      const response = await api.post('/ocr/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const result = response.data; // axios returns data in response.data
+
+      console.log("CV processing Result:", result);
+      if (result.success) {
+        cvDataService.setData(result.data);
+
+        // immediately redirect to the selected template
+        const template = result.template || "space"; // default to space if none selected
+        console.log("Redirecting to template:", template);
+        window.location.href = `/${template}`;
+      } else {
+        setError("Failed to process CV");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError(`Upload failed: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <SectionWrapper id={id} show={show} ref={ref} isDark={isDark}>
       <div
@@ -142,6 +145,43 @@ const handleSubmitCV = async () => {
               portfolio
             </span>
           </p>
+
+          {/* AI Formatting Toggle */}
+          <div className={`flex items-center justify-center space-x-3 p-4 rounded-xl ${
+            isDark 
+              ? "bg-slate-800/30 border border-blue-400/20" 
+              : "bg-white/60 border border-purple-200/60 shadow-sm"
+          } backdrop-blur-sm`}>
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="aiFormatting"
+                checked={useAIFormatting}
+                onChange={(e) => setUseAIFormatting(e.target.checked)}
+                className={`relative w-5 h-5 rounded cursor-pointer transition-all duration-200 ${
+                  useAIFormatting
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 border-0"
+                    : isDark
+                    ? "bg-slate-700 border-2 border-slate-600"
+                    : "bg-white border-2 border-gray-300"
+                } focus:ring-2 focus:ring-purple-500 focus:ring-offset-2`}
+              />
+              <label
+                htmlFor="aiFormatting"
+                className={`cursor-pointer select-none ${
+                  isDark ? "text-slate-200" : "text-slate-700"
+                }`}
+              >
+                <span className="font-medium">Use AI Formatting</span>
+                <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  {useAIFormatting 
+                    ? "AI will organize and structure your CV data intelligently" 
+                    : "Basic text extraction without AI processing"
+                  }
+                </div>
+              </label>
+            </div>
+          </div>
 
           <div
             className={`relative border-2 border-dashed rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group overflow-hidden ${
@@ -274,10 +314,12 @@ const handleSubmitCV = async () => {
                   {isProcessing ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      <span>Processing...</span>
+                      <span>Processing{useAIFormatting ? " with AI" : ""}...</span>
                     </>
                   ) : (
-                    <span className="relative z-10">Process CV</span>
+                    <span className="relative z-10">
+                      Process CV{useAIFormatting ? " with AI" : ""}
+                    </span>
                   )}
                 </button>
                 <button
