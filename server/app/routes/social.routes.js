@@ -119,10 +119,18 @@ router.post('/follow', async (req, res) => {
         throw insertError;
       }
 
-      // Update follower count
+      // Get current follower count and increment
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('users')
+        .select('followers_count')
+        .eq('id', targetUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
       const { error: updateError } = await supabase
         .from('users')
-        .update({ followers_count: supabase.sql`followers_count + 1` })
+        .update({ followers_count: (currentUser.followers_count || 0) + 1 })
         .eq('id', targetUserId);
 
       if (updateError) throw updateError;
@@ -138,10 +146,18 @@ router.post('/follow', async (req, res) => {
 
       if (deleteError) throw deleteError;
 
-      // Update follower count (ensure it doesn't go below 0)
+      // Get current follower count and decrement (ensure it doesn't go below 0)
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('users')
+        .select('followers_count')
+        .eq('id', targetUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
       const { error: updateError } = await supabase
         .from('users')
-        .update({ followers_count: supabase.sql`GREATEST(0, followers_count - 1)` })
+        .update({ followers_count: Math.max(0, (currentUser.followers_count || 0) - 1) })
         .eq('id', targetUserId);
 
       if (updateError) throw updateError;
@@ -186,10 +202,18 @@ router.post('/like', async (req, res) => {
         throw insertError;
       }
 
-      // Update likes count
+      // Get current likes count and increment
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('users')
+        .select('likes_received')
+        .eq('id', targetUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
       const { error: updateError } = await supabase
         .from('users')
-        .update({ likes_received: supabase.sql`likes_received + 1` })
+        .update({ likes_received: (currentUser.likes_received || 0) + 1 })
         .eq('id', targetUserId);
 
       if (updateError) throw updateError;
@@ -205,10 +229,18 @@ router.post('/like', async (req, res) => {
 
       if (deleteError) throw deleteError;
 
-      // Update likes count (ensure it doesn't go below 0)
+      // Get current likes count and decrement (ensure it doesn't go below 0)
+      const { data: currentUser, error: fetchError } = await supabase
+        .from('users')
+        .select('likes_received')
+        .eq('id', targetUserId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
       const { error: updateError } = await supabase
         .from('users')
-        .update({ likes_received: supabase.sql`GREATEST(0, likes_received - 1)` })
+        .update({ likes_received: Math.max(0, (currentUser.likes_received || 0) - 1) })
         .eq('id', targetUserId);
 
       if (updateError) throw updateError;
