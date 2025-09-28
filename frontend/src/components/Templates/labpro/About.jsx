@@ -10,9 +10,9 @@ const About = () => {
         <div className="text-center mb-16">
           {/* Enhanced header with chemistry icons */}
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="text-emerald-400 text-3xl animate-shimmer">⚛️</div>
+            <div className="text-emerald-400 text-3xl animate-shimmer"></div>
             <h2 className="text-emerald-400 text-4xl font-bold">Research Methodology</h2>
-            <div className="text-emerald-400 text-3xl animate-shimmer">🧪</div>
+            <div className="text-emerald-400 text-3xl animate-shimmer"></div>
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 mx-auto" />
         </div>
@@ -65,7 +65,7 @@ const About = () => {
               <div className="mt-6 pt-6 border-t border-gray-700">
                 {/* Enhanced additional expertise section */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="text-emerald-400 text-lg">💎</div>
+                  <div className="text-emerald-400 text-lg"></div>
                   <h4 className="text-white text-lg font-semibold">Additional Expertise</h4>
                 </div>
                 <div className="flex flex-wrap gap-2">
