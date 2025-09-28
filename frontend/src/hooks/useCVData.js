@@ -43,18 +43,17 @@ export const useCVData = () => {
     const isObjectArray = (arr) =>
       Array.isArray(arr) && arr.every((x) => x && typeof x === "object");
 
+    // Handle new structured experience format
     const experience = isObjectArray(cvData.experience)
       ? (cvData.experience || []).map((exp) => ({
-          title: exp.position || exp.title || "",
+          title: exp.title || exp.position || "",
           company: exp.company || "",
-          startDate:
-            (exp.duration && String(exp.duration).split(" - ")[0]) ||
-            exp.startDate ||
-            "",
-          endDate:
-            (exp.duration && String(exp.duration).split(" - ")[1]) ||
-            exp.endDate ||
-            (exp.startDate ? "Present" : ""),
+          startDate: exp.dateRange ? exp.dateRange.split(" - ")[0]?.trim() : 
+                   (exp.duration && String(exp.duration).split(" - ")[0]) ||
+                   exp.startDate || "",
+          endDate: exp.dateRange ? exp.dateRange.split(" - ")[1]?.trim() || "Present" :
+                  (exp.duration && String(exp.duration).split(" - ")[1]) ||
+                  exp.endDate || (exp.startDate ? "Present" : ""),
           extra: exp.description
             ? [exp.description]
             : Array.isArray(exp.extra)
@@ -71,12 +70,13 @@ export const useCVData = () => {
         }))
       : [];
 
+    // Handle new structured education format
     const education = isObjectArray(cvData.education)
       ? (cvData.education || []).map((edu) => ({
           institution: edu.institution || "",
           degree: edu.degree || "",
           field: edu.field || "",
-          endDate: edu.year || edu.endDate || "",
+          endDate: edu.dateRange || edu.year || edu.endDate || "",
           gpa: edu.gpa || "",
         }))
       : isStringArray(cvData.education)
@@ -89,6 +89,43 @@ export const useCVData = () => {
         }))
       : [];
 
+    // Handle new structured skills format (categorized)
+    const skills = cvData.skills && typeof cvData.skills === 'object' && !Array.isArray(cvData.skills)
+      ? [
+          ...(cvData.skills.technical || []),
+          ...(cvData.skills.soft || []),
+          ...(cvData.skills.tools || [])
+        ]
+      : Array.isArray(cvData.skills) 
+      ? cvData.skills 
+      : [];
+
+    // Handle new structured certifications format
+    const certifications = isObjectArray(cvData.certifications)
+      ? (cvData.certifications || []).map((cert) => ({
+          title: cert.title || "",
+          issuer: cert.issuer || "",
+          dateIssued: cert.dateIssued || "",
+          dateExpires: cert.dateExpires || "",
+          description: cert.description || "",
+        }))
+      : Array.isArray(cvData.certifications)
+      ? cvData.certifications
+      : [];
+
+    // Handle new structured projects format
+    const projects = isObjectArray(cvData.projects)
+      ? (cvData.projects || []).map((project) => ({
+          title: project.title || "",
+          description: project.description || "",
+          technologies: project.technologies || [],
+          dateRange: project.dateRange || "",
+          url: project.url || "",
+        }))
+      : Array.isArray(cvData.projects)
+      ? cvData.projects
+      : [];
+
     return {
       // Personal info
       name: pi.name || "",
@@ -99,13 +136,11 @@ export const useCVData = () => {
       about: pi.description || "",
       address: pi.address || "",
 
-      skills: Array.isArray(cvData.skills) ? cvData.skills : [],
-      certifications: Array.isArray(cvData.certifications)
-        ? cvData.certifications
-        : [],
+      skills,
+      certifications,
       languages: Array.isArray(cvData.languages) ? cvData.languages : [],
       references: Array.isArray(cvData.references) ? cvData.references : [],
-      projects: Array.isArray(cvData.projects) ? cvData.projects : [],
+      projects,
 
       experience,
       education,
@@ -113,6 +148,13 @@ export const useCVData = () => {
       links: {
         linkedin: pi.linkedin || "",
         website: pi.website || "",
+      },
+
+      // Provide access to structured data for advanced use cases
+      _structured: {
+        skills: cvData.skills,
+        certifications: cvData.certifications,
+        projects: cvData.projects,
       },
 
       _raw: {
@@ -135,9 +177,14 @@ export const useCVData = () => {
     experience: transformedData?.experience || [],
     education: transformedData?.education || [],
     certifications: transformedData?.certifications || [],
+    projects: transformedData?.projects || [],
     links: transformedData?.links || {},
     references: transformedData?.references || [],
     languages: transformedData?.languages || [],
+    // Provide access to structured data for advanced use cases
+    structuredSkills: transformedData?._structured?.skills,
+    structuredCertifications: transformedData?._structured?.certifications,
+    structuredProjects: transformedData?._structured?.projects,
   };
 };
 

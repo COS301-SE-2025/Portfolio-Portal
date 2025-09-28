@@ -32,13 +32,15 @@ const handleUpload = async (req, res) => {
 
     // select appropriate template
     const selectedTemplate = selectTemplate(structuredCV);
-
     updateTemplateForUser(authId, selectedTemplate);
-    return res.status(200).json({
+    
+    const responseData = {
       success: true,
       data: structuredCV,
       template: selectedTemplate,
-    });
+    };
+    
+    return res.status(200).json(responseData);
   } catch (error) {
     console.error("OCR Controller error:", error);
     res.status(500).json({
