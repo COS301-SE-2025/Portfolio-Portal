@@ -12,13 +12,13 @@ import Social from './pages/Social';
 //FOR TESTING
 import ForestPage from "./pages/ForestPage";
 import ForestPage3D from "./pages/ForestPage3D";
-import CavePage from "./pages/CavePage";
+import CavePage3D from "./pages/CavePage3D";
 import LabPage from "./pages/LabPage";
 import Space from './pages/Space';
 import SpacePage3D from './pages/SpacePage3D';
 import OfficePage from './pages/OfficePage';
 import Office3DPage from './pages/Office3DPage';
-import CavePagev2 from './pages/CavePagev2';
+import CavePage from './pages/CavePage';
 
 
 const HIDDEN_NAVBAR_PATHS = [
@@ -67,15 +67,15 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/social" element={<Social />} />
           <Route path="/office" element={<OfficePage />} />
           <Route path="/office3d" element={<Office3DPage />} />
           <Route path="/forest" element={<ForestPage />} />
           <Route path="/forest3d" element={<ForestPage3D />} />
           <Route path="/lab" element={<LabPage />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/cave3d" element={<CavePage3D />} />
           <Route path="/cave" element={<CavePage />} />
-          <Route path="/cavev2" element={<CavePagev2 />} />
-          <Route path="/social" element={<Social />} />
 
 
           {/* Protected routes */}
