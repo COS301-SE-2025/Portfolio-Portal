@@ -1,8 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
-import useCvData from '../hooks/useCVData';
-import OfficeNavbar from '../components/Templates/office/Navbar';
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -11,84 +9,24 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [targetScrollPosition, setTargetScrollPosition] = useState(0);
-  const scrollContainerRef = useRef();
-  const scrollTimeoutRef = useRef();
-  const animationFrameRef = useRef();
-
-  // Smooth scrolling animation
-  useEffect(() => {
-    const animate = () => {
-      setScrollPosition(prev => {
-        const diff = targetScrollPosition - prev;
-        if (Math.abs(diff) < 0.1) {
-          return targetScrollPosition;
-        }
-        return prev + diff * 0.08;
-      });
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationFrameRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [targetScrollPosition]);
-
-  useEffect(() => {
-    const handleWheel = (e) => {
-      e.preventDefault();
-      
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      setTargetScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.04;
-        return Math.max(-40, Math.min(newPos, 40)); // Reduced scroll range for centered view
-      });
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        scrollTimeoutRef.current = null;
-      }, 100);
-    };
-
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-      return () => {
-        container.removeEventListener('wheel', handleWheel);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-      };
-    }
-  }, []);
-
-  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 40) / 80) * 100));
-
+  
   return (
-    <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
-      <OfficeNavbar />
+    <div className="relative h-screen overflow-hidden">
       <Canvas
         camera={{ 
-          position: [0, 3, 0], // Centered and elevated camera
+          position: [0, 8, 0], // Higher camera position
           fov: 60
         }}
         gl={{ alpha: true }}
       >
-        <color attach="background" args={['#f5f5f7']} /> {/* Light grey background */}
+        <color attach="background" args={['#f5f5f7']} />
         <ambientLight intensity={0.8} />
         <directionalLight position={[10, 15, 10]} intensity={0.9} />
-        <Environment preset="city" /> {/* Lighter environment */}
+        <Environment preset="city" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
-            <Office3DScene cvData={cvData} scrollPosition={scrollPosition} />
+            <Office3DScene cvData={cvData} />
           </Suspense>
         </ErrorBoundary>
 
@@ -101,27 +39,11 @@ export default function Office3DPage() {
           panSpeed={0.5}
         />
       </Canvas>
-      
-      {/* Scroll indicator */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg backdrop-blur-sm border border-gray-600/30">
-        <div className="w-56 h-3 bg-gray-700 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 ease-out shadow-lg"
-            style={{ 
-              width: `${progressPercentage}%`,
-              boxShadow: progressPercentage > 5 ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
-            }}
-          ></div>
-        </div>
-      </div>
     </div>
   );
 }
 
-function Office3DScene({ cvData, scrollPosition }) {
-  const groupRef = useRef();
-  const targetRotation = useRef(0);
-  
+function Office3DScene({ cvData }) {
   const mockData = {
     name: "John Doe",
     title: "Full Stack Developer",
@@ -158,14 +80,6 @@ function Office3DScene({ cvData, scrollPosition }) {
 
   const data = cvData || mockData;
   const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
-  
-  useFrame(() => {
-    if (groupRef.current) {
-      // Use scroll for rotation instead of position
-      targetRotation.current = scrollPosition * 0.01;
-      groupRef.current.rotation.y += (targetRotation.current - groupRef.current.rotation.y) * 0.1;
-    }
-  });
 
   useEffect(() => {
     if (gltf?.scene) {
@@ -189,61 +103,50 @@ function Office3DScene({ cvData, scrollPosition }) {
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
+          let isHeading = false;
           
           switch(object.name) {
             case 'Name':
               textContent = data.name || 'John Doe';
+              isHeading = true;
               break;
             case 'About':
               textContent = data.about || 'Experienced professional with a passion for innovation.';
               break;
             case 'Experience':
               if (data.experience?.length > 0) {
-                const expTexts = data.experience.map((exp) => {
-                  let expText = `${exp.title} at ${exp.company}`;
-                  if (exp.startDate && exp.endDate) {
-                    expText += ` (${exp.startDate}-${exp.endDate})`;
-                  }
-                  if (exp.description) {
-                    expText += `\n${exp.description}`;
-                  }
-                  return expText;
-                });
-                textContent = expTexts.join('\n\n');
+                const exp = data.experience[0]; // Take first experience
+                textContent = `${exp.title}\n${exp.company}\n${exp.startDate} - ${exp.endDate}`;
+                if (exp.description) {
+                  textContent += `\n\n${exp.description}`;
+                }
               }
               break;
             case 'Education':
               if (data.education?.length > 0) {
-                const eduTexts = data.education.map((edu) => {
-                  let eduText = `${edu.degree} - ${edu.institution}`;
-                  if (edu.startDate && edu.endDate) {
-                    eduText += ` (${edu.startDate}-${edu.endDate})`;
-                  }
-                  if (edu.gpa) {
-                    eduText += `\nGPA: ${edu.gpa}`;
-                  }
-                  return eduText;
-                });
-                textContent = eduTexts.join('\n\n');
+                const edu = data.education[0]; // Take first education
+                textContent = `${edu.degree}\n${edu.institution}\n${edu.startDate} - ${edu.endDate}`;
+                if (edu.gpa) {
+                  textContent += `\nGPA: ${edu.gpa}`;
+                }
               }
               break;
             case 'Skills':
-              textContent = data.skills?.join(', ') || 'JavaScript, React, Node.js, Three.js';
+              if (data.skills?.length > 0) {
+                textContent = data.skills.join('\n');
+              }
               break;
             case 'Reference':
               if (data.references?.length > 0) {
-                const refTexts = data.references.map((ref) => {
-                  return `${ref.name}\n${ref.position}\n${ref.contact}`;
-                });
-                textContent = refTexts.join('\n\n');
+                const ref = data.references[0]; // Take first reference
+                textContent = `${ref.name}\n${ref.position}\n${ref.contact}`;
               }
               break;
             case 'Contact':
               let contactText = '';
-              if (data.email) contactText += `Email: ${data.email}\n`;
-              if (data.phone) contactText += `Phone: ${data.phone}\n`;
-              if (data.location) contactText += `Location: ${data.location}`;
-              textContent = contactText || 'Email: john.doe@example.com\nPhone: +1 (555) 123-4567';
+              if (data.email) contactText += `${data.email}\n`;
+              if (data.phone) contactText += `${data.phone}`;
+              textContent = contactText || 'john.doe@example.com\n+1 (555) 123-4567';
               break;
           }
           
@@ -251,54 +154,41 @@ function Office3DScene({ cvData, scrollPosition }) {
             if (object.material) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
-              canvas.width = 512;
-              canvas.height = 256;
+              canvas.width = 1024; // Larger canvas for better quality
+              canvas.height = 512;
               
               // White background for the text plane
               context.fillStyle = '#ffffff';
               context.fillRect(0, 0, canvas.width, canvas.height);
               
-              // Black text
+              // Darker, bolder black text
               context.fillStyle = '#000000';
+              context.font = 'bold 32px Arial'; // Bigger, bolder default font
               
-              // Font sizes based on section
-              if (object.name === 'Name') {
-                context.font = 'bold 48px Arial';
+              if (isHeading) {
+                context.font = 'bold 56px Arial'; // Even bigger for headings
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
-              } else if (object.name === 'About') {
-                context.font = '18px Arial';
-                context.textAlign = 'left';
-                context.textBaseline = 'top';
               } else {
-                context.font = '16px Arial';
                 context.textAlign = 'left';
                 context.textBaseline = 'top';
               }
               
-              const words = textContent.split(' ');
-              const lines = [];
-              let currentLine = '';
-              let maxWidth = canvas.width - 40;
-              
-              words.forEach(word => {
-                const testLine = currentLine + (currentLine ? ' ' : '') + word;
-                const metrics = context.measureText(testLine);
-                if (metrics.width > maxWidth && currentLine !== '') {
-                  lines.push(currentLine);
-                  currentLine = word;
-                } else {
-                  currentLine = testLine;
-                }
-              });
-              lines.push(currentLine);
-              
-              let lineHeight = object.name === 'Name' ? 50 : 20;
-              let startX = object.name === 'Name' ? canvas.width / 2 : 20;
-              let startY = object.name === 'Name' ? canvas.height / 2 : 20;
+              const lines = textContent.split('\n');
+              const lineHeight = isHeading ? 60 : 36; // Increased line height
+              const startX = isHeading ? canvas.width / 2 : 40;
+              const startY = isHeading ? canvas.height / 2 : 40;
 
               lines.forEach((line, index) => {
-                context.fillText(line, startX, startY + index * lineHeight);
+                // For non-headings, make first line bold and bigger
+                if (!isHeading && index === 0) {
+                  context.save();
+                  context.font = 'bold 28px Arial';
+                  context.fillText(line, startX, startY + index * lineHeight);
+                  context.restore();
+                } else {
+                  context.fillText(line, startX, startY + index * lineHeight);
+                }
               });
               
               const texture = new THREE.CanvasTexture(canvas);
@@ -306,7 +196,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               
               const newMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
-                transparent: false, // Opaque white background
+                transparent: false,
                 side: THREE.DoubleSide
               });
               
@@ -320,10 +210,16 @@ function Office3DScene({ cvData, scrollPosition }) {
   }, [gltf, data]);
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]} rotation={[0, 0, 0]}>
+    <group position={[0, 0, 0]}>
       {gltf?.scene && <primitive object={gltf.scene} />}
     </group>
   );
+}
+
+// Custom hook for CV data (you can replace this with your actual hook)
+function useCvData() {
+  // Mock implementation - replace with your actual hook
+  return { cvData: null };
 }
 
 function LoadingModel() {
