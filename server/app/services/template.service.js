@@ -3,7 +3,7 @@
 /**
  * Template Selection Algorithm Service
  *
- * This service analyzes CV content & determines the most appropriate template
+ * This service analyses CV content & determines the most appropriate template
  * based on factors like skills, job titles, education, and interests.
  */
 
@@ -15,6 +15,7 @@ const TEMPLATE_KEYWORDS = {
   space: {
     skills: [
       { keyword: "software development", weight: 3 },
+      { keyword: "software engineering", weight: 3 },
       { keyword: "engineering", weight: 3 },
       { keyword: "programming", weight: 3 },
       { keyword: "coding", weight: 2 },
@@ -27,6 +28,7 @@ const TEMPLATE_KEYWORDS = {
       { keyword: "machine learning", weight: 3 },
       { keyword: "data science", weight: 3 },
       { keyword: "cybersecurity", weight: 3 },
+      { keyword: "cyber-security", weight: 3 },
       { keyword: "ui/ux", weight: 2 },
       { keyword: "C++", weight: 3 },
       { keyword: "Java", weight: 3 },
@@ -42,12 +44,13 @@ const TEMPLATE_KEYWORDS = {
       { keyword: "GitHub", weight: 3 },
       { keyword: "Git", weight: 3 },
       { keyword: "OpenGL", weight: 3 },
-      { keyword: "quantum", weight: 4 },
+      { keyword: "quantum computing", weight: 3 },
       { keyword: "robotics", weight: 3 },
       { keyword: "cloud computing", weight: 2 },
       { keyword: "VR", weight: 2 },
       { keyword: "AR", weight: 2 },
       { keyword: "physics", weight: 2 },
+      { keyword: "ui", weight: 1 },
     ],
     jobTitles: [
       { keyword: "developer", weight: 3 },
@@ -133,46 +136,48 @@ const TEMPLATE_KEYWORDS = {
   //-------------------------------OFFICE TEMPLATE:-------------------------------
   office: {
     skills: [
-      { keyword: "management", weight: 4 },
       { keyword: "business", weight: 4 },
-      { keyword: "accounting", weight: 2 },
+      { keyword: "accounting", weight: 4 },
       { keyword: "finance", weight: 4 },
       { keyword: "marketing", weight: 3 },
       { keyword: "sales", weight: 3 },
       { keyword: "hr", weight: 3 },
-      { keyword: "leadership", weight: 3 },
-      { keyword: "strategy", weight: 3 },
-      { keyword: "communication", weight: 2 },
+      { keyword: "strategy", weight: 2 },
+      { keyword: "management", weight: 2 },
       { keyword: "administration", weight: 2 },
       { keyword: "economics", weight: 2 },
-      { keyword: "accounting", weight: 2 },
+      { keyword: "communication", weight: 1 },
+      { keyword: "leadership", weight: 1 },
     ],
     jobTitles: [
-      { keyword: "accountant", weight: 2 },
-      { keyword: "hr manager", weight: 2 },
-      { keyword: "manager", weight: 2 },
-      { keyword: "director", weight: 2 },
       { keyword: "executive", weight: 4 },
       { keyword: "business", weight: 4 },
       { keyword: "finance", weight: 4 },
-      { keyword: "marketing", weight: 3 },
-      { keyword: "sales", weight: 2 },
+      { keyword: "accountant", weight: 4 },
       { keyword: "consultant", weight: 3 },
+      { keyword: "marketing", weight: 3 },
+      { keyword: "personal assistant", weight: 3 },
+      { keyword: "hr manager", weight: 2 },
+      { keyword: "manager", weight: 2 },
+      { keyword: "director", weight: 2 },
+      { keyword: "sales", weight: 2 },
       { keyword: "analyst", weight: 2 },
+      { keyword: "assistant", weight: 2 },
+      { keyword: "receptionist", weight: 2 },
     ],
     education: [
       { keyword: "business", weight: 4 },
       { keyword: "mba", weight: 4 },
       { keyword: "finance", weight: 4 },
       { keyword: "economics", weight: 4 },
-      { keyword: "marketing", weight: 4 },
-      { keyword: "management", weight: 2 },
+      { keyword: "law", weight: 3 },
+      { keyword: "marketing", weight: 3 },
       { keyword: "administration", weight: 3 },
       { keyword: "commerce", weight: 3 },
       { keyword: "entrepreneurship", weight: 3 },
+      { keyword: "management", weight: 2 },
       { keyword: "human resources", weight: 2 },
       { keyword: "corporate law", weight: 2 },
-      { keyword: "law", weight: 2 },
     ],
   },
   //-------------------------------LAB TEMPLATE:-------------------------------
@@ -192,7 +197,7 @@ const TEMPLATE_KEYWORDS = {
       { keyword: "EKG", weight: 2 },
       { keyword: "administering injections", weight: 3 },
       { keyword: "HIPAA compliance training", weight: 3 },
-      { keyword: "lab", weight: 3 },
+      { keyword: "lab", weight: 2 },
     ],
     jobTitles: [
       { keyword: "medical assistant", weight: 8 },
@@ -238,7 +243,7 @@ const TEMPLATE_KEYWORDS = {
       { keyword: "exploring", weight: 3 },
       { keyword: "excavation", weight: 3 },
       { keyword: "expedition", weight: 3 },
-      { keyword: "hiking", weight: 2 },
+      { keyword: "hiking", weight: 1 },
     ],
     jobTitles: [
       { keyword: "speleologist", weight: 5 },
@@ -274,11 +279,11 @@ const TEMPLATE_KEYWORDS = {
   },
 };
 
-// default template if no clear winner
+// if no clear winner
 const DEFAULT_TEMPLATE = "space";
 
 /**
- * calculate score for a given template based on CV data
+ * calculate score for given template based on CV data
  * @param {string} template - template name (space, forest, office, lab, cave)
  * @param {object} cvData - structured CV data
  * @returns {number} calculated score
@@ -364,7 +369,7 @@ const selectTemplate = (cvData) => {
     }
   }
 
-  // if scores are close (within 5%), use default template
+  // if scores are close (within 5%), use default template (space)
   const scoreValues = Object.values(scores);
   const scoreRange = Math.max(...scoreValues) - Math.min(...scoreValues);
   if (scoreRange < maxScore * 0.05) {
@@ -403,7 +408,7 @@ const getTemplateForUser = async (authId) => {
 
     const selectedTemplate = selectTemplate(cvData);
     
-    // Store the selected template in the user's record
+    // Store selected template in the user's record
     await storeTemplateForUser(authId, selectedTemplate);
     
     return selectedTemplate;
