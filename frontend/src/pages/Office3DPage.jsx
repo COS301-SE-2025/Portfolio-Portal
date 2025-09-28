@@ -25,7 +25,22 @@ export default function Office3DPage() {
         controlsRef.current.target.set(0, 2, 0);
         controlsRef.current.update();
       } else {
-        console.log(`Camera ${cameraName} not found in model. Please add cameras in Three.js Editor.`);
+        console.log(`Camera ${cameraName} not found in model. Using fallback positions.`);
+        // Fallback positions
+        const fallbackPositions = {
+          nameabout: { position: [0, 3, 8], target: [0, 2, 0] },
+          experience: { position: [8, 3, 0], target: [5, 2, 0] },
+          education: { position: [0, 3, -8], target: [0, 2, -5] },
+          skills: { position: [-8, 3, 0], target: [-5, 2, 0] },
+          reference: { position: [6, 3, 6], target: [4, 2, 4] },
+          contact: { position: [-6, 3, -6], target: [-4, 2, -4] }
+        };
+        const pos = fallbackPositions[section];
+        if (pos) {
+          controlsRef.current.object.position.set(...pos.position);
+          controlsRef.current.target.set(...pos.target);
+          controlsRef.current.update();
+        }
       }
     }
   };
@@ -55,7 +70,7 @@ export default function Office3DPage() {
 
       <Canvas
         camera={{ 
-          position: [0, 3, 12],
+          position: [0, 3, 8],
           fov: 50
         }}
         gl={{ alpha: true }}
@@ -93,8 +108,7 @@ function Office3DScene({ cvData, sceneRef }) {
     if (gltf?.scene) {
       sceneRef.current = gltf.scene;
       
-      console.log("Scene loaded, applying text to planes...");
-      console.log("CV Data:", cvData); // Debug log to see what data we have
+      console.log("CV Data received:", cvData); // Debug what data we have
       
       // Apply text to all planes
       gltf.scene.traverse((object) => {
@@ -104,14 +118,14 @@ function Office3DScene({ cvData, sceneRef }) {
           
           switch(object.name) {
             case 'NameAbout':
-              // Use actual CV data with fallbacks
-              const name = cvData?.name || cvData?.userName || 'JOHN DOE';
-              const title = cvData?.title || cvData?.jobTitle || 'FULL STACK DEVELOPER';
-              const about = cvData?.about || cvData?.summary || 'Experienced professional with a passion for innovation.';
+              // Use the exact same data structure as your components
+              const name = cvData?.name || 'JOHN DOE';
+              const title = cvData?.title || 'FULL STACK DEVELOPER';
+              const about = cvData?.about || 'Experienced professional with a passion for innovation.';
               
-              textContent = `${name}\n\n${title}\n\n${about}`;
+              textContent = `${name.toUpperCase()}\n\n${title.toUpperCase()}\n\n${about}`;
               isNameAbout = true;
-              console.log(`Applying NameAbout: ${name}`);
+              console.log('NameAbout data:', { name, title, about });
               break;
               
             case 'Experience':
@@ -120,7 +134,7 @@ function Office3DScene({ cvData, sceneRef }) {
                 cvData.experience.forEach((exp, index) => {
                   experienceContent += `${exp.title?.toUpperCase() || 'POSITION'}\n${exp.company?.toUpperCase() || 'COMPANY'}\n${exp.startDate || 'START'} - ${exp.endDate || 'END'}`;
                   
-                  // Add extra bullet points if they exist
+                  // Handle both 'extra' array and 'description' field like your Experience.jsx
                   if (exp.extra?.length > 0) {
                     exp.extra.forEach(extra => {
                       experienceContent += `\n• ${extra.replace('¢ ', '')}`;
@@ -134,9 +148,10 @@ function Office3DScene({ cvData, sceneRef }) {
                   }
                 });
               } else {
-                experienceContent += "No experience data available";
+                experienceContent += "Senior Developer\nTech Innovations Inc.\n2020 - 2023\n• Led frontend development team\n• Implemented modern React architecture";
               }
               textContent = experienceContent;
+              console.log('Experience data:', cvData?.experience);
               break;
               
             case 'Education':
@@ -164,9 +179,10 @@ function Office3DScene({ cvData, sceneRef }) {
                   }
                 });
               } else {
-                educationContent += "No education data available";
+                educationContent += "Bachelor of Computer Science\nTech University\n2014 - 2018\nGPA: 3.8/4.0";
               }
               textContent = educationContent;
+              console.log('Education data:', cvData?.education);
               break;
               
             case 'Skills':
@@ -174,9 +190,10 @@ function Office3DScene({ cvData, sceneRef }) {
               if (cvData?.skills?.length > 0) {
                 skillsContent += cvData.skills.join('\n').toUpperCase();
               } else {
-                skillsContent += "No skills data available";
+                skillsContent += "JAVASCRIPT\nREACT\nNODE.JS\nTHREE.JS\nUI/UX DESIGN";
               }
               textContent = skillsContent;
+              console.log('Skills data:', cvData?.skills);
               break;
               
             case 'Reference':
@@ -189,22 +206,20 @@ function Office3DScene({ cvData, sceneRef }) {
                   }
                 });
               } else {
-                referenceContent += "No references available";
+                referenceContent += "JANE SMITH\nCTO AT TECH INNOVATIONS\njane.smith@techinnovations.com";
               }
               textContent = referenceContent;
+              console.log('References data:', cvData?.references);
               break;
               
             case 'Contact':
               let contactContent = "CONTACT\n\n";
-              const email = cvData?.email || 'EMAIL@EXAMPLE.COM';
+              const email = cvData?.email || 'john.doe@example.com';
               const phone = cvData?.phone || '+1 (555) 123-4567';
-              const location = cvData?.location || '';
               
-              contactContent += `${email}\n${phone}`;
-              if (location) {
-                contactContent += `\n${location}`;
-              }
+              contactContent += `${email.toUpperCase()}\n${phone}`;
               textContent = contactContent;
+              console.log('Contact data:', { email, phone });
               break;
           }
           
@@ -237,30 +252,52 @@ function Office3DScene({ cvData, sceneRef }) {
     context.fillStyle = '#000000';
     
     const lines = textContent.split('\n');
-    const isHeading = !isNameAbout;
     
     if (isNameAbout) {
-      // NameAbout section - different styling
+      // NameAbout section - centered layout
       context.textAlign = 'center';
       context.textBaseline = 'middle';
+      
+      let currentY = 600;
       
       lines.forEach((line, index) => {
         if (index === 0) {
           // Name - EXTREMELY LARGE
           context.font = 'bold 480px "Arial Black", Arial, sans-serif';
-          context.fillText(line, canvas.width / 2, 800);
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 600;
         } else if (index === 2) {
           // Title - VERY LARGE
           context.font = 'bold 320px "Arial Black", Arial, sans-serif';
-          context.fillText(line, canvas.width / 2, 1600);
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 500;
         } else if (index === 4) {
           // About - LARGE but readable
-          context.font = 'bold 200px "Arial Black", Arial, sans-serif';
-          context.fillText(line, canvas.width / 2, 2600);
+          context.font = 'bold 180px "Arial Black", Arial, sans-serif';
+          // Split long about text into multiple lines if needed
+          const words = line.split(' ');
+          let currentLine = '';
+          let aboutLines = [];
+          
+          for (let i = 0; i < words.length; i++) {
+            const testLine = currentLine + words[i] + ' ';
+            const metrics = context.measureText(testLine);
+            if (metrics.width > canvas.width * 0.8 && currentLine !== '') {
+              aboutLines.push(currentLine);
+              currentLine = words[i] + ' ';
+            } else {
+              currentLine = testLine;
+            }
+          }
+          aboutLines.push(currentLine);
+          
+          aboutLines.forEach((aboutLine, aboutIndex) => {
+            context.fillText(aboutLine, canvas.width / 2, currentY + (aboutIndex * 220));
+          });
         }
       });
     } else {
-      // Other sections with headings
+      // Other sections with headings - left aligned
       context.textAlign = 'left';
       context.textBaseline = 'top';
       
@@ -275,11 +312,16 @@ function Office3DScene({ cvData, sceneRef }) {
         } else if (line.trim() === '') {
           // Empty line for spacing
           currentY += 200;
+        } else if (line.startsWith('•')) {
+          // Bullet points - slightly smaller
+          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
+          context.fillText(line, 350, currentY);
+          currentY += 220;
         } else {
           // Content - VERY LARGE
-          context.font = 'bold 220px "Arial Black", Arial, sans-serif';
+          context.font = 'bold 200px "Arial Black", Arial, sans-serif';
           context.fillText(line, 300, currentY);
-          currentY += 300;
+          currentY += 250;
         }
       });
     }
@@ -288,7 +330,7 @@ function Office3DScene({ cvData, sceneRef }) {
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
-    texture.anisotropy = 16; // Improves texture quality at angles
+    texture.anisotropy = 16;
     texture.needsUpdate = true;
     
     mesh.material = new THREE.MeshBasicMaterial({
@@ -299,7 +341,6 @@ function Office3DScene({ cvData, sceneRef }) {
     });
     
     mesh.visible = true;
-    console.log(`Text applied to ${mesh.name} successfully`);
   };
 
   return (
@@ -309,46 +350,51 @@ function Office3DScene({ cvData, sceneRef }) {
   );
 }
 
-// Custom hook for CV data - using your actual hook
+// Use your actual CV data hook
 function useCvData() {
-  // This should use your actual useCVData hook
   try {
+    // Import your actual hook - adjust path as needed
     const useCVData = require('../../../hooks/useCVData').default;
-    return useCVData() || {};
+    const data = useCVData();
+    console.log("Loaded CV Data:", data);
+    return { cvData: data };
   } catch (error) {
-    console.log('Using mock data for development');
+    console.log('Error loading CV data hook, using mock data:', error);
+    // Return mock data that matches your component structure
     return {
-      name: "JOHN DOE",
-      title: "FULL STACK DEVELOPER", 
-      about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions.",
-      email: "JOHN.DOE@EXAMPLE.COM",
-      phone: "+1 (555) 123-4567",
-      skills: ["JAVASCRIPT", "REACT", "NODE.JS", "THREE.JS"],
-      experience: [
-        {
-          company: "Tech Innovations Inc.",
-          title: "Senior Developer",
-          startDate: "2020",
-          endDate: "2023",
-          description: "Led frontend development team for flagship product."
-        }
-      ],
-      education: [
-        {
-          institution: "Tech University",
-          degree: "Bachelor of Computer Science",
-          startDate: "2014",
-          endDate: "2018",
-          gpa: "3.8/4.0"
-        }
-      ],
-      references: [
-        {
-          name: "Jane Smith",
-          position: "CTO at Tech Innovations",
-          contact: "jane.smith@techinnovations.com"
-        }
-      ]
+      cvData: {
+        name: "JOHN DOE",
+        title: "FULL STACK DEVELOPER",
+        about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions and user-friendly experiences. Specializing in modern web frameworks and 3D interactive experiences.",
+        email: "john.doe@example.com",
+        phone: "+1 (555) 123-4567",
+        skills: ["JavaScript", "React", "Node.js", "Three.js", "UI/UX Design"],
+        experience: [
+          {
+            company: "Tech Innovations Inc.",
+            title: "Senior Developer",
+            startDate: "2020",
+            endDate: "2023",
+            extra: ["Led frontend development team for flagship product", "Implemented modern React architecture"]
+          }
+        ],
+        education: [
+          {
+            institution: "Tech University",
+            degree: "Bachelor of Computer Science",
+            startDate: "2014",
+            endDate: "2018",
+            gpa: "3.8/4.0"
+          }
+        ],
+        references: [
+          {
+            name: "Jane Smith",
+            position: "CTO at Tech Innovations",
+            contact: "jane.smith@techinnovations.com"
+          }
+        ]
+      }
     };
   }
 }
