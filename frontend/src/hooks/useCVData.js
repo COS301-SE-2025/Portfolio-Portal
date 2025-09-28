@@ -129,11 +129,11 @@ export const useCVData = () => {
     return {
       // Personal info
       name: pi.name || "",
-      description: pi.description || "",
+      description: pi.description || "", // Brief professional title for Hero
       email: pi.email || "",
-      summary: pi.description || "",
+      summary: pi.description || "", // Brief professional title for Hero (same as description)
       phone: pi.phone || "",
-      about: pi.description || "",
+      about: cvData.summary || pi.description || "", // Longer description for About Me
       address: pi.address || "",
 
       skills,

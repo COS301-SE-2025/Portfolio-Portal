@@ -4,7 +4,7 @@ import { fadeIn } from "../../../utils/motion";
 import useCvData from "../../../hooks/useCVData";
 
 const Hero = () => {
-  const { name, description } = useCvData() || {};
+  const { name, summary } = useCvData() || {};
 
   return (
     <section className="relative w-full h-screen mx-auto">
@@ -29,7 +29,7 @@ const Hero = () => {
             animate="show"
             className="text-white mt-4 text-lg sm:text-xl max-w-3xl"
           >
-            {description ||
+            {summary ||
               "Digital storyteller & environmental advocate using technology to protect our planet's wild spaces."}
           </motion.p>
         </div>
