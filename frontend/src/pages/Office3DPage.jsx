@@ -9,7 +9,7 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [activeSection, setActiveSection] = useState('name');
+  const [activeSection, setActiveSection] = useState('nameabout');
   const controlsRef = useRef();
   const sceneRef = useRef();
   
@@ -20,27 +20,13 @@ export default function Office3DPage() {
       const camera = sceneRef.current.getObjectByName(cameraName);
       
       if (camera) {
+        // Smooth transition to the predefined camera
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
-        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.target.set(0, 2, 0);
         controlsRef.current.update();
       } else {
-        // Fallback positions if cameras aren't in the model
-        const fallbackPositions = {
-          name: { position: [0, 3, 12], target: [0, 2, 0] },
-          about: { position: [12, 3, 0], target: [8, 2, 0] },
-          experience: { position: [0, 3, -12], target: [0, 2, -8] },
-          education: { position: [-12, 3, 0], target: [-8, 2, 0] },
-          skills: { position: [8, 3, 8], target: [5, 2, 5] },
-          reference: { position: [-8, 3, -8], target: [-5, 2, -5] },
-          contact: { position: [0, 6, 0], target: [0, 2, 0] }
-        };
-        const pos = fallbackPositions[section];
-        if (pos) {
-          controlsRef.current.object.position.set(...pos.position);
-          controlsRef.current.target.set(...pos.target);
-          controlsRef.current.update();
-        }
+        console.log(`Camera ${cameraName} not found in model. Please add cameras in Three.js Editor.`);
       }
     }
   };
@@ -51,7 +37,7 @@ export default function Office3DPage() {
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
         <div className="bg-gray-200/95 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-300/50 shadow-lg">
           <div className="flex gap-3 flex-wrap justify-center">
-            {['Name', 'About', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
+            {['NameAbout', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
               <button
                 key={section.toLowerCase()}
                 onClick={() => navigateToSection(section.toLowerCase())}
@@ -61,7 +47,7 @@ export default function Office3DPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-900 border border-gray-300'
                 }`}
               >
-                {section}
+                {section.replace('NameAbout', 'About')}
               </button>
             ))}
           </div>
@@ -150,11 +136,6 @@ function Office3DScene({ cvData, sceneRef }) {
         name: "Mike Johnson",
         position: "Lead Developer at Web Solutions",
         contact: "mike.johnson@websolutions.com"
-      },
-      {
-        name: "Sarah Wilson",
-        position: "Professor at Tech University",
-        contact: "sarah.wilson@techuniversity.edu"
       }
     ]
   };
@@ -166,165 +147,159 @@ function Office3DScene({ cvData, sceneRef }) {
     if (gltf?.scene) {
       sceneRef.current = gltf.scene;
       
-      console.log("Scene loaded, traversing objects...");
+      console.log("Scene loaded, applying text to planes...");
       
-      // First pass: Ensure all text planes are visible
-      gltf.scene.traverse((object) => {
-        if (object.isMesh && object.name && (
-          object.name.includes('Name') || 
-          object.name.includes('About') || 
-          object.name.includes('Experience') || 
-          object.name.includes('Education') || 
-          object.name.includes('Skills') || 
-          object.name.includes('Reference') || 
-          object.name.includes('Contact')
-        )) {
-          console.log(`Found text plane: ${object.name}`);
-          object.visible = true;
-        }
-      });
-      
-      // Second pass: Apply text content
+      // Apply text to all planes
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
-          let isMainHeading = false;
+          let isNameAbout = false;
           
           switch(object.name) {
-            case 'Name':
-              textContent = data.name || 'JOHN DOE';
-              isMainHeading = true;
-              console.log(`Applying Name: ${textContent}`);
-              break;
-            case 'About':
-              textContent = data.about || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
-              console.log(`Applying About: ${textContent}`);
+            case 'NameAbout':
+              textContent = `${data.name || 'JOHN DOE'}\n\n${data.title || 'FULL STACK DEVELOPER'}\n\n${data.about || 'Experienced professional with a passion for innovation.'}`;
+              isNameAbout = true;
+              console.log(`Applying NameAbout text`);
               break;
             case 'Experience':
+              let experienceContent = "EXPERIENCE\n\n";
               if (data.experience?.length > 0) {
-                const expTexts = data.experience.map(exp => 
-                  `${exp.title.toUpperCase()}\n${exp.company.toUpperCase()}\n${exp.startDate} - ${exp.endDate}\n${exp.description || ''}`
-                );
-                textContent = expTexts.join('\n\n');
+                data.experience.forEach((exp, index) => {
+                  experienceContent += `${exp.title.toUpperCase()}\n${exp.company.toUpperCase()}\n${exp.startDate} - ${exp.endDate}\n${exp.description || ''}`;
+                  if (index < data.experience.length - 1) {
+                    experienceContent += '\n\n';
+                  }
+                });
               }
+              textContent = experienceContent;
               break;
             case 'Education':
+              let educationContent = "EDUCATION\n\n";
               if (data.education?.length > 0) {
-                const eduTexts = data.education.map(edu => {
-                  let eduText = `${edu.degree.toUpperCase()}\n${edu.institution.toUpperCase()}`;
+                data.education.forEach((edu, index) => {
+                  educationContent += `${edu.degree.toUpperCase()}\n${edu.institution.toUpperCase()}`;
                   if (edu.startDate && edu.endDate) {
-                    eduText += `\n${edu.startDate} - ${edu.endDate}`;
+                    educationContent += `\n${edu.startDate} - ${edu.endDate}`;
                   }
                   if (edu.gpa) {
-                    eduText += `\nGPA: ${edu.gpa}`;
+                    educationContent += `\nGPA: ${edu.gpa}`;
                   }
-                  return eduText;
+                  if (index < data.education.length - 1) {
+                    educationContent += '\n\n';
+                  }
                 });
-                textContent = eduTexts.join('\n\n');
               }
+              textContent = educationContent;
               break;
             case 'Skills':
+              let skillsContent = "SKILLS\n\n";
               if (data.skills?.length > 0) {
-                textContent = data.skills.join('\n').toUpperCase();
+                skillsContent += data.skills.join('\n').toUpperCase();
               }
+              textContent = skillsContent;
               break;
             case 'Reference':
+              let referenceContent = "REFERENCES\n\n";
               if (data.references?.length > 0) {
-                const refTexts = data.references.map(ref => 
-                  `${ref.name.toUpperCase()}\n${ref.position.toUpperCase()}\n${ref.contact}`
-                );
-                textContent = refTexts.join('\n\n');
+                data.references.forEach((ref, index) => {
+                  referenceContent += `${ref.name.toUpperCase()}\n${ref.position.toUpperCase()}\n${ref.contact}`;
+                  if (index < data.references.length - 1) {
+                    referenceContent += '\n\n';
+                  }
+                });
               }
+              textContent = referenceContent;
               break;
             case 'Contact':
-              let contactText = '';
-              if (data.email) contactText += `${data.email}\n`;
-              if (data.phone) contactText += `${data.phone}\n`;
-              if (data.location) contactText += `${data.location}`;
-              textContent = contactText || 'JOHN.DOE@EXAMPLE.COM\n+1 (555) 123-4567';
+              let contactContent = "CONTACT\n\n";
+              if (data.email) contactContent += `${data.email}\n`;
+              if (data.phone) contactContent += `${data.phone}\n`;
+              if (data.location) contactContent += `${data.location}`;
+              textContent = contactContent || 'CONTACT\n\nJOHN.DOE@EXAMPLE.COM\n+1 (555) 123-4567';
               break;
           }
           
           if (textContent) {
             console.log(`Applying text to ${object.name}`);
-            applyTextToMesh(object, textContent, isMainHeading);
-          } else {
-            console.log(`No text content for ${object.name}`);
+            applyTextToMesh(object, textContent, isNameAbout);
           }
         }
       });
     }
   }, [gltf, data]);
 
-  const applyTextToMesh = (mesh, textContent, isMainHeading = false) => {
+  const applyTextToMesh = (mesh, textContent, isNameAbout = false) => {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
-    // MASSIVE canvas for extremely large text
-    canvas.width = 8192; // Double the previous size
+    // LARGE canvas for sharp text
+    canvas.width = 8192;
     canvas.height = 4096;
+    
+    // Enable image smoothing for better text rendering
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
     
     // LIGHT GREY background
     context.fillStyle = '#f3f4f6';
     context.fillRect(0, 0, canvas.width, canvas.height);
     
-    // PURE BLACK text
+    // PURE BLACK text for maximum contrast
     context.fillStyle = '#000000';
     
-    // EXTREMELY LARGE font sizes
-    let fontSize, lineHeight, startX, startY;
+    const lines = textContent.split('\n');
+    const isHeading = !isNameAbout;
     
-    if (isMainHeading) {
-      fontSize = 400; // HUGE for name
-      context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
+    if (isNameAbout) {
+      // NameAbout section - different styling
       context.textAlign = 'center';
       context.textBaseline = 'middle';
-      lineHeight = 450;
-      startX = canvas.width / 2;
-      startY = canvas.height / 2;
+      
+      lines.forEach((line, index) => {
+        if (index === 0) {
+          // Name - EXTREMELY LARGE
+          context.font = 'bold 480px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, 800);
+        } else if (index === 2) {
+          // Title - VERY LARGE
+          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, 1600);
+        } else if (index === 4) {
+          // About - LARGE but readable
+          context.font = 'bold 200px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, 2600);
+        }
+      });
     } else {
-      fontSize = 200; // Still massive for other sections
-      context.font = `bold ${fontSize}px "Arial Black", Arial, sans-serif`;
+      // Other sections with headings
       context.textAlign = 'left';
       context.textBaseline = 'top';
-      lineHeight = 240;
-      startX = 200; // More padding
-      startY = 200;
+      
+      let currentY = 300;
+      
+      lines.forEach((line, index) => {
+        if (index === 0) {
+          // Section heading - MASSIVE
+          context.font = 'bold 400px "Arial Black", Arial, sans-serif';
+          context.fillText(line, 300, currentY);
+          currentY += 500;
+        } else if (line.trim() === '') {
+          // Empty line for spacing
+          currentY += 200;
+        } else {
+          // Content - VERY LARGE
+          context.font = 'bold 220px "Arial Black", Arial, sans-serif';
+          context.fillText(line, 300, currentY);
+          currentY += 300;
+        }
+      });
     }
     
-    const lines = textContent.split('\n');
-    
-    // Strong shadow for maximum visibility
-    context.shadowColor = 'rgba(0,0,0,0.5)';
-    context.shadowBlur = 20;
-    context.shadowOffsetX = 8;
-    context.shadowOffsetY = 8;
-
-    lines.forEach((line, index) => {
-      if (isMainHeading) {
-        context.fillText(line, startX, startY + index * lineHeight);
-      } else if (index === 0 && (mesh.name === 'Experience' || mesh.name === 'Education' || mesh.name === 'Reference')) {
-        // First line of multi-item sections - extra large
-        context.save();
-        context.font = `bold 280px "Arial Black", Arial, sans-serif`;
-        context.fillText(line, startX, startY + index * lineHeight);
-        context.restore();
-      } else {
-        // Regular content - still extremely large
-        context.save();
-        context.font = `bold 180px "Arial Black", Arial, sans-serif`;
-        context.fillText(line, startX, startY + index * lineHeight);
-        context.restore();
-      }
-    });
-
-    // Reset shadow
-    context.shadowColor = 'transparent';
-    context.shadowBlur = 0;
-    context.shadowOffsetX = 0;
-    context.shadowOffsetY = 0;
-    
+    // Create texture with better filtering for sharper text
     const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 16; // Improves texture quality at angles
     texture.needsUpdate = true;
     
     mesh.material = new THREE.MeshBasicMaterial({
@@ -347,7 +322,6 @@ function Office3DScene({ cvData, sceneRef }) {
 
 // Custom hook for CV data
 function useCvData() {
-  // Mock implementation - replace with your actual hook
   return { cvData: null };
 }
 
