@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
 
@@ -15,13 +15,14 @@ export default function Office3DPage() {
       <Canvas
         camera={{ 
           position: [0, 8, 0], // Higher camera position
+          rotation: [0, Math.PI, 0], // Facing opposite direction (180 degrees)
           fov: 60
         }}
         gl={{ alpha: true }}
       >
-        <color attach="background" args={['#f5f5f7']} />
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[10, 15, 10]} intensity={0.9} />
+        <color attach="background" args={['#e5e7eb']} /> {/* Light grey background */}
+        <ambientLight intensity={0.9} />
+        <directionalLight position={[10, 15, 10]} intensity={1.0} />
         <Environment preset="city" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
@@ -115,7 +116,7 @@ function Office3DScene({ cvData }) {
               break;
             case 'Experience':
               if (data.experience?.length > 0) {
-                const exp = data.experience[0]; // Take first experience
+                const exp = data.experience[0];
                 textContent = `${exp.title}\n${exp.company}\n${exp.startDate} - ${exp.endDate}`;
                 if (exp.description) {
                   textContent += `\n\n${exp.description}`;
@@ -124,7 +125,7 @@ function Office3DScene({ cvData }) {
               break;
             case 'Education':
               if (data.education?.length > 0) {
-                const edu = data.education[0]; // Take first education
+                const edu = data.education[0];
                 textContent = `${edu.degree}\n${edu.institution}\n${edu.startDate} - ${edu.endDate}`;
                 if (edu.gpa) {
                   textContent += `\nGPA: ${edu.gpa}`;
@@ -138,7 +139,7 @@ function Office3DScene({ cvData }) {
               break;
             case 'Reference':
               if (data.references?.length > 0) {
-                const ref = data.references[0]; // Take first reference
+                const ref = data.references[0];
                 textContent = `${ref.name}\n${ref.position}\n${ref.contact}`;
               }
               break;
@@ -154,19 +155,19 @@ function Office3DScene({ cvData }) {
             if (object.material) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
-              canvas.width = 1024; // Larger canvas for better quality
-              canvas.height = 512;
+              canvas.width = 2048; // Much larger canvas for huge text
+              canvas.height = 1024;
               
               // White background for the text plane
               context.fillStyle = '#ffffff';
               context.fillRect(0, 0, canvas.width, canvas.height);
               
-              // Darker, bolder black text
+              // Pure black text - EXTRA BOLD
               context.fillStyle = '#000000';
-              context.font = 'bold 32px Arial'; // Bigger, bolder default font
+              context.font = 'bold 72px Arial, sans-serif'; // HUGE default font
               
               if (isHeading) {
-                context.font = 'bold 56px Arial'; // Even bigger for headings
+                context.font = 'bold 120px Arial, sans-serif'; // MASSIVE for headings
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
               } else {
@@ -175,15 +176,20 @@ function Office3DScene({ cvData }) {
               }
               
               const lines = textContent.split('\n');
-              const lineHeight = isHeading ? 60 : 36; // Increased line height
-              const startX = isHeading ? canvas.width / 2 : 40;
-              const startY = isHeading ? canvas.height / 2 : 40;
+              const lineHeight = isHeading ? 140 : 90; // Massive line height
+              const startX = isHeading ? canvas.width / 2 : 80;
+              const startY = isHeading ? canvas.height / 2 : 80;
 
               lines.forEach((line, index) => {
-                // For non-headings, make first line bold and bigger
+                // For non-headings, make first line extra bold and bigger
                 if (!isHeading && index === 0) {
                   context.save();
-                  context.font = 'bold 28px Arial';
+                  context.font = 'bold 96px Arial, sans-serif'; // Extra huge for section titles
+                  context.fillText(line, startX, startY + index * lineHeight);
+                  context.restore();
+                } else if (!isHeading) {
+                  context.save();
+                  context.font = 'bold 64px Arial, sans-serif'; // Still huge for content
                   context.fillText(line, startX, startY + index * lineHeight);
                   context.restore();
                 } else {
