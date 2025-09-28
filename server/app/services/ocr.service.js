@@ -615,6 +615,7 @@ const processCV = async (filePath, mimeType) => {
         const rows = parseTSV(tsv);
         const blocks = rowsToBlocks(rows);
         pages.push({ page: i + 1, blocks });
+
       }
     } finally {
       fs.rmSync(tempDir, { recursive: true, force: true });
@@ -624,6 +625,7 @@ const processCV = async (filePath, mimeType) => {
     const rows = parseTSV(tsv);
     const blocks = rowsToBlocks(rows);
     pages.push({ page: 1, blocks });
+
   } else if (isOfficeLike(mimeType, ext)) {
     const { outDir, pdfPath } = officeToPDF(filePath);
     try {
@@ -634,6 +636,7 @@ const processCV = async (filePath, mimeType) => {
           const rows = parseTSV(tsv);
           const blocks = rowsToBlocks(rows);
           pages.push({ page: i + 1, blocks });
+
         }
       } finally {
         fs.rmSync(tempDir, { recursive: true, force: true });

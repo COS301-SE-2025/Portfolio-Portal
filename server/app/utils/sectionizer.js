@@ -1,4 +1,12 @@
 const SECTION_KEYWORDS = require("./section-keywords");
+const { 
+  parseExperienceSection, 
+  parseEducationSection,
+  parseSkillsSection,
+  parseCertificationsSection,
+  parseProjectsSection,
+  formatDescription
+} = require("./experience-parser");
 
 const EMAIL_RE = /[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9.-]+\.[a-z]{2,}/gi;
 const PHONE_RE =
@@ -914,6 +922,7 @@ function processCV(ocr) {
   lines = remainingAfterPI;
 
   const { blocks, remaining: leftover } = extractSimpleBlocks(lines);
+
   let filled = distributeLeftoverLines(leftover, blocks);
 
   // move any leaked language lines out of skills
@@ -924,16 +933,31 @@ function processCV(ocr) {
   filled = salvage.sections;
   personal_info.description = salvage.description || personal_info.description;
 
-  return {
-    personal_info,
-    experience: filled.experience || [],
-    education: filled.education || [],
-    skills: filled.skills || [],
-    certifications: filled.certifications || [],
+  // Parse all sections into structured objects
+  const structuredExperience = parseExperienceSection(filled.experience || []);
+  const structuredEducation = parseEducationSection(filled.education || []);
+  const structuredSkills = parseSkillsSection(filled.skills || []);
+  const structuredCertifications = parseCertificationsSection(filled.certifications || []);
+  const structuredProjects = parseProjectsSection(filled.projects || []);
+
+  // Format the personal description
+  const formattedDescription = formatDescription(personal_info.description || '');
+
+  const finalResult = {
+    personal_info: {
+      ...personal_info,
+      description: formattedDescription
+    },
+    experience: structuredExperience,
+    education: structuredEducation,
+    skills: structuredSkills,
+    certifications: structuredCertifications,
     languages: filled.languages || [],
-    projects: filled.projects || [],
+    projects: structuredProjects,
     references: references || [],
   };
+
+  return finalResult;
 }
 
 module.exports = {
