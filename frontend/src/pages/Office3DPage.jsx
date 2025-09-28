@@ -7,8 +7,11 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
+// Import your actual CV data hook
+import useCVData from '../../hooks/useCVData';
+
 export default function Office3DPage() {
-  const { cvData } = useCvData();
+  const { cvData } = useCVData() || {};
   const [activeSection, setActiveSection] = useState('nameabout');
   const controlsRef = useRef();
   const sceneRef = useRef();
@@ -19,21 +22,34 @@ export default function Office3DPage() {
       const cameraName = `Camera${section.charAt(0).toUpperCase() + section.slice(1)}`;
       const camera = sceneRef.current.getObjectByName(cameraName);
       
-      if (camera) {
+      if (camera && camera.isCamera) {
+        console.log(`Found camera: ${cameraName}`, camera.position, camera.rotation);
+        
+        // Save current camera state
+        const currentPosition = controlsRef.current.object.position.clone();
+        const currentTarget = controlsRef.current.target.clone();
+        
+        // Set new camera position and rotation directly
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
-        controlsRef.current.target.set(0, 2, 0);
+        
+        // Calculate target based on camera direction
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+        const target = camera.position.clone().add(direction.multiplyScalar(10));
+        controlsRef.current.target.copy(target);
+        
         controlsRef.current.update();
       } else {
         console.log(`Camera ${cameraName} not found in model. Using fallback positions.`);
-        // Fallback positions
+        // Fallback positions with proper rotation
         const fallbackPositions = {
           nameabout: { position: [0, 3, 8], target: [0, 2, 0] },
-          experience: { position: [8, 3, 0], target: [5, 2, 0] },
-          education: { position: [0, 3, -8], target: [0, 2, -5] },
-          skills: { position: [-8, 3, 0], target: [-5, 2, 0] },
-          reference: { position: [6, 3, 6], target: [4, 2, 4] },
-          contact: { position: [-6, 3, -6], target: [-4, 2, -4] }
+          experience: { position: [8, 3, 0], target: [0, 2, 0] },
+          education: { position: [0, 3, -8], target: [0, 2, 0] },
+          skills: { position: [-8, 3, 0], target: [0, 2, 0] },
+          reference: { position: [6, 3, 6], target: [0, 2, 0] },
+          contact: { position: [-6, 3, -6], target: [0, 2, 0] }
         };
         const pos = fallbackPositions[section];
         if (pos) {
@@ -108,7 +124,17 @@ function Office3DScene({ cvData, sceneRef }) {
     if (gltf?.scene) {
       sceneRef.current = gltf.scene;
       
-      console.log("CV Data received:", cvData); // Debug what data we have
+      console.log("=== CV DATA DEBUG ===");
+      console.log("Full CV Data:", cvData);
+      console.log("Name:", cvData?.name);
+      console.log("About:", cvData?.about);
+      console.log("Experience:", cvData?.experience);
+      console.log("Education:", cvData?.education);
+      console.log("Skills:", cvData?.skills);
+      console.log("References:", cvData?.references);
+      console.log("Email:", cvData?.email);
+      console.log("Phone:", cvData?.phone);
+      console.log("=====================");
       
       // Apply text to all planes
       gltf.scene.traverse((object) => {
@@ -118,24 +144,24 @@ function Office3DScene({ cvData, sceneRef }) {
           
           switch(object.name) {
             case 'NameAbout':
-              // Use the exact same data structure as your components
-              const name = cvData?.name || 'JOHN DOE';
-              const title = cvData?.title || 'FULL STACK DEVELOPER';
-              const about = cvData?.about || 'Experienced professional with a passion for innovation.';
+              // Use the exact data structure from your components
+              const name = cvData?.name || 'Default Name';
+              const title = cvData?.title || 'Default Title';
+              const about = cvData?.about || cvData?.summary || 'Default about text describing professional experience and skills.';
               
-              textContent = `${name.toUpperCase()}\n\n${title.toUpperCase()}\n\n${about}`;
+              textContent = `${name}\n\n${title}\n\n${about}`;
               isNameAbout = true;
-              console.log('NameAbout data:', { name, title, about });
+              console.log('Applying NameAbout:', { name, title, about });
               break;
               
             case 'Experience':
               let experienceContent = "EXPERIENCE\n\n";
-              if (cvData?.experience?.length > 0) {
+              if (cvData?.experience && Array.isArray(cvData.experience) && cvData.experience.length > 0) {
                 cvData.experience.forEach((exp, index) => {
-                  experienceContent += `${exp.title?.toUpperCase() || 'POSITION'}\n${exp.company?.toUpperCase() || 'COMPANY'}\n${exp.startDate || 'START'} - ${exp.endDate || 'END'}`;
+                  experienceContent += `${exp.title || 'Position'}\n${exp.company || 'Company'}\n${exp.startDate || 'Start'} - ${exp.endDate || 'End'}`;
                   
-                  // Handle both 'extra' array and 'description' field like your Experience.jsx
-                  if (exp.extra?.length > 0) {
+                  // Handle bullet points - check both 'extra' and 'description'
+                  if (exp.extra && Array.isArray(exp.extra) && exp.extra.length > 0) {
                     exp.extra.forEach(extra => {
                       experienceContent += `\n• ${extra.replace('¢ ', '')}`;
                     });
@@ -148,17 +174,16 @@ function Office3DScene({ cvData, sceneRef }) {
                   }
                 });
               } else {
-                experienceContent += "Senior Developer\nTech Innovations Inc.\n2020 - 2023\n• Led frontend development team\n• Implemented modern React architecture";
+                experienceContent += "Senior Developer\nTech Innovations Inc.\n2020 - 2023\n• Led development teams\n• Built innovative solutions";
               }
               textContent = experienceContent;
-              console.log('Experience data:', cvData?.experience);
               break;
               
             case 'Education':
               let educationContent = "EDUCATION\n\n";
-              if (cvData?.education?.length > 0) {
+              if (cvData?.education && Array.isArray(cvData.education) && cvData.education.length > 0) {
                 cvData.education.forEach((edu, index) => {
-                  educationContent += `${edu.degree?.toUpperCase() || 'DEGREE'}\n${edu.institution?.toUpperCase() || 'INSTITUTION'}`;
+                  educationContent += `${edu.degree || 'Degree'}\n${edu.institution || 'Institution'}`;
                   
                   if (edu.startDate && edu.endDate) {
                     educationContent += `\n${edu.startDate} - ${edu.endDate}`;
@@ -179,53 +204,55 @@ function Office3DScene({ cvData, sceneRef }) {
                   }
                 });
               } else {
-                educationContent += "Bachelor of Computer Science\nTech University\n2014 - 2018\nGPA: 3.8/4.0";
+                educationContent += "Bachelor of Computer Science\nTech University\n2018\nGPA: 3.8";
               }
               textContent = educationContent;
-              console.log('Education data:', cvData?.education);
               break;
               
             case 'Skills':
               let skillsContent = "SKILLS\n\n";
-              if (cvData?.skills?.length > 0) {
-                skillsContent += cvData.skills.join('\n').toUpperCase();
+              if (cvData?.skills && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
+                skillsContent += cvData.skills.join('\n');
               } else {
-                skillsContent += "JAVASCRIPT\nREACT\nNODE.JS\nTHREE.JS\nUI/UX DESIGN";
+                skillsContent += "JavaScript\nReact\nNode.js\nThree.js\nUI/UX Design";
               }
               textContent = skillsContent;
-              console.log('Skills data:', cvData?.skills);
               break;
               
             case 'Reference':
               let referenceContent = "REFERENCES\n\n";
-              if (cvData?.references?.length > 0) {
+              if (cvData?.references && Array.isArray(cvData.references) && cvData.references.length > 0) {
                 cvData.references.forEach((ref, index) => {
-                  referenceContent += `${ref.name?.toUpperCase() || 'NAME'}\n${ref.position?.toUpperCase() || 'POSITION'}\n${ref.contact || 'CONTACT INFO'}`;
+                  referenceContent += `${ref.name || 'Reference Name'}\n${ref.position || 'Position'}\n${ref.contact || 'Contact Info'}`;
                   if (index < cvData.references.length - 1) {
                     referenceContent += '\n\n';
                   }
                 });
               } else {
-                referenceContent += "JANE SMITH\nCTO AT TECH INNOVATIONS\njane.smith@techinnovations.com";
+                referenceContent += "Jane Smith\nCTO at Tech Innovations\njane.smith@company.com";
               }
               textContent = referenceContent;
-              console.log('References data:', cvData?.references);
               break;
               
             case 'Contact':
               let contactContent = "CONTACT\n\n";
-              const email = cvData?.email || 'john.doe@example.com';
+              const email = cvData?.email || 'email@example.com';
               const phone = cvData?.phone || '+1 (555) 123-4567';
+              const location = cvData?.location || '';
               
-              contactContent += `${email.toUpperCase()}\n${phone}`;
+              contactContent += `${email}\n${phone}`;
+              if (location) {
+                contactContent += `\n${location}`;
+              }
               textContent = contactContent;
-              console.log('Contact data:', { email, phone });
               break;
           }
           
           if (textContent) {
-            console.log(`Applying text to ${object.name}`);
+            console.log(`Applying text to ${object.name}:`, textContent);
             applyTextToMesh(object, textContent, isNameAbout);
+          } else {
+            console.log(`No text content for ${object.name}`);
           }
         }
       });
@@ -262,18 +289,18 @@ function Office3DScene({ cvData, sceneRef }) {
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Name - EXTREMELY LARGE
-          context.font = 'bold 480px "Arial Black", Arial, sans-serif';
-          context.fillText(line, canvas.width / 2, currentY);
-          currentY += 600;
-        } else if (index === 2) {
-          // Title - VERY LARGE
-          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
+          // Name - LARGE
+          context.font = 'bold 380px "Arial Black", Arial, sans-serif';
           context.fillText(line, canvas.width / 2, currentY);
           currentY += 500;
+        } else if (index === 2) {
+          // Title - LARGE
+          context.font = 'bold 280px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 450;
         } else if (index === 4) {
-          // About - LARGE but readable
-          context.font = 'bold 180px "Arial Black", Arial, sans-serif';
+          // About - readable size
+          context.font = 'bold 140px "Arial Black", Arial, sans-serif';
           // Split long about text into multiple lines if needed
           const words = line.split(' ');
           let currentLine = '';
@@ -292,7 +319,7 @@ function Office3DScene({ cvData, sceneRef }) {
           aboutLines.push(currentLine);
           
           aboutLines.forEach((aboutLine, aboutIndex) => {
-            context.fillText(aboutLine, canvas.width / 2, currentY + (aboutIndex * 220));
+            context.fillText(aboutLine, canvas.width / 2, currentY + (aboutIndex * 180));
           });
         }
       });
@@ -305,23 +332,23 @@ function Office3DScene({ cvData, sceneRef }) {
       
       lines.forEach((line, index) => {
         if (index === 0) {
-          // Section heading - MASSIVE
-          context.font = 'bold 400px "Arial Black", Arial, sans-serif';
+          // Section heading - LARGE
+          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
           context.fillText(line, 300, currentY);
-          currentY += 500;
+          currentY += 400;
         } else if (line.trim() === '') {
           // Empty line for spacing
-          currentY += 200;
+          currentY += 150;
         } else if (line.startsWith('•')) {
-          // Bullet points - slightly smaller
-          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
+          // Bullet points
+          context.font = 'bold 120px "Arial Black", Arial, sans-serif';
           context.fillText(line, 350, currentY);
-          currentY += 220;
+          currentY += 160;
         } else {
-          // Content - VERY LARGE
-          context.font = 'bold 200px "Arial Black", Arial, sans-serif';
+          // Content
+          context.font = 'bold 160px "Arial Black", Arial, sans-serif';
           context.fillText(line, 300, currentY);
-          currentY += 250;
+          currentY += 200;
         }
       });
     }
@@ -341,6 +368,7 @@ function Office3DScene({ cvData, sceneRef }) {
     });
     
     mesh.visible = true;
+    console.log(`✅ Text applied to ${mesh.name}`);
   };
 
   return (
@@ -348,55 +376,6 @@ function Office3DScene({ cvData, sceneRef }) {
       {gltf?.scene && <primitive object={gltf.scene} />}
     </group>
   );
-}
-
-// Use your actual CV data hook
-function useCvData() {
-  try {
-    // Import your actual hook - adjust path as needed
-    const useCVData = require('../../../hooks/useCVData').default;
-    const data = useCVData();
-    console.log("Loaded CV Data:", data);
-    return { cvData: data };
-  } catch (error) {
-    console.log('Error loading CV data hook, using mock data:', error);
-    // Return mock data that matches your component structure
-    return {
-      cvData: {
-        name: "JOHN DOE",
-        title: "FULL STACK DEVELOPER",
-        about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions and user-friendly experiences. Specializing in modern web frameworks and 3D interactive experiences.",
-        email: "john.doe@example.com",
-        phone: "+1 (555) 123-4567",
-        skills: ["JavaScript", "React", "Node.js", "Three.js", "UI/UX Design"],
-        experience: [
-          {
-            company: "Tech Innovations Inc.",
-            title: "Senior Developer",
-            startDate: "2020",
-            endDate: "2023",
-            extra: ["Led frontend development team for flagship product", "Implemented modern React architecture"]
-          }
-        ],
-        education: [
-          {
-            institution: "Tech University",
-            degree: "Bachelor of Computer Science",
-            startDate: "2014",
-            endDate: "2018",
-            gpa: "3.8/4.0"
-          }
-        ],
-        references: [
-          {
-            name: "Jane Smith",
-            position: "CTO at Tech Innovations",
-            contact: "jane.smith@techinnovations.com"
-          }
-        ]
-      }
-    };
-  }
 }
 
 function LoadingModel() {
