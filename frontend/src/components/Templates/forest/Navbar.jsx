@@ -1,11 +1,11 @@
 //frontend/src/components/Templates/forest/Navbar.jsx
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import useCvData from '../../../hooks/useCVData' 
+import useCVData from '../../../hooks/useCVData';
 
 const Navbar = () => {
   const [active, setActive] = useState("");
-    const { name } = useCvData() || {};
+  const { name } = useCVData();
 
   return (
     <nav className="w-full flex items-center py-5 fixed top-0 z-20 bg-[#0e0e2c]/80 backdrop-blur-sm">
@@ -19,7 +19,7 @@ const Navbar = () => {
           }}
         >
           <p className="text-green-400 text-[18px] font-bold cursor-pointer">
-            {name}'s <span className="text-white">Portfolio</span>
+            {name || "Your"}'s <span className="text-white">Portfolio</span>
           </p>
         </Link>
 
