@@ -19,9 +19,9 @@ const Contact = () => {
         <div className="text-center mb-16">
           {/* Enhanced header with chemistry icons */}
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="text-emerald-400 text-3xl animate-shimmer">🤝</div>
+            <div className="text-emerald-400 text-3xl animate-shimmer"></div>
             <h2 className="text-emerald-400 text-4xl font-bold">Research Collaboration</h2>
-            <div className="text-emerald-400 text-3xl animate-shimmer">📧</div>
+            <div className="text-emerald-400 text-3xl animate-shimmer"></div>
           </div>
           <div className="w-20 h-1 bg-gradient-to-r from-emerald-400 to-teal-400 mx-auto" />
         </div>
@@ -89,7 +89,7 @@ const Contact = () => {
                 {/* Enhanced button with icon */}
                 <div className="flex items-center gap-2">
                   <span>Submit Inquiry</span>
-                  <span className="text-lg">🚀</span>
+                  <span className="text-lg"></span>
                 </div>
               </button>
             </form>
