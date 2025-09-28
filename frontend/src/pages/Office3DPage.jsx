@@ -11,7 +11,7 @@ import * as THREE from 'three';
 
 export default function Office3DPage() {
   const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-80); // start higher (top of object visible)
+  const [scrollPosition, setScrollPosition] = useState(-80);
   const [targetScrollPosition, setTargetScrollPosition] = useState(-80);
   const scrollContainerRef = useRef();
   const scrollTimeoutRef = useRef();
@@ -25,7 +25,7 @@ export default function Office3DPage() {
         if (Math.abs(diff) < 0.1) {
           return targetScrollPosition;
         }
-        return prev + diff * 0.08; // Smoother interpolation
+        return prev + diff * 0.08;
       });
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -49,7 +49,7 @@ export default function Office3DPage() {
       
       setTargetScrollPosition(prev => {
         const newPos = prev + e.deltaY * 0.04;
-        return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
+        return Math.max(-60, Math.min(newPos, 60));
       });
 
       scrollTimeoutRef.current = setTimeout(() => {
@@ -69,7 +69,6 @@ export default function Office3DPage() {
     }
   }, []);
 
-  // Calculate progress percentage more accurately
   const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 140) * 100));
 
   return (
@@ -77,9 +76,9 @@ export default function Office3DPage() {
       <OfficeNavbar />
       <Canvas
         camera={{ 
-          position: [0, 7, 11], // zoomed in closer
+          position: [0, 5, 8], // Centered camera position
           rotation: [-Math.PI/6, 0, 0],
-          fov: 38
+          fov: 45
         }}
         gl={{ alpha: true }}
       >
@@ -102,7 +101,7 @@ export default function Office3DPage() {
         />
       </Canvas>
       
-      {/* Improved scroll indicator */}
+      {/* Scroll indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg backdrop-blur-sm border border-gray-600/30">
         <div className="w-56 h-3 bg-gray-700 rounded-full overflow-hidden">
           <div 
@@ -127,6 +126,7 @@ function Office3DScene({ cvData, scrollPosition }) {
     title: "Full Stack Developer",
     about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions and user-friendly experiences.",
     email: "john.doe@example.com",
+    phone: "+1 (555) 123-4567",
     skills: ["JavaScript", "React", "Node.js", "Three.js", "UI/UX Design"],
     experience: [
       {
@@ -134,7 +134,7 @@ function Office3DScene({ cvData, scrollPosition }) {
         title: "Senior Developer",
         startDate: "2020",
         endDate: "2023",
-        extra: ["Led frontend development team for flagship product", "Implemented modern React architecture"]
+        description: "Led frontend development team for flagship product. Implemented modern React architecture and improved performance by 40%."
       }
     ],
     education: [
@@ -142,17 +142,26 @@ function Office3DScene({ cvData, scrollPosition }) {
         institution: "Tech University",
         degree: "Bachelor of Computer Science",
         startDate: "2014",
-        endDate: "2018"
+        endDate: "2018",
+        gpa: "3.8"
+      }
+    ],
+    references: [
+      {
+        name: "Jane Smith",
+        position: "CTO at Tech Innovations",
+        contact: "jane.smith@techinnovations.com"
       }
     ]
   };
 
   const data = cvData || mockData;
-  const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
+  // Updated model path - replace with your new model
+  const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb');
   
   useFrame(() => {
     if (groupRef.current) {
-      targetZ.current = -scrollPosition * 0.9; // smoother + longer scroll effect
+      targetZ.current = -scrollPosition * 0.9;
       groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
     }
   });
@@ -161,18 +170,16 @@ function Office3DScene({ cvData, scrollPosition }) {
     if (gltf?.scene) {
       gltf.scene.traverse((object) => {
         if (object.isMesh && object.name && (
-          object.name.includes('Title') || 
-          object.name.includes('Subtitle') || 
+          object.name.includes('Name') || 
           object.name.includes('About') || 
-          object.name.includes('Expertise') || 
           object.name.includes('Experience') || 
           object.name.includes('Education') || 
-          object.name.includes('Contact') || 
-          object.name.includes('Heading') || 
-          object.name.includes('Description')
+          object.name.includes('Skills') || 
+          object.name.includes('Reference') || 
+          object.name.includes('Contact')
         )) {
           object.material.transparent = true;
-          object.material.opacity = 0;
+          object.material.opacity = 1;
           object.material.needsUpdate = true;
           object.renderOrder = 1;
         }
@@ -183,68 +190,59 @@ function Office3DScene({ cvData, scrollPosition }) {
           let textContent = '';
           
           switch(object.name) {
-            case 'Title':
+            case 'Name':
               textContent = data.name || 'John Doe';
               break;
-            case 'Subtitle':
-              textContent = data.title || 'Full Stack Developer';
+            case 'About':
+              textContent = data.about || 'Experienced professional with a passion for innovation.';
               break;
-            case 'AboutDescription':
-              textContent = data.about || '';
-              break;
-            case 'ExpertiseDescription':
-              textContent = data.skills?.slice(0, 4).join(' • ') || '';
-              break;
-            case 'ExperienceDescription':
+            case 'Experience':
               if (data.experience?.length > 0) {
                 const expTexts = data.experience.map((exp) => {
-                  let expText = `• ${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
-                  if (exp.extra?.length > 0) {
-                    const firstBullet = exp.extra[0].replace('¢ ', '');
-                    expText += `\n  - ${firstBullet}`;
+                  let expText = `${exp.title} at ${exp.company}`;
+                  if (exp.startDate && exp.endDate) {
+                    expText += ` (${exp.startDate}-${exp.endDate})`;
+                  }
+                  if (exp.description) {
+                    expText += `\n${exp.description}`;
                   }
                   return expText;
                 });
                 textContent = expTexts.join('\n\n');
               }
               break;
-            case 'EducationDescription':
+            case 'Education':
               if (data.education?.length > 0) {
                 const eduTexts = data.education.map((edu) => {
-                  let eduText = `• ${edu.degree} - ${edu.institution}`;
+                  let eduText = `${edu.degree} - ${edu.institution}`;
                   if (edu.startDate && edu.endDate) {
                     eduText += ` (${edu.startDate}-${edu.endDate})`;
-                  } else if (edu.endDate) {
-                    eduText += ` (${edu.endDate})`;
-                  }
-                  if (edu.field) {
-                    eduText += `\n  Field: ${edu.field}`;
                   }
                   if (edu.gpa) {
-                    eduText += `\n  GPA: ${edu.gpa}`;
+                    eduText += `\nGPA: ${edu.gpa}`;
                   }
                   return eduText;
                 });
                 textContent = eduTexts.join('\n\n');
               }
               break;
-            case 'ContactDescription':
-              textContent = data.email || '';
+            case 'Skills':
+              textContent = data.skills?.join(', ') || 'JavaScript, React, Node.js, Three.js';
               break;
-            case 'AboutHeading':
-              textContent = 'About Me';
+            case 'Reference':
+              if (data.references?.length > 0) {
+                const refTexts = data.references.map((ref) => {
+                  return `${ref.name}\n${ref.position}\n${ref.contact}`;
+                });
+                textContent = refTexts.join('\n\n');
+              }
               break;
-            case 'ExpertiseHeading':
-              textContent = 'Experience & Expertise';
-              break;
-            case 'ExperienceHeading':
-              textContent = 'Professional Journey';
-              break;
-            case 'EducationHeading':
-              textContent = 'Education & Background';
-              break;
-            case 'ContactHeading':
-              textContent = 'Get In Touch';
+            case 'Contact':
+              let contactText = '';
+              if (data.email) contactText += `Email: ${data.email}\n`;
+              if (data.phone) contactText += `Phone: ${data.phone}\n`;
+              if (data.location) contactText += `Location: ${data.location}`;
+              textContent = contactText || 'Email: john.doe@example.com\nPhone: +1 (555) 123-4567';
               break;
           }
           
@@ -253,26 +251,22 @@ function Office3DScene({ cvData, scrollPosition }) {
               const canvas = document.createElement('canvas');
               const context = canvas.getContext('2d');
               canvas.width = 512;
-              canvas.height = 128;
+              canvas.height = 256; // Increased height for more content
               
               context.clearRect(0, 0, canvas.width, canvas.height);
-              context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
+              context.fillStyle = object.name === 'Name' ? '#3b82f6' : '#ffffff';
               
-              // Font sizes
-              if (object.name === 'Title') {
-                context.font = 'bold 60px Arial';
+              // Font sizes based on section
+              if (object.name === 'Name') {
+                context.font = 'bold 48px Arial';
                 context.textAlign = 'center';
                 context.textBaseline = 'middle';
-              } else if (object.name === 'Subtitle') {
-                context.font = 'bold 44px Arial';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-              } else if (object.name.includes('Heading')) {
-                context.font = 'bold 48px Arial'; // Made much bigger than descriptions
+              } else if (object.name === 'About') {
+                context.font = '18px Arial';
                 context.textAlign = 'left';
-                context.textBaseline = 'bottom';
+                context.textBaseline = 'top';
               } else {
-                context.font = '16px Arial'; // Even smaller font for better fit
+                context.font = '16px Arial';
                 context.textAlign = 'left';
                 context.textBaseline = 'top';
               }
@@ -280,14 +274,7 @@ function Office3DScene({ cvData, scrollPosition }) {
               const words = textContent.split(' ');
               const lines = [];
               let currentLine = '';
-              let maxWidth;
-              
-              // Different max widths for different text types
-              if (object.name === 'Subtitle') {
-                maxWidth = canvas.width - 40; // Keep subtitle on one line if possible
-              } else {
-                maxWidth = canvas.width - 80; // More padding for left alignment
-              }
+              let maxWidth = canvas.width - 40;
               
               words.forEach(word => {
                 const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -301,36 +288,16 @@ function Office3DScene({ cvData, scrollPosition }) {
               });
               lines.push(currentLine);
               
-              let lineHeight = 22; // Adjusted for smaller font
-              if (object.name === 'Title') lineHeight = 50;
-              else if (object.name === 'Subtitle') lineHeight = 40;
-              else if (object.name.includes('Heading')) lineHeight = 50; // Increased for bigger headings
+              let lineHeight = object.name === 'Name' ? 50 : 20;
+              let startX = object.name === 'Name' ? canvas.width / 2 : 20;
+              let startY = object.name === 'Name' ? canvas.height / 2 : 20;
 
-              // Position text based on type
-              let startX, startY;
-              
-              if (object.name === 'Title' || object.name === 'Subtitle') {
-                // Keep title and subtitle centered
-                startX = canvas.width / 2;
-                startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
-              } else if (object.name.includes('Heading')) {
-                // Headings at bottom left
-                startX = 40;
-                startY = canvas.height - 15 - ((lines.length - 1) * lineHeight); // Adjusted for bigger font
-              } else {
-                // Descriptions at top left
-                startX = 40;
-                startY = 20;
-              }
-              
               lines.forEach((line, index) => {
                 context.fillText(line, startX, startY + index * lineHeight);
               });
               
               const texture = new THREE.CanvasTexture(canvas);
               texture.needsUpdate = true;
-              texture.wrapS = THREE.RepeatWrapping;
-              texture.repeat.x = -1;
               
               const newMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
@@ -348,7 +315,7 @@ function Office3DScene({ cvData, scrollPosition }) {
   }, [gltf, data]);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       {gltf?.scene && <primitive object={gltf.scene} />}
     </group>
   );
