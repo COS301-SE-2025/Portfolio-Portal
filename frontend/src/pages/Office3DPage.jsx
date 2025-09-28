@@ -8,7 +8,7 @@ import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
 // Import your actual CV data hook
-import useCVData from '../../hooks/useCVData';
+import useCVData from '../hooks/useCVData';
 
 export default function Office3DPage() {
   const { cvData } = useCVData() || {};
