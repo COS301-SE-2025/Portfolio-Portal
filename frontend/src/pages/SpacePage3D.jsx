@@ -116,7 +116,7 @@ const Sun = () => {
       </mesh>
       
       {/* Light source */}
-      <pointLight position={[0, 0, 0]} intensity={1.8} color="#ffaa00" distance={150} />
+      <pointLight position={[0, 0, 0]} intensity={2.0} color="#ffaa00" distance={150} />
     </group>
   );
 };
