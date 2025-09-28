@@ -12,9 +12,32 @@ import useCVData from '../hooks/useCVData';
 
 export default function Office3DPage() {
   const { cvData } = useCVData() || {};
-  const [activeSection, setActiveSection] = useState('nameabout');
+  const [activeSection, setActiveSection] = useState('start');
   const controlsRef = useRef();
   const sceneRef = useRef();
+  const isInitialLoad = useRef(true);
+  
+  // Set initial camera position on first load
+  useEffect(() => {
+    if (sceneRef.current && controlsRef.current && isInitialLoad.current) {
+      const startCamera = sceneRef.current.getObjectByName('CameraStart');
+      
+      if (startCamera && startCamera.isCamera) {
+        console.log('Setting initial camera to CameraStart');
+        // Set initial position and target directly without animation
+        controlsRef.current.object.position.copy(startCamera.position);
+        controlsRef.current.object.rotation.copy(startCamera.rotation);
+        
+        const direction = new THREE.Vector3();
+        startCamera.getWorldDirection(direction);
+        const target = startCamera.position.clone().add(direction.multiplyScalar(10));
+        controlsRef.current.target.copy(target);
+        
+        controlsRef.current.update();
+      }
+      isInitialLoad.current = false;
+    }
+  }, []);
   
   const navigateToSection = (section) => {
     setActiveSection(section);
@@ -23,13 +46,9 @@ export default function Office3DPage() {
       const camera = sceneRef.current.getObjectByName(cameraName);
       
       if (camera && camera.isCamera) {
-        console.log(`Found camera: ${cameraName}`, camera.position, camera.rotation);
+        console.log(`Moving to camera: ${cameraName}`);
         
-        // Save current camera state
-        const currentPosition = controlsRef.current.object.position.clone();
-        const currentTarget = controlsRef.current.target.clone();
-        
-        // Set new camera position and rotation directly
+        // Disable smooth transitions by setting position and rotation directly
         controlsRef.current.object.position.copy(camera.position);
         controlsRef.current.object.rotation.copy(camera.rotation);
         
@@ -39,24 +58,10 @@ export default function Office3DPage() {
         const target = camera.position.clone().add(direction.multiplyScalar(10));
         controlsRef.current.target.copy(target);
         
+        // Force immediate update without smooth transition
         controlsRef.current.update();
       } else {
-        console.log(`Camera ${cameraName} not found in model. Using fallback positions.`);
-        // Fallback positions with proper rotation
-        const fallbackPositions = {
-          nameabout: { position: [0, 3, 8], target: [0, 2, 0] },
-          experience: { position: [8, 3, 0], target: [0, 2, 0] },
-          education: { position: [0, 3, -8], target: [0, 2, 0] },
-          skills: { position: [-8, 3, 0], target: [0, 2, 0] },
-          reference: { position: [6, 3, 6], target: [0, 2, 0] },
-          contact: { position: [-6, 3, -6], target: [0, 2, 0] }
-        };
-        const pos = fallbackPositions[section];
-        if (pos) {
-          controlsRef.current.object.position.set(...pos.position);
-          controlsRef.current.target.set(...pos.target);
-          controlsRef.current.update();
-        }
+        console.log(`Camera ${cameraName} not found in model.`);
       }
     }
   };
@@ -67,7 +72,7 @@ export default function Office3DPage() {
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
         <div className="bg-gray-200/95 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-300/50 shadow-lg">
           <div className="flex gap-3 flex-wrap justify-center">
-            {['NameAbout', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
+            {['Start', 'NameAbout', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
               <button
                 key={section.toLowerCase()}
                 onClick={() => navigateToSection(section.toLowerCase())}
@@ -77,7 +82,7 @@ export default function Office3DPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-900 border border-gray-300'
                 }`}
               >
-                {section.replace('NameAbout', 'About')}
+                {section === 'NameAbout' ? 'About' : section}
               </button>
             ))}
           </div>
@@ -111,6 +116,8 @@ export default function Office3DPage() {
           maxPolarAngle={Math.PI/1.2}
           rotateSpeed={0.8}
           panSpeed={0.8}
+          // Disable smooth damping for instant camera moves
+          enableDamping={false}
         />
       </Canvas>
     </div>
