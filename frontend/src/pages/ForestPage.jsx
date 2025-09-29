@@ -10,6 +10,7 @@ import Experience from "../components/Templates/forest/Experience";
 import Contact from "../components/Templates/forest/Contact";
 
 const ForestPage = () => {
+
   return (
     <div className="relative z-0 bg-[#0e0e2c] text-white">
       {/* 3D forest background */}
@@ -44,6 +45,7 @@ const ForestPage = () => {
         </Canvas>
       </div>
       <div className="relative z-10">
+        
         <Navbar />
         <Hero />
         <About />

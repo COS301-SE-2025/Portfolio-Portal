@@ -1,6 +1,24 @@
 import { email } from "./index";
+import { useState } from "react";
+import { downloadPortfolio, DownloadButton } from "../../../services/portfolioDownload.jsx";
+import { useCVData } from "../../../hooks/useCVData.js";
+import GitHubDeploy from "../../GithubDeploy.jsx";
 
 const Contact = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { cvData } = useCVData();
+
+  const handleDownload = async () => {
+    const result = await downloadPortfolio(setIsDownloading, 'office');
+    if (!result.success) {
+      alert(result.error);
+    }
+  };
+
+  const handleDeploySuccess = (result) => {
+    console.log('Portfolio deployed successfully:', result);
+    // You could show a toast notification here or update some global state
+  };
   return (
     <section id="contact" className="relative w-full py-20 mx-auto bg-gray-900/20">
       <div className="max-w-7xl mx-auto px-6">
@@ -64,6 +82,41 @@ const Contact = () => {
               </button>
             </form>
           </div>
+        </div>
+
+        {/* Download Portfolio Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
+            <h3 className="text-white text-2xl font-bold mb-4">Download Your Portfolio</h3>
+            <p className="text-gray-300 mb-6">
+              Get your complete portfolio as a standalone React application that you can customize and deploy anywhere.
+            </p>
+            <DownloadButton 
+              isDownloading={isDownloading}
+              onClick={handleDownload}
+              variant="office"
+            />
+          </div>
+        </div>
+
+        {/* Deploy Portfolio Section */}
+        <div className="mt-16 text-center">
+          <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
+          <GitHubDeploy
+            userData={cvData}
+            template="office"
+            onDeploySuccess={handleDeploySuccess}
+          />
+          </div>
+        </div>
+
+        {/* 3D Model Copyright Notice */}
+        <div className="mt-16 pt-8 border-t border-gray-700 text-center">
+          <p className="text-gray-500 text-sm">
+            3D Model: "Office Room 15 Low-poly 3D model" by{" "}
+            <span className="text-blue-400">Mnostva - Sketchfab.com</span> -{" "}
+            <span className="text-gray-400">Licensed under CC-BY-4.0</span>
+          </p>
         </div>
       </div>
     </section>

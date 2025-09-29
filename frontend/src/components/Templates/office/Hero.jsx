@@ -3,11 +3,11 @@ import { OrbitControls } from '@react-three/drei';
 import { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCvData from '../../../hooks/useCVData';
-import Office from '../../3DModels/Office'; // Add this import
+import Office from '../../3DModels/Office'; 
 
 const Hero = () => {
   const navigate = useNavigate();
-  const { name, description } = useCvData() || {};
+  const { name, summary } = useCvData() || {};
 
   return (
     <section className="relative w-full h-screen mx-auto bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900 flex items-center">
@@ -17,7 +17,7 @@ const Hero = () => {
             Hi, I'm <span className="text-blue-400">{name || "Professional"}</span>
           </h1>
           <p className="text-gray-300 text-lg sm:text-xl max-w-lg">
-            {description || "Full stack developer creating digital solutions with precision and efficiency."}
+            {summary || "Full stack developer creating digital solutions with precision and efficiency."}
           </p>
           <button 
             onClick={() => navigate('/office3d')}

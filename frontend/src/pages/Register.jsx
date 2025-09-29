@@ -11,11 +11,11 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    professional: true, // Default to true as per database
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Move emailRegex here
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const stepTitles = {
@@ -29,6 +29,7 @@ const Register = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
+
 
   const validateStep = () => {
     switch (step) {
@@ -88,6 +89,7 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        professional: formData.professional, // Send boolean value
       };
       console.log('Sending payload:', payload);
       const { data } = await authService.signUp(payload);

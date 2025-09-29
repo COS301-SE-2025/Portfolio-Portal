@@ -46,21 +46,18 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      name: "Sarah Chen",
+      name: "Abdel Ghani",
       role: "Software Engineer",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
       quote: "This platform transformed my boring CV into an amazing interactive portfolio. I got 3x more interview calls!"
     },
     {
-      name: "Marcus Rodriguez",
-      role: "Marketing Director",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+      name: "Cleo Qin",
+      role: "Anthropology Student",
       quote: "The AI-powered transformation is incredible. My portfolio now tells my story in a way that really resonates with employers."
     },
     {
-      name: "Emily Johnson",
-      role: "UX Designer",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      name: "Luke Brandt",
+      role: "Software Engineer",
       quote: "Finally, a way to showcase my work that matches my creativity. The interactive elements are game-changing."
     }
   ];
@@ -236,18 +233,12 @@ const LandingPage = () => {
       <section className="relative z-10 container mx-auto px-6 py-20">
         <div className="text-center mb-16">
           <h2 className="text-5xl font-bold mb-6">Success Stories</h2>
-          <p className="text-xl text-gray-300">Join thousands who've transformed their careers</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all">
               <div className="flex items-center mb-6">
-                <img 
-                  src={testimonial.image} 
-                  alt={testimonial.name}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
                 <div>
                   <div className="font-bold">{testimonial.name}</div>
                   <div className="text-gray-400 text-sm">{testimonial.role}</div>

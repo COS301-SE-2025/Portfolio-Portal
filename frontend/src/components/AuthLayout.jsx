@@ -115,7 +115,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
       </div>
 
       {/* CSS Animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes twinkle {
           0%,
           100% {

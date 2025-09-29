@@ -109,6 +109,10 @@ frontend/
    npm run dev
    ```
 
+   To run the app with local backend use `npm run dev`.
+
+   To run it with deployed backend use `npm run build`.
+
 4. **Open your browser**
    Navigate to `http://localhost:5173` (or the port shown in your terminal)
 
@@ -161,17 +165,18 @@ The application integrates with backend services through:
 - `cvDataService.js` - CV processing endpoints
 - `portfolio.js` - Portfolio management endpoints
 
-
 ## Testing
 
 The application provides unit and integration tests using Cypress:
 
 Option 1 -Cypress GUI:
+
 - cd Portfolio-Portal/frontend
 - npm install cypress --save-dev
 - npx cypress open
 
 Option 2 - Run in Headless Mode (terminal only):
+
 - npx cypress run --spec "cypress/integrationTests/login.cy.js" // replace login.cy.js with any tes file name
 
 ## 🎭 State Management
@@ -205,7 +210,7 @@ Option 2 - Run in Headless Mode (terminal only):
 
 ## 📝 License
 
-This project is part of the University of Pretoria's COS301 CAPSTONE project. 
+This project is part of the University of Pretoria's COS301 CAPSTONE project.
 
 ## 🐛 Known Issues
 

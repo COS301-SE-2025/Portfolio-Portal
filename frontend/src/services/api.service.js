@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-// Temporarily force production URL for testing
-const API_BASE_URL = import.meta.env.REACT_APP_API_URL || 'https://backend-production-18b9.up.railway.app';
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
 console.log('API Base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`, // This creates the full URL: https://backend-production-18b9.up.railway.app/api
+  withCredentials: true, // Include cookies in requests for session management
 });
 
 api.interceptors.request.use((config) => {

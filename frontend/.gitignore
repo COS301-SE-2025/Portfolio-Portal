@@ -23,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .DS_Store
-.env
-
-
+.env.development
+.env.production
+cypress.env.json

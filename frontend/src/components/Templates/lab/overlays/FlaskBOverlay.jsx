@@ -11,6 +11,18 @@ export default function FlaskBOverlay({
 
   const DIAM = "min(95vmin, 5000px)";
 
+  const hasItems = (arr) =>
+    Array.isArray(arr) &&
+    arr.some((x) => {
+      if (x == null) return false;
+      if (typeof x === "string") return x.trim().length > 0;
+      if (typeof x === "object") return Object.values(x).some(Boolean);
+      return false;
+    });
+
+  const hasEdu = hasItems(data?.education);
+  const hasProjects = hasItems(data?.projects);
+
   return (
     <>
       <Html
@@ -67,47 +79,71 @@ export default function FlaskBOverlay({
             }}
             onWheel={(e) => e.stopPropagation()}
           >
-            <section>
-              <div style={titleStyle}>Education</div>
-              <div style={{ height: 8 }} />
-              <ul style={ulStyle}>
-                {(data?.education || []).map((e, i) => (
-                  <li key={i}>
-                    <div style={{ fontWeight: 700 }}>
-                      {e.degree}{" "}
-                      <span style={{ fontWeight: 600 }}>{e.field}</span>
-                    </div>
-                    <div style={{ opacity: 0.95 }}>
-                      {e.institution}{" "}
-                      <span style={{ opacity: 0.8 }}>({e.year})</span>
-                    </div>
-                    <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
-                      GPA {e.gpa}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {hasEdu && (
+              <section>
+                <div style={titleStyle}>Education</div>
+                <div style={{ height: 8 }} />
+                <ul style={ulStyle}>
+                  {(data?.education || []).map((e, i) => {
+                    if (typeof e === "string") {
+                      return <li key={i}>{e}</li>;
+                    }
 
-            <div style={dividerStyle} />
+                    const degreeField = [e.degree, e.field]
+                      .filter(Boolean)
+                      .join(" ");
+                    const inst = e.institution || "";
+                    const year = e.year || e.endDate || "";
+                    const gpa = e.gpa;
 
-            <section>
-              <div style={titleStyle}>Projects</div>
-              <div style={{ height: 8 }} />
-              <ul style={ulStyleProjects}>
-                {(data?.projects || []).map((p, i) => (
-                  <li key={i}>
-                    <div style={{ fontWeight: 700 }}>{p.name}</div>
-                    <div style={{ opacity: 0.95 }}>{p.description}</div>
-                    {!!p?.technologies?.length && (
-                      <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
-                        {p.technologies.join(" · ")}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
+                    return (
+                      <li key={i}>
+                        {degreeField ? (
+                          <div style={{ fontWeight: 700 }}>{degreeField}</div>
+                        ) : null}
+
+                        {inst || year ? (
+                          <div style={{ opacity: 0.95 }}>
+                            {inst}
+                            {year ? (
+                              <span style={{ opacity: 0.8 }}> ({year})</span>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        {gpa ? (
+                          <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
+                            GPA {gpa}
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            )}
+
+            {hasEdu && hasProjects && <div style={dividerStyle} />}
+
+            {hasProjects && (
+              <section>
+                <div style={titleStyle}>Projects</div>
+                <div style={{ height: 8 }} />
+                <ul style={ulStyleProjects}>
+                  {(data?.projects || []).map((p, i) => (
+                    <li key={i}>
+                      <div style={{ fontWeight: 700 }}>{p.name}</div>
+                      <div style={{ opacity: 0.95 }}>{p.description}</div>
+                      {!!p?.technologies?.length && (
+                        <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
+                          {p.technologies.join(" · ")}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         </div>
       </Html>

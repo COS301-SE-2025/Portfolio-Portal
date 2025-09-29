@@ -11,6 +11,18 @@ export default function OverlayMicroscope({
 
   const DIAM = "min(96vmin, 1100px)";
 
+  const hasItems = (arr) =>
+    Array.isArray(arr) &&
+    arr.some((x) => {
+      if (x == null) return false;
+      if (typeof x === "string") return x.trim().length > 0;
+      if (typeof x === "object") return Object.values(x).some(Boolean);
+      return false;
+    });
+
+  const hasExperience = hasItems(data?.experience);
+  const hasReferences = hasItems(data?.references);
+
   return (
     <>
       <Html
@@ -64,59 +76,106 @@ export default function OverlayMicroscope({
               gap: 14,
             }}
           >
-            <section>
+            {hasExperience && (
+              <section>
+                <div
+                  style={{
+                    fontSize: "clamp(13px, 1.8vmin, 17px)",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: ".06em",
+                    textAlign: "center",
+                    opacity: 0.95,
+                  }}
+                >
+                  Experience
+                </div>
+                <div style={{ height: 8 }} />
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: "none",
+                    display: "grid",
+                    gap: 12,
+                  }}
+                >
+                  {(data?.experience || []).map((job, i) => {
+                    const title = job.title || job.position || "";
+                    const company = job.company || "";
+                    const when =
+                      job.duration ||
+                      [job.start, job.end].filter(Boolean).join("–");
+                    const summary = job.summary || job.description || "";
+                    const skills = job.skills || [];
+
+                    return (
+                      <li key={i}>
+                        <div style={{ fontWeight: 700 }}>
+                          {title}
+                          {title && company ? " — " : ""}
+                          {company}
+                        </div>
+                        {!!when && <div style={{ opacity: 0.9 }}>{when}</div>}
+                        {!!summary && (
+                          <div style={{ opacity: 0.95 }}>{summary}</div>
+                        )}
+                        {!!skills.length && (
+                          <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
+                            {skills.join(" · ")}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            )}
+
+            {hasExperience && hasReferences && (
               <div
                 style={{
-                  fontSize: "clamp(13px, 1.8vmin, 17px)",
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: ".06em",
-                  textAlign: "center",
-                  opacity: 0.95,
+                  height: 1,
+                  background:
+                    "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.32) 12%, rgba(255,255,255,.32) 88%, rgba(255,255,255,0) 100%)",
+                  opacity: 0.8,
+                  margin: "10px 0",
                 }}
-              >
-                Experience
-              </div>
-              <div style={{ height: 8 }} />
-              <ul
-                style={{
-                  margin: 0,
-                  padding: 0,
-                  listStyle: "none",
-                  display: "grid",
-                  gap: 12,
-                }}
-              >
-                {(data?.experience || []).map((job, i) => {
-                  const title = job.title || job.position || "";
-                  const company = job.company || "";
-                  const when =
-                    job.duration ||
-                    [job.start, job.end].filter(Boolean).join("–");
-                  const summary = job.summary || job.description || "";
-                  const skills = job.skills || [];
+              />
+            )}
 
-                  return (
+            {hasReferences && (
+              <section>
+                <div
+                  style={{
+                    fontSize: "clamp(13px, 1.8vmin, 17px)",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: ".06em",
+                    textAlign: "center",
+                    opacity: 0.95,
+                  }}
+                >
+                  References
+                </div>
+                <div style={{ height: 8 }} />
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: "none",
+                    display: "grid",
+                    gap: 10,
+                  }}
+                >
+                  {(data?.references || []).map((ref, i) => (
                     <li key={i}>
-                      <div style={{ fontWeight: 700 }}>
-                        {title}
-                        {title && company ? " — " : ""}
-                        {company}
-                      </div>
-                      {!!when && <div style={{ opacity: 0.9 }}>{when}</div>}
-                      {!!summary && (
-                        <div style={{ opacity: 0.95 }}>{summary}</div>
-                      )}
-                      {!!skills.length && (
-                        <div style={{ opacity: 0.8, fontSize: "0.95em" }}>
-                          {skills.join(" · ")}
-                        </div>
-                      )}
+                      {typeof ref === "string" ? ref : String(ref)}
                     </li>
-                  );
-                })}
-              </ul>
-            </section>
+                  ))}
+                </ul>
+              </section>
+            )}
           </div>
         </div>
       </Html>

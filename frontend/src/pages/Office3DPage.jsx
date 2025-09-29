@@ -1,355 +1,485 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
-import useCvData from '../hooks/useCVData';
-import OfficeNavbar from '../components/Templates/office/Navbar';
 
 // Import GLTFLoader directly
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 
+// Import your actual CV data hook
+import useCVData from '../hooks/useCVData';
+
 export default function Office3DPage() {
-  const { cvData } = useCvData();
-  const [scrollPosition, setScrollPosition] = useState(-80); // start higher (top of object visible)
-  const [targetScrollPosition, setTargetScrollPosition] = useState(-80);
-  const scrollContainerRef = useRef();
-  const scrollTimeoutRef = useRef();
-  const animationFrameRef = useRef();
-
-  // Smooth scrolling animation
-  useEffect(() => {
-    const animate = () => {
-      setScrollPosition(prev => {
-        const diff = targetScrollPosition - prev;
-        if (Math.abs(diff) < 0.1) {
-          return targetScrollPosition;
-        }
-        return prev + diff * 0.08; // Smoother interpolation
-      });
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationFrameRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [targetScrollPosition]);
-
-  useEffect(() => {
-    const handleWheel = (e) => {
-      e.preventDefault();
+  const { cvData } = useCVData() || {};
+  const [activeSection, setActiveSection] = useState('start');
+  const controlsRef = useRef();
+  const sceneRef = useRef();
+  const isInitialLoad = useRef(true);
+  
+  const navigateToSection = (section) => {
+    setActiveSection(section);
+    if (sceneRef.current && controlsRef.current) {
+      const cameraName = `Camera${section.charAt(0).toUpperCase() + section.slice(1)}`;
+      const camera = sceneRef.current.getObjectByName(cameraName);
       
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      setTargetScrollPosition(prev => {
-        const newPos = prev + e.deltaY * 0.04;
-        return Math.max(-60, Math.min(newPos, 60)); // extended bottom, higher start
-      });
-
-      scrollTimeoutRef.current = setTimeout(() => {
-        scrollTimeoutRef.current = null;
-      }, 100);
-    };
-
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-      return () => {
-        container.removeEventListener('wheel', handleWheel);
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
+      if (camera && camera.isCamera) {
+        console.log(`Moving to camera: ${cameraName}`, camera.position, camera.rotation);
+        
+        // Reset controls first to prevent rotation issues
+        controlsRef.current.reset();
+        
+        // Set position and rotation directly
+        controlsRef.current.object.position.copy(camera.position);
+        controlsRef.current.object.rotation.copy(camera.rotation);
+        
+        // SPECIAL CASE: For Contact camera, apply different rotation
+        if (section === 'contact') {
+          console.log('Applying special rotation for Contact camera');
+          // Set rotation to look down from above but rotated 90 degrees right
+          controlsRef.current.object.rotation.set(
+            -Math.PI / 2, // Looking down from above
+            Math.PI / 2,  // Rotated 90 degrees right
+            0
+          );
         }
-      };
+        
+        // Calculate target based on camera direction
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+        const target = camera.position.clone().add(direction.multiplyScalar(5));
+        controlsRef.current.target.copy(target);
+        
+        // Force immediate update
+        controlsRef.current.update();
+      } else {
+        console.log(`Camera ${cameraName} not found in model. Available objects:`, 
+          Array.from(sceneRef.current.children).map(obj => obj.name));
+      }
     }
-  }, []);
+  };
 
-  // Calculate progress percentage more accurately
-  const progressPercentage = Math.max(0, Math.min(100, ((scrollPosition + 80) / 140) * 100));
+  // Function to set initial camera - will be called from Office3DScene
+  const setInitialCamera = () => {
+    if (sceneRef.current && controlsRef.current && isInitialLoad.current) {
+      const startCamera = sceneRef.current.getObjectByName('CameraStart');
+      
+      if (startCamera && startCamera.isCamera) {
+        console.log('Setting initial camera to CameraStart');
+        // Reset controls first
+        controlsRef.current.reset();
+        
+        // Set initial position and target directly
+        controlsRef.current.object.position.copy(startCamera.position);
+        controlsRef.current.object.rotation.copy(startCamera.rotation);
+        
+        const direction = new THREE.Vector3();
+        startCamera.getWorldDirection(direction);
+        const target = startCamera.position.clone().add(direction.multiplyScalar(5));
+        controlsRef.current.target.copy(target);
+        
+        controlsRef.current.update();
+        isInitialLoad.current = false;
+      } else {
+        console.log('CameraStart not found, using default camera position');
+      }
+    }
+  };
 
   return (
-    <div className="relative h-screen overflow-hidden" ref={scrollContainerRef}>
-      <OfficeNavbar />
+    <div className="relative h-screen overflow-hidden">
+      {/* Navigation Bar */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+        <div className="bg-gray-200/95 backdrop-blur-lg rounded-2xl px-6 py-3 border border-gray-300/50 shadow-lg">
+          <div className="flex gap-3 flex-wrap justify-center">
+            {['Start', 'NameAbout', 'Experience', 'Education', 'Skills', 'Reference', 'Contact'].map((section) => (
+              <button
+                key={section.toLowerCase()}
+                onClick={() => navigateToSection(section.toLowerCase())}
+                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 ${
+                  activeSection === section.toLowerCase() 
+                    ? 'bg-blue-500 text-white shadow-md shadow-blue-500/40' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-900 border border-gray-300'
+                }`}
+              >
+                {section === 'NameAbout' ? 'About' : section}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <Canvas
         camera={{ 
-          position: [0, 7, 11], // zoomed in closer
-          rotation: [-Math.PI/6, 0, 0],
-          fov: 38
+          position: [0, 3, 8],
+          fov: 50
         }}
-        gl={{ alpha: true }}
+        gl={{ 
+          alpha: true,
+          powerPreference: "high-performance",
+          antialias: true
+        }}
+        dpr={[1, 2]}
       >
-        <color attach="background" args={['#1a202c']} />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[15, 15, 10]} intensity={0.8} />
-        <Environment preset="apartment" />
+        <color attach="background" args={['#e5e7eb']} />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[10, 15, 10]} intensity={1.8} />
+        <pointLight position={[0, 8, 0]} intensity={1.0} />
+        <Environment preset="city" />
         
         <ErrorBoundary fallback={<FallbackModel />}>
           <Suspense fallback={<LoadingModel />}>
-            <Office3DScene cvData={cvData} scrollPosition={scrollPosition} />
+            <Office3DScene 
+              cvData={cvData} 
+              sceneRef={sceneRef} 
+              onSceneLoaded={setInitialCamera}
+            />
           </Suspense>
         </ErrorBoundary>
 
         <OrbitControls 
-          enableZoom={false}
-          enablePan={false}
-          minPolarAngle={Math.PI/6}
-          maxPolarAngle={Math.PI/2}
+          ref={controlsRef}
+          enableZoom={true}
+          enablePan={true}
+          minPolarAngle={Math.PI/12}
+          maxPolarAngle={Math.PI/1.2}
+          rotateSpeed={0.8}
+          panSpeed={0.8}
+          enableDamping={false}
         />
       </Canvas>
-      
-      {/* Improved scroll indicator */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-lg backdrop-blur-sm border border-gray-600/30">
-        <div className="w-56 h-3 bg-gray-700 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full transition-all duration-300 ease-out shadow-lg"
-            style={{ 
-              width: `${progressPercentage}%`,
-              boxShadow: progressPercentage > 5 ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
-            }}
-          ></div>
-        </div>
-      </div>
     </div>
   );
 }
 
-function Office3DScene({ cvData, scrollPosition }) {
-  const groupRef = useRef();
-  const targetZ = useRef(0);
-  
-  const mockData = {
-    name: "John Doe",
-    title: "Full Stack Developer",
-    about: "Experienced developer with 5+ years in web technologies. Passionate about creating innovative solutions and user-friendly experiences.",
-    email: "john.doe@example.com",
-    skills: ["JavaScript", "React", "Node.js", "Three.js", "UI/UX Design"],
-    experience: [
-      {
-        company: "Tech Innovations Inc.",
-        title: "Senior Developer",
-        startDate: "2020",
-        endDate: "2023",
-        extra: ["Led frontend development team for flagship product", "Implemented modern React architecture"]
-      }
-    ],
-    education: [
-      {
-        institution: "Tech University",
-        degree: "Bachelor of Computer Science",
-        startDate: "2014",
-        endDate: "2018"
-      }
-    ]
-  };
-
-  const data = cvData || mockData;
-  const gltf = useLoader(GLTFLoader, '/office/Capstone.glb');
-  
-  useFrame(() => {
-    if (groupRef.current) {
-      targetZ.current = -scrollPosition * 0.9; // smoother + longer scroll effect
-      groupRef.current.position.z += (targetZ.current - groupRef.current.position.z) * 0.1;
-    }
+function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
+  const gltf = useLoader(GLTFLoader, '/office/new-office-model.glb', (loader) => {
+    loader.manager.onStart = () => console.log('Loading model...');
   });
 
   useEffect(() => {
-    if (gltf?.scene) {
-      gltf.scene.traverse((object) => {
-        if (object.isMesh && object.name && (
-          object.name.includes('Title') || 
-          object.name.includes('Subtitle') || 
-          object.name.includes('About') || 
-          object.name.includes('Expertise') || 
-          object.name.includes('Experience') || 
-          object.name.includes('Education') || 
-          object.name.includes('Contact') || 
-          object.name.includes('Heading') || 
-          object.name.includes('Description')
-        )) {
-          object.material.transparent = true;
-          object.material.opacity = 0;
-          object.material.needsUpdate = true;
-          object.renderOrder = 1;
+    if (gltf && gltf.scene) {
+      sceneRef.current = gltf.scene;
+      
+      console.log("=== CV DATA DEBUG ===");
+      console.log("Full CV Data:", cvData);
+      console.log("Name:", cvData && cvData.name);
+      console.log("Title:", cvData && cvData.title);
+      console.log("Job Title:", cvData && cvData.jobTitle);
+      console.log("Profession:", cvData && cvData.profession);
+      console.log("Summary:", cvData && cvData.summary);
+      
+      // Check if all cameras exist
+      const cameras = ['CameraStart', 'CameraNameabout', 'CameraExperience', 'CameraEducation', 'CameraSkills', 'CameraReference', 'CameraContact'];
+      cameras.forEach(camName => {
+        const camera = gltf.scene.getObjectByName(camName);
+        console.log(`${camName} found:`, !!camera);
+        if (camera) {
+          console.log(`${camName} position:`, camera.position);
+          console.log(`${camName} rotation:`, camera.rotation);
         }
       });
       
+      // Apply text to all planes
       gltf.scene.traverse((object) => {
         if (object.name && object.isMesh) {
           let textContent = '';
+          let isNameAbout = false;
           
           switch(object.name) {
-            case 'Title':
-              textContent = data.name || 'John Doe';
+            case 'NameAbout':
+              const name = (cvData && cvData.name) || 'Default Name';
+              // Use the same pattern as Hero.jsx to get job title/profession
+              const { summary } = cvData || {};
+              const profession = summary || (cvData && (cvData.title || cvData.jobTitle || cvData.profession)) || 'Full Stack Developer';
+              const about = (cvData && (cvData.about || cvData.summary)) || 'Experienced professional with a passion for innovation and cutting-edge technology solutions.';
+              
+              textContent = `${name}\n\n${profession}\n\n${about}`;
+              isNameAbout = true;
+              console.log('NameAbout data:', { name, profession, about, summary });
               break;
-            case 'Subtitle':
-              textContent = data.title || 'Full Stack Developer';
-              break;
-            case 'AboutDescription':
-              textContent = data.about || '';
-              break;
-            case 'ExpertiseDescription':
-              textContent = data.skills?.slice(0, 4).join(' • ') || '';
-              break;
-            case 'ExperienceDescription':
-              if (data.experience?.length > 0) {
-                const expTexts = data.experience.map((exp) => {
-                  let expText = `• ${exp.title} at ${exp.company} (${exp.startDate}-${exp.endDate})`;
-                  if (exp.extra?.length > 0) {
-                    const firstBullet = exp.extra[0].replace('¢ ', '');
-                    expText += `\n  - ${firstBullet}`;
+              
+            case 'Experience':
+              let experienceContent = "EXPERIENCE\n\n";
+              if (cvData && cvData.experience && Array.isArray(cvData.experience) && cvData.experience.length > 0) {
+                cvData.experience.forEach((exp, index) => {
+                  experienceContent += `${exp.title || 'Position'}\n${exp.company || 'Company'}\n${exp.startDate || 'Start'} - ${exp.endDate || 'End'}`;
+                  
+                  if (exp.extra && Array.isArray(exp.extra) && exp.extra.length > 0) {
+                    exp.extra.forEach(extra => {
+                      const cleanExtra = extra.replace('Â¢ ', '');
+                      experienceContent += `\n• ${cleanExtra}`;
+                    });
+                  } else if (exp.description) {
+                    experienceContent += `\n• ${exp.description}`;
                   }
-                  return expText;
+                  
+                  if (index < cvData.experience.length - 1) {
+                    experienceContent += '\n\n';
+                  }
                 });
-                textContent = expTexts.join('\n\n');
+              } else {
+                experienceContent += "Senior Developer\nTech Innovations Inc.\n2020 - 2023\n• Led development teams\n• Built innovative solutions";
               }
+              textContent = experienceContent;
               break;
-            case 'EducationDescription':
-              if (data.education?.length > 0) {
-                const eduTexts = data.education.map((edu) => {
-                  let eduText = `• ${edu.degree} - ${edu.institution}`;
+              
+            case 'Education':
+              let educationContent = "EDUCATION\n\n";
+              if (cvData && cvData.education && Array.isArray(cvData.education) && cvData.education.length > 0) {
+                cvData.education.forEach((edu, index) => {
+                  educationContent += `${edu.degree || 'Degree'}\n${edu.institution || 'Institution'}`;
+                  
                   if (edu.startDate && edu.endDate) {
-                    eduText += ` (${edu.startDate}-${edu.endDate})`;
+                    educationContent += `\n${edu.startDate} - ${edu.endDate}`;
                   } else if (edu.endDate) {
-                    eduText += ` (${edu.endDate})`;
+                    educationContent += `\n${edu.endDate}`;
                   }
+                  
                   if (edu.field) {
-                    eduText += `\n  Field: ${edu.field}`;
+                    educationContent += `\nField: ${edu.field}`;
                   }
+                  
                   if (edu.gpa) {
-                    eduText += `\n  GPA: ${edu.gpa}`;
+                    educationContent += `\nGPA: ${edu.gpa}`;
                   }
-                  return eduText;
+                  
+                  if (index < cvData.education.length - 1) {
+                    educationContent += '\n\n';
+                  }
                 });
-                textContent = eduTexts.join('\n\n');
+              } else {
+                educationContent += "Bachelor of Computer Science\nTech University\n2018\nGPA: 3.8";
               }
+              textContent = educationContent;
               break;
-            case 'ContactDescription':
-              textContent = data.email || '';
+              
+            case 'Skills':
+              let skillsContent = "SKILLS\n\n";
+              if (cvData && cvData.skills && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
+                skillsContent += cvData.skills.join('\n');
+              } else {
+                skillsContent += "JavaScript\nReact\nNode.js\nThree.js\nUI/UX Design";
+              }
+              textContent = skillsContent;
               break;
-            case 'AboutHeading':
-              textContent = 'About Me';
+              
+            case 'Reference':
+              let referenceContent = "REFERENCES\n\n";
+              if (cvData && cvData.references && Array.isArray(cvData.references) && cvData.references.length > 0) {
+                cvData.references.forEach((ref, index) => {
+                  referenceContent += `${ref.name || 'Reference Name'}\n${ref.position || 'Position'}\n${ref.contact || 'Contact Info'}`;
+                  if (index < cvData.references.length - 1) {
+                    referenceContent += '\n\n';
+                  }
+                });
+              } else {
+                referenceContent += "Jane Smith\nCTO at Tech Innovations\njane.smith@company.com";
+              }
+              textContent = referenceContent;
               break;
-            case 'ExpertiseHeading':
-              textContent = 'Experience & Expertise';
+              
+            case 'Contact':
+              let contactContent = "CONTACT\n\n";
+              const email = (cvData && cvData.email) || 'email@example.com';
+              const phone = (cvData && cvData.phone) || '+1 (555) 123-4567';
+              const location = (cvData && cvData.location) || '';
+              
+              contactContent += `${email}\n${phone}`;
+              if (location) {
+                contactContent += `\n${location}`;
+              }
+              
+              // Add accreditation with smaller, lighter text
+              contactContent += `\n\n\n3D Model Credit:\nBased on "office_props_pack" by ap-school\nCC-BY-4.0 License\nAuthor:ap-school (https://sketchfab.com/ap-school)`;
+              
+              textContent = contactContent;
+              console.log('Contact text content applied to Contact plane');
               break;
-            case 'ExperienceHeading':
-              textContent = 'Professional Journey';
-              break;
-            case 'EducationHeading':
-              textContent = 'Education & Background';
-              break;
-            case 'ContactHeading':
-              textContent = 'Get In Touch';
-              break;
+
+            default:
+              if (object.name.includes('Contact') || object.name.includes('contact')) {
+                console.log('Found potential contact plane:', object.name);
+              }
           }
           
           if (textContent) {
-            if (object.material) {
-              const canvas = document.createElement('canvas');
-              const context = canvas.getContext('2d');
-              canvas.width = 512;
-              canvas.height = 128;
-              
-              context.clearRect(0, 0, canvas.width, canvas.height);
-              context.fillStyle = object.name.includes('Heading') ? '#3b82f6' : '#ffffff';
-              
-              // Font sizes
-              if (object.name === 'Title') {
-                context.font = 'bold 60px Arial';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-              } else if (object.name === 'Subtitle') {
-                context.font = 'bold 44px Arial';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-              } else if (object.name.includes('Heading')) {
-                context.font = 'bold 48px Arial'; // Made much bigger than descriptions
-                context.textAlign = 'left';
-                context.textBaseline = 'bottom';
-              } else {
-                context.font = '16px Arial'; // Even smaller font for better fit
-                context.textAlign = 'left';
-                context.textBaseline = 'top';
-              }
-              
-              const words = textContent.split(' ');
-              const lines = [];
-              let currentLine = '';
-              let maxWidth;
-              
-              // Different max widths for different text types
-              if (object.name === 'Subtitle') {
-                maxWidth = canvas.width - 40; // Keep subtitle on one line if possible
-              } else {
-                maxWidth = canvas.width - 80; // More padding for left alignment
-              }
-              
-              words.forEach(word => {
-                const testLine = currentLine + (currentLine ? ' ' : '') + word;
-                const metrics = context.measureText(testLine);
-                if (metrics.width > maxWidth && currentLine !== '') {
-                  lines.push(currentLine);
-                  currentLine = word;
-                } else {
-                  currentLine = testLine;
-                }
-              });
-              lines.push(currentLine);
-              
-              let lineHeight = 22; // Adjusted for smaller font
-              if (object.name === 'Title') lineHeight = 50;
-              else if (object.name === 'Subtitle') lineHeight = 40;
-              else if (object.name.includes('Heading')) lineHeight = 50; // Increased for bigger headings
-
-              // Position text based on type
-              let startX, startY;
-              
-              if (object.name === 'Title' || object.name === 'Subtitle') {
-                // Keep title and subtitle centered
-                startX = canvas.width / 2;
-                startY = canvas.height / 2 - ((lines.length - 1) * lineHeight) / 2;
-              } else if (object.name.includes('Heading')) {
-                // Headings at bottom left
-                startX = 40;
-                startY = canvas.height - 15 - ((lines.length - 1) * lineHeight); // Adjusted for bigger font
-              } else {
-                // Descriptions at top left
-                startX = 40;
-                startY = 20;
-              }
-              
-              lines.forEach((line, index) => {
-                context.fillText(line, startX, startY + index * lineHeight);
-              });
-              
-              const texture = new THREE.CanvasTexture(canvas);
-              texture.needsUpdate = true;
-              texture.wrapS = THREE.RepeatWrapping;
-              texture.repeat.x = -1;
-              
-              const newMaterial = new THREE.MeshBasicMaterial({
-                map: texture,
-                transparent: true,
-                side: THREE.DoubleSide
-              });
-              
-              object.material = newMaterial;
-              object.visible = true;
-            }
+            console.log(`Applying text to ${object.name}`);
+            applyTextToMesh(object, textContent, isNameAbout);
           }
         }
       });
+      
+      // Call the onSceneLoaded callback after everything is set up
+      if (onSceneLoaded) {
+        setTimeout(() => {
+          onSceneLoaded();
+        }, 100);
+      }
     }
-  }, [gltf, data]);
+  }, [gltf, cvData, onSceneLoaded]);
+
+  const applyTextToMesh = (mesh, textContent, isNameAbout = false) => {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    // HIGH RES for text
+    canvas.width = 6144;
+    canvas.height = 3072;
+    
+    // Enable high quality rendering for text
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    
+    // LIGHT GREY background
+    context.fillStyle = '#c8c8c8ff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const lines = textContent.split('\n');
+    
+    if (isNameAbout) {
+      // NameAbout section - centered layout
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      
+      let currentY = 450;
+      
+      lines.forEach((line, index) => {
+        if (index === 0) {
+          // Name - EXTRA LARGE
+          context.fillStyle = '#000000';
+          context.font = 'bold 400px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 450;
+        } else if (index === 2) {
+          // Profession - EXTRA LARGE
+          context.fillStyle = '#000000';
+          context.font = 'bold 300px "Arial Black", Arial, sans-serif';
+          context.fillText(line, canvas.width / 2, currentY);
+          currentY += 400;
+        } else if (index === 4) {
+          // About - LARGER with proper wrapping
+          context.fillStyle = '#000000';
+          context.font = 'bold 160px "Arial Black", Arial, sans-serif'; // Increased from 140px
+          const wrappedLines = wrapText(context, line, canvas.width * 0.8, 160); // Updated font size for wrapping
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 190)); // Increased line height
+          });
+        }
+      });
+    } else {
+      // Other sections with headings - left aligned
+      context.textAlign = 'left';
+      context.textBaseline = 'top';
+      
+      let currentY = 225;
+      const maxWidth = canvas.width - 450;
+      
+      lines.forEach((line, index) => {
+        // Check if this is the Contact section AND we're in the accreditation part
+        const isContactSection = mesh.name === 'Contact';
+        const isAccreditation = isContactSection && (
+                               line.includes('3D Model Credit') || 
+                               line.includes('Based on') || 
+                               line.includes('CC-BY') ||
+                               line.includes('Author:') ||
+                               currentY > 1500); // After contact info
+        
+        if (isAccreditation) {
+          // Accreditation text - darker gray and larger
+          context.fillStyle = '#444444';
+          context.font = 'bold 90px "Arial Black", Arial, sans-serif';
+        } else {
+          // Regular text - always black for all sections
+          context.fillStyle = '#000000';
+        }
+        
+        if (index === 0) {
+          // Section heading - EXTRA LARGE
+          context.font = 'bold 320px "Arial Black", Arial, sans-serif';
+          context.fillText(line, 225, currentY);
+          currentY += 380;
+        } else if (line.trim() === '') {
+          // Empty line for spacing
+          currentY += isAccreditation ? 60 : 150;
+        } else if (line.startsWith('•')) {
+          // Bullet points - LARGER
+          context.font = 'bold 120px "Arial Black", Arial, sans-serif';
+          const bulletText = line.substring(1).trim();
+          const wrappedBulletLines = wrapText(context, bulletText, maxWidth - 75, 120);
+          wrappedBulletLines.forEach((wrappedLine, wrappedIndex) => {
+            const prefix = wrappedIndex === 0 ? '• ' : '  ';
+            context.fillText(prefix + wrappedLine, 260, currentY + (wrappedIndex * 145));
+          });
+          currentY += (wrappedBulletLines.length * 145);
+        } else if (isAccreditation) {
+          // Accreditation text - consistent styling with wrapping
+          const wrappedLines = wrapText(context, line, maxWidth, 90);
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 110));
+          });
+          currentY += (wrappedLines.length * 110);
+        } else {
+          // Content - LARGER with wrapping
+          context.font = 'bold 150px "Arial Black", Arial, sans-serif';
+          const wrappedLines = wrapText(context, line, maxWidth, 150);
+          wrappedLines.forEach((wrappedLine, wrappedIndex) => {
+            context.fillText(wrappedLine, 225, currentY + (wrappedIndex * 185));
+          });
+          currentY += (wrappedLines.length * 185);
+        }
+      });
+    }
+    
+    // Create texture with optimized settings
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 4;
+    texture.needsUpdate = true;
+    
+    // Apply material to the mesh
+    mesh.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: false,
+      side: THREE.DoubleSide,
+      toneMapped: false
+    });
+    
+    // Reduce mesh complexity for non-text objects
+    if (!mesh.name.includes('NameAbout') && !mesh.name.includes('Experience') && 
+        !mesh.name.includes('Education') && !mesh.name.includes('Skills') && 
+        !mesh.name.includes('Reference') && !mesh.name.includes('Contact')) {
+      mesh.material.map.anisotropy = 2;
+    }
+    
+    mesh.visible = true;
+    console.log(`✅ Text applied to ${mesh.name}`);
+  };
+
+  // Helper function to wrap text to fit within maxWidth
+  const wrapText = (context, text, maxWidth, fontSize) => {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i];
+      const width = context.measureText(currentLine + " " + word).width;
+      if (width < maxWidth) {
+        currentLine += " " + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    lines.push(currentLine);
+    return lines;
+  };
 
   return (
-    <group ref={groupRef}>
-      {gltf?.scene && <primitive object={gltf.scene} />}
+    <group position={[0, 0, 0]}>
+      {gltf && gltf.scene && <primitive object={gltf.scene} />}
     </group>
   );
 }
@@ -357,9 +487,9 @@ function Office3DScene({ cvData, scrollPosition }) {
 function LoadingModel() {
   return (
     <Html center>
-      <div className="text-white text-center bg-black/70 p-6 rounded-lg backdrop-blur-sm">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-        <p className="text-lg">Loading 3D environment...</p>
+      <div className="text-gray-800 text-center bg-gray-100/90 p-8 rounded-2xl backdrop-blur-sm border border-gray-300 shadow-2xl">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mx-auto mb-6"></div>
+        <p className="text-2xl font-bold">LOADING 3D PORTFOLIO...</p>
       </div>
     </Html>
   );
@@ -368,19 +498,38 @@ function LoadingModel() {
 function FallbackModel() {
   return (
     <Html center>
-      <div className="text-red-500 text-center bg-black/70 p-6 rounded-lg">
-        <p className="text-lg">Failed to load 3D office</p>
-        <p className="text-sm mt-2">Please check if the model file exists</p>
+      <div className="text-red-600 text-center bg-gray-100/90 p-8 rounded-2xl border border-gray-300 shadow-2xl">
+        <p className="text-2xl font-bold">FAILED TO LOAD 3D OFFICE</p>
+        <p className="text-lg mt-4">Please check if the model file exists at /office/new-office-model.glb</p>
       </div>
     </Html>
   );
 }
 
 class ErrorBoundary extends React.Component {
-  state = { hasError: false };
-  static getDerivedStateFromError = () => ({ hasError: true });
-  componentDidCatch(error) { console.error('3D Error:', error); }
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
   render() {
-    return this.state.hasError ? this.props.fallback : this.props.children;
+    if (this.state.hasError) {
+      return (
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div className="font-bold">Something went wrong.</div>
+          <p>Please refresh the page or try again later.</p>
+        </div>
+      );
+    }
+
+    return this.props.children; 
   }
 }

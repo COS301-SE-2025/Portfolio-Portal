@@ -3,12 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "npm run start",
-  "build": "vite build",
-  "preview": "vite preview",
-  "lint": "eslint .",
-  "start": "vite preview"
+  "scripts": {
+    "dev": "vite", 
+    "build": "vite build && vite preview",
+    "preview": "vite preview" 
 },
   "dependencies": {
     "@react-spring/three": "^10.0.1",
