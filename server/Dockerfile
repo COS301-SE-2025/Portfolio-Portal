@@ -1,6 +1,5 @@
 FROM node:20-slim
 
-# Install all required system dependencies
 RUN apt-get update && apt-get install -y \
     graphicsmagick \
     ghostscript \
@@ -10,17 +9,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
 RUN npm install
-
-# Copy application code
 COPY . .
-
-# Create uploads directory
 RUN mkdir -p uploads app/uploads
 
-EXPOSE 5050
-
+EXPOSE 8080
 CMD ["node", "server.js"]
