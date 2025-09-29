@@ -20,10 +20,15 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: [
+    'https://www.portfolioportal.co.za',
+    'https://portfolioportal.co.za',  // without www
+    'http://localhost:5173',           // local dev
+    'http://localhost:3000'            // local dev
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan("dev"));
 app.use(express.json({ limit: '50mb' }));
