@@ -57,7 +57,7 @@ class GitHubService {
       console.error('Error deploying portfolio:', error);
       throw new Error(error.response?.data?.message || 'Failed to deploy portfolio');
     }
-  }z
+  }
 
   /**
    * Check deployment status
