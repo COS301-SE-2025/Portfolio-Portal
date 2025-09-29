@@ -2,10 +2,10 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "railpack",
-    "installCommand": "npm ci"
+    "installCommand": "npm ci",
+    "systemPackages": ["poppler_utils", "graphicsmagick", "tesseract", "ghostscript"]
   },
   "deploy": {
-    "startCommand": "node index.js",
-    "systemPackages": ["poppler_utils", "graphicsmagick", "tesseract", "ghostscript"]
+    "startCommand": "npm start"
   }
 }
