@@ -24,21 +24,22 @@ It creates interactive, immersive 3D portfolio websites simply by uploading a CV
 
 ## 📚 Documentation
 
-| Document                                         | GitHub (MD)                                         | Google Docs                                                                                                    | PDF |
-| ------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --- |
-| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/demo%201/SRS-v1.0.md)              | [Google Doc](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/edit?usp=sharing) | 📄 [PDF](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/export?format=pdf) | 
-| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/Archives/demo%202/SRS-v2.0.md)                       | [Google Doc](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/edit?tab=t.0)     | 📄 [PDF](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/export?format=pdf) |
-| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS.md)                       | [Google Doc](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/edit?usp=sharing) | 📄 [PDF](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/export?format=pdf) |
-| **Software Requirements Specification (SRS) v4** | [SRS-v4.md](Docs/SRS.md)                       | [Google Doc](https://docs.google.com/document/d/1AdkXLw0L0QYuMzKTnngBeQmyf88WLrqCNR6NADljZ8g/edit?usp=sharing) | 📄 [PDF](https://docs.google.com/document/d/1AdkXLw0L0QYuMzKTnngBeQmyf88WLrqCNR6NADljZ8g/export?format=pdf) |
-| **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md) | [Google Doc](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/edit?tab=t.0)    | 📄 [PDF](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/export?format=pdf) |
-| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | [Google Doc](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?tab=t.0)     | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
-| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)          | [Google Doc](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/edit?usp=sharing) | 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
-| **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | [Google Doc](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/edit?tab=t.0)     | 📄 [PDF](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/export?format=pdf) |
-| **Testing Policy**                             | [TestingPolicy.md](Docs/CodingStandards.md)       | [Google Doc](https://docs.google.com/document/d/1UXAOX9HmwBgozpefsD_36RBrdGiVT1ungcakLqp5elg/edit?usp=sharing)     | 📄 [PDF](https://docs.google.com/document/d/1UXAOX9HmwBgozpefsD_36RBrdGiVT1ungcakLqp5elg/export?format=pdf) |
-| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_                                                                                                          | _N/A_ |
-| **Server README**                                | [server/README.md](server/README.md)                | _N/A_                                                                                                          | _N/A_ |
-| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_                                                                                                          | _N/A_ |
-| **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_                                                                                                          | _N/A_ |
+| Document                                         | GitHub (MD)                                         | PDF |
+| ------------------------------------------------ | --------------------------------------------------- | --- |
+| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/demo%201/SRS-v1.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/export?format=pdf) | 
+| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/Archives/demo%202/SRS-v2.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/export?format=pdf) |
+| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/export?format=pdf) |
+| **Software Requirements Specification (SRS) v4** | [SRS-v4.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1AdkXLw0L0QYuMzKTnngBeQmyf88WLrqCNR6NADljZ8g/export?format=pdf) |
+| **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md)| 📄 [PDF](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/export?format=pdf) |
+| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
+| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)| 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
+| **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | 📄 [PDF](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/export?format=pdf) |
+| **Testing Policy**                               | [TestingPolicy.md](Docs/CodingStandards.md)         | 📄 [PDF](https://docs.google.com/document/d/1UXAOX9HmwBgozpefsD_36RBrdGiVT1ungcakLqp5elg/export?format=pdf) |
+| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_ |
+| **Server README**                                | [server/README.md](server/README.md)                | _N/A_ |
+| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_ |
+| **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_ |
+
 
 ## 🎥 Demo 1
 
