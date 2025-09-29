@@ -6,6 +6,6 @@
       "installCommand": "npm ci"
     },
     "deploy": {
-      "startCommand": "npx serve -s dist -l 3000"
+"startCommand": "npx serve -s dist -l $PORT"
     }
   }  
