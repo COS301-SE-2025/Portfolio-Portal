@@ -38,19 +38,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is created
+  saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax' // Added for better cross-origin support
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   },
-  name: 'portfolio.session' // Custom session name
+  name: 'portfolio.session'
 }));
+
 
 // Debug middleware for sessions
 
@@ -82,17 +82,6 @@ app.use(express.static(path.join(__dirname, '../frontend/dist')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
-
-// Catch-all handler: send back React's index.html file for any non-API routes
-// Note: Using a more specific pattern to avoid path-to-regexp issues
-// app.get('/*', (req, res) => {
-//   // Only serve index.html for non-API routes
-//   if (!req.path.startsWith('/api/')) {
-//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-//   } else {
-//     res.status(404).json({ error: 'API endpoint not found' });
-//   }
-// });
 
 // Export app for use in server.js
 module.exports = app;
