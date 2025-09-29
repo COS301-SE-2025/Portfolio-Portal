@@ -34,12 +34,10 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Increase timeout for large file operations
 app.use((req, res, next) => {
-  if (req.url.includes('/download')) {
-    req.setTimeout(300000); // 5 minutes for download requests
+  if (req.url.includes('/ocr') || req.url.includes('/download')) {
+    req.setTimeout(300000); // 5 minutes
     res.setTimeout(300000);
-    res.setTimeout(600000);
   }
   next();
 });
