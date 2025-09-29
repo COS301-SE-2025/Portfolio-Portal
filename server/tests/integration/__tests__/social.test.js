@@ -1,7 +1,4 @@
-// Standalone Integration Test for Social API
-// This file is self-contained and handles its own environment setup
 
-// Force environment variables before any imports
 process.env.SUPABASE_URL = 'https://qduizfthmmynrnwtgvqd.supabase.co';
 process.env.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdWl6ZnRobW15bnJud3RndnFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzExODcsImV4cCI6MjA2NTAwNzE4N30.PmpPxQS3kANqAx3XhXtJujVnChMfRgL3rYGwhKvBViQ';
 
@@ -371,6 +368,15 @@ describe('Social API Integration Tests', () => {
     it('should handle duplicate follow constraint', async () => {
       if (!connectionEstablished || existingUsers.length < 2) return;
 
+      // First, cleanup any existing follow relationships between these users
+      await testSupabase
+        .from('user_interactions')
+        .delete()
+        .eq('user_id', existingUsers[0].id)
+        .eq('target_user_id', existingUsers[1].id)
+        .eq('interaction_type', 'follow');
+
+      // Now insert the first interaction
       const { data: firstData, error: firstError } = await testSupabase
         .from('user_interactions')
         .insert({
@@ -386,7 +392,7 @@ describe('Social API Integration Tests', () => {
         testInteractionIds.push(firstData[0].id);
       }
 
-      // Try duplicate
+      // Try duplicate - this should fail with constraint violation
       const { error: duplicateError } = await testSupabase
         .from('user_interactions')
         .insert({
@@ -463,6 +469,15 @@ describe('Social API Integration Tests', () => {
     it('should handle duplicate like constraint', async () => {
       if (!connectionEstablished || existingUsers.length < 2) return;
       
+      // First, cleanup any existing like relationships between these users
+      await testSupabase
+        .from('user_interactions')
+        .delete()
+        .eq('user_id', existingUsers[0].id)
+        .eq('target_user_id', existingUsers[1].id)
+        .eq('interaction_type', 'like');
+
+      // Now insert the first interaction
       const { data: firstData, error: firstError } = await testSupabase
         .from('user_interactions')
         .insert({
@@ -477,7 +492,7 @@ describe('Social API Integration Tests', () => {
         testInteractionIds.push(firstData[0].id);
       }
 
-      // Try duplicate
+      // Try duplicate - this should fail with constraint violation
       const { error: duplicateError } = await testSupabase
         .from('user_interactions')
         .insert({
