@@ -3,10 +3,10 @@ const { createClient } = require('@supabase/supabase-js');
 const socialRoutes = require('../../../app/routes/social.routes');
 const express = require('express');
 
-// Test database setup
+
 const testSupabase = createClient(
-  process.env.SUPABASE_URL ,
-  process.env.SUPABASE_KEY
+  'https://qduizfthmmynrnwtgvqd.supabase.co' ,
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdWl6ZnRobW15bnJud3RndnFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MzExODcsImV4cCI6MjA2NTAwNzE4N30.PmpPxQS3kANqAx3XhXtJujVnChMfRgL3rYGwhKvBViQ'
 );
 
 // Helper function to create mock req/res objects for route testing
