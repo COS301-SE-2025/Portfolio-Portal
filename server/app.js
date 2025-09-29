@@ -7,6 +7,7 @@ const multer = require("multer");
 const path = require("path");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const MemoryStore = require('memorystore')(session);
 const ocrRoutes = require("./app/routes/ocr.routes");
 const portfolioRoutes = require("./app/routes/portfolio.routes");
 const userRoutes = require("./app/routes/users.routes");
@@ -38,19 +39,24 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set('trust proxy', 1);
+
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false,
-  saveUninitialized: false, 
+  resave: true,
+  saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', 
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' 
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   },
   name: 'portfolio.session',
-  proxy: true
-}));
+  proxy: true, 
+  store: new MemoryStore({
+    checkPeriod: 86400000 
+  })}));
 
 
 // Debug middleware for sessions
