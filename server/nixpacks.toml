@@ -1,8 +1,3 @@
 [phases.setup]
-nixPkgs = [
-  "nodejs_20",
-  "poppler_utils",
-  "graphicsmagick",
-  "tesseract",
-  "ghostscript"
-]
+nixPkgs = ["nodejs_20"]
+aptPkgs = ["poppler-utils", "graphicsmagick", "tesseract-ocr", "ghostscript"]
