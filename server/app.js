@@ -5,6 +5,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const MemoryStore = require('memorystore')(session);
@@ -81,14 +82,26 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Serve static files from frontend build directory
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Serve static files from frontend build directory if present, otherwise provide JSON root
+const distDir = path.join(__dirname, '../frontend/dist');
+const indexFile = path.join(distDir, 'index.html');
 
-
-// Root route - serve the frontend application
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+  if (fs.existsSync(indexFile)) {
+    app.get('/', (req, res) => {
+      res.sendFile(indexFile);
+    });
+  } else {
+    app.get('/', (req, res) => {
+      res.status(200).json({ service: 'backend', status: 'OK' });
+    });
+  }
+} else {
+  app.get('/', (req, res) => {
+    res.status(200).json({ service: 'backend', status: 'OK' });
+  });
+}
 
 // Export app for use in server.js
 module.exports = app;
