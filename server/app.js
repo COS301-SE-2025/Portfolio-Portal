@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -17,77 +18,48 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 const socialRoutes = require('./app/routes/social.routes');
 const app = express();
 
-// Trust proxy - MUST come before CORS
-app.set('trust proxy', 1);
-
-// CORS Middleware - MUST come before other middleware
-const allowedOrigins = [
-  'https://www.portfolioportal.co.za',
-  'https://portfolioportal.co.za',
-  'http://localhost:5173',
-  'http://localhost:3000'
-];
-
+// Middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('⚠️ Blocked by CORS:', origin);
-      callback(null, false);
-    }
-  },
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
-
-// Handle preflight requests explicitly
-app.options('*', cors());
-
 app.use(morgan("dev"));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Increase timeout for large file operations
 app.use((req, res, next) => {
-  if (req.url.includes('/ocr') || req.url.includes('/download')) {
-    req.setTimeout(300000); // 5 minutes
+  if (req.url.includes('/download')) {
+    req.setTimeout(300000); // 5 minutes for download requests
     res.setTimeout(300000);
+    res.setTimeout(600000);
   }
   next();
 });
 
-// Session configuration
+app.set('trust proxy', 1);
+
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: false, // Changed from true - only save if modified
-  saveUninitialized: false, // Changed from true - don't create session until something stored
+  resave: true,
+  saveUninitialized: true,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: process.env.NODE_ENV === 'production' ? '.portfolioportal.co.za' : undefined
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   },
   name: 'portfolio.session',
-  proxy: true,
+  proxy: true, 
   store: new MemoryStore({
     checkPeriod: 86400000 
-  })
-}));
+  })}));
 
-// Debug middleware (optional - comment out in production)
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.get('origin')}`);
-  next();
-});
+
+// Debug middleware for sessions
 
 // File upload middleware
 const upload = multer({ dest: path.join(__dirname, "uploads/") });
@@ -105,26 +77,16 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    env: process.env.NODE_ENV
+    uptime: process.uptime()
   });
 });
 
 // Serve static files from frontend build directory
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
+
 // Root route - serve the frontend application
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-});
-
-// 404 handler for API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
-});
-
-// Catch-all route for SPA (must be last)
-app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
