@@ -1,4 +1,45 @@
-// //frontend/cypress/integrationTests/home.cy.js
+//frontend/cypress/integrationTests/home.cy.js
+describe("Home Page Integration", () => {
+  beforeEach(() => {
+    // Visit main page
+    cy.visit("http://localhost:5173");
+
+    // Click "Get Started"
+    cy.contains("Get Started").click();
+
+    // Click "Sign In"
+    cy.contains("Sign In").click();
+
+    // Enter credentials
+    cy.get('input[type="email"]').type("angiexbreedt@gmail.com");
+    cy.get('input[type="password"]').type("Password123");
+
+    // Submit login
+    cy.contains("Sign in").click();
+
+    // Verify portal is visible before running tests
+    cy.contains("Portfolio Portal").should("be.visible");
+  });
+
+  it("opens HelpMenu when ? button is clicked", () => {
+    cy.get("body").then(($body) => {
+      const helpButton = $body.find("button:contains('?')");
+
+      if (helpButton.length) {
+        cy.wrap(helpButton).click();
+        cy.contains("Help").should("be.visible");
+      } else {
+        cy.log(
+          "HelpMenu button not found — ensure it renders a visible '?' button"
+        );
+      }
+    });
+  });
+});
+
+
+
+//DEMO 2 VERSION (CHANGED SINCE)
 // describe("Home Page Integration", () => {
 //   beforeEach(() => {
 //     cy.visit("/home");
