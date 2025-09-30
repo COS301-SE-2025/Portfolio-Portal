@@ -56,24 +56,20 @@ app.use((req, res, next) => {
   next();
 });
 
-app.set('trust proxy', 1);
-
-
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
-  resave: true,
-  saveUninitialized: true,
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  name: 'portfolioSession', // Custom name
   cookie: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // CRITICAL for cross-domain
+    domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
   },
-  name: 'portfolio.session',
-  proxy: true, 
-  store: new MemoryStore({
-    checkPeriod: 86400000 
-  })}));
+  proxy: true // CRITICAL for Railway
+}));
 
 
 // Debug middleware for sessions
