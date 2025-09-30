@@ -25,40 +25,13 @@ exports.initiateAuth = async (req, res) => {
     req.session.template = template;
     req.session.returnUrl = returnUrl || process.env.FRONTEND_URL;
     
-    // Save session explicitly and wait for it
-    await new Promise((resolve, reject) => {
-      req.session.save((err) => {
-        if (err) {
-          console.error('Error saving session:', err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
-    
-    console.log('=== INITIATE AUTH DEBUG ===');
-    console.log('Session ID:', req.sessionID);
-    console.log('Generated state:', state);
-    console.log('Session data:', {
-      githubState: req.session.githubState,
-      template: req.session.template,
-      returnUrl: req.session.returnUrl
-    });
-    console.log('Session cookie:', req.headers.cookie);
-    console.log('=========================');
-    
     // Generate GitHub OAuth URL
     const authUrl = githubService.getAuthUrl(state);
     
     res.json({
       success: true,
       authUrl,
-      state,
-      debug: {
-        sessionId: req.sessionID,
-        cookieSent: true
-      }
+      state
     });
   } catch (error) {
     console.error('Error initiating GitHub auth:', error);
@@ -79,15 +52,6 @@ exports.handleCallback = async (req, res) => {
   try {
     const { code, state, error } = req.query;
     
-    console.log('=== CALLBACK DEBUG ===');
-    console.log('Session ID:', req.sessionID);
-    console.log('Received state:', state);
-    console.log('Session state:', req.session.githubState);
-    console.log('Session data:', req.session);
-    console.log('Cookies received:', req.headers.cookie);
-    console.log('All headers:', req.headers);
-    console.log('=====================');
-    
     // Check for OAuth errors
     if (error) {
       console.error('GitHub OAuth error:', error);
@@ -96,13 +60,8 @@ exports.handleCallback = async (req, res) => {
     
     // Verify state parameter
     if (!state || state !== req.session.githubState) {
-      console.error('=== STATE MISMATCH ===');
-      console.error('Expected state:', req.session.githubState);
-      console.error('Received state:', state);
-      console.error('Session exists:', !!req.session);
-      console.error('Session ID:', req.sessionID);
-      console.error('======================');
-      return res.redirect(`${process.env.FRONTEND_URL}?error=invalid_state&debug=session_mismatch`);
+      console.error('Invalid state parameter');
+      return res.redirect(`${process.env.FRONTEND_URL}?error=invalid_state`);
     }
     
     // Exchange code for access token
@@ -119,12 +78,8 @@ exports.handleCallback = async (req, res) => {
     delete req.session.githubState;
     
     // Redirect back to frontend with success
-    const returnUrl = req.session.returnUrl || process.env.FRONTEND_URL;
+    const returnUrl = 'https://www.portfolioportal.co.za';
     const template = req.session.template || 'default';
-    
-    console.log('=== REDIRECT SUCCESS ===');
-    console.log('Redirecting to:', `${returnUrl}?github_auth=success&template=${template}&username=${userInfo.login}`);
-    console.log('=======================');
     
     res.redirect(`${returnUrl}?github_auth=success&template=${template}&username=${userInfo.login}`);
   } catch (error) {

@@ -60,15 +60,14 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  name: 'portfolioSession', // Custom name
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production', // Will be true in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // CRITICAL for cross-domain
-    domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
+    sameSite: 'lax', // Important for OAuth
+    domain: undefined // Let the browser handle it
   },
-  proxy: true // CRITICAL for Railway
+  proxy: true // Important for Railway/reverse proxies
 }));
 
 
