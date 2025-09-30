@@ -78,7 +78,7 @@ exports.handleCallback = async (req, res) => {
     delete req.session.githubState;
     
     // Redirect back to frontend with success
-    const returnUrl = 'https://www.portfolioportal.co.za';
+    const returnUrl = req.session.returnUrl || process.env.FRONTEND_URL;
     const template = req.session.template || 'default';
     
     res.redirect(`${returnUrl}?github_auth=success&template=${template}&username=${userInfo.login}`);
