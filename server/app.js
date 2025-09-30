@@ -106,16 +106,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-// Catch-all handler: send back React's index.html file for any non-API routes
-// Note: Using a more specific pattern to avoid path-to-regexp issues
-// app.get('/*', (req, res) => {
-//   // Only serve index.html for non-API routes
-//   if (!req.path.startsWith('/api/')) {
-//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
-//   } else {
-//     res.status(404).json({ error: 'API endpoint not found' });
-//   }
-// });
+// If you need a catch-all, use this format:
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  } else {
+    res.status(404).json({ error: 'API endpoint not found' });
+  }
+});
 
-// Export app for use in server.js
 module.exports = app;
