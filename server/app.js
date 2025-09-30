@@ -38,18 +38,18 @@ app.use((req, res, next) => {
   next();
 });
 
-// Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true, // Changed to true to ensure session is created
+  saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production', // Will be true in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax' // Added for better cross-origin support
+    sameSite: 'lax', // Important for OAuth
+    domain: undefined // Let the browser handle it
   },
-  name: 'portfolio.session' // Custom session name
+  proxy: true // Important for Railway/reverse proxies
 }));
 
 // Debug middleware for sessions
