@@ -19,7 +19,6 @@ const Contact = () => {
 
   const handleDeploySuccess = (result) => {
     console.log('Portfolio deployed successfully:', result);
-    // You could show a toast notification here or update some global state
   };
 
   return (
@@ -102,13 +101,13 @@ const Contact = () => {
           />
         </motion.div>
 
-        {/* GitHub Deploy Section */}
+        {/* GitHub Deploy Section - Wrapped in consistent container */}
         <motion.div
           variants={fadeIn("up", "spring", 0.9, 1)}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="mt-8"
+          className=" backdrop-blur-sm border border-green-400/20 mt-8"
         >
           <GitHubDeploy
             userData={cvData}

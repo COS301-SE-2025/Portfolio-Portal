@@ -102,14 +102,13 @@ const Contact = () => {
         {/* Deploy Portfolio Section */}
         <div className="mt-16 text-center">
           <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-blue-400/20 max-w-2xl mx-auto">
-          <GitHubDeploy
-            userData={cvData}
-            template="office"
-            onDeploySuccess={handleDeploySuccess}
-          />
+            <GitHubDeploy
+              userData={cvData}
+              template="office"
+              onDeploySuccess={handleDeploySuccess}
+            />
           </div>
         </div>
-
         {/* 3D Model Copyright Notice */}
         <div className="mt-16 pt-8 border-t border-gray-700 text-center">
           <p className="text-gray-500 text-sm">
