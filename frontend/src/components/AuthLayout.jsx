@@ -90,7 +90,7 @@ const AuthLayout = ({ title, subtitle, children }) => {
           }`}
         >
           <h1 className="text-3xl font-bold text-center mb-2">{title}</h1>
-          <p className="text-center text-gray-600 dark:text-gray-300 mb-8">{subtitle}</p>
+          <p className="text-center text-white-600 dark:text-gray-300 mb-8">{subtitle}</p>
           {children}
         </div>
       </div>

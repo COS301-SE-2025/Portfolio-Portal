@@ -118,16 +118,16 @@ const Register = () => {
         return (
           <>
             <input
-              type="text"
-              name="name"
-              placeholder="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-              minLength="2"
-              autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
-            />
+  type="text"
+  name="name"
+  placeholder="name"
+  value={formData.name}
+  onChange={handleInputChange}
+  required
+  minLength="2"
+  autoFocus
+  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 outline-none"
+/>
             <button
               type="button"
               onClick={nextStep}
@@ -140,16 +140,16 @@ const Register = () => {
       case 2:
         return (
           <>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
-            />
+<input
+  type="email"
+  name="email"
+  placeholder="Email"
+  value={formData.email}
+  onChange={handleInputChange}
+  required
+  autoFocus
+  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 outline-none"
+/>
             <div className="flex space-x-3">
               <button
                 type="button"
@@ -172,25 +172,25 @@ const Register = () => {
         return (
           <>
             <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              minLength="6"
-              autoFocus
-              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
-            />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-white/80 dark:bg-white/10 backdrop-blur-sm border border-gray-300 dark:border-white/20 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
-            />
+  type="password"
+  name="password" 
+  placeholder="Password" 
+  value={formData.password} 
+  onChange={handleInputChange}
+  required
+  minLength="6" 
+  autoFocus
+  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 outline-none"
+/>
+<input
+  type="password"
+  name="confirmPassword"
+  placeholder="Confirm password"
+  value={formData.confirmPassword} 
+  onChange={handleInputChange}
+  required
+  className="w-full px-4 py-3 rounded-lg bg-white dark:bg-slate-800 border-2 border-gray-300 dark:border-slate-600 focus:border-purple-600 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 outline-none"
+/>
             <div className="flex space-x-3">
               <button
                 type="button"
@@ -200,17 +200,17 @@ const Register = () => {
                 Back
               </button>
               <button
-                type="button"
-                onClick={nextStep}
-                disabled={isLoading}
-                className={`w-1/2 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
-                  isLoading
-                    ? 'bg-gray-400 dark:bg-slate-600 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-500 dark:to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 dark:hover:from-purple-600 dark:hover:to-pink-600'
-                }`}
-              >
-                {isLoading ? 'Creating account...' : 'Sign up'}
-              </button>
+  type="button"
+  onClick={nextStep}
+  disabled={isLoading} 
+  className={`w-full py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 ${
+    isLoading
+      ? 'bg-gray-400 dark:bg-slate-700 text-gray-200 dark:text-slate-400 cursor-not-allowed'
+      : 'bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500 text-white hover:from-purple-700 hover:to-pink-700 dark:hover:from-purple-600 dark:hover:to-pink-600 shadow-lg hover:shadow-xl'
+  }`}
+>
+  {isLoading ? 'Creating account...' : 'Continue'} 
+</button>
             </div>
           </>
         );
@@ -232,13 +232,13 @@ const Register = () => {
         )}
         {renderStep()}
       </div>
-      <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-2.5 mb-6">
-        <div 
-          className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
-          style={{ width: `${(step / 3) * 100}%` }}
-        ></div>
-      </div>
-      <p className="text-center text-sm text-gray-600 dark:text-gray-300">
+      <div className="w-full bg-gray-300 dark:bg-slate-700 rounded-full h-2.5 mb-6">
+  <div 
+    className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500 h-2.5 rounded-full transition-all duration-500"
+    style={{ width: `${(step / 3) * 100}%` }}
+  ></div>
+</div>
+      <p className="text-center text-sm text-grey-100 dark:text-gray-200">
         Already registered?{' '}
         <span
           onClick={() => navigate('/login')}
