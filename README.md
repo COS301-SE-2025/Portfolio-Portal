@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="frontend/public/assets/PortfolioPortal_logo.jpeg" alt="Logo"/>
+  <img src="frontend/public/assets/PortfolioPortal_logo.jpg" alt="Logo"/>
 </h1>
 
 <p align="center">
