@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
+import { AuthContext } from '../contexts/AuthContext';
 import AuthLayout from '../components/AuthLayout';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    professional: true, // Default to true as per database
+    professional: true,
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +31,6 @@ const Register = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
-
 
   const validateStep = () => {
     switch (step) {
@@ -89,12 +90,15 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        professional: formData.professional, // Send boolean value
+        professional: formData.professional,
       };
       console.log('Sending payload:', payload);
       const { data } = await authService.signUp(payload);
       console.log('Response:', data);
-      localStorage.setItem('token', data.token);
+      
+      // Use the login function from AuthContext
+      login(data.token, data.user.id);
+      
       navigate('/home');
     } catch (err) {
       console.error('Error:', err.response?.data);
