@@ -1,6 +1,7 @@
 <h1 align="center">
-  <img src="frontend/public/assets/PortfolioPortal_logo.jpg" alt="Logo"/>
+  <img src="frontend/public/assets/PortfolioPortal_logo.jpg" alt="Logo" width="80%"/>
 </h1>
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/coverage-pending-lightgrey" alt="Coverage Badge">
