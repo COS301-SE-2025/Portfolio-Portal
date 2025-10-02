@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="frontend/public/assets/PortfolioPortal_logo.jpg" alt="Logo" width="80%"/>
+  <img src="frontend/public/assets/PortfolioPortal_logo.jpg" alt="Logo" width="90%"/>
 </h1>
 
 
