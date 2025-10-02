@@ -151,7 +151,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
 ## 👥 Meet the Team
 
 <p align="center">
-  <img src="frontend/public/assets/CtrlFreaks.png" alt="Team Photo" width="600"/>
+  <img src="frontend/public/assets/CtrlFreaks.png" alt="Team Photo" width="100%"/>
 </p>
 
 | Name                 | Role         | Student Number | Description                                                                                                                                                                                                                                                                                                                                                                           | LinkedIn                                                                           | Profile |
