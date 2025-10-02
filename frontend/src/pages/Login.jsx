@@ -1,13 +1,15 @@
 // frontend/src/pages/Login.jsx
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
+import { AuthContext } from '../contexts/AuthContext';
 import AuthLayout from '../components/AuthLayout';
 import cvDataService from '../services/cvDataService';
 import { profileService } from '../services/profile.service';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,47 +20,47 @@ const Login = () => {
     if (error) setError('');
   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const { data } = await authService.login(formData);
-    console.log(data);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('userId', data.user.id);
-
-    // Safely try to fetch profile picture
     try {
-      const profile_picture_res = await profileService.getProfilePictureUrl();
-      if (profile_picture_res?.data?.profile_picture_url) {
-        localStorage.setItem('imageURL', profile_picture_res.data.profile_picture_url);
-      } else {
-        localStorage.removeItem('imageURL'); // or set a default placeholder URL
+      const { data } = await authService.login(formData);
+      console.log(data);
+      
+      // Use the login function from AuthContext
+      login(data.token, data.user.id);
+
+      // Safely try to fetch profile picture
+      try {
+        const profile_picture_res = await profileService.getProfilePictureUrl();
+        if (profile_picture_res?.data?.profile_picture_url) {
+          localStorage.setItem('imageURL', profile_picture_res.data.profile_picture_url);
+        } else {
+          localStorage.removeItem('imageURL');
+        }
+      } catch (picErr) {
+        console.info("No profile picture found or error fetching:", picErr?.response?.status || picErr.message);
+        localStorage.removeItem('imageURL');
       }
-    } catch (picErr) {
-      console.info("No profile picture found or error fetching:", picErr?.response?.status || picErr.message);
-      localStorage.removeItem('imageURL'); // fallback if error
-    }
 
-    // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
-    try {
-      const cvRes = await cvDataService.getMyCV();
-      if (cvRes?.data) {
-        cvDataService.setData(cvRes.data);
+      // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
+      try {
+        const cvRes = await cvDataService.getMyCV();
+        if (cvRes?.data) {
+          cvDataService.setData(cvRes.data);
+        }
+      } catch (cvErr) {
+        console.info('No CV found for user or error fetching CV:', cvErr?.response?.status || cvErr.message);
       }
-    } catch (cvErr) {
-      console.info('No CV found for user or error fetching CV:', cvErr?.response?.status || cvErr.message);
+
+      navigate('/home');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
-
-    navigate('/home');
-  } catch (err) {
-    setError(err.response?.data?.message || 'Login failed');
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <AuthLayout title="Welcome Back!" subtitle="Log in to access your portfolio">
