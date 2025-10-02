@@ -19,7 +19,7 @@
 
 Driven by a **intelligent template selection algorithm**, every portfolio is tailored and brought to life in one of five templates as **dynamic, visually stunning environments**.
 
-✨ **Explore our beautiful templates:**  
+✨ **Explore our beautiful 3D templates:**  
 - 🚀 **Space** – futuristic and limitless  
 - 🏢 **Office** – sleek and professional  
 - 🌲 **Forest** – organic and vibrant  
