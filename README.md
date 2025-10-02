@@ -17,7 +17,7 @@
 
 **Portfolio Portal** is an innovative 3D portfolio website generator created by **team Ctrl Freaks**. With a simple CV upload to the **OCR CV Scanner**, your professional journey is instantly transformed into an **interactive, immersive 3D portfolio**.  
 
-Driven by a **intelligent template selection algorithm**, every portfolio is tailored and brought to life in one of five templates as **dynamic, visually stunning environments**.
+Driven by an **intelligent template selection algorithm**, every portfolio is tailored and brought to life in one of five templates as **dynamic, visually stunning environments**.
 
 ✨ **Explore our beautiful templates:**  
 - 🚀 **Space** – futuristic and limitless  
