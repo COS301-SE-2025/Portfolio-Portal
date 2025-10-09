@@ -78,6 +78,13 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
 
 ---
 
+## 🎥 Project Day (Final)
+
+- [Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)
+- [Demo 4 Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+---
+
 ##  CVs to test with:
 
 - [Software Developer CV (Space Template)](https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
