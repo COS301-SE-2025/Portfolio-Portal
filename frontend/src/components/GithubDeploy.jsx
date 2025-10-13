@@ -106,7 +106,7 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
   const copyToClipboard = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
-      // You could add a toast notification here
+      // maybe add a toast notification here later?
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }

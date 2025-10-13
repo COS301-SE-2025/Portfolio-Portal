@@ -104,7 +104,7 @@ const LandingPage = () => {
           </h1>
           
           <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Turn your traditional resume into an immersive, interactive portfolio that tells your professional story like never before. Stand out from the crowd with AI-powered transformation.
+            Turn your traditional resume into an immersive, interactive portfolio website that tells your professional story like never before. Stand out from the crowd with AI-powered transformation.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">

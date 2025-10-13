@@ -98,7 +98,6 @@ const LabProPage = () => {
         `}
       </style>
 
-      {/* Your original components with ErrorBoundaries */}
       <ErrorBoundary>
         <Navbar />
       </ErrorBoundary>
