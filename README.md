@@ -99,15 +99,55 @@ Our system is live and accessible here:
 
 ---
 
-## 📄 CVs to test with:
+## 📄 CVs to Test With
 
-- [Software Developer CV (Space Template)](https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Artist CV (Forest Template)](https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Finance Manager CV (Office Template)](https://www.canva.com/design/DAGwJKtX6QE/csYznEg-pY2vf-FpFJaPfw/edit?utm_content=DAGwJKtX6QE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Medical Assistant CV (Lab Template)](https://www.canva.com/design/DAGwT8dRXzM/hu0--roX3m688uxQICh0NA/edit?utm_content=DAGwT8dRXzM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Mining Engineer CV (Cave Template)](https://www.canva.com/design/DAGwfwnQPWg/fLqTxsrCfIUBQ68BdGYUjQ/edit?utm_content=DAGwfwnQPWg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+<details>
+  <summary>🧑‍💻 Software Developer CV (Space Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Ava Reynolds
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>🎨 Artist CV (Forest Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Alex Omari
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>💼 Finance Manager CV (Office Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJKtX6QE/csYznEg-pY2vf-FpFJaPfw/edit?utm_content=DAGwJKtX6QE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Daniel Brooks
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>⚕️ Medical Assistant CV (Lab Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwT8dRXzM/hu0--roX3m688uxQICh0NA/edit?utm_content=DAGwT8dRXzM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Gabriel Martinez
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>⛏️ Mining Engineer CV (Cave Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwfwnQPWg/fLqTxsrCfIUBQ68BdGYUjQ/edit?utm_content=DAGwfwnQPWg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Brian Park
+    </a>
+  </p>
+</details>
 
 ---
+
 
 ## 👨‍💻 Technology Stack
 
