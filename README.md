@@ -127,7 +127,6 @@ Our system is live and accessible here:
   </a>
 </p>
 
----
 
 ### 🟩 Backend
 
@@ -149,7 +148,6 @@ Our system is live and accessible here:
   </a>
 </p>
 
----
 
 ### 🚀 Project Management & Deployment
 
