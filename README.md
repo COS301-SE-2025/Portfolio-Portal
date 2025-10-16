@@ -209,18 +209,75 @@ Our system is live and accessible here:
 
 ## 👥 Meet the Team
 
-<p align="center">
-  <img src="frontend/public/assets/CtrlFreaks.png" alt="Team Photo" width="100%"/>
-</p>
+<details>
+  <summary><strong>Angelique Breedt</strong> - Group Leader + Developer</summary>
 
-| Name                 | Role         | Student Number | Description                                                                                                                                                                                                                                                                                                                                                                           | LinkedIn                                                                           | Profile |
-| -------------------- | ------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------- |
-| **Angelique Breedt** | Group Leader + Developer | u23542838      | I am a BSc Computer Science student working as group leader for CTRL Freaks on the PortfolioPortal system. I am responsible for ensuring the group is on track and that tasks are accurately delegated. I am also responsible for communication with the client and AL mentor. My focus is on the backend development.                                                                | [LinkedIn](https://www.linkedin.com/in/angelique-breedt/)                          | [GitHub](https://github.com/angiexbreedt) |
-| **Eric Booyens**     | Developer    | u05127824      | I am in my third year of studying BSc Computer Science with statistics electives at the University of Pretoria. My strengths include my strong work ethic, my willingness and ability to learn, my problem solving skills, and my charming looks. My focus is on the backend development.                                                                                             | [LinkedIn](https://www.linkedin.com/in/eric-booyens-60a736353/)                    | [GitHub](https://github.com/Eric-Booyens) |
-| **Keegan Walker**    | Developer    | u22693760      | I am in my last year of study as a motivated BSC Information and Knowledge Systems student. I am an experienced full-stack developer with a broad programming knowledge in Angular, Ionic, JavaScript and Python. My specialty is database systems, such as PostgreSQL and I am eager to create technology that enriches the user experiences.                                        | [LinkedIn](https://www.linkedin.com/in/keegan-walker-2144a0324/)                   | [GitHub](https://github.com/K33gan123) |
-| **Nabegh Muhra**     | Developer    | u23661268      | I’m a third-year Information and Knowledge Systems student with strong full-stack development experience. I’ve built clean, responsive front ends using React and handled everything from routing to authentication and database integration on the back end with Node.js, Express, Vue and MongoDB. I’m comfortable working with Git, Docker, and deploying real-world applications. | [LinkedIn](https://www.linkedin.com/in/nabegh-muhra-222446252/)                    | [GitHub](https://github.com/Nmuhra) |
-| **Christopher Yoko** | Developer    | u22857941      | I am a BSc Information and Knowledge Systems student with a strong background in design and frontend development. I currently work part-time as a web designer, where I focus on creating intuitive and visually engaging user interfaces.                                                                                                                                            | [LinkedIn](https://www.linkedin.com/in/chris-yoko-73a79a257/?originalSubdomain=za) | [GitHub](https://github.com/PawnParser) |
+<img src="frontend/public/assets/angelique.jpg" width="150" style="border-radius:50%"/>
 
+**Description:**  
+I am a BSc Computer Science student working as group leader for CTRL Freaks on the PortfolioPortal system. I am responsible for ensuring the group is on track and that tasks are accurately delegated. I am also responsible for communication with the client and AL mentor. My focus is on the backend development.
+
+**Profiles:**  
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/angelique-breedt/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/angiexbreedt)
+
+</details>
+
+<details>
+  <summary><strong>Eric Booyens</strong> - Developer</summary>
+
+<img src="frontend/public/assets/eric.jpg width="150" style="border-radius:50%"/>
+
+**Description:**  
+I am in my third year of studying BSc Computer Science with statistics electives at the University of Pretoria. My strengths include my strong work ethic, my willingness and ability to learn, my problem solving skills, and my charming looks. My focus is on the backend development.
+
+**Profiles:**  
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/eric-booyens-60a736353/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/Eric-Booyens)
+
+</details>
+
+<details>
+  <summary><strong>Keegan Walker</strong> - Developer</summary>
+
+<img src="frontend/public/assets/keegan.jpg" width="150" style="border-radius:50%"/>
+
+**Description:**  
+I am in my last year of study as a motivated BSC Information and Knowledge Systems student. I am an experienced full-stack developer with a broad programming knowledge in Angular, Ionic, JavaScript and Python. My specialty is database systems, such as PostgreSQL and I am eager to create technology that enriches the user experiences.
+
+**Profiles:**  
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/keegan-walker-2144a0324/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/K33gan123)
+
+</details>
+
+<details>
+  <summary><strong>Nabegh Muhra</strong> - Developer</summary>
+
+<img src="frontend/public/assets/nabegh.jpg" width="150" style="border-radius:50%"/>
+
+**Description:**  
+I’m a third-year Information and Knowledge Systems student with strong full-stack development experience. I’ve built clean, responsive front ends using React and handled everything from routing to authentication and database integration on the back end with Node.js, Express, Vue and MongoDB. I’m comfortable working with Git, Docker, and deploying real-world applications.
+
+**Profiles:**  
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/nabegh-muhra-222446252/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/Nmuhra)
+
+</details>
+
+<details>
+  <summary><strong>Christopher Yoko</strong> - Developer</summary>
+
+<img src="frontend/public/assets/christopher.jpg" width="150" style="border-radius:50%"/>
+
+**Description:**  
+I am a BSc Information and Knowledge Systems student with a strong background in design and frontend development. I currently work part-time as a web designer, where I focus on creating intuitive and visually engaging user interfaces.
+
+**Profiles:**  
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/chris-yoko-73a79a257/?originalSubdomain=za) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/PawnParser)
+
+</details>
 
 ---
 
