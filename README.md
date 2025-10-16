@@ -35,57 +35,71 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
 
 | Document                                         | GitHub (MD)                                         | PDF |
 | ------------------------------------------------ | --------------------------------------------------- | --- |
-| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/demo%201/SRS-v1.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/export?format=pdf) | 
-| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/Archives/demo%202/SRS-v2.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/export?format=pdf) |
-| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/export?format=pdf) |
 | **Software Requirements Specification (SRS) v4** | [SRS-v4.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1AdkXLw0L0QYuMzKTnngBeQmyf88WLrqCNR6NADljZ8g/export?format=pdf) |
 | **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md)| 📄 [PDF](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/export?format=pdf) |
-| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
-| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)| 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
 | **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | 📄 [PDF](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/export?format=pdf) |
 | **Testing Policy**                               | [TestingPolicy.md](Docs/CodingStandards.md)         | 📄 [PDF](https://docs.google.com/document/d/1UXAOX9HmwBgozpefsD_36RBrdGiVT1ungcakLqp5elg/export?format=pdf) |
-| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_ |
-| **Server README**                                | [server/README.md](server/README.md)                | _N/A_ |
-| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_ |
 | **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_ |
-
-
-## 🎥 Demo 1
-
-- [Demo 1 Video](https://youtu.be/gwhL0oYh90Y)
-- [Demo 1 Presentation](https://www.canva.com/design/DAGn94hteWs/_gTECzG006hoJGb7K9oaGQ/view?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hee3bb8a8c2)
+| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
+| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)| 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
+| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_ |
 
 ---
 
-## 🎥 Demo 2
+## 🎥 Demo Videos
 
-- [Demo 2 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)
-- [Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+<details>
+  <summary><strong>Demo 1</strong></summary>
+
+  - 🎬 [Watch Demo 1 Video](https://youtu.be/gwhL0oYh90Y)  
+  - 🖥️ [View Demo 1 Presentation](https://www.canva.com/design/DAGn94hteWs/_gTECzG006hoJGb7K9oaGQ/view?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hee3bb8a8c2)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 2</strong></summary>
+
+  - 🎬 [Watch Demo 2 Video](https://m.youtube.com/watch?v=SGc-FlTARXQ)  
+  - 🖥️ [View Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 3</strong></summary>
+
+  - 🎬 [Watch Demo 3 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)  
+  - 🖥️ [View Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 4</strong></summary>
+
+  - 🎬 [Watch Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
+  - 🖥️ [View Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/8BEfPfNiJ1l-BFLLcUu14A/edit?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Project Day – Final Demo🎓 </strong></summary>
+
+  - 🎬 [Watch Final Demo Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
+  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
 
 ---
 
-## 🎥 Demo 3
-
-- [Demo 3 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)
-- [Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-
----
-
-## 🎥 Demo 4
-
-- [Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)
-- [Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/8BEfPfNiJ1l-BFLLcUu14A/edit?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+## 🚀  Deployment of our system:
+Our system is live and accessible here:
+- 🌐 [Portfolio Portal](https://www.portfolioportal.co.za/)
 
 ---
 
-## 🎥 Project Day (Final)
-
-- [Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)
-- [Demo 4 Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-
----
-
-##  CVs to test with:
+## 📄 CVs to test with:
 
 - [Software Developer CV (Space Template)](https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 - [Artist CV (Forest Template)](https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
