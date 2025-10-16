@@ -226,7 +226,7 @@ I am a BSc Computer Science student working as group leader for CTRL Freaks on t
 <details>
   <summary><strong>Eric Booyens</strong> - Developer</summary>
 
-<img src="frontend/public/assets/eric.jpg width="150" style="border-radius:50%"/>
+<img src="frontend/public/assets/eric.jpeg" width="150" style="border-radius:50%"/>
 
 **Description:**  
 I am in my third year of studying BSc Computer Science with statistics electives at the University of Pretoria. My strengths include my strong work ethic, my willingness and ability to learn, my problem solving skills, and my charming looks. My focus is on the backend development.
@@ -240,7 +240,7 @@ I am in my third year of studying BSc Computer Science with statistics electives
 <details>
   <summary><strong>Keegan Walker</strong> - Developer</summary>
 
-<img src="frontend/public/assets/keegan.jpg" width="150" style="border-radius:50%"/>
+<img src="frontend/public/assets/keegan.jpeg" width="150" style="border-radius:50%"/>
 
 **Description:**  
 I am in my last year of study as a motivated BSC Information and Knowledge Systems student. I am an experienced full-stack developer with a broad programming knowledge in Angular, Ionic, JavaScript and Python. My specialty is database systems, such as PostgreSQL and I am eager to create technology that enriches the user experiences.
@@ -254,7 +254,7 @@ I am in my last year of study as a motivated BSC Information and Knowledge Syste
 <details>
   <summary><strong>Nabegh Muhra</strong> - Developer</summary>
 
-<img src="frontend/public/assets/nabegh.jpg" width="150" style="border-radius:50%"/>
+<img src="frontend/public/assets/nabegh.jpeg" width="150" style="border-radius:50%"/>
 
 **Description:**  
 I’m a third-year Information and Knowledge Systems student with strong full-stack development experience. I’ve built clean, responsive front ends using React and handled everything from routing to authentication and database integration on the back end with Node.js, Express, Vue and MongoDB. I’m comfortable working with Git, Docker, and deploying real-world applications.
