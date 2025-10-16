@@ -14,7 +14,7 @@ const LandingPage = () => {
     // Auto-rotate features
     const interval = setInterval(() => {
       setCurrentFeature(prev => (prev + 1) % 3);
-    }, 4000);
+    }, 2500);
     
     return () => clearInterval(interval);
   }, []);
@@ -80,14 +80,16 @@ const LandingPage = () => {
             </span>
           </div>
           <div className="flex items-center space-x-6">
-            <button className="hidden md:block text-gray-300 hover:text-white transition-colors">
+            {/* <button className="hidden md:block text-gray-300 
+            //REMOVED FEATURES BUTTON FOR NOW
+            hover:text-white transition-colors">
               Features
-            </button>
+            </button> */}
             <button 
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/login')}
               className="px-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105"
             >
-              Get Started
+              Sign in
             </button>
           </div>
         </div>
@@ -282,12 +284,21 @@ const LandingPage = () => {
             >
               ✕
             </button>
-            <div className="w-full h-full bg-gradient-to-br from-purple-900 to-pink-900 flex items-center justify-center">
+            {/* <div className="w-full h-full bg-gradient-to-br from-purple-900 to-pink-900 flex items-center justify-center">
               <div className="text-center">
                 <Play className="w-20 h-20 text-white/50 mx-auto mb-4" />
                 <p className="text-white/70">Demo video would play here</p>
               </div>
-            </div>
+            </div> */}
+            <iframe
+  src="https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/preview"
+  width="100%"
+  height="100%"
+  allow="autoplay; fullscreen"
+  allowFullScreen
+  className="w-full h-full"
+  title="Demo Video"
+/>
           </div>
         </div>
       )}
