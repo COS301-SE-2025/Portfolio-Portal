@@ -158,6 +158,14 @@ Our system is live and accessible here:
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" width="60" />
   </a>
   &nbsp;&nbsp;
+  <a href="https://vitejs.dev/" title="Vite">
+    <img src="https://vitejs.dev/logo.svg" alt="Vite" width="60" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://threejs.org/" title="Three.js">
+    <img src="https://threejs.org/files/favicon.ico" alt="Three.js" width="60" />
+  </a>
+  &nbsp;&nbsp;
   <a href="https://www.figma.com/" title="Figma">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma" width="60" />
   </a>
@@ -166,7 +174,6 @@ Our system is live and accessible here:
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cypressio/cypressio-original.svg" alt="Cypress" width="60" />
   </a>
 </p>
-
 
 ### 🟩 Backend
 
@@ -188,12 +195,15 @@ Our system is live and accessible here:
   </a>
 </p>
 
-
 ### 🚀 Project Management & Deployment
 
 <p align="center">
   <a href="https://www.postman.com/" title="Postman">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg" alt="Postman" width="60" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://railway.app/" title="Railway">
+    <img src="https://railway.app/favicon.ico" alt="Railway" width="60" />
   </a>
   &nbsp;&nbsp;
   <a href="https://git-scm.com/" title="Git">
@@ -204,6 +214,7 @@ Our system is live and accessible here:
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" width="60" />
   </a>
 </p>
+
 
 ---
 
@@ -288,3 +299,8 @@ We use the **git flow** branching strategy. The `main` branch is used for produc
 ### Issue Tracking
 
 Issues are created and tracked on GitHub Projects. Each issue is linked to a developer and typically represents a discrete feature, bug fix, or documentation task.
+
+---
+
+## 📬 Contact the team:
+- For any inquiries or feedback, you can reach out to the team at: ctrlfreakscapstone@gmail.com
