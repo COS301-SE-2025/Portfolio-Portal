@@ -30,7 +30,6 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (error) {
       setError(`Authentication failed: ${error}`);
-      // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -106,7 +105,7 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
   const copyToClipboard = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
-      // maybe add a toast notification here later?
+      // rem: might add a toast notification here later
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
@@ -162,20 +161,20 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
 
             {/* Manual Workflow Instructions */}
             {deploymentResult.manualWorkflowInstructions && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                 <div className="flex items-start space-x-2">
-                  <Info className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                  <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <h4 className="font-medium text-orange-800 mb-2">
+                    <h4 className="font-medium text-yellow-800 mb-2">
                       Additional Setup Required
                     </h4>
-                    <p className="text-sm text-orange-700 mb-3">
+                    <p className="text-sm text-yellow-700 mb-3">
                       {deploymentResult.manualWorkflowInstructions.message}
                     </p>
                     
                     <div className="mb-3">
-                      <h5 className="font-medium text-orange-800 text-sm mb-2">Steps to complete setup:</h5>
-                      <ol className="text-sm text-orange-700 space-y-1 list-decimal list-inside">
+                      <h5 className="font-medium text-yellow-800 text-sm mb-2">Steps to complete setup:</h5>
+                      <ol className="text-sm text-yellow-700 space-y-1 list-decimal list-inside">
                         {deploymentResult.manualWorkflowInstructions.steps.map((step, index) => (
                           <li key={index}>{step}</li>
                         ))}
