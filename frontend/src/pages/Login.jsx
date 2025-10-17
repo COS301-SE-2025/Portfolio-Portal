@@ -21,17 +21,17 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
     setIsLoading(true);
 
     try {
       const { data } = await authService.login(formData);
       console.log(data);
       
-      // Use the login function from AuthContext
+      // Use login function from AuthContext
       login(data.token, data.user.id);
 
-      // Safely try to fetch profile picture
+      // Safely try fetch profile picture
       try {
         const profile_picture_res = await profileService.getProfilePictureUrl();
         if (profile_picture_res?.data?.profile_picture_url) {
@@ -44,7 +44,7 @@ const Login = () => {
         localStorage.removeItem('imageURL');
       }
 
-      // Try to fetch the user's CV from /api/cv/me and store it in cvDataService
+      // Try fetch user's CV from /api/cv/me & store it in cvDataService
       try {
         const cvRes = await cvDataService.getMyCV();
         if (cvRes?.data) {
@@ -64,7 +64,8 @@ const Login = () => {
 
   return (
     <AuthLayout title="Welcome Back!" subtitle="Log in to access your portfolio">
-      <div className="space-y-4 mb-6">
+      {/* Wrap inputs in a form with onSubmit handler */}
+      <form onSubmit={handleLogin} className="space-y-4 mb-6">
         <input
           type="email"
           name="email"
@@ -85,15 +86,14 @@ const Login = () => {
         />
         
         {error && (
-  <div className="text-red-700 dark:text-red-200 text-sm text-center bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-lg py-2.5 px-3 font-medium">
-    {error}
-  </div>
-)}
+          <div className="text-red-700 dark:text-red-200 text-sm text-center bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-800 rounded-lg py-2.5 px-3 font-medium">
+            {error}
+          </div>
+        )}
         
         <button
-          type="submit"
+          type="submit" 
           disabled={isLoading}
-          onClick={handleLogin}
           className={`w-full py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 ${
             isLoading
               ? 'bg-gray-400 dark:bg-slate-700 text-gray-200 dark:text-slate-400 cursor-not-allowed'
@@ -102,7 +102,7 @@ const Login = () => {
         >
           {isLoading ? 'Signing in...' : 'Sign in'}
         </button>
-      </div>
+      </form>
       
       <p className="text-center text-sm text-grey-100 dark:text-gray-200 font-medium">
         Don't have an account?{' '}
