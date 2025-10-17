@@ -145,7 +145,7 @@ const HelpMenu = () => {
         },
         {
           icon: Play,
-          title: "Portfolio website download and/deployment",
+          title: "Portfolio Site Download and/or Deployment",
           description: "download or deploy your site!",
           action: () =>
             window.open("https://youtube.com/watch?v=demo3", "_blank"),
