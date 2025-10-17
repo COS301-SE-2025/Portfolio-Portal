@@ -178,7 +178,7 @@ const searchUsers = async (req, res, next) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total: users.length // Note: This total is for the current page, not overall.
-                          // For overall total, you'd need a separate count query in service.
+                          // For overall total, would need a separate count query in service.
       }
     });
   } catch (error) {

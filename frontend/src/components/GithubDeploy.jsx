@@ -333,6 +333,7 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (err) {
       setError(`Authentication failed: ${err}`);
+
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -437,6 +438,7 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
                       {deploymentResult.manualWorkflowInstructions.steps.map((step, index) => <li key={index}>{step}</li>)}
                     </ol>
                     <div className={`${currentTheme.manualCodeBg} ${currentTheme.manualCodeBorder} rounded p-3`}>
+
                       <div className="flex items-center justify-between mb-2">
                         <h5 className={`font-medium ${currentTheme.manualCodeText} text-sm`}>YAML:</h5>
                         <button onClick={() => copyToClipboard(deploymentResult.manualWorkflowInstructions.workflowContent)} className={`flex items-center space-x-1 text-xs ${currentTheme.manualCopy}`}>

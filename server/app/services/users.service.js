@@ -7,7 +7,7 @@ const loginUser = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Supabase login error:', error.message);
-      throw new Error('Invalid credentials'); // Generic error for security
+      throw new Error('Invalid credentials'); 
     }
     if (!data.session) {
       console.error('No session returned after login');
@@ -18,7 +18,7 @@ const loginUser = async (email, password) => {
     const userProfile = await User.findById(data.user.id);
     if (!userProfile) {
       console.error('User profile not found in DB for auth ID:', data.user.id);
-      throw new Error('User profile not found'); // This indicates a data inconsistency
+      throw new Error('User profile not found');
     }
 
     return {
@@ -29,7 +29,7 @@ const loginUser = async (email, password) => {
     };
   } catch (error) {
     console.error('Login service error:', error.message);
-    throw error; // Re-throw to be caught by the centralized error handler
+    throw error; // Re-throw to be caught by the centralised error handler
   }
 };
 
@@ -93,6 +93,7 @@ const getUserByEmail = async (email) => {
   }
 };
 
+//fixed registration error (after demo 4):
 const createUser = async (userData) => {
   const { email, name, password, professional } = userData;
   try {
@@ -110,9 +111,13 @@ const createUser = async (userData) => {
       throw new Error('User already registered with this email');
     }
 
-    // Call User model to create the user in auth and database
+    // Create user in auth & database
     const user = await User.create(email, password, name, professional);
-    return user;
+    
+    // After creating, log them in automatically to get token
+    const loginResult = await loginUser(email, password);
+    
+    return loginResult; // Return same structure as loginUser (user, token, etc.)
   } catch (error) {
     console.error('Create user service error:', error.message);
     throw error;
@@ -194,9 +199,9 @@ const uploadProfilePicture = async (userId, file, token) => {
 
 const getProfilePicture = async (userId) => {
   try {
-    const user = await User.findById(userId); // This now directly returns the user with signed URL
+    const user = await User.findById(userId); // directly returns the user with signed URL
     if (!user || !user.profile_picture_url) {
-      return null; // Or throw an error if no picture is expected
+      return null; // Or throw error if no picture expected
     }
     return user.profile_picture_url;
   } catch (error) {
@@ -226,14 +231,14 @@ const searchUsers = async (query, page = 1, limit = 10) => {
     if (isNaN(page) || page < 1) {
       page = 1;
     }
-    if (isNaN(limit) || limit < 1 || limit > 100) { // Example limit max
+    if (isNaN(limit) || limit < 1 || limit > 100) { 
       limit = 10;
     }
 
     const offset = (page - 1) * limit;
     const users = await User.searchUsers(query.trim(), limit, offset);
 
-    // If you need total count for pagination, add a User.countUsers(query) method
+    // If need total count for paginationlater , add a User.countUsers(query) method
     // and return it along with users.
     return users;
   } catch (error) {
@@ -267,11 +272,11 @@ const getProfileStats = async (userId) => {
 
     const stats = {
       profileComplete: 0,
-      totalFields: 10, // Define total fields for completeness calculation
+      totalFields: 10, 
       completedFields: []
     };
 
-    // Define fields to check for completeness. Use actual field names from your User model.
+    // Define fields to check for completeness.
     const fields = [
       { key: 'name', label: 'Name' },
       { key: 'bio', label: 'Bio' },
@@ -310,14 +315,14 @@ const getPublicProfile = async (identifier) => {
     if (identifier.includes('@')) {
       user = await User.findByEmail(identifier);
     } else {
-      user = await User.findById(identifier); // Assuming User.findById can also handle non-UUID identifiers if your DB supports it
+      user = await User.findById(identifier); // Assuming User.findById can also handle non-UUID identifiers if current DB supports it (current: Supabase)
     }
 
     if (!user) {
       throw new Error('Profile not found');
     }
 
-    // Return only public information, explicitly define what's public
+    // Return only public information
     const publicProfile = {
       id: user.id,
       name: user.name,

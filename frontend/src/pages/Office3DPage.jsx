@@ -1,3 +1,4 @@
+//frontend/src/pages/Office3DPage.jsx
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
@@ -6,8 +7,6 @@ import { OrbitControls, Environment, Html } from '@react-three/drei';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
-
-// Import your actual CV data hook
 import useCVData from '../hooks/useCVData';
 
 export default function Office3DPage() {
@@ -290,7 +289,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
                 contactContent += `\n${location}`;
               }
               
-              // Add accreditation with smaller, lighter text
+              // Add accreditation with small, light text
               contactContent += `\n\n\n3D Model Credit:\nBased on "office_props_pack" by ap-school\nCC-BY-4.0 License\nAuthor:ap-school (https://sketchfab.com/ap-school)`;
               
               textContent = contactContent;
@@ -363,7 +362,7 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
           context.font = 'bold 160px "Arial Black", Arial, sans-serif'; // Increased from 140px
           const wrappedLines = wrapText(context, line, canvas.width * 0.8, 160); // Updated font size for wrapping
           wrappedLines.forEach((wrappedLine, wrappedIndex) => {
-            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 190)); // Increased line height
+            context.fillText(wrappedLine, canvas.width / 2, currentY + (wrappedIndex * 190)); 
           });
         }
       });
@@ -379,18 +378,18 @@ function Office3DScene({ cvData, sceneRef, onSceneLoaded }) {
         // Check if this is the Contact section AND we're in the accreditation part
         const isContactSection = mesh.name === 'Contact';
         const isAccreditation = isContactSection && (
-                               line.includes('3D Model Credit') || 
-                               line.includes('Based on') || 
-                               line.includes('CC-BY') ||
-                               line.includes('Author:') ||
+                              line.includes('3D Model Credit') || 
+                              line.includes('Based on') || 
+                              line.includes('CC-BY') ||
+                              line.includes('Author:') ||
                                currentY > 1500); // After contact info
         
         if (isAccreditation) {
-          // Accreditation text - darker gray and larger
+          // Accreditation text - dark gray and large
           context.fillStyle = '#444444';
           context.font = 'bold 90px "Arial Black", Arial, sans-serif';
         } else {
-          // Regular text - always black for all sections
+          // Regular text -  black for all sections
           context.fillStyle = '#000000';
         }
         

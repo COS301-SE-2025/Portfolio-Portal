@@ -71,7 +71,7 @@ const HelpMenu = () => {
           title: "Contact Support",
           description: "Get help from our team",
           action: () =>
-            window.open("mailto:support@portfolioportal.com", "_blank"),
+            window.open("mailto:support@portfolioportal.co.za", "_blank"),
           external: true,
         },
         {
@@ -100,7 +100,7 @@ const HelpMenu = () => {
           description: "Complete documentation",
           action: () =>
             window.open(
-              "https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?usp=sharing",
+              "https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf",
               "_blank"
             ),
           external: true,
@@ -195,7 +195,7 @@ const HelpMenu = () => {
         {
           icon: HelpCircle,
           title: "What browsers are supported?",
-          description: "Chrome, Firefox, Safari, and Edge (latest versions)",
+          description: "Firefox, Chrome, Safari, and Edge (latest versions)",
           action: () => {},
         },
       ],
@@ -379,7 +379,7 @@ const HelpMenu = () => {
                   href="mailto:support@portfolioportal.com"
                   className="text-purple-600 hover:underline"
                 >
-                  support@portfolioportal.com
+                  support@portfolioportal.co.za
                 </a>
               </p>
             </div>

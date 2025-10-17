@@ -1,8 +1,9 @@
+//frontend/src/components/Navbar.js
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { User, Home, Upload, Info, FileText, Settings, Menu, X, LogOut, Users } from 'lucide-react';
-import { authService } from '../services/auth.service'; // Adjust path if necessary
+import { authService } from '../services/auth.service'; 
 
 const navLinks = [
   { sectionId: 'hero', label: 'Home', icon: Home },
@@ -173,7 +174,7 @@ const Navbar = () => {
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = (!link.route && activeSection === link.sectionId && location.pathname === '/') || 
-                               (link.route && location.pathname === link.route);
+                              (link.route && location.pathname === link.route);
                 
                 return (
                   <li key={link.sectionId}>
@@ -255,7 +256,7 @@ const Navbar = () => {
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = (!link.route && activeSection === link.sectionId && location.pathname === '/') || 
-                             (link.route && location.pathname === link.route);
+                            (link.route && location.pathname === link.route);
               
               return (
                 <li key={link.sectionId} className="flex justify-center">

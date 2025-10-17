@@ -16,7 +16,7 @@ class CVDataService {
   deleteProfile = (userId) => api.delete(`/users/profile/delete/${userId}`);
 
   // New: get the current user's CV (no userId required)
-  // This hits the endpoint you provided: GET /api/cv/me
+  // This hits the endpoint: GET /api/cv/me
   getMyCV = () => api.get('/cv/me');
 
   // Links
@@ -196,5 +196,4 @@ export const authService = {
   }
 };
 
-// Export
 export default cvDataService;
