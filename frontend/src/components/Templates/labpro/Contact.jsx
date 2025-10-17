@@ -125,11 +125,13 @@ const Contact = () => {
 
         {/* GitHub Deploy Section */}
         <div className="mt-16">
+        <div className="bg-gray-900/70 p-8 rounded-2xl backdrop-blur-sm border border-teal-400/20 max-w-2xl mx-auto relative hover:border-teal-400/50 transition-all duration-500">
           <GitHubDeploy
             userData={cvData}
             template="labpro"
             onDeploySuccess={handleDeploySuccess}
           />
+          </div>
         </div>
       </div>
 
