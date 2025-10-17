@@ -71,7 +71,7 @@ const HelpMenu = () => {
           title: "Contact Support",
           description: "Get help from our team",
           action: () =>
-            window.open("mailto:support@portfolioportal.co.za", "_blank"),
+            window.open("mailto:ctrlfreakscapstone@gmail.com", "_blank"),
           external: true,
         },
         {
@@ -376,7 +376,7 @@ const HelpMenu = () => {
               <p className="text-xs text-center text-gray-500">
                 Need more help? Contact us at{" "}
                 <a
-                  href="mailto:support@portfolioportal.com"
+                  href="mailto:ctrlfreakscapstone@gmail.com"
                   className="text-purple-600 hover:underline"
                 >
                   support@portfolioportal.co.za
