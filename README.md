@@ -270,7 +270,7 @@ I’m a third-year BSc Information and Knowledge Systems student with strong ful
 </details>
 
 <details>
-  <summary><strong>Keegan Walker</strong> - UI & Data Engineer</summary>
+  <summary><strong>Keegan Walker</strong> - UI, Services & Data Engineer</summary>
 
 <img src="frontend/public/assets/keegan.jpeg" width="150" style="border-radius:50%"/>
  
