@@ -3,20 +3,22 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Environment, Stars } from "@react-three/drei";
 import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
+import { useMemo } from 'react';
+import useCVData from "../hooks/useCVData"; 
 
 // Mock CV data hook for now
-const useCvData = () => ({
-  name: "John Doe",
-  about: "A passionate explorer of digital caves and immersive experiences.",
-  experience: [
-    { title: "Senior Developer", company: "Tech Corp", startDate: "2020", endDate: "Present" },
-    { title: "Junior Developer", company: "StartUp Inc", startDate: "2018", endDate: "2020" }
-  ],
-  education: [
-    { degree: "BS Computer Science", institution: "University", endDate: "2018" }
-  ],
-  skills: ["React", "Three.js", "JavaScript", "3D Graphics", "WebGL", "Node.js"]
-});
+// const useCvData = () => ({
+//   name: "John Doe",
+//   about: "A passionate explorer of digital caves and immersive experiences.",
+//   experience: [
+//     { title: "Senior Developer", company: "Tech Corp", startDate: "2020", endDate: "Present" },
+//     { title: "Junior Developer", company: "StartUp Inc", startDate: "2018", endDate: "2020" }
+//   ],
+//   education: [
+//     { degree: "BS Computer Science", institution: "University", endDate: "2018" }
+//   ],
+//   skills: ["React", "Three.js", "JavaScript", "3D Graphics", "WebGL", "Node.js"]
+// });
 
 const useWASDMovement = () => {
   const { camera } = useThree();
@@ -153,92 +155,272 @@ const PineTree = ({ position, scale = 1 }) => {
   );
 };
 
-// Torch Component
-const Torch = ({ position, intensity = 2 }) => {
-  const flameRef = useRef();
+// // Torch Component
+// const Torch = ({ position, intensity = 2 }) => {
+//   const flameRef = useRef();
   
+//   useFrame((state) => {
+//     if (flameRef.current) {
+//       flameRef.current.scale.y = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
+//       flameRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2) * 0.1;
+//     }
+//   });
+
+//   return (
+//     <group position={position}>
+//       <mesh position={[0, 0, 0]}>
+//         <cylinderGeometry args={[0.1, 0.1, 1.5, 8]} />
+//         <meshStandardMaterial color="#3d2817" />
+//       </mesh>
+      
+//       <mesh ref={flameRef} position={[0, 0.8, 0]}>
+//         <coneGeometry args={[0.2, 0.6, 4]} />
+//         <meshStandardMaterial 
+//           color="#ff6600" 
+//           emissive="#ff4500" 
+//           emissiveIntensity={1}
+//         />
+//       </mesh>
+      
+//       <pointLight position={[0, 0.8, 0]} intensity={intensity} color="#ff6600" distance={10} decay={2} />
+//     </group>
+//   );
+// };
+
+
+// Torch Component
+const Torch = ({ position = [0, 0, 0], intensity = 3 }) => {
+  const flameRef = useRef();
+  const innerFlameRef = useRef();
+  const coreFlameRef = useRef();
+  const glowRef = useRef();
+  const particlesRef = useRef();
+  const light1Ref = useRef();
+  const light2Ref = useRef();
+  
+  // Create spark particles
+  const particles = useMemo(() => {
+    const temp = [];
+    for (let i = 0; i < 20; i++) {
+      temp.push({
+        offset: [
+          (Math.random() - 0.5) * 0.1,
+          0,
+          (Math.random() - 0.5) * 0.1
+        ],
+        speed: 0.4 + Math.random() * 0.6,
+        life: Math.random(),
+        size: 0.02 + Math.random() * 0.03
+      });
+    }
+    return temp;
+  }, []);
+
   useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    
+    // More organic flame movement
     if (flameRef.current) {
-      flameRef.current.scale.y = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
-      flameRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      const flicker1 = Math.sin(time * 3.2) * 0.18;
+      const flicker2 = Math.sin(time * 5.7) * 0.12;
+      const flicker3 = Math.cos(time * 7.3) * 0.08;
+      const flicker4 = Math.sin(time * 9.1) * 0.05;
+      
+      const totalFlicker = flicker1 + flicker2 + flicker3 + flicker4;
+      
+      flameRef.current.scale.y = 1 + totalFlicker;
+      flameRef.current.scale.x = 1 - totalFlicker * 0.25;
+      flameRef.current.scale.z = 1 - totalFlicker * 0.25;
+      
+      // Sway and rotation
+      flameRef.current.rotation.z = Math.sin(time * 2.5) * 0.2 + Math.cos(time * 4.1) * 0.1;
+      flameRef.current.rotation.x = Math.sin(time * 1.8) * 0.1;
+    }
+    
+    // Inner flame with different timing
+    if (innerFlameRef.current) {
+      const innerFlicker = Math.sin(time * 4.5 + 0.5) * 0.15 + Math.cos(time * 6.2) * 0.1;
+      innerFlameRef.current.scale.y = 1 + innerFlicker;
+      innerFlameRef.current.scale.x = 1 - innerFlicker * 0.2;
+      innerFlameRef.current.scale.z = 1 - innerFlicker * 0.2;
+      innerFlameRef.current.rotation.z = Math.sin(time * 3.8 + 1) * 0.18;
+    }
+    
+    // Bright core
+    if (coreFlameRef.current) {
+      const coreFlicker = Math.sin(time * 6.5 + 1) * 0.2;
+      coreFlameRef.current.scale.y = 1 + coreFlicker;
+      coreFlameRef.current.rotation.z = Math.sin(time * 5.2) * 0.15;
+    }
+    
+    // Glow pulses
+    if (glowRef.current) {
+      glowRef.current.material.opacity = 0.3 + Math.sin(time * 3.5) * 0.15 + Math.cos(time * 5.8) * 0.1;
+      glowRef.current.scale.setScalar(1 + Math.sin(time * 2.8) * 0.15);
+    }
+    
+    // Realistic light flickering
+    if (light1Ref.current) {
+      const lightFlicker = 1 + Math.sin(time * 4) * 0.2 + Math.sin(time * 7.5) * 0.15;
+      light1Ref.current.intensity = intensity * lightFlicker;
+    }
+    
+    if (light2Ref.current) {
+      const lightFlicker2 = 1 + Math.sin(time * 3.5 + 0.5) * 0.15;
+      light2Ref.current.intensity = (intensity * 0.6) * lightFlicker2;
+    }
+    
+    // Animated sparks and embers
+    if (particlesRef.current) {
+      particlesRef.current.children.forEach((particle, i) => {
+        const life = (time * particles[i].speed + particles[i].life) % 1;
+        const height = 0.7 + life * 1.2;
+        
+        // Spiral upward motion
+        particle.position.y = height;
+        particle.position.x = particles[i].offset[0] + Math.sin(time * 2 + i * 0.5) * 0.08 * life;
+        particle.position.z = particles[i].offset[2] + Math.cos(time * 2 + i * 0.5) * 0.08 * life;
+        
+        // Fade and shrink
+        const fadeStart = 0.6;
+        const opacity = life < fadeStart ? 1 : 1 - ((life - fadeStart) / (1 - fadeStart));
+        particle.material.opacity = opacity * 0.9;
+        particle.scale.setScalar(particles[i].size * (1 - life * 0.7));
+      });
     }
   });
 
   return (
     <group position={position}>
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.1, 0.1, 1.5, 8]} />
-        <meshStandardMaterial color="#3d2817" />
-      </mesh>
-      
-      <mesh ref={flameRef} position={[0, 0.8, 0]}>
-        <coneGeometry args={[0.2, 0.6, 4]} />
+      {/* Wooden handle */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.06, 0.1, 1.4, 8]} />
         <meshStandardMaterial 
-          color="#ff6600" 
-          emissive="#ff4500" 
-          emissiveIntensity={1}
+          color="#2d1810" 
+          roughness={0.95}
+          metalness={0}
         />
       </mesh>
       
-      <pointLight position={[0, 0.8, 0]} intensity={intensity} color="#ff6600" distance={10} decay={2} />
+      {/* Wrapped top section */}
+      <mesh position={[0, 0.6, 0]} castShadow>
+        <cylinderGeometry args={[0.11, 0.1, 0.25, 8]} />
+        <meshStandardMaterial 
+          color="#1a1008" 
+          roughness={0.85}
+        />
+      </mesh>
+      
+      {/* Outer flame - deep orange/red */}
+      <mesh ref={flameRef} position={[0, 1, 0]}>
+        <coneGeometry args={[0.3, 0.9, 8]} />
+        <meshStandardMaterial
+          color="#ff4400"
+          emissive="#ff2200"
+          emissiveIntensity={2.5}
+          transparent
+          opacity={0.75}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* Middle flame - bright orange */}
+      <mesh ref={innerFlameRef} position={[0, 1, 0]}>
+        <coneGeometry args={[0.2, 0.7, 7]} />
+        <meshStandardMaterial
+          color="#ff8800"
+          emissive="#ff6600"
+          emissiveIntensity={3}
+          transparent
+          opacity={0.85}
+        />
+      </mesh>
+      
+      {/* Core flame - bright yellow/white */}
+      <mesh ref={coreFlameRef} position={[0, 0.95, 0]}>
+        <coneGeometry args={[0.12, 0.5, 6]} />
+        <meshStandardMaterial
+          color="#ffffaa"
+          emissive="#ffdd00"
+          emissiveIntensity={4}
+          transparent
+          opacity={0.95}
+        />
+      </mesh>
+      
+      {/* Base glow */}
+      <mesh ref={glowRef} position={[0, 0.8, 0]}>
+        <sphereGeometry args={[0.25, 12, 12]} />
+        <meshBasicMaterial
+          color="#ff7722"
+          transparent
+          opacity={0.3}
+        />
+      </mesh>
+      
+      {/* Additional soft glow */}
+      <mesh position={[0, 0.9, 0]}>
+        <sphereGeometry args={[0.35, 12, 12]} />
+        <meshBasicMaterial
+          color="#ff9944"
+          transparent
+          opacity={0.15}
+        />
+      </mesh>
+      
+      {/* Ember particles */}
+      <group ref={particlesRef}>
+        {particles.map((p, i) => (
+          <mesh key={i} position={p.offset}>
+            <sphereGeometry args={[0.025, 6, 6]} />
+            <meshBasicMaterial
+              color={i % 3 === 0 ? "#ffcc66" : "#ff8844"}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+        ))}
+      </group>
+      
+      {/* Main flickering light */}
+      <pointLight 
+        ref={light1Ref}
+        position={[0, 1, 0]} 
+        intensity={intensity} 
+        color="#ff6633" 
+        distance={15} 
+        decay={2}
+        castShadow
+        shadow-mapSize-width={512}
+        shadow-mapSize-height={512}
+      />
+      
+      {/* Secondary warm ambient light */}
+      <pointLight 
+        ref={light2Ref}
+        position={[0, 0.8, 0]} 
+        intensity={intensity * 0.6} 
+        color="#ff8844" 
+        distance={10} 
+        decay={2}
+      />
+      
+      {/* Subtle top light for glow effect */}
+      <pointLight 
+        position={[0, 1.2, 0]} 
+        intensity={intensity * 0.3} 
+        color="#ffaa66" 
+        distance={6} 
+        decay={2}
+      />
     </group>
   );
 };
 
-// // Mining Cart Component
-// const MiningCart = ({ position, onClick, isHighlighted }) => {
-//   const [hovered, setHovered] = useState(false);
-  
-//   const { scale, emissiveIntensity } = useSpring({
-//     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
-//     emissiveIntensity: (isHighlighted || hovered) ? 0.5 : 0,
-//     config: { tension: 300, friction: 10 }
-//   });
 
-//   return (
-//     <animated.group
-//       position={position}
-//       onClick={onClick}
-//       scale={scale}
-//       onPointerOver={() => {
-//         setHovered(true);
-//         document.body.style.cursor = 'pointer';
-//       }}
-//       onPointerOut={() => {
-//         setHovered(false);
-//         document.body.style.cursor = 'auto';
-//       }}
-//     >
-//       <mesh position={[0, 0.5, 0]}>
-//         <boxGeometry args={[1.2, 0.6, 0.8]} />
-//         <animated.meshStandardMaterial 
-//           color={(isHighlighted || hovered) ? "#8b6f47" : "#5c4033"}
-//           emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
-//           emissiveIntensity={emissiveIntensity}
-//           metalness={0.3}
-//           roughness={0.7}
-//         />
-//       </mesh>
-      
-//       {[[-0.4, 0.1, 0.5], [0.4, 0.1, 0.5], [-0.4, 0.1, -0.5], [0.4, 0.1, -0.5]].map((pos, i) => (
-//         <mesh key={i} position={pos} rotation={[0, 0, Math.PI / 2]}>
-//           <cylinderGeometry args={[0.15, 0.15, 0.1, 8]} />
-//           <animated.meshStandardMaterial 
-//             color="#2c2c2c"
-//             emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
-//             emissiveIntensity={emissiveIntensity}
-//             metalness={0.8}
-//             roughness={0.3}
-//           />
-//         </mesh>
-//       ))}
-//     </animated.group>
-//   );
-// };
 // Mining Cart Component
 const MiningCart = ({ position, onClick, isHighlighted }) => {
   const [hovered, setHovered] = useState(false);
- 
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
     emissiveIntensity: (isHighlighted || hovered) ? 0.5 : 0,
@@ -427,6 +609,7 @@ const Bat = ({ position, onClick, isHighlighted }) => {
   const leftWingRef = useRef();
   const rightWingRef = useRef();
   const [hovered, setHovered] = useState(false);
+  
   // Animation for flapping and hovering
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -440,20 +623,34 @@ const Bat = ({ position, onClick, isHighlighted }) => {
       rightWingRef.current.rotation.z = -Math.PI / 3 - flap;
     }
   });
+  
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.3 : hovered ? 1.15 : 1,
     emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0.05,
     config: { tension: 300, friction: 10 }
   });
-  // Create curved wing geometry
-  const createWingShape = () => {
+  
+  // Create curved wing geometry for left wing
+  const createLeftWingShape = () => {
     const shape = new THREE.Shape();
     shape.moveTo(0, 0);
     shape.quadraticCurveTo(0.25, 0.4, 0.6, 0);
     shape.quadraticCurveTo(0.3, -0.25, 0, 0);
     return shape;
   };
-  const wingGeometry = new THREE.ShapeGeometry(createWingShape());
+  
+  // Create curved wing geometry for right wing (mirrored)
+  const createRightWingShape = () => {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.quadraticCurveTo(-0.25, 0.4, -0.6, 0);
+    shape.quadraticCurveTo(-0.3, -0.25, 0, 0);
+    return shape;
+  };
+  
+  const leftWingGeometry = new THREE.ShapeGeometry(createLeftWingShape());
+  const rightWingGeometry = new THREE.ShapeGeometry(createRightWingShape());
+  
   return (
     <animated.group
       ref={meshRef}
@@ -480,6 +677,7 @@ const Bat = ({ position, onClick, isHighlighted }) => {
           metalness={0.25}
         />
       </mesh>
+      
       {/* Head */}
       <mesh position={[0, 0.18, 0.05]}>
         <sphereGeometry args={[0.12, 16, 16]} />
@@ -489,6 +687,7 @@ const Bat = ({ position, onClick, isHighlighted }) => {
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
+      
       {/* Eyes */}
       <mesh position={[0.05, 0.22, 0.12]}>
         <sphereGeometry args={[0.025, 8, 8]} />
@@ -498,12 +697,13 @@ const Bat = ({ position, onClick, isHighlighted }) => {
         <sphereGeometry args={[0.025, 8, 8]} />
         <meshStandardMaterial emissive="#ff0044" emissiveIntensity={1.2} />
       </mesh>
+      
       {/* Left Wing */}
       <mesh
         ref={leftWingRef}
         position={[-0.25, 0.05, 0]}
         rotation={[0, 0, Math.PI / 3]}
-        geometry={wingGeometry}
+        geometry={leftWingGeometry}
       >
         <animated.meshStandardMaterial
           color="#111"
@@ -515,12 +715,13 @@ const Bat = ({ position, onClick, isHighlighted }) => {
           roughness={0.4}
         />
       </mesh>
+      
       {/* Right Wing */}
       <mesh
         ref={rightWingRef}
         position={[0.25, 0.05, 0]}
         rotation={[0, 0, -Math.PI / 3]}
-        geometry={wingGeometry}
+        geometry={rightWingGeometry}
       >
         <animated.meshStandardMaterial
           color="#111"
@@ -536,66 +737,133 @@ const Bat = ({ position, onClick, isHighlighted }) => {
   );
 };
 
+// Rock Formation
+const Rock = ({ position, scale = 1 }) => {
+  return (
+    <mesh position={position} scale={scale}>
+      <sphereGeometry args={[0.5, 6, 5]} />
+      <meshStandardMaterial 
+        color="#3d3d3d"
+        metalness={0.1}
+        roughness={0.9}
+      />
+    </mesh>
+  );
+};
 
-// // Treasure Chest Component
-// const TreasureChest = ({ position, onClick, isHighlighted }) => {
-//   const [hovered, setHovered] = useState(false);
+// Enhanced Pebble Component with better scattering
+const PebbleCluster = ({ position, count = 10, spread = 3, sizeRange = [0.1, 0.4] }) => {
+  return (
+    <group position={position}>
+      {Array.from({ length: count }, (_, i) => {
+        const size = sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]);
+        const colors = ['#4a4a4a', '#3d3d3d', '#555555', '#2a2a2a', '#505050'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        return (
+          <mesh 
+            key={i}
+            position={[
+              (Math.random() - 0.5) * spread,
+              -0.1,
+              (Math.random() - 0.5) * spread
+            ]} 
+            scale={[
+              size,
+              size * (0.4 + Math.random() * 0.4),
+              size
+            ]}
+            rotation={[
+              Math.random() * 0.5,
+              Math.random() * Math.PI * 2,
+              Math.random() * 0.5
+            ]}
+          >
+            <sphereGeometry args={[1, 4 + Math.floor(Math.random() * 3), 3 + Math.floor(Math.random() * 2)]} />
+            <meshStandardMaterial 
+              color={color}
+              metalness={0.1}
+              roughness={0.95}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
+
+// Enhanced Mountain Component with more variations
+const Mountain = ({ position, scale = 1, rotation = [0, 0, 0], variant = 0 }) => {
+  const heightVariations = [1.5, 1.8, 1.3, 1.6];
+  const widthVariations = [0.9, 1.1, 0.8, 1.2];
   
-//   const { scale, emissiveIntensity } = useSpring({
-//     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
-//     emissiveIntensity: (isHighlighted || hovered) ? 0.6 : 0,
-//     config: { tension: 300, friction: 10 }
-//   });
-
-//   return (
-//     <animated.group
-//       position={position}
-//       onClick={onClick}
-//       scale={scale}
-//       onPointerOver={() => {
-//         setHovered(true);
-//         document.body.style.cursor = 'pointer';
-//       }}
-//       onPointerOut={() => {
-//         setHovered(false);
-//         document.body.style.cursor = 'auto';
-//       }}
-//     >
-//       <mesh position={[0, 0.3, 0]}>
-//         <boxGeometry args={[1, 0.6, 0.7]} />
-//         <animated.meshStandardMaterial 
-//           color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
-//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
-//           emissiveIntensity={emissiveIntensity}
-//           metalness={0.2}
-//           roughness={0.8}
-//         />
-//       </mesh>
+  const mainHeight = heightVariations[variant % heightVariations.length];
+  const mainWidth = widthVariations[variant % widthVariations.length];
+  
+  return (
+    <group position={position} rotation={rotation} scale={scale}>
+      {/* Main mountain peak */}
+      <mesh position={[0, 0, 0]} scale={[mainWidth, mainHeight, mainWidth]}>
+        <coneGeometry args={[4, 8, 6 + Math.floor(Math.random() * 3)]} />
+        <meshStandardMaterial 
+          color={`#${Math.floor(40 + Math.random() * 15).toString(16).repeat(3)}`}
+          metalness={0.2}
+          roughness={0.9}
+        />
+      </mesh>
       
-//       <mesh position={[0, 0.7, 0]}>
-//         <boxGeometry args={[1, 0.2, 0.7]} />
-//         <animated.meshStandardMaterial 
-//           color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
-//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
-//           emissiveIntensity={emissiveIntensity}
-//           metalness={0.2}
-//           roughness={0.8}
-//         />
-//       </mesh>
+      {/* Secondary peaks for irregular shape */}
+      {[
+        { pos: [scale * 1.8, -1, scale * 0.8], scale: [0.7, 1.2, 0.7] },
+        { pos: [-scale * 1.5, -0.5, -scale * 0.5], scale: [0.6, 1.1, 0.6] },
+        { pos: [scale * 0.5, -1.5, -scale * 1.2], scale: [0.5, 0.9, 0.5] },
+        { pos: [-scale * 0.8, -1.2, scale * 1.5], scale: [0.4, 0.8, 0.4] }
+      ].map((peak, i) => (
+        <mesh key={i} position={peak.pos} scale={peak.scale}>
+          <coneGeometry args={[3, 5 + Math.random() * 2, 5 + Math.floor(Math.random() * 3)]} />
+          <meshStandardMaterial 
+            color={`#${Math.floor(30 + Math.random() * 10).toString(16).repeat(3)}`}
+            metalness={0.15}
+            roughness={0.92}
+          />
+        </mesh>
+      ))}
       
-//       <mesh position={[0, 0.3, 0.36]}>
-//         <boxGeometry args={[0.2, 0.3, 0.05]} />
-//         <animated.meshStandardMaterial 
-//           color="#ffd700"
-//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
-//           emissiveIntensity={emissiveIntensity}
-//           metalness={0.9}
-//           roughness={0.1}
-//         />
-//       </mesh>
-//     </animated.group>
-//   );
-// };
+      {/* Rocky base formations - enhanced with more variation */}
+      {Array.from({ length: 6 + Math.floor(Math.random() * 4) }, (_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        const distance = scale * (2 + Math.random() * 1.5);
+        return (
+          <mesh 
+            key={`rock-${i}`} 
+            position={[
+              Math.cos(angle) * distance,
+              -2.5 + Math.random() * 0.5,
+              Math.sin(angle) * distance
+            ]} 
+            scale={[
+              scale * (0.6 + Math.random() * 0.4),
+              scale * (0.4 + Math.random() * 0.3),
+              scale * (0.6 + Math.random() * 0.4)
+            ]}
+            rotation={[
+              Math.random() * 0.3,
+              Math.random() * Math.PI * 2,
+              Math.random() * 0.3
+            ]}
+          >
+            <sphereGeometry args={[1.2, 4 + Math.floor(Math.random() * 4), 3 + Math.floor(Math.random() * 3)]} />
+            <meshStandardMaterial 
+              color={`#${Math.floor(45 + Math.random() * 15).toString(16).repeat(3)}`}
+              metalness={0.1}
+              roughness={0.95}
+            />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+};
 
 // Treasure Chest Component
 const TreasureChest = ({ position, onClick, isHighlighted }) => {
@@ -885,23 +1153,57 @@ const Crystal = ({ position, onClick, isHighlighted, hanging = false }) => {
   );
 };
 
+
 // Water Puddle Component (Interactive)
 const WaterPuddle = ({ position, onClick, isHighlighted }) => {
   const meshRef = useRef();
   const [hovered, setHovered] = useState(false);
   
+  // Create irregular puddle shape
+  const createPuddleShape = () => {
+    const shape = new THREE.Shape();
+    const points = 16;
+    const baseRadius = 1.6;
+    
+    for (let i = 0; i <= points; i++) {
+      const angle = (i / points) * Math.PI * 2;
+      // Add irregular variations to radius
+      const radiusVariation = baseRadius * (0.7 + Math.random() * 0.4);
+      const x = Math.cos(angle) * radiusVariation;
+      const y = Math.sin(angle) * radiusVariation;
+      
+      if (i === 0) {
+        shape.moveTo(x, y);
+      } else {
+        // Use quadratic curves for organic edges
+        const prevAngle = ((i - 1) / points) * Math.PI * 2;
+        const prevRadius = baseRadius * (0.8 + Math.random() * 0.3);
+        const cpX = Math.cos((angle + prevAngle) / 2) * prevRadius;
+        const cpY = Math.sin((angle + prevAngle) / 2) * prevRadius;
+        shape.quadraticCurveTo(cpX, cpY, x, y);
+      }
+    }
+    
+    return shape;
+  };
+  
+  const puddleGeometry = new THREE.ShapeGeometry(createPuddleShape());
+
   useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    
+    // Very subtle opacity variation for water movement
     if (meshRef.current) {
-      meshRef.current.material.opacity = 0.6 + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      meshRef.current.material.opacity = 0.7 + Math.sin(t * 0.8) * 0.05;
     }
   });
-
+  
   const { scale, emissiveIntensity } = useSpring({
-    scale: isHighlighted ? 1.3 : hovered ? 1.15 : 1,
-    emissiveIntensity: (isHighlighted || hovered) ? 0.5 : 0,
+    scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
+    emissiveIntensity: (isHighlighted || hovered) ? 0.3 : 0,
     config: { tension: 300, friction: 10 }
   });
-
+  
   return (
     <animated.group
       position={position}
@@ -916,20 +1218,81 @@ const WaterPuddle = ({ position, onClick, isHighlighted }) => {
         document.body.style.cursor = 'auto';
       }}
     >
-      <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[1.5, 32]} />
-        <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#4dd0e1" : "#1a5f7a"}
-          emissive={(isHighlighted || hovered) ? "#00ffff" : "#000000"}
+      {/* Dark base - for depth */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]} geometry={puddleGeometry}>
+        <meshStandardMaterial
+          color="#0a1a24"
+          transparent
+          opacity={0.85}
+          roughness={0.8}
+        />
+      </mesh>
+      
+      {/* Main water surface */}
+      <mesh 
+        ref={meshRef} 
+        rotation={[-Math.PI / 2, 0, 0]} 
+        position={[0, 0.02, 0]} 
+        geometry={puddleGeometry}
+      >
+        <animated.meshStandardMaterial
+          color={(isHighlighted || hovered) ? "#2d5a6e" : "#1a3d4d"}
+          emissive={(isHighlighted || hovered) ? "#004d66" : "#001a26"}
           emissiveIntensity={emissiveIntensity}
           transparent
-          opacity={0.6}
-          metalness={0.9}
+          opacity={0.7}
+          metalness={0.4}
+          roughness={0.2}
+        />
+      </mesh>
+      
+      {/* Subtle reflection highlight - slightly smaller than main puddle */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+        <circleGeometry args={[1.0, 32]} />
+        <animated.meshStandardMaterial
+          color="#5a7a8a"
+          emissive={(isHighlighted || hovered) ? "#6699aa" : "#334455"}
+          emissiveIntensity={(isHighlighted || hovered) ? 0.3 : 0.1}
+          transparent
+          opacity={0.15}
+          metalness={0.8}
           roughness={0.1}
         />
       </mesh>
+      
+      {/* Small scattered wet spots around puddle for realism */}
+      {[
+        { pos: [1.2, 0.8], size: 0.3 },
+        { pos: [-1.3, 0.6], size: 0.25 },
+        { pos: [0.9, -1.1], size: 0.35 },
+        { pos: [-0.8, -1.0], size: 0.28 },
+        { pos: [1.5, -0.3], size: 0.22 }
+      ].map((spot, i) => (
+        <mesh
+          key={`wet-spot-${i}`}
+          rotation={[-Math.PI / 2, 0, Math.random() * Math.PI]}
+          position={[spot.pos[0], 0.01, spot.pos[1]]}
+        >
+          <circleGeometry args={[spot.size, 16]} />
+          <meshStandardMaterial
+            color="#2a4a5a"
+            transparent
+            opacity={0.4}
+            roughness={0.6}
+            metalness={0.2}
+          />
+        </mesh>
+      ))}
+      
+      {/* Subtle ambient light */}
       {(isHighlighted || hovered) && (
-        <pointLight position={[0, 0.5, 0]} intensity={1} color="#00ffff" distance={4} />
+        <pointLight 
+          position={[0, 0.5, 0]} 
+          intensity={0.6} 
+          color="#3d7a99" 
+          distance={4} 
+          decay={2} 
+        />
       )}
     </animated.group>
   );
@@ -949,244 +1312,6 @@ const Stalagmite = ({ position, scale = 1 }) => {
   );
 };
 
-// Rock Formation
-const Rock = ({ position, scale = 1 }) => {
-  return (
-    <mesh position={position} scale={scale}>
-      <sphereGeometry args={[0.5, 6, 5]} />
-      <meshStandardMaterial 
-        color="#3d3d3d"
-        metalness={0.1}
-        roughness={0.9}
-      />
-    </mesh>
-  );
-};
-
-// Cave Entrance Arch
-// // Cave Entrance Arch
-// const CaveEntrance = () => {
-//   return (
-//     <group position={[0, 0, -5]}>
-//       {/* Left wall - irregular shape */}
-//       <mesh position={[-7, 2.5, 0]} rotation={[0, 0, -0.1]}>
-//         <boxGeometry args={[3, 7, 12]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Left wall additional rock formations */}
-//       <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
-//         <boxGeometry args={[2, 4, 3]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
-//         <boxGeometry args={[1.5, 2, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Right wall - irregular shape */}
-//       <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
-//         <boxGeometry args={[3, 7, 12]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Right wall additional rock formations */}
-//       <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
-//         <boxGeometry args={[2, 3.5, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
-//         <boxGeometry args={[2, 1.5, 5]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Top arch - more natural, rocky appearance */}
-//       <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
-//         <boxGeometry args={[3.5, 1.2, 11]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
-//         <boxGeometry args={[3.5, 1.2, 11]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
-//         <boxGeometry args={[3.2, 0.8, 10.5]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-
-//       {/* Additional ceiling rocks */}
-//       <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
-//         <boxGeometry args={[2, 0.6, 3]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
-//         <boxGeometry args={[2.5, 0.7, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-      // {/* Back wall - irregular, rocky surface */}
-      // <mesh position={[0, 3, -6]}>
-      //   <boxGeometry args={[16, 9, 1.5]} />
-      //   <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-      // </mesh>
-      
-//       {/* Back wall rock formations */}
-//       <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
-//         <boxGeometry args={[2, 2, 1]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[4, 2, -5.5]} rotation={[-0.1, -0.15, 0.1]}>
-//         <boxGeometry args={[3, 1.5, 1]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[0, 6.5, -5.5]} rotation={[0.05, 0, 0.05]}>
-//         <boxGeometry args={[4, 1, 1]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[-2, 1, -5.5]} rotation={[-0.1, 0.1, -0.05]}>
-//         <boxGeometry args={[2.5, 1.2, 1]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Floor - rough, uneven surface */}
-//       <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
-//         <boxGeometry args={[14, 1, 12]} />
-//         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Floor rocks */}
-//       <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
-//         <boxGeometry args={[1.5, 0.6, 2]} />
-//         <meshStandardMaterial color="#333333" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
-//         <boxGeometry args={[2, 0.8, 1.5]} />
-//         <meshStandardMaterial color="#333333" roughness={0.9} />
-//       </mesh>
-//     </group>
-//   );
-// };
-
-// // Cave Entrance Arch
-// const CaveEntrance = () => {
-//   return (
-//     <group position={[0, 0, -5]}>
-//       {/* Left wall - irregular shape */}
-//       <mesh position={[-7, 2.5, 0]} rotation={[0, 0, -0.1]}>
-//         <boxGeometry args={[3, 7, 12]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Left wall additional rock formations */}
-//       <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
-//         <boxGeometry args={[2, 4, 3]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
-//         <boxGeometry args={[1.5, 2, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Right wall - irregular shape */}
-//       <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
-//         <boxGeometry args={[3, 7, 12]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Right wall additional rock formations */}
-//       <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
-//         <boxGeometry args={[2, 3.5, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
-//         <boxGeometry args={[2, 1.5, 5]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Top arch - more natural, rocky appearance */}
-//       <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
-//         <boxGeometry args={[3.5, 1.2, 11]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
-//         <boxGeometry args={[3.5, 1.2, 11]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
-//         <boxGeometry args={[3.2, 0.8, 10.5]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-//       </mesh>
-
-//       {/* Additional ceiling rocks */}
-//       <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
-//         <boxGeometry args={[2, 0.6, 3]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
-//         <boxGeometry args={[2.5, 0.7, 4]} />
-//         <meshStandardMaterial color="#252525" roughness={0.9} />
-//       </mesh>
-
-//       {/* Back wall - irregular, rocky surface */}
-//       <mesh position={[0, 3, -6]}>
-//         <boxGeometry args={[16, 9, 1.5]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
-      
-      // {/* Back wall rock formations */}
-      // <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
-      //   <boxGeometry args={[2, 2, 1]} />
-      //   <meshStandardMaterial color="#252525" roughness={0.9} />
-      // </mesh>
-      
-      // <mesh position={[4, 2, -5.5]} rotation={[-0.1, -0.15, 0.1]}>
-      //   <boxGeometry args={[3, 1.5, 1]} />
-      //   <meshStandardMaterial color="#252525" roughness={0.9} />
-      // </mesh>
-      
-      // <mesh position={[0, 6.5, -5.5]} rotation={[0.05, 0, 0.05]}>
-      //   <boxGeometry args={[4, 1, 1]} />
-      //   <meshStandardMaterial color="#252525" roughness={0.9} />
-      // </mesh>
-      
-      // <mesh position={[-2, 1, -5.5]} rotation={[-0.1, 0.1, -0.05]}>
-      //   <boxGeometry args={[2.5, 1.2, 1]} />
-      //   <meshStandardMaterial color="#252525" roughness={0.9} />
-      // </mesh>
-
-//       {/* Floor - rough, uneven surface */}
-//       <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
-//         <boxGeometry args={[14, 1, 12]} />
-//         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
-//       </mesh>
-      
-//       {/* Floor rocks */}
-//       <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
-//         <boxGeometry args={[1.5, 0.6, 2]} />
-//         <meshStandardMaterial color="#333333" roughness={0.9} />
-//       </mesh>
-      
-//       <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
-//         <boxGeometry args={[2, 0.8, 1.5]} />
-//         <meshStandardMaterial color="#333333" roughness={0.9} />
-//       </mesh>
-//     </group>
-//   );
-// };
 
 // Cave Entrance Arch
 const CaveEntrance = () => {
@@ -1242,8 +1367,8 @@ const CaveEntrance = () => {
 
       {/* Ceiling round rocks */}
       {[
-        [-3.5, 7.5, -2], [-2, 8, 1], [0, 8.2, 0],
-        [2, 7.8, -1], [3.5, 7.4, 2]
+        [-3.5, 7, -2], [-2, 7, 1], [0, 7, 0],
+        [2, 7.2, -1], [3.5, 7.4, 2]
       ].map((pos, i) => (
         <mesh key={i} position={pos}>
           <sphereGeometry args={[0.5 + Math.random() * 0.2, 8, 8]} />
@@ -1295,6 +1420,8 @@ const CaveEntrance = () => {
     </group>
   );
 };
+
+
 
 
 // Info Panel
@@ -1418,7 +1545,7 @@ const useCameraAnimation = () => {
 
 // Main Scene
 const Scene = ({ selectedObject, setSelectedObject }) => {
-  const { name, about, experience, education, skills } = useCvData() || {};
+  const { name, about, experience, education, skills, summary, description, certifications, projects } = useCVData() || {};
   const { moveTo, reset } = useCameraAnimation();
 
   useEffect(() => {
@@ -1434,75 +1561,138 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
   }, []);
 
   const interactiveObjects = [
-    {
-      id: 'name-cart',
-      component: MiningCart,
-      position: [-3, -0.4, -2.5],
-      type: 'cart',
-      title: 'Who Am I?',
-      content: name || "Explorer of digital caves..."
-    },
-    {
-      id: 'experience-bat',
-      component: Bat,
-      position: [2, 4.5, -5],
-      type: 'bat',
-      title: 'Experience',
-      content: experience ? (
-        <div>
-          {experience.slice(0, 2).map((exp, i) => (
-            <div key={i} className="mb-3">
-              <div className="font-semibold text-orange-300">{exp.title}</div>
-              <div className="text-gray-300">{exp.company}</div>
-              <div className="text-sm text-gray-400">{exp.startDate} - {exp.endDate}</div>
+  {
+    id: 'name-cart',
+    component: MiningCart,
+    position: [-3, -0.4, -2.5],
+    type: 'cart',
+    title: 'Who Am I?',
+    content: name ? (
+      <div>
+        <div className="font-semibold text-orange-300 text-lg mb-2">{name}</div>
+        {description && <div className="text-gray-300 mb-3">{description}</div>}
+        {summary && <div className="text-gray-400 text-sm">{summary}</div>}
+      </div>
+    ) : "Explorer of digital caves..."
+  },
+  {
+    id: 'experience-bat',
+    component: Bat,
+    position: [2, 4.5, -5],
+    type: 'bat',
+    title: 'Experience',
+    content: experience && experience.length > 0 ? (
+      <div>
+        {experience.slice(0, 3).map((exp, i) => (
+          <div key={i} className="mb-4 p-3 bg-orange-500/10 rounded-lg border border-orange-400/20">
+            <div className="font-semibold text-orange-300">{exp.title}</div>
+            <div className="text-gray-300">{exp.company}</div>
+            <div className="text-sm text-gray-400 mb-2">
+              {exp.startDate} - {exp.endDate || 'Present'}
             </div>
-          ))}
-        </div>
-      ) : "My professional journey through the caves of tech..."
-    },
-    {
-      id: 'skills-chest',
-      component: TreasureChest,
-      position: [5, -0.45, -1.5],
-      type: 'chest',
-      title: 'Skills',
-      content: skills ? (
-        <div className="grid grid-cols-2 gap-2">
-          {skills.map((skill, i) => (
+            {exp.extra && exp.extra.length > 0 && (
+              <ul className="text-xs text-gray-300 list-disc list-inside">
+                {exp.extra.slice(0, 2).map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+        {experience.length > 3 && (
+          <div className="text-center text-orange-400 text-sm mt-2">
+            +{experience.length - 3} more experiences
+          </div>
+        )}
+      </div>
+    ) : "My professional journey through the caves of tech..."
+  },
+  {
+    id: 'skills-chest',
+    component: TreasureChest,
+    position: [5, -0.45, -1.5],
+    type: 'chest',
+    title: 'Skills & Expertise',
+    content: skills && skills.length > 0 ? (
+      <div>
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {skills.slice(0, 8).map((skill, i) => (
             <div key={i} className="bg-orange-500/20 border border-orange-400/30 px-2 py-1 rounded text-center">
               <span className="text-orange-300 text-sm">{skill}</span>
             </div>
           ))}
         </div>
-      ) : "Treasures of knowledge and expertise..."
-    },
-    {
-      id: 'education-crystal',
-      component: Crystal,
-      position: [-2, 0, -5],
-      type: 'crystal',
-      title: 'Education',
-      content: education ? (
-        <div>
-          {education.slice(0, 2).map((edu, i) => (
-            <div key={i} className="mb-3">
-              <div className="font-semibold text-cyan-300">{edu.degree}</div>
-              <div className="text-gray-300">{edu.institution}</div>
-              <div className="text-sm text-gray-400">{edu.endDate}</div>
+        {certifications && certifications.length > 0 && (
+          <div className="mt-4">
+            <div className="font-semibold text-cyan-300 mb-2">Certifications</div>
+            {certifications.slice(0, 2).map((cert, i) => (
+              <div key={i} className="text-gray-300 text-sm mb-1">
+                • {cert.title}
+              </div>
+            ))}
+          </div>
+        )}
+        {skills.length > 8 && (
+          <div className="text-center text-orange-400 text-sm mt-2">
+            +{skills.length - 8} more skills
+          </div>
+        )}
+      </div>
+    ) : "Treasures of knowledge and expertise..."
+  },
+  {
+    id: 'education-crystal',
+    component: Crystal,
+    position: [-2, 0, -5],
+    type: 'crystal',
+    title: 'Education',
+    content: education && education.length > 0 ? (
+      <div>
+        {education.slice(0, 2).map((edu, i) => (
+          <div key={i} className="mb-4 p-3 bg-cyan-500/10 rounded-lg border border-cyan-400/20">
+            <div className="font-semibold text-cyan-300">{edu.degree}</div>
+            <div className="text-gray-300">{edu.institution}</div>
+            <div className="text-sm text-gray-400">
+              {edu.field && <div>{edu.field}</div>}
+              {edu.endDate && <div>Completed: {edu.endDate}</div>}
+              {edu.gpa && <div>GPA: {edu.gpa}</div>}
             </div>
-          ))}
-        </div>
-      ) : "Crystallized knowledge foundation..."
-    },
-    {
-      id: 'about-puddle',
-      component: WaterPuddle,
-      position: [0, -0.45, -4],
-      type: 'puddle',
-      title: 'About Me',
-      content: about || "Reflecting on my journey through technology and innovation..."
-    }
-  ];
+          </div>
+        ))}
+        {education.length > 2 && (
+          <div className="text-center text-cyan-400 text-sm mt-2">
+            +{education.length - 2} more education entries
+          </div>
+        )}
+      </div>
+    ) : "Crystallized knowledge foundation..."
+  },
+  {
+    id: 'about-puddle',
+    component: WaterPuddle,
+    position: [0, -0.45, -4],
+    type: 'puddle',
+    title: 'About Me',
+    content: about ? (
+      <div className="space-y-3">
+        <div className="text-gray-300 leading-relaxed">{about}</div>
+        {projects && projects.length > 0 && (
+          <div className="mt-4">
+            <div className="font-semibold text-blue-300 mb-2">Recent Projects</div>
+            {projects.slice(0, 2).map((project, i) => (
+              <div key={i} className="text-gray-300 text-sm mb-2">
+                • <span className="font-medium">{project.title}</span>
+                {project.description && (
+                  <div className="text-gray-400 ml-2">{project.description}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    ) : "Reflecting on my journey through technology and innovation..."
+  }
+];
 
   const handleObjectClick = (objectId) => {
     if (selectedObject === objectId) {
@@ -1544,27 +1734,70 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
         <meshStandardMaterial color="#1a1a1a" roughness={0.9} metalness={0.1} />
       </mesh>
 
-      {/* Cave ceiling */}
-      {/* <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 8, -40]}>
-        <planeGeometry args={[40, 30]} />
-        <meshStandardMaterial color="#0d0d0d" roughness={1} />
-      </mesh> */}
+        {/* MOUNTAIN RING TO HIDE BOUNDARIES */}
+      
+      {/* Far background mountains - hide distant boundaries */}
+      <Mountain position={[-25, -1, 15]} scale={3} variant={0} />
+      <Mountain position={[25, -1, 15]} scale={2.8} variant={1} />
+      <Mountain position={[-20, -1, 20]} scale={2.5} variant={2} />
+      <Mountain position={[20, -1, 20]} scale={3.2} variant={3} />
+      <Mountain position={[0, -1, 25]} scale={2.7} variant={0} />
+      
+      {/* Side mountains for forest area */}
+      <Mountain position={[-18, -1, 8]} scale={1.8} variant={1} />
+      <Mountain position={[18, -1, 8]} scale={2.1} variant={2} />
+      <Mountain position={[-22, -1, 2]} scale={1.6} variant={3} />
+      <Mountain position={[22, -1, 2]} scale={1.9} variant={0} />
+      
+      {/* Cave interior boundary mountains */}
+      <Mountain position={[-12, 0, -15]} scale={2.5} variant={1} rotation={[0, Math.PI/4, 0]} />
+      <Mountain position={[12, 0, -15]} scale={2.3} variant={2} rotation={[0, -Math.PI/4, 0]} />
+      <Mountain position={[0, 0, -18]} scale={2.8} variant={3} />
+      <Mountain position={[-8, 0, -20]} scale={2.1} variant={0} rotation={[0, Math.PI/6, 0]} />
+      <Mountain position={[8, 0, -20]} scale={2.4} variant={1} rotation={[0, -Math.PI/6, 0]} />
+      
+      {/* Additional mountains for complete enclosure */}
+      <Mountain position={[-15, 0, -12]} scale={1.8} variant={2} />
+      <Mountain position={[15, 0, -12]} scale={2.0} variant={3} />
+
+{/* DENSE PEBBLE AND ROCK SCATTERING */}
+      
+      {/* Forest area pebbles */}
+      <PebbleCluster position={[-5, -0.6, 18]} count={15} spread={4} />
+      <PebbleCluster position={[5, -0.6, 16]} count={12} spread={3.5} />
+      <PebbleCluster position={[3, -0.6, 14]} count={18} spread={4.5} />
+      <PebbleCluster position={[8, -0.6, 13]} count={14} spread={3.8} />
+      
+      {/* Cave entrance transition pebbles */}
+      {/* <PebbleCluster position={[-6, -0.4, 0]} count={25} spread={4} /> */}
+      <PebbleCluster position={[6, -0.5, -1]} count={22} spread={4.2} />
+      <PebbleCluster position={[0, -0.4, -6]} count={30} spread={5} />
+      
+      {/* Cave interior dense pebbles */}
+      {/* <PebbleCluster position={[-4, -0.4, -5]} count={35} spread={3} sizeRange={[0.05, 0.3]} /> */}
+      {/* <PebbleCluster position={[4, -0.4, -4]} count={32} spread={3.2} sizeRange={[0.05, 0.3]} /> */}
+      <PebbleCluster position={[2, -0.4, 10]} count={38} spread={3.8} sizeRange={[0.05, 0.25]} />
+      
+      {/* Path pebbles leading to interactive objects */}
+      <PebbleCluster position={[-2.5, -0.4, 13]} count={15} spread={2} />
+      <PebbleCluster position={[4.5, -0.4, 12]} count={12} spread={1.8} />
+      <PebbleCluster position={[-4, -0.4, -4.5]} count={18} spread={2.2} />
 
       {/* Cave Entrance Structure */}
       <CaveEntrance />
 
       {/* Pine Trees at entrance (forest area) */}
-      <PineTree position={[-8, -0.4, 8]} scale={1.2} />
-      <PineTree position={[8, -0.4, 7]} scale={1.1} />
-      <PineTree position={[-6, -0.4, 10]} scale={1.0} />
-      <PineTree position={[6, -0.4, 9]} scale={1.3} />
-      <PineTree position={[-10, -0.4, 6]} scale={0.9} />
-      <PineTree position={[10, -0.4, 5]} scale={1.1} />
-      <PineTree position={[-4, -0.4, 12]} scale={1.2} />
-      <PineTree position={[4, -0.4, 11]} scale={1.0} />
-      <PineTree position={[0, -0.4, 13]} scale={1.4} />
-      <PineTree position={[-12, -0.4, 8]} scale={1.1} />
-      <PineTree position={[12, -0.4, 7]} scale={1.0} />
+      <PineTree position={[-8, -0.8, 8]} scale={1.2} />
+      <PineTree position={[8, -0.8, 7]} scale={1.1} />
+      <PineTree position={[-6, -0.8, 10]} scale={1.0} />
+      <PineTree position={[6, -0.8, 9]} scale={1.3} />
+      <PineTree position={[-10, -0.8, 6]} scale={0.9} />
+      <PineTree position={[10, -0.8, 5]} scale={1.1} />
+      <PineTree position={[-4, -0.8, 12]} scale={1.2} />
+      <PineTree position={[4, -0.8, 11]} scale={1.0} />
+      <PineTree position={[0, -0.8, 13]} scale={1.4} />
+      <PineTree position={[-12, -0.8, 8]} scale={1.1} />
+      <PineTree position={[12, -0.8, 7]} scale={1.0} />
 
       {/* Interactive Objects (inside cave) */}
       {interactiveObjects.map((obj) => {
@@ -1603,26 +1836,26 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <Stalagmite position={[1, 0, -12]} scale={1.1} />
 
       {/* Rocks inside cave */}
-      <Rock position={[6, 0.3, -4]} scale={1.3} />
-      <Rock position={[-6, 0.2, -6]} scale={1.2} />
-      <Rock position={[4, 0.25, -9]} scale={1.4} />
-      <Rock position={[-4, 0.3, -10]} scale={1.1} />
-      <Rock position={[7, 0.2, -7]} scale={1.5} />
-      <Rock position={[-7, 0.25, -8]} scale={1.3} />
-      <Rock position={[3, 0.2, -11]} scale={1.0} />
-      <Rock position={[-3, 0.3, -12]} scale={1.2} />
+      <Rock position={[6, -0.3, -4]} scale={1.3} />
+      <Rock position={[-6, -0.2, -6]} scale={1.2} />
+      <Rock position={[4, -0.25, -9]} scale={1.4} />
+      <Rock position={[-4, -0.3, -10]} scale={1.1} />
+      <Rock position={[7, -0.2, -7]} scale={1.5} />
+      <Rock position={[-7, -0.25, -8]} scale={1.3} />
+      <Rock position={[3, -0.2, -11]} scale={1.0} />
+      <Rock position={[-3, -0.3, -12]} scale={1.2} />
 
       {/* Rocks at cave entrance/transition */}
-      <Rock position={[-7, 0.3, 2]} scale={1.6} />
-      <Rock position={[7, 0.3, 2]} scale={1.5} />
-      <Rock position={[-8, 0.4, 0]} scale={1.8} />
-      <Rock position={[8, 0.4, 0]} scale={1.7} />
+      <Rock position={[-7, -0.2, 2]} scale={1.6} />
+      <Rock position={[7, -0.2, 2]} scale={1.5} />
+      <Rock position={[-8, -0.3, 0]} scale={1.8} />
+      <Rock position={[8, -0.3, 0]} scale={1.7} />
 
       {/* Rocks in forest area */}
-      <Rock position={[-5, 0.2, 7]} scale={0.8} />
-      <Rock position={[5, 0.2, 6]} scale={0.9} />
-      <Rock position={[-3, 0.2, 9]} scale={0.7} />
-      <Rock position={[3, 0.2, 8]} scale={0.8} />
+      <Rock position={[-5, -0.2, 7]} scale={0.8} />
+      <Rock position={[5, -0.2, 6]} scale={0.9} />
+      <Rock position={[-3, -0.2, 9]} scale={0.7} />
+      <Rock position={[3, -0.2, 8]} scale={0.8} />
 
       {/* Lighting - Bright at entrance, dim inside */}
       <ambientLight intensity={0.07} />
@@ -1681,7 +1914,7 @@ const ControlledOrbitControls = (props) => {
 
 // Main Component
 const CavePage3D = () => {
-  const { name } = useCvData() || {};
+  const { name, description } = useCVData() || {};
   const [selectedObject, setSelectedObject] = useState(null);
 
   const getSelectedObjectData = () => {
@@ -1690,23 +1923,28 @@ const CavePage3D = () => {
     const objectsData = {
       'name-cart': {
         title: 'Who Am I?',
-        content: name || "Explorer of digital caves..."
+        content: name ? (
+          <div>
+            <div className="font-semibold text-orange-300 text-lg mb-2">{name}</div>
+            {description && <div className="text-gray-300">{description}</div>}
+          </div>
+        ) : "Explorer of digital caves..."
       },
       'experience-bat': {
         title: 'Experience',
-        content: "My professional journey through the caves of tech..."
+        content: "Click on the flying bat to see my professional journey..."
       },
       'skills-chest': {
         title: 'Skills',
-        content: "Treasures of knowledge and expertise..."
+        content: "Click on the treasure chest to discover my skills..."
       },
       'education-crystal': {
         title: 'Education',
-        content: "Crystallized knowledge foundation..."
+        content: "Click on the crystal to see my educational background..."
       },
       'about-puddle': {
         title: 'About Me',
-        content: "Reflecting on my journey through technology and innovation..."
+        content: "Click on the water puddle to learn more about me..."
       }
     };
 
@@ -1719,9 +1957,11 @@ const CavePage3D = () => {
     <div className="relative w-full h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-black overflow-hidden">
       {/* Instructions */}
       <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-sm border border-orange-400/30 rounded-lg p-4 max-w-sm shadow-lg">
-        <h3 className="text-orange-400 font-bold mb-2 text-lg">🌲 Welcome to {name}'s Cave Entrance</h3>
+        <h3 className="text-orange-400 font-bold mb-2 text-lg">
+          🌲 Welcome to {name || "Explorer"}'s Cave Entrance
+        </h3>
         <p className="text-white text-sm mb-3">
-          Explore the mystical cave hidden in the forest. Click on glowing objects inside the cave to discover treasures!
+          Explore the mystical cave hidden in the forest. Click on glowing objects inside the cave to discover my professional profile!
         </p>
         <div className="bg-cyan-500/20 rounded p-2 border border-cyan-400/30">
           <p className="text-cyan-300 text-xs font-semibold mb-1">🎮 Controls:</p>
