@@ -615,6 +615,8 @@ const useCameraAnimation = () => {
   const originalPosition = useRef(new THREE.Vector3());
   const originalLookAt = useRef(new THREE.Vector3());
   const animationProgress = useRef(0);
+  const startPosition = useRef(new THREE.Vector3());
+  const startLookAt = useRef(new THREE.Vector3());
 
   // Expose animating state globally for WASD to check
   if (!window.cameraAnimating) {
@@ -623,6 +625,7 @@ const useCameraAnimation = () => {
   const animating = window.cameraAnimating;
 
   const moveTo = (objectPosition, objectType) => {
+    // Store original position only once
     if (originalPosition.current.length() === 0) {
       originalPosition.current.copy(camera.position);
       
@@ -630,6 +633,12 @@ const useCameraAnimation = () => {
       camera.getWorldDirection(direction);
       originalLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
     }
+    
+    // Store current position as start for this animation
+    startPosition.current.copy(camera.position);
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    startLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
     
     const objPos = new THREE.Vector3(...objectPosition);
     let cameraOffset, lookAtOffset;
@@ -665,6 +674,11 @@ const useCameraAnimation = () => {
 
   const reset = () => {
     if (originalPosition.current.length() > 0) {
+      startPosition.current.copy(camera.position);
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      startLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
+      
       targetPosition.current.copy(originalPosition.current);
       targetLookAt.current.copy(originalLookAt.current);
       animating.current = true;
@@ -679,20 +693,20 @@ const useCameraAnimation = () => {
       const t = animationProgress.current;
       const smoothStep = t * t * (3 - 2 * t);
       
-      const currentStart = animationProgress.current === delta * 1.5 ? camera.position.clone() : originalPosition.current;
-      
       const newPosition = new THREE.Vector3();
-      newPosition.lerpVectors(currentStart, targetPosition.current, smoothStep);
+      newPosition.lerpVectors(startPosition.current, targetPosition.current, smoothStep);
       camera.position.copy(newPosition);
       
       const newLookAt = new THREE.Vector3();
-      newLookAt.lerpVectors(originalLookAt.current, targetLookAt.current, smoothStep);
+      newLookAt.lerpVectors(startLookAt.current, targetLookAt.current, smoothStep);
       camera.lookAt(newLookAt);
       
       if (animationProgress.current >= 1) {
         animating.current = false;
+        // Force final position to prevent any drift
         camera.position.copy(targetPosition.current);
         camera.lookAt(targetLookAt.current);
+        camera.updateProjectionMatrix();
       }
     }
   });
