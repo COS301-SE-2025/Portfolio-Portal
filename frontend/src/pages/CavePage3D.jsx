@@ -4,7 +4,7 @@ import { OrbitControls, Environment, Stars } from "@react-three/drei";
 import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
 
-// Mock CV data hook for demonstration
+// Mock CV data hook for now
 const useCvData = () => ({
   name: "John Doe",
   about: "A passionate explorer of digital caves and immersive experiences.",
@@ -132,22 +132,22 @@ const PineTree = ({ position, scale = 1 }) => {
       {/* Pine layers */}
       <mesh position={[0, 2.5, 0]}>
         <coneGeometry args={[1.8, 2, 8]} />
-        <meshStandardMaterial color="#1c681c" />
+        <meshStandardMaterial color="#004526" />
       </mesh>
       
       <mesh position={[0, 3.5, 0]}>
         <coneGeometry args={[1.5, 2, 8]} />
-        <meshStandardMaterial color="#1c681c" />
+        <meshStandardMaterial color="#004526" />
       </mesh>
       
       <mesh position={[0, 4.5, 0]}>
         <coneGeometry args={[1.2, 2, 8]} />
-        <meshStandardMaterial color="#1c681c" />
+        <meshStandardMaterial color="#004526" />
       </mesh>
       
       <mesh position={[0, 5.5, 0]}>
         <coneGeometry args={[0.8, 1.5, 8]} />
-        <meshStandardMaterial color="#1c681c" />
+        <meshStandardMaterial color="#004526" />
       </mesh>
     </group>
   );
@@ -492,35 +492,224 @@ const Rock = ({ position, scale = 1 }) => {
 };
 
 // Cave Entrance Arch
+// // Cave Entrance Arch
+// const CaveEntrance = () => {
+//   return (
+//     <group position={[0, 0, -5]}>
+//       {/* Left wall - irregular shape */}
+//       <mesh position={[-7, 2.5, 0]} rotation={[0, 0, -0.1]}>
+//         <boxGeometry args={[3, 7, 12]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Left wall additional rock formations */}
+//       <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
+//         <boxGeometry args={[2, 4, 3]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
+//         <boxGeometry args={[1.5, 2, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Right wall - irregular shape */}
+//       <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
+//         <boxGeometry args={[3, 7, 12]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Right wall additional rock formations */}
+//       <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
+//         <boxGeometry args={[2, 3.5, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
+//         <boxGeometry args={[2, 1.5, 5]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Top arch - more natural, rocky appearance */}
+//       <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
+//         <boxGeometry args={[3.5, 1.2, 11]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
+//         <boxGeometry args={[3.5, 1.2, 11]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
+//         <boxGeometry args={[3.2, 0.8, 10.5]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+
+//       {/* Additional ceiling rocks */}
+//       <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
+//         <boxGeometry args={[2, 0.6, 3]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
+//         <boxGeometry args={[2.5, 0.7, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Back wall - irregular, rocky surface */}
+//       <mesh position={[0, 3, -6]}>
+//         <boxGeometry args={[16, 9, 1.5]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Back wall rock formations */}
+//       <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
+//         <boxGeometry args={[2, 2, 1]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[4, 2, -5.5]} rotation={[-0.1, -0.15, 0.1]}>
+//         <boxGeometry args={[3, 1.5, 1]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[0, 6.5, -5.5]} rotation={[0.05, 0, 0.05]}>
+//         <boxGeometry args={[4, 1, 1]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[-2, 1, -5.5]} rotation={[-0.1, 0.1, -0.05]}>
+//         <boxGeometry args={[2.5, 1.2, 1]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Floor - rough, uneven surface */}
+//       <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
+//         <boxGeometry args={[14, 1, 12]} />
+//         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Floor rocks */}
+//       <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
+//         <boxGeometry args={[1.5, 0.6, 2]} />
+//         <meshStandardMaterial color="#333333" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
+//         <boxGeometry args={[2, 0.8, 1.5]} />
+//         <meshStandardMaterial color="#333333" roughness={0.9} />
+//       </mesh>
+//     </group>
+//   );
+// };
+// Cave Entrance Arch
 const CaveEntrance = () => {
   return (
     <group position={[0, 0, -5]}>
-      {/* Left wall */}
-      <mesh position={[-8, 3, 0]}>
-        <boxGeometry args={[2, 8, 10]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
+      {/* Left wall - irregular shape */}
+      <mesh position={[-7, 2.5, 0]} rotation={[0, 0, -0.1]}>
+        <boxGeometry args={[3, 7, 12]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
       </mesh>
       
-      {/* Right wall */}
-      <mesh position={[8, 3, 0]}>
-        <boxGeometry args={[2, 8, 10]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
+      {/* Left wall additional rock formations */}
+      <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
+        <boxGeometry args={[2, 4, 3]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
       
-      {/* Top arch pieces */}
-      <mesh position={[-5, 6, 0]} rotation={[0, 0, -0.3]}>
-        <boxGeometry args={[4, 1.5, 10]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
+      <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
+        <boxGeometry args={[1.5, 2, 4]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+
+      {/* Right wall - irregular shape */}
+      <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
+        <boxGeometry args={[3, 7, 12]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
       </mesh>
       
-      <mesh position={[5, 6, 0]} rotation={[0, 0, 0.3]}>
-        <boxGeometry args={[4, 1.5, 10]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
+      {/* Right wall additional rock formations */}
+      <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
+        <boxGeometry args={[2, 3.5, 4]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
       
-      <mesh position={[0, 7.5, 0]}>
-        <boxGeometry args={[4, 1, 10]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
+      <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
+        <boxGeometry args={[2, 1.5, 5]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+
+      {/* Top arch - more natural, rocky appearance */}
+      <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
+        <boxGeometry args={[3.5, 1.2, 11]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
+        <boxGeometry args={[3.5, 1.2, 11]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
+        <boxGeometry args={[3.2, 0.8, 10.5]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+
+      {/* Additional ceiling rocks */}
+      <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
+        <boxGeometry args={[2, 0.6, 3]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
+        <boxGeometry args={[2.5, 0.7, 4]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+
+      {/* Back wall - irregular, rocky surface */}
+      <mesh position={[0, 3, -6]}>
+        <boxGeometry args={[16, 9, 1.5]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+      </mesh>
+      
+      {/* Back wall rock formations */}
+      <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
+        <boxGeometry args={[2, 2, 1]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[4, 2, -5.5]} rotation={[-0.1, -0.15, 0.1]}>
+        <boxGeometry args={[3, 1.5, 1]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[0, 6.5, -5.5]} rotation={[0.05, 0, 0.05]}>
+        <boxGeometry args={[4, 1, 1]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[-2, 1, -5.5]} rotation={[-0.1, 0.1, -0.05]}>
+        <boxGeometry args={[2.5, 1.2, 1]} />
+        <meshStandardMaterial color="#252525" roughness={0.9} />
+      </mesh>
+
+      {/* Floor - rough, uneven surface */}
+      <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
+        <boxGeometry args={[14, 1, 12]} />
+        <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
+      </mesh>
+      
+      {/* Floor rocks */}
+      <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
+        <boxGeometry args={[1.5, 0.6, 2]} />
+        <meshStandardMaterial color="#333333" roughness={0.9} />
+      </mesh>
+      
+      <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
+        <boxGeometry args={[2, 0.8, 1.5]} />
+        <meshStandardMaterial color="#333333" roughness={0.9} />
       </mesh>
     </group>
   );
@@ -666,7 +855,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     {
       id: 'name-cart',
       component: MiningCart,
-      position: [-3, 0, -3],
+      position: [-3, -0.4, -2.5],
       type: 'cart',
       title: 'Who Am I?',
       content: name || "Explorer of digital caves..."
@@ -692,7 +881,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     {
       id: 'skills-chest',
       component: TreasureChest,
-      position: [3, 0, -4],
+      position: [5, -0.4, -2.5],
       type: 'chest',
       title: 'Skills',
       content: skills ? (
@@ -726,7 +915,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     {
       id: 'about-puddle',
       component: WaterPuddle,
-      position: [0, -0.45, -7],
+      position: [0, -0.45, -4],
       type: 'puddle',
       title: 'About Me',
       content: about || "Reflecting on my journey through technology and innovation..."
@@ -764,7 +953,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       {/* Forest floor (entrance area) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 5]}>
         <planeGeometry args={[50, 50]} />
-        <meshStandardMaterial color="#2d5016" />
+        <meshStandardMaterial color="#01411C" />
       </mesh>
 
       {/* Cave floor (inside cave) */}
@@ -783,17 +972,17 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <CaveEntrance />
 
       {/* Pine Trees at entrance (forest area) */}
-      <PineTree position={[-8, 0, 8]} scale={1.2} />
-      <PineTree position={[8, 0, 7]} scale={1.1} />
-      <PineTree position={[-6, 0, 10]} scale={1.0} />
-      <PineTree position={[6, 0, 9]} scale={1.3} />
-      <PineTree position={[-10, 0, 6]} scale={0.9} />
-      <PineTree position={[10, 0, 5]} scale={1.1} />
-      <PineTree position={[-4, 0, 12]} scale={1.2} />
-      <PineTree position={[4, 0, 11]} scale={1.0} />
-      <PineTree position={[0, 0, 13]} scale={1.4} />
-      <PineTree position={[-12, 0, 8]} scale={1.1} />
-      <PineTree position={[12, 0, 7]} scale={1.0} />
+      <PineTree position={[-8, -0.4, 8]} scale={1.2} />
+      <PineTree position={[8, -0.4, 7]} scale={1.1} />
+      <PineTree position={[-6, -0.4, 10]} scale={1.0} />
+      <PineTree position={[6, -0.4, 9]} scale={1.3} />
+      <PineTree position={[-10, -0.4, 6]} scale={0.9} />
+      <PineTree position={[10, -0.4, 5]} scale={1.1} />
+      <PineTree position={[-4, -0.4, 12]} scale={1.2} />
+      <PineTree position={[4, -0.4, 11]} scale={1.0} />
+      <PineTree position={[0, -0.4, 13]} scale={1.4} />
+      <PineTree position={[-12, -0.4, 8]} scale={1.1} />
+      <PineTree position={[12, -0.4, 7]} scale={1.0} />
 
       {/* Interactive Objects (inside cave) */}
       {interactiveObjects.map((obj) => {
@@ -854,7 +1043,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <Rock position={[3, 0.2, 8]} scale={0.8} />
 
       {/* Lighting - Bright at entrance, dim inside */}
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={0.1} />
       
       {/* Directional light simulating sunlight at entrance */}
       <directionalLight 
