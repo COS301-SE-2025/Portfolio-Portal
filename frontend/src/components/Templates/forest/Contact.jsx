@@ -124,10 +124,10 @@ const Contact = () => {
           viewport={{ once: true }}
           className="mt-16 pt-8 border-t border-gray-700 text-center"
         >
-          <p className="text-gray-500 text-sm">
+          <p className="text-white text-sm" style={{ color: 'white' }}>
             3D Model: "Low Poly Forest Campfire [Updated]" by{" "}
             <span className="text-green-400">Minzkraut - Sketchfab.com</span> -{" "}
-            <span className="text-gray-400">Licensed under CC-BY-NC-SA-4.0</span>
+            <span style={{ color: 'white' }}>Licensed under CC-BY-NC-SA-4.0</span>
           </p>
         </motion.div>
       </div>
