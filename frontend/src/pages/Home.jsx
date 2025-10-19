@@ -107,6 +107,21 @@ const Home = () => {
           show={showAbout}
           className={isDark ? 'text-white' : 'text-gray-900'}
         />
+
+        {/* 3D Model Copyright Notices */}
+        <div className="py-8 border-t border-gray-700 text-center space-y-2">
+          <p className="text-gray-400 text-xs">
+            3D Model: "Earth" by{" "}
+            <span className="text-blue-400">PatelDev - Sketchfab.com</span> -{" "}
+            <span className="text-gray-400">Licensed under CC-BY-4.0</span>
+          </p>
+          <p className="text-gray-400 text-xs">
+            3D Model: "Robot Playground" by{" "}
+            <span className="text-blue-400">Hadrien59 - Sketchfab.com</span> -{" "}
+            <span className="text-gray-400">Licensed under CC-BY-4.0</span>
+          </p>
+        </div>
+
         <HelpMenu />
       </div>
     </div>
