@@ -3,7 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const userController = require('../controllers/users.controller');
 const authMiddleware = require('../middleware/auth');
-const errorHandler = require('../middleware/errorHandler'); // Import the centralized error handler
+const errorHandler = require('../middleware/errorHandler'); 
 
 const router = express.Router();
 
@@ -54,6 +54,7 @@ router.delete('/me/profile-picture', userController.deleteProfilePicture);
 // Logout (requires authentication)
 router.post('/logout', userController.logoutUser);
 
+router.delete('/me', userController.deleteUserSimple);
 // Admin or specific user routes (with ID parameter)
 router.get('/:id', userController.getUser);
 
