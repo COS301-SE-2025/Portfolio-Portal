@@ -763,7 +763,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       
       {/* Forest floor (entrance area) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 5]}>
-        <planeGeometry args={[40, 30]} />
+        <planeGeometry args={[50, 50]} />
         <meshStandardMaterial color="#2d5016" />
       </mesh>
 
@@ -774,10 +774,10 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       </mesh>
 
       {/* Cave ceiling */}
-      <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 8, -10]}>
+      {/* <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 8, -40]}>
         <planeGeometry args={[40, 30]} />
         <meshStandardMaterial color="#0d0d0d" roughness={1} />
-      </mesh>
+      </mesh> */}
 
       {/* Cave Entrance Structure */}
       <CaveEntrance />
@@ -817,10 +817,10 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <Torch position={[0, 1, -10]} intensity={2} />
 
       {/* Decorative hanging crystals (inside cave) */}
-      <Crystal position={[3, 7, -5]} hanging={true} />
-      <Crystal position={[-3, 7.2, -7]} hanging={true} />
+      <Crystal position={[3, 6, -5]} hanging={true} />
+      <Crystal position={[-3, 6, -7]} hanging={true} />
       <Crystal position={[1, 6.8, -9]} hanging={true} />
-      <Crystal position={[-1, 7.5, -4]} hanging={true} />
+      <Crystal position={[-1, 6, -4]} hanging={true} />
 
       {/* Ground stalagmites (inside cave) */}
       <Stalagmite position={[4, 0, -6]} scale={0.9} />
