@@ -11,17 +11,18 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 import Social from './pages/Social';
 import ProtectedRoute from './components/ProtectedRoute';
 
-//FOR TESTING
+//TEMPLATES:
 import ForestPage from "./pages/ForestPage";
 import ForestPage3D from "./pages/ForestPage3D";
-import CavePage3D from "./pages/CavePage3D";
-import LabPage from "./pages/LabPage";
 import LabProPage from "./pages/LabProPage";
+import LabPage from "./pages/LabPage";
 import Space from './pages/Space';
 import SpacePage3D from './pages/SpacePage3D';
 import OfficePage from './pages/OfficePage';
 import Office3DPage from './pages/Office3DPage';
 import CavePage from './pages/CavePage';
+import CavePage3D from "./pages/CavePage3D";
+import CavePagev2 from "./pages/CavePagev2";
 
 const HIDDEN_NAVBAR_PATHS = [
   '/',
@@ -36,9 +37,10 @@ const HIDDEN_NAVBAR_PATHS = [
   '/profile',
   '/lab',
   '/labpro',
-  '/cave',
   '/social',
+  '/cave',
   '/cavev2',
+  '/cave3d',
 ];
 
 const HIDDEN_THEME_BUTTON_PATHS = [
@@ -49,10 +51,11 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/forest3d',
   '/space',
   '/space3d',
-  '/lab',
+  '/lab3d',
   '/labpro',
   '/cave',
   '/cavev2',
+  '/cave3d',
 ];
 
 function App() {
@@ -114,7 +117,7 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/lab" element={
+            <Route path="/lab3d" element={
               <ProtectedRoute>
                 <LabPage />
               </ProtectedRoute>
@@ -129,6 +132,12 @@ function App() {
             <Route path="/cave3d" element={
               <ProtectedRoute>
                 <CavePage3D />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/cavev2" element={
+              <ProtectedRoute>
+                <CavePagev2 />
               </ProtectedRoute>
             } />
 
