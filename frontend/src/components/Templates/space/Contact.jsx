@@ -140,12 +140,12 @@ const Contact = () => {
 
           {/* 3D Model Copyright Notices */}
           <div className="mt-16 pt-8 border-t border-gray-700 text-center space-y-2">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs">
               3D Model: "Colorful World by Millionpainter" by{" "}
               <span className="text-blue-400">TheMillionPainter - Sketchfab.com</span> -{" "}
               <span className="text-gray-400">Licensed under CC-BY-4.0</span>
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs">
               3D Model: "Astronaught" by{" "}
               <span className="text-blue-400">WA7KVI - Sketchfab.com</span> -{" "}
               <span className="text-gray-400">Licensed under CC-BY-4.0</span>
