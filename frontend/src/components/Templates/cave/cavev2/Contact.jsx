@@ -116,6 +116,21 @@ const Contact = () => {
             onDeploySuccess={handleDeploySuccess}
           />
         </motion.div>
+
+        {/* 3D Model Copyright Notice */}
+        <motion.div
+          variants={fadeIn("up", "spring", 1.1, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="mt-16 pt-8 border-t border-stone-700 text-center"
+        >
+          <p className="text-stone-400 text-sm">
+            3D Model: "The cave entrance likes a head" by{" "}
+            <span className="text-orange-200">David Glynch - Sketchfab.com</span> -{" "}
+            <span className="text-stone-400">Licensed under CC-BY-4.0</span>
+          </p>
+        </motion.div>
       </div>
     </section>
   );
