@@ -185,10 +185,60 @@ const Torch = ({ position, intensity = 2 }) => {
   );
 };
 
+// // Mining Cart Component
+// const MiningCart = ({ position, onClick, isHighlighted }) => {
+//   const [hovered, setHovered] = useState(false);
+  
+//   const { scale, emissiveIntensity } = useSpring({
+//     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
+//     emissiveIntensity: (isHighlighted || hovered) ? 0.5 : 0,
+//     config: { tension: 300, friction: 10 }
+//   });
+
+//   return (
+//     <animated.group
+//       position={position}
+//       onClick={onClick}
+//       scale={scale}
+//       onPointerOver={() => {
+//         setHovered(true);
+//         document.body.style.cursor = 'pointer';
+//       }}
+//       onPointerOut={() => {
+//         setHovered(false);
+//         document.body.style.cursor = 'auto';
+//       }}
+//     >
+//       <mesh position={[0, 0.5, 0]}>
+//         <boxGeometry args={[1.2, 0.6, 0.8]} />
+//         <animated.meshStandardMaterial 
+//           color={(isHighlighted || hovered) ? "#8b6f47" : "#5c4033"}
+//           emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+//           emissiveIntensity={emissiveIntensity}
+//           metalness={0.3}
+//           roughness={0.7}
+//         />
+//       </mesh>
+      
+//       {[[-0.4, 0.1, 0.5], [0.4, 0.1, 0.5], [-0.4, 0.1, -0.5], [0.4, 0.1, -0.5]].map((pos, i) => (
+//         <mesh key={i} position={pos} rotation={[0, 0, Math.PI / 2]}>
+//           <cylinderGeometry args={[0.15, 0.15, 0.1, 8]} />
+//           <animated.meshStandardMaterial 
+//             color="#2c2c2c"
+//             emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+//             emissiveIntensity={emissiveIntensity}
+//             metalness={0.8}
+//             roughness={0.3}
+//           />
+//         </mesh>
+//       ))}
+//     </animated.group>
+//   );
+// };
 // Mining Cart Component
 const MiningCart = ({ position, onClick, isHighlighted }) => {
   const [hovered, setHovered] = useState(false);
-  
+ 
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
     emissiveIntensity: (isHighlighted || hovered) ? 0.5 : 0,
@@ -209,29 +259,164 @@ const MiningCart = ({ position, onClick, isHighlighted }) => {
         document.body.style.cursor = 'auto';
       }}
     >
-      <mesh position={[0, 0.5, 0]}>
-        <boxGeometry args={[1.2, 0.6, 0.8]} />
-        <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#8b6f47" : "#5c4033"}
+      {/* Cart Bottom */}
+      <mesh position={[0, 0.3, 0]}>
+        <boxGeometry args={[1.0, 0.15, 0.7]} />
+        <animated.meshStandardMaterial
+          color="#3d2817"
           emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
           emissiveIntensity={emissiveIntensity}
-          metalness={0.3}
-          roughness={0.7}
+          metalness={0.2}
+          roughness={0.8}
         />
       </mesh>
-      
-      {[[-0.4, 0.1, 0.5], [0.4, 0.1, 0.5], [-0.4, 0.1, -0.5], [0.4, 0.1, -0.5]].map((pos, i) => (
-        <mesh key={i} position={pos} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.15, 0.15, 0.1, 8]} />
-          <animated.meshStandardMaterial 
-            color="#2c2c2c"
+
+      {/* Cart Front Side (angled) */}
+      <mesh position={[0.45, 0.5, 0]} rotation={[0, 0, -0.4]}>
+        <boxGeometry args={[0.25, 0.4, 0.7]} />
+        <animated.meshStandardMaterial
+          color="#5c4033"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.2}
+          roughness={0.8}
+        />
+      </mesh>
+
+      {/* Cart Back Side (angled) */}
+      <mesh position={[-0.45, 0.5, 0]} rotation={[0, 0, 0.4]}>
+        <boxGeometry args={[0.25, 0.4, 0.7]} />
+        <animated.meshStandardMaterial
+          color="#5c4033"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.2}
+          roughness={0.8}
+        />
+      </mesh>
+
+      {/* Cart Left Side */}
+      <mesh position={[0, 0.5, 0.32]} rotation={[0.3, 0, 0]}>
+        <boxGeometry args={[0.9, 0.4, 0.1]} />
+        <animated.meshStandardMaterial
+          color="#5c4033"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.2}
+          roughness={0.8}
+        />
+      </mesh>
+
+      {/* Cart Right Side */}
+      <mesh position={[0, 0.5, -0.32]} rotation={[-0.3, 0, 0]}>
+        <boxGeometry args={[0.9, 0.4, 0.1]} />
+        <animated.meshStandardMaterial
+          color="#5c4033"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.2}
+          roughness={0.8}
+        />
+      </mesh>
+
+      {/* Metal Frame - Top Rim */}
+      <mesh position={[0, 0.68, 0]}>
+        <boxGeometry args={[1.1, 0.05, 0.75]} />
+        <animated.meshStandardMaterial
+          color="#4a4a4a"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
+
+      {/* Metal Reinforcement Bands */}
+      {[-0.3, 0, 0.3].map((x, i) => (
+        <mesh key={`band-${i}`} position={[x, 0.5, 0]}>
+          <boxGeometry args={[0.08, 0.5, 0.8]} />
+          <animated.meshStandardMaterial
+            color="#3a3a3a"
             emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
             emissiveIntensity={emissiveIntensity}
-            metalness={0.8}
+            metalness={0.9}
             roughness={0.3}
           />
         </mesh>
       ))}
+
+      {/* Wheels with spokes */}
+      {[[-0.4, 0.15, 0.5], [0.4, 0.15, 0.5], [-0.4, 0.15, -0.5], [0.4, 0.15, -0.5]].map((pos, i) => (
+        <group key={i} position={pos}>
+          {/* Wheel outer rim */}
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.18, 0.18, 0.12, 16]} />
+            <animated.meshStandardMaterial
+              color="#2c2c2c"
+              emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+              emissiveIntensity={emissiveIntensity}
+              metalness={0.8}
+              roughness={0.3}
+            />
+          </mesh>
+          
+          {/* Wheel hub */}
+          <mesh rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.08, 0.08, 0.14, 8]} />
+            <animated.meshStandardMaterial
+              color="#1a1a1a"
+              emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+              emissiveIntensity={emissiveIntensity}
+              metalness={0.9}
+              roughness={0.2}
+            />
+          </mesh>
+
+          {/* Wheel spokes */}
+          {[0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4].map((angle, j) => (
+            <mesh
+              key={`spoke-${j}`}
+              position={[
+                Math.cos(angle) * 0.05,
+                Math.sin(angle) * 0.05,
+                0
+              ]}
+              rotation={[0, angle, Math.PI / 2]}
+            >
+              <boxGeometry args={[0.03, 0.16, 0.03]} />
+              <animated.meshStandardMaterial
+                color="#3a3a3a"
+                emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+                emissiveIntensity={emissiveIntensity}
+                metalness={0.8}
+                roughness={0.3}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* Axles */}
+      <mesh position={[-0.4, 0.15, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.04, 0.04, 1.1, 8]} />
+        <animated.meshStandardMaterial
+          color="#2c2c2c"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
+      <mesh position={[0.4, 0.15, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.04, 0.04, 1.1, 8]} />
+        <animated.meshStandardMaterial
+          color="#2c2c2c"
+          emissive={(isHighlighted || hovered) ? "#ff8800" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
     </animated.group>
   );
 };
@@ -239,20 +424,40 @@ const MiningCart = ({ position, onClick, isHighlighted }) => {
 // Bat Component
 const Bat = ({ position, onClick, isHighlighted }) => {
   const meshRef = useRef();
+  const leftWingRef = useRef();
+  const rightWingRef = useRef();
   const [hovered, setHovered] = useState(false);
-  
+
+  // Animation for flapping and hovering
   useFrame((state) => {
+    const t = state.clock.elapsedTime;
     if (meshRef.current) {
-      meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2) * 0.2;
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 3) * 0.1;
+      meshRef.current.position.y = position[1] + Math.sin(t * 3) * 0.1;
+      meshRef.current.rotation.z = Math.sin(t * 2) * 0.15;
+    }
+    const flap = Math.sin(t * 7) * 0.45;
+    if (leftWingRef.current && rightWingRef.current) {
+      leftWingRef.current.rotation.z = Math.PI / 3 + flap;
+      rightWingRef.current.rotation.z = -Math.PI / 3 - flap;
     }
   });
 
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.3 : hovered ? 1.15 : 1,
-    emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0,
+    emissiveIntensity: (isHighlighted || hovered) ? 0.4 : 0.05,
     config: { tension: 300, friction: 10 }
   });
+
+  // Create curved wing geometry
+  const createWingShape = () => {
+    const shape = new THREE.Shape();
+    shape.moveTo(0, 0);
+    shape.quadraticCurveTo(0.25, 0.4, 0.6, 0);
+    shape.quadraticCurveTo(0.3, -0.25, 0, 0);
+    return shape;
+  };
+
+  const wingGeometry = new THREE.ShapeGeometry(createWingShape());
 
   return (
     <animated.group
@@ -269,42 +474,145 @@ const Bat = ({ position, onClick, isHighlighted }) => {
         document.body.style.cursor = 'auto';
       }}
     >
+      {/* Body */}
       <mesh>
-        <sphereGeometry args={[0.2, 8, 8]} />
+        <sphereGeometry args={[0.22, 16, 16]} />
         <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#4a4a4a" : "#1a1a1a"}
-          emissive={(isHighlighted || hovered) ? "#ff00ff" : "#000000"}
+          color={(isHighlighted || hovered) ? "#3a3a3a" : "#1a1a1a"}
+          emissive={(isHighlighted || hovered) ? "#6600ff" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          roughness={0.5}
+          metalness={0.25}
+        />
+      </mesh>
+
+      {/* Head */}
+      <mesh position={[0, 0.18, 0.05]}>
+        <sphereGeometry args={[0.12, 16, 16]} />
+        <animated.meshStandardMaterial 
+          color="#1a1a1a"
+          emissive={(isHighlighted || hovered) ? "#6600ff" : "#000000"}
           emissiveIntensity={emissiveIntensity}
         />
       </mesh>
-      
-      <mesh position={[-0.3, 0, 0]} rotation={[0, 0, Math.PI / 4]}>
-        <boxGeometry args={[0.4, 0.02, 0.6]} />
+
+      {/* Eyes */}
+      <mesh position={[0.05, 0.22, 0.12]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshStandardMaterial emissive="#ff0044" emissiveIntensity={1.2} />
+      </mesh>
+      <mesh position={[-0.05, 0.22, 0.12]}>
+        <sphereGeometry args={[0.025, 8, 8]} />
+        <meshStandardMaterial emissive="#ff0044" emissiveIntensity={1.2} />
+      </mesh>
+
+      {/* Left Wing */}
+      <mesh
+        ref={leftWingRef}
+        position={[-0.25, 0.05, 0]}
+        rotation={[0, 0, Math.PI / 3]}
+        geometry={wingGeometry}
+      >
         <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#4a4a4a" : "#1a1a1a"}
-          emissive={(isHighlighted || hovered) ? "#ff00ff" : "#000000"}
+          color="#111"
+          transparent
+          opacity={0.8}
+          emissive={(isHighlighted || hovered) ? "#5500ff" : "#000000"}
           emissiveIntensity={emissiveIntensity}
+          side={THREE.DoubleSide}
+          roughness={0.4}
         />
       </mesh>
-      <mesh position={[0.3, 0, 0]} rotation={[0, 0, -Math.PI / 4]}>
-        <boxGeometry args={[0.4, 0.02, 0.6]} />
+
+      {/* Right Wing */}
+      <mesh
+        ref={rightWingRef}
+        position={[0.25, 0.05, 0]}
+        rotation={[0, 0, -Math.PI / 3]}
+        geometry={wingGeometry}
+      >
         <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#4a4a4a" : "#1a1a1a"}
-          emissive={(isHighlighted || hovered) ? "#ff00ff" : "#000000"}
+          color="#111"
+          transparent
+          opacity={0.8}
+          emissive={(isHighlighted || hovered) ? "#5500ff" : "#000000"}
           emissiveIntensity={emissiveIntensity}
+          side={THREE.DoubleSide}
+          roughness={0.4}
         />
       </mesh>
     </animated.group>
   );
 };
 
+
+// // Treasure Chest Component
+// const TreasureChest = ({ position, onClick, isHighlighted }) => {
+//   const [hovered, setHovered] = useState(false);
+  
+//   const { scale, emissiveIntensity } = useSpring({
+//     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
+//     emissiveIntensity: (isHighlighted || hovered) ? 0.6 : 0,
+//     config: { tension: 300, friction: 10 }
+//   });
+
+//   return (
+//     <animated.group
+//       position={position}
+//       onClick={onClick}
+//       scale={scale}
+//       onPointerOver={() => {
+//         setHovered(true);
+//         document.body.style.cursor = 'pointer';
+//       }}
+//       onPointerOut={() => {
+//         setHovered(false);
+//         document.body.style.cursor = 'auto';
+//       }}
+//     >
+//       <mesh position={[0, 0.3, 0]}>
+//         <boxGeometry args={[1, 0.6, 0.7]} />
+//         <animated.meshStandardMaterial 
+//           color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
+//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
+//           emissiveIntensity={emissiveIntensity}
+//           metalness={0.2}
+//           roughness={0.8}
+//         />
+//       </mesh>
+      
+//       <mesh position={[0, 0.7, 0]}>
+//         <boxGeometry args={[1, 0.2, 0.7]} />
+//         <animated.meshStandardMaterial 
+//           color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
+//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
+//           emissiveIntensity={emissiveIntensity}
+//           metalness={0.2}
+//           roughness={0.8}
+//         />
+//       </mesh>
+      
+//       <mesh position={[0, 0.3, 0.36]}>
+//         <boxGeometry args={[0.2, 0.3, 0.05]} />
+//         <animated.meshStandardMaterial 
+//           color="#ffd700"
+//           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
+//           emissiveIntensity={emissiveIntensity}
+//           metalness={0.9}
+//           roughness={0.1}
+//         />
+//       </mesh>
+//     </animated.group>
+//   );
+// };
+
 // Treasure Chest Component
 const TreasureChest = ({ position, onClick, isHighlighted }) => {
   const [hovered, setHovered] = useState(false);
-  
+
   const { scale, emissiveIntensity } = useSpring({
     scale: isHighlighted ? 1.2 : hovered ? 1.1 : 1,
-    emissiveIntensity: (isHighlighted || hovered) ? 0.6 : 0,
+    emissiveIntensity: (isHighlighted || hovered) ? 0.8 : 0,
     config: { tension: 300, friction: 10 }
   });
 
@@ -322,41 +630,68 @@ const TreasureChest = ({ position, onClick, isHighlighted }) => {
         document.body.style.cursor = 'auto';
       }}
     >
-      <mesh position={[0, 0.3, 0]}>
-        <boxGeometry args={[1, 0.6, 0.7]} />
+      {/* Chest Base */}
+      <mesh position={[0, 0.25, 0]}>
+        <boxGeometry args={[1, 0.5, 0.7]} />
         <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
+          color={(isHighlighted || hovered) ? "#a67c52" : "#805c36"}
           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
           emissiveIntensity={emissiveIntensity}
           metalness={0.2}
-          roughness={0.8}
+          roughness={0.7}
         />
       </mesh>
-      
-      <mesh position={[0, 0.7, 0]}>
-        <boxGeometry args={[1, 0.2, 0.7]} />
-        <animated.meshStandardMaterial 
-          color={(isHighlighted || hovered) ? "#8b6f47" : "#654321"}
+
+      {/* Rounded Lid */}
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.5, 0.5, 0.4, 16, 1, true]} rotation={[Math.PI / 2, 0, 0]} />
+        <animated.meshStandardMaterial
+          color={(isHighlighted || hovered) ? "#a67c52" : "#805c36"}
           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
           emissiveIntensity={emissiveIntensity}
           metalness={0.2}
-          roughness={0.8}
+          roughness={0.6}
+          side={THREE.DoubleSide}
         />
       </mesh>
-      
-      <mesh position={[0, 0.3, 0.36]}>
-        <boxGeometry args={[0.2, 0.3, 0.05]} />
-        <animated.meshStandardMaterial 
-          color="#ffd700"
+
+      {/* Metal Bands */}
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.52, 0.52, 0.05, 16]} rotation={[Math.PI / 2, 0, 0]} />
+        <animated.meshStandardMaterial
+          color="#d4af37"
           emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
           emissiveIntensity={emissiveIntensity}
           metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
+      <mesh position={[0, 0.6, 0.2]}>
+        <cylinderGeometry args={[0.52, 0.52, 0.05, 16]} rotation={[Math.PI / 2, 0, 0]} />
+        <animated.meshStandardMaterial
+          color="#d4af37"
+          emissive={(isHighlighted || hovered) ? "#ffd700" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={0.9}
+          roughness={0.2}
+        />
+      </mesh>
+
+      {/* Lock */}
+      <mesh position={[0, 0.55, 0.36]}>
+        <boxGeometry args={[0.15, 0.2, 0.05]} />
+        <animated.meshStandardMaterial
+          color="#ffd700"
+          emissive={(isHighlighted || hovered) ? "#ffff00" : "#000000"}
+          emissiveIntensity={emissiveIntensity}
+          metalness={1}
           roughness={0.1}
         />
       </mesh>
     </animated.group>
   );
 };
+
 
 // Crystal Component
 const Crystal = ({ position, onClick, isHighlighted, hanging = false }) => {
@@ -557,11 +892,11 @@ const Rock = ({ position, scale = 1 }) => {
 //         <meshStandardMaterial color="#252525" roughness={0.9} />
 //       </mesh>
 
-//       {/* Back wall - irregular, rocky surface */}
-//       <mesh position={[0, 3, -6]}>
-//         <boxGeometry args={[16, 9, 1.5]} />
-//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
-//       </mesh>
+      // {/* Back wall - irregular, rocky surface */}
+      // <mesh position={[0, 3, -6]}>
+      //   <boxGeometry args={[16, 9, 1.5]} />
+      //   <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+      // </mesh>
       
 //       {/* Back wall rock formations */}
 //       <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
@@ -603,6 +938,119 @@ const Rock = ({ position, scale = 1 }) => {
 //     </group>
 //   );
 // };
+
+// // Cave Entrance Arch
+// const CaveEntrance = () => {
+//   return (
+//     <group position={[0, 0, -5]}>
+//       {/* Left wall - irregular shape */}
+//       <mesh position={[-7, 2.5, 0]} rotation={[0, 0, -0.1]}>
+//         <boxGeometry args={[3, 7, 12]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Left wall additional rock formations */}
+//       <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
+//         <boxGeometry args={[2, 4, 3]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
+//         <boxGeometry args={[1.5, 2, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Right wall - irregular shape */}
+//       <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
+//         <boxGeometry args={[3, 7, 12]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Right wall additional rock formations */}
+//       <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
+//         <boxGeometry args={[2, 3.5, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
+//         <boxGeometry args={[2, 1.5, 5]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Top arch - more natural, rocky appearance */}
+//       <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
+//         <boxGeometry args={[3.5, 1.2, 11]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
+//         <boxGeometry args={[3.5, 1.2, 11]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
+//         <boxGeometry args={[3.2, 0.8, 10.5]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+//       </mesh>
+
+//       {/* Additional ceiling rocks */}
+//       <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
+//         <boxGeometry args={[2, 0.6, 3]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
+//         <boxGeometry args={[2.5, 0.7, 4]} />
+//         <meshStandardMaterial color="#252525" roughness={0.9} />
+//       </mesh>
+
+//       {/* Back wall - irregular, rocky surface */}
+//       <mesh position={[0, 3, -6]}>
+//         <boxGeometry args={[16, 9, 1.5]} />
+//         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
+//       </mesh>
+      
+      // {/* Back wall rock formations */}
+      // <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
+      //   <boxGeometry args={[2, 2, 1]} />
+      //   <meshStandardMaterial color="#252525" roughness={0.9} />
+      // </mesh>
+      
+      // <mesh position={[4, 2, -5.5]} rotation={[-0.1, -0.15, 0.1]}>
+      //   <boxGeometry args={[3, 1.5, 1]} />
+      //   <meshStandardMaterial color="#252525" roughness={0.9} />
+      // </mesh>
+      
+      // <mesh position={[0, 6.5, -5.5]} rotation={[0.05, 0, 0.05]}>
+      //   <boxGeometry args={[4, 1, 1]} />
+      //   <meshStandardMaterial color="#252525" roughness={0.9} />
+      // </mesh>
+      
+      // <mesh position={[-2, 1, -5.5]} rotation={[-0.1, 0.1, -0.05]}>
+      //   <boxGeometry args={[2.5, 1.2, 1]} />
+      //   <meshStandardMaterial color="#252525" roughness={0.9} />
+      // </mesh>
+
+//       {/* Floor - rough, uneven surface */}
+//       <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
+//         <boxGeometry args={[14, 1, 12]} />
+//         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
+//       </mesh>
+      
+//       {/* Floor rocks */}
+//       <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
+//         <boxGeometry args={[1.5, 0.6, 2]} />
+//         <meshStandardMaterial color="#333333" roughness={0.9} />
+//       </mesh>
+      
+//       <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
+//         <boxGeometry args={[2, 0.8, 1.5]} />
+//         <meshStandardMaterial color="#333333" roughness={0.9} />
+//       </mesh>
+//     </group>
+//   );
+// };
+
 // Cave Entrance Arch
 const CaveEntrance = () => {
   return (
@@ -612,69 +1060,66 @@ const CaveEntrance = () => {
         <boxGeometry args={[3, 7, 12]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
       </mesh>
-      
-      {/* Left wall additional rock formations */}
+
       <mesh position={[-8.5, 1, -2]} rotation={[0.2, 0.3, -0.2]}>
         <boxGeometry args={[2, 4, 3]} />
         <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
-      
+
       <mesh position={[-6.5, 5, 3]} rotation={[-0.1, -0.2, 0.1]}>
         <boxGeometry args={[1.5, 2, 4]} />
         <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
 
-      {/* Right wall - irregular shape */}
+      {/* Right wall */}
       <mesh position={[7, 2.5, 0]} rotation={[0, 0, 0.1]}>
         <boxGeometry args={[3, 7, 12]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
       </mesh>
-      
-      {/* Right wall additional rock formations */}
+
       <mesh position={[8.5, 1.5, -1]} rotation={[0.1, -0.3, 0.15]}>
         <boxGeometry args={[2, 3.5, 4]} />
         <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
-      
+
       <mesh position={[6, 6, 2]} rotation={[-0.15, 0.1, -0.1]}>
         <boxGeometry args={[2, 1.5, 5]} />
         <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
 
-      {/* Top arch - more natural, rocky appearance */}
-      <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.4]}>
+      {/* Top arch - more natural */}
+      <mesh position={[-4.5, 6.2, 0]} rotation={[0, 0, -0.2]}>
         <boxGeometry args={[3.5, 1.2, 11]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-      </mesh>
-      
-      <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.4]}>
-        <boxGeometry args={[3.5, 1.2, 11]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-      </mesh>
-      
-      <mesh position={[0, 7.8, 0]} rotation={[0.1, 0, 0]}>
-        <boxGeometry args={[3.2, 0.8, 10.5]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
       </mesh>
 
-      {/* Additional ceiling rocks */}
-      <mesh position={[-2, 7, 2]} rotation={[0.2, 0.1, -0.3]}>
-        <boxGeometry args={[2, 0.6, 3]} />
-        <meshStandardMaterial color="#252525" roughness={0.9} />
+      <mesh position={[4.5, 6.2, 0]} rotation={[0, 0, 0.2]}>
+        <boxGeometry args={[3.5, 1.2, 11]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
       </mesh>
-      
-      <mesh position={[1.5, 6.8, -3]} rotation={[0.15, -0.1, 0.2]}>
-        <boxGeometry args={[2.5, 0.7, 4]} />
-        <meshStandardMaterial color="#252525" roughness={0.9} />
+
+      <mesh position={[0, 6.8, 0]} rotation={[0.1, 0, 0]}>
+        <boxGeometry args={[7.2, 0.8, 10.5]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
       </mesh>
+
+      {/* Ceiling round rocks */}
+      {[
+        [-3.5, 7.5, -2], [-2, 8, 1], [0, 8.2, 0],
+        [2, 7.8, -1], [3.5, 7.4, 2]
+      ].map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <sphereGeometry args={[0.5 + Math.random() * 0.2, 8, 8]} />
+          <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
+        </mesh>
+      ))}
 
       {/* Back wall - irregular, rocky surface */}
       <mesh position={[0, 3, -6]}>
         <boxGeometry args={[16, 9, 1.5]} />
         <meshStandardMaterial color="#1a1a1a" roughness={0.95} />
       </mesh>
-      
-      {/* Back wall rock formations */}
+            {/* Back wall rock formations */}
       <mesh position={[-5, 5, -5.5]} rotation={[0.1, 0.2, -0.1]}>
         <boxGeometry args={[2, 2, 1]} />
         <meshStandardMaterial color="#252525" roughness={0.9} />
@@ -695,18 +1140,17 @@ const CaveEntrance = () => {
         <meshStandardMaterial color="#252525" roughness={0.9} />
       </mesh>
 
-      {/* Floor - rough, uneven surface */}
+      {/* Floor and back wall rocks */}
       <mesh position={[0, -1.5, 0]} rotation={[-0.1, 0, 0]}>
         <boxGeometry args={[14, 1, 12]} />
         <meshStandardMaterial color="#2a2a2a" roughness={0.95} />
       </mesh>
-      
-      {/* Floor rocks */}
+
       <mesh position={[-3, -1, 2]} rotation={[0.2, -0.1, 0.1]}>
         <boxGeometry args={[1.5, 0.6, 2]} />
         <meshStandardMaterial color="#333333" roughness={0.9} />
       </mesh>
-      
+
       <mesh position={[4, -1.2, -1]} rotation={[-0.1, 0.2, -0.15]}>
         <boxGeometry args={[2, 0.8, 1.5]} />
         <meshStandardMaterial color="#333333" roughness={0.9} />
@@ -714,6 +1158,7 @@ const CaveEntrance = () => {
     </group>
   );
 };
+
 
 // Info Panel
 const InfoPanel = ({ title, content, onClose, isVisible }) => {
@@ -863,7 +1308,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     {
       id: 'experience-bat',
       component: Bat,
-      position: [2, 5, -6],
+      position: [2, 4.5, -5],
       type: 'bat',
       title: 'Experience',
       content: experience ? (
@@ -881,7 +1326,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     {
       id: 'skills-chest',
       component: TreasureChest,
-      position: [5, -0.4, -2.5],
+      position: [5, -0.45, -1.5],
       type: 'chest',
       title: 'Skills',
       content: skills ? (
@@ -1006,10 +1451,10 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <Torch position={[0, 1, -10]} intensity={2} />
 
       {/* Decorative hanging crystals (inside cave) */}
-      <Crystal position={[3, 6, -5]} hanging={true} />
-      <Crystal position={[-3, 6, -7]} hanging={true} />
-      <Crystal position={[1, 6.8, -9]} hanging={true} />
-      <Crystal position={[-1, 6, -4]} hanging={true} />
+      <Crystal position={[3, 5.8, -5]} hanging={true} />
+      <Crystal position={[-3, 5.8, -7]} hanging={true} />
+      <Crystal position={[1, 6, -9]} hanging={true} />
+      <Crystal position={[-1, 5.8, -4]} hanging={true} />
 
       {/* Ground stalagmites (inside cave) */}
       <Stalagmite position={[4, 0, -6]} scale={0.9} />
@@ -1043,7 +1488,7 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
       <Rock position={[3, 0.2, 8]} scale={0.8} />
 
       {/* Lighting - Bright at entrance, dim inside */}
-      <ambientLight intensity={0.1} />
+      <ambientLight intensity={0.07} />
       
       {/* Directional light simulating sunlight at entrance */}
       <directionalLight 
