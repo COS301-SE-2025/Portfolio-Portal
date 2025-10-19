@@ -64,7 +64,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 // Profile Edit Form Component
-const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
+const ProfileEditForm = ({ profile, onUpdate, onClose, onOpenDeleteModal }) => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     name: profile.name || "",
@@ -241,6 +241,29 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
             </>
           )}
         </button>
+      </div>
+      {/* Danger Zone */}
+      <div className="mt-8 pt-6 border-t border-gray-700">
+        <div className="text-center">
+          <h3 className={`text-lg font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+            Danger Zone
+          </h3>
+          <p className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            Once you delete your account, there is no going back. Please be certain.
+          </p>
+          <button
+            type="button"
+            onClick={onOpenDeleteModal}
+            className={`inline-flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              isDark
+                ? "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800"
+                : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+            }`}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Delete Account
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -683,7 +706,7 @@ const handleDeleteAccount = async () => {
     Edit Profile
   </button>
   
-  <button
+  {/* <button
     onClick={() => setIsDeleteModalOpen(true)}
     className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
       isDark
@@ -693,7 +716,7 @@ const handleDeleteAccount = async () => {
   >
     <X className="w-5 h-5 mr-2" />
     Delete Account
-  </button>
+  </button> */}
 </div>
                   </div>
                 </div>
@@ -943,15 +966,19 @@ const handleDeleteAccount = async () => {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <ProfileEditForm
-          profile={profile}
-          onUpdate={(updatedProfile) => {
-            setProfile(updatedProfile);
-            setIsModalOpen(false);
-          }}
-          onClose={() => setIsModalOpen(false)}
-        />
-    </Modal>
+  <ProfileEditForm
+    profile={profile}
+    onUpdate={(updatedProfile) => {
+      setProfile(updatedProfile);
+      setIsModalOpen(false);
+    }}
+    onClose={() => setIsModalOpen(false)}
+    onOpenDeleteModal={() => {
+      setIsModalOpen(false);
+      setIsDeleteModalOpen(true);
+    }}
+  />
+</Modal>
 
       {/* Delete Error Alert */}
       {deleteError && (
