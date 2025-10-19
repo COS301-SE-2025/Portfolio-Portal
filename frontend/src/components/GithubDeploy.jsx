@@ -316,27 +316,33 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
 
   const currentTheme = themes[template] || themes.default;
 
-  useEffect(() => {
-    checkAuthStatus();
-    if (userData?.name) {
-      setRepositoryName(userData.name.toLowerCase().replace(/\s+/g, '-') + '-portfolio');
-    }
-  }, [userData]);
-
+  // Handle OAuth callback and initial auth check - RUNS ONCE ON MOUNT
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const authSuccess = urlParams.get('github_auth');
     const err = urlParams.get('error');
 
     if (authSuccess === 'success') {
-      checkAuthStatus();
+      // Clean URL first to prevent re-triggering
       window.history.replaceState({}, document.title, window.location.pathname);
+      // Then check auth status
+      checkAuthStatus();
     } else if (err) {
       setError(`Authentication failed: ${err}`);
-
       window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      // No OAuth callback, just check normal auth status
+      checkAuthStatus();
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
+
+  // Set repository name when userData changes
+  useEffect(() => {
+    if (userData?.name) {
+      setRepositoryName(userData.name.toLowerCase().replace(/\s+/g, '-') + '-portfolio');
+    }
+  }, [userData]);
 
   const checkAuthStatus = async () => {
     try {
@@ -344,9 +350,14 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
       setIsAuthenticated(userInfo.authenticated);
       setGithubUser(userInfo.user);
       setError(null);
-    } catch {
+    } catch (error) {
       setIsAuthenticated(false);
       setGithubUser(null);
+      // Only show error if it's not a simple "not authenticated" case
+      if (error.message !== 'Not authenticated with GitHub') {
+        console.error('Auth check failed:', error);
+        setError(error.message);
+      }
     }
   };
 
@@ -356,6 +367,8 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
       setError(null);
       const currentUrl = window.location.origin + window.location.pathname;
       const authData = await githubService.initiateAuth(template, currentUrl);
+      
+      // Full page redirect to GitHub OAuth
       window.location.href = authData.authUrl;
     } catch (error) {
       setError(error.message);
@@ -403,7 +416,7 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
 
   if (deploymentResult && deploymentResult.success) {
     return (
-      <div className={`${currentTheme.successContainerBg} ${currentTheme.successContainerBorder} rounded-lg p-6 ${currentTheme.backdropBlur}`}>
+      <div className={`${currentTheme.successContainerBg} ${currentTheme.successContainerBorder} border rounded-lg p-6 ${currentTheme.backdropBlur}`}>
         <div className="flex items-start space-x-3">
           <CheckCircle className={`w-6 h-6 ${currentTheme.successIcon} mt-0.5`} />
           <div className="flex-1">
@@ -424,24 +437,28 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
                 </a>
               </div>
             </div>
-            <div className={`${currentTheme.successNoteBg} ${currentTheme.successNoteBorder} rounded p-3 mb-4`}>
+            <div className={`${currentTheme.successNoteBg} ${currentTheme.successNoteBorder} border rounded p-3 mb-4`}>
               <p className={`text-sm ${currentTheme.successNoteText}`}>May take a few minutes to go live.</p>
             </div>
             {deploymentResult.manualWorkflowInstructions && (
-              <div className={`${currentTheme.manualBg} ${currentTheme.manualBorder} rounded-lg p-4 mb-4`}>
+              <div className={`${currentTheme.manualBg} ${currentTheme.manualBorder} border rounded-lg p-4 mb-4`}>
                 <div className="flex items-start space-x-2">
                   <Info className={`w-5 h-5 ${currentTheme.manualIcon} mt-0.5`} />
                   <div className="flex-1">
                     <h4 className={`font-medium ${currentTheme.manualHeader} mb-2`}>Additional Setup</h4>
                     <p className={`text-sm ${currentTheme.manualText} mb-3`}>{deploymentResult.manualWorkflowInstructions.message}</p>
                     <ol className={`text-sm ${currentTheme.manualText} space-y-1 list-decimal list-inside mb-3`}>
-                      {deploymentResult.manualWorkflowInstructions.steps.map((step, index) => <li key={index}>{step}</li>)}
+                      {deploymentResult.manualWorkflowInstructions.steps.map((step, index) => (
+                        <li key={index}>{step}</li>
+                      ))}
                     </ol>
-                    <div className={`${currentTheme.manualCodeBg} ${currentTheme.manualCodeBorder} rounded p-3`}>
-
+                    <div className={`${currentTheme.manualCodeBg} ${currentTheme.manualCodeBorder} border rounded p-3`}>
                       <div className="flex items-center justify-between mb-2">
                         <h5 className={`font-medium ${currentTheme.manualCodeText} text-sm`}>YAML:</h5>
-                        <button onClick={() => copyToClipboard(deploymentResult.manualWorkflowInstructions.workflowContent)} className={`flex items-center space-x-1 text-xs ${currentTheme.manualCopy}`}>
+                        <button 
+                          onClick={() => copyToClipboard(deploymentResult.manualWorkflowInstructions.workflowContent)} 
+                          className={`flex items-center space-x-1 text-xs ${currentTheme.manualCopy}`}
+                        >
                           <Copy className="w-3 h-3" />
                           <span>Copy</span>
                         </button>
@@ -455,10 +472,16 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
               </div>
             )}
             <div className="flex space-x-3">
-              <button onClick={() => setDeploymentResult(null)} className={`${currentTheme.successButtonBg} ${currentTheme.successButtonText} px-4 py-2 rounded-lg transition-colors duration-300`}>
+              <button 
+                onClick={() => setDeploymentResult(null)} 
+                className={`${currentTheme.successButtonBg} ${currentTheme.successButtonText} px-4 py-2 rounded-lg transition-colors duration-300`}
+              >
                 Deploy Another
               </button>
-              <button onClick={handleDisconnect} className={`${currentTheme.disconnectButtonBg} ${currentTheme.disconnectButtonText} px-4 py-2 rounded-lg transition-colors duration-300`}>
+              <button 
+                onClick={handleDisconnect} 
+                className={`${currentTheme.disconnectButtonBg} ${currentTheme.disconnectButtonText} px-4 py-2 rounded-lg transition-colors duration-300`}
+              >
                 Disconnect
               </button>
             </div>
@@ -469,56 +492,83 @@ const GitHubDeploy = ({ userData, template, onDeploySuccess }) => {
   }
 
   return (
-    <div className={`${currentTheme.containerBg} ${currentTheme.containerBorder} rounded-lg p-6 ${currentTheme.backdropBlur}`}>
+    <div className={`${currentTheme.containerBg} ${currentTheme.containerBorder} border rounded-lg p-6 ${currentTheme.backdropBlur}`}>
       <div className="flex items-center space-x-3 mb-4">
         <Github className={`w-8 h-8 ${currentTheme.headerText}`} />
         <div>
           <h3 className={`text-xl font-semibold ${currentTheme.headerText}`}>Deploy to GitHub Pages</h3>
         </div>
       </div>
+      
       {error && (
-        <div className={`${currentTheme.errorBg} ${currentTheme.errorBorder} rounded-lg p-4 mb-4`}>
+        <div className={`${currentTheme.errorBg} ${currentTheme.errorBorder} border rounded-lg p-4 mb-4`}>
           <div className="flex items-start space-x-2">
             <AlertCircle className={`w-5 h-5 ${currentTheme.errorIcon} mt-0.5`} />
             <p className={`text-sm ${currentTheme.errorText}`}>{error}</p>
           </div>
         </div>
       )}
+      
       {!isAuthenticated ? (
         <button
           onClick={handleAuthenticate}
           disabled={isAuthenticating}
           className={`${currentTheme.buttonBg} ${currentTheme.buttonText} w-full px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300 disabled:opacity-50`}
         >
-          {isAuthenticating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Github className="w-5 h-5" />}
+          {isAuthenticating ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Github className="w-5 h-5" />
+          )}
           <span>{isAuthenticating ? 'Connecting...' : 'Connect GitHub'}</span>
         </button>
       ) : (
         <div className="space-y-4">
-          <div className={`flex items-center justify-between ${currentTheme.connectedBg} ${currentTheme.connectedBorder} rounded-lg p-4`}>
+          <div className={`flex items-center justify-between ${currentTheme.connectedBg} ${currentTheme.connectedBorder} border rounded-lg p-4`}>
             <div className="flex items-center space-x-3">
               <CheckCircle className={`w-6 h-6 ${currentTheme.connectedIcon}`} />
-              <p className={`font-medium ${currentTheme.connectedText}`}>Connected as {githubUser?.login}</p>
+              <p className={`font-medium ${currentTheme.connectedText}`}>
+                Connected as {githubUser?.login}
+              </p>
             </div>
-            <button onClick={handleDisconnect} className={`text-sm underline ${currentTheme.disconnectText}`}>Disconnect</button>
+            <button 
+              onClick={handleDisconnect} 
+              className={`text-sm underline ${currentTheme.disconnectText}`}
+            >
+              Disconnect
+            </button>
           </div>
+          
           <div>
-            <label htmlFor="repo-name" className={`block text-sm font-medium ${currentTheme.labelText} mb-2`}>Repository Name</label>
+            <label 
+              htmlFor="repo-name" 
+              className={`block text-sm font-medium ${currentTheme.labelText} mb-2`}
+            >
+              Repository Name
+            </label>
             <input
               id="repo-name"
               type="text"
               value={repositoryName}
               onChange={(e) => setRepositoryName(e.target.value)}
-              className={`w-full px-3 py-2 ${currentTheme.inputBg} ${currentTheme.inputBorder} rounded-lg focus:outline-none ${currentTheme.inputText}`}
+              className={`w-full px-3 py-2 ${currentTheme.inputBg} ${currentTheme.inputBorder} border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.inputText}`}
+              placeholder="my-portfolio"
             />
-            <p className={`text-xs mt-1 ${currentTheme.repoNoteText}`}>{githubUser?.login}.github.io/{repositoryName}</p>
+            <p className={`text-xs mt-1 ${currentTheme.repoNoteText}`}>
+              {githubUser?.login}.github.io/{repositoryName}
+            </p>
           </div>
+          
           <button
             onClick={handleDeploy}
             disabled={isDeploying || !repositoryName.trim()}
-            className={`w-full ${currentTheme.deployButtonBg} ${currentTheme.deployButtonText} px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300 disabled:opacity-50`}
+            className={`w-full ${currentTheme.deployButtonBg} ${currentTheme.deployButtonText} px-6 py-3 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
-            {isDeploying ? <Loader2 className="w-5 h-5 animate-spin" /> : <ExternalLink className="w-5 h-5" />}
+            {isDeploying ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <ExternalLink className="w-5 h-5" />
+            )}
             <span>{isDeploying ? 'Deploying...' : 'Deploy'}</span>
           </button>
         </div>
