@@ -61,7 +61,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   <summary><strong>Demo 2</strong></summary>
 
   - 🎬 [Watch Demo 2 Video](https://m.youtube.com/watch?v=SGc-FlTARXQ)  
-  - 🖥️ [View Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+  - 🖥️ [View Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/0_YOx2x6WO4ezCNYTLBFrw/view?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2ba60c60e8)
 </details>
 
 
@@ -70,7 +70,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   <summary><strong>Demo 3</strong></summary>
 
   - 🎬 [Watch Demo 3 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)  
-  - 🖥️ [View Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+  - 🖥️ [View Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/5Hn7UpRxLgqyfkrSZlkpOw/view?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=heb2f30756a)
 </details>
 
 
@@ -79,7 +79,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   <summary><strong>Demo 4</strong></summary>
 
   - 🎬 [Watch Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
-  - 🖥️ [View Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/8BEfPfNiJ1l-BFLLcUu14A/edit?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+  - 🖥️ [View Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/4V837CTWt4n-vch6xUK0YQ/view?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h23db5bee62)
 </details>
 
 
@@ -88,7 +88,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   <summary><strong>Project Day – Final Demo🎓 </strong></summary>
 
   - 🎬 [Watch Final Demo Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
-  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/IsmC9Aq09fXdYbWkdKh4ag/view?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haacfd913b5)
 </details>
 
 ---
