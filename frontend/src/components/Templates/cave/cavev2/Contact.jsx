@@ -12,7 +12,6 @@ const Contact = () => {
 
   const handleDownload = async () => {
     const result = await downloadPortfolio(setIsDownloading, 'cave');
-
     if (!result.success) {
       alert(result.error);
     }
@@ -81,7 +80,6 @@ const Contact = () => {
               Send Message
             </button>
           </form>
-
         </motion.div>
 
         {/* Download Portfolio Section */}
@@ -104,17 +102,21 @@ const Contact = () => {
           />
         </motion.div>
 
-<motion.div className="mt-16">
-<GitHubDeploy
-    userData={cvData}
-    template="cave"
-    onDeploySuccess={handleDeploySuccess}
-  />
-</motion.div>
-
-</div>
-
-    
+        {/* GitHub Deploy Section - Wrapped in consistent container */}
+        <motion.div
+          variants={fadeIn("up", "spring", 0.9, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="bg-stone-900/50 p-8 rounded-2xl backdrop-blur-sm border border-stone-500/20 mt-8"
+        >
+          <GitHubDeploy
+            userData={cvData}
+            template="cave"
+            onDeploySuccess={handleDeploySuccess}
+          />
+        </motion.div>
+      </div>
     </section>
   );
 };

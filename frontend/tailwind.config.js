@@ -7,7 +7,7 @@ export default {
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
-      // You can add custom dark mode colors here if needed
+      // can add custom dark mode colors here if needed
       colors: {
         // Example custom colors for better dark/light theme support
         'dark-bg': '#0f172a',

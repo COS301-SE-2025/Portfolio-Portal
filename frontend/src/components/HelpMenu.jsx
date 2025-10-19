@@ -1,5 +1,4 @@
 //frontend/src/components/HelpMenu.jsx
-
 import React, { useState, useRef, useEffect } from "react";
 import {
   HelpCircle,
@@ -48,7 +47,7 @@ const HelpMenu = () => {
         {
           icon: Book,
           title: "Help Center",
-          description: "Browse articles and guides",
+          description: "Browse manuals and guides",
           action: () => setActiveSection("help-center"),
           hasSubmenu: true,
         },
@@ -71,7 +70,7 @@ const HelpMenu = () => {
           title: "Contact Support",
           description: "Get help from our team",
           action: () =>
-            window.open("mailto:support@portfolioportal.com", "_blank"),
+            window.open("mailto:ctrlfreakscapstone@gmail.com", "_blank"),
           external: true,
         },
         {
@@ -91,7 +90,7 @@ const HelpMenu = () => {
           title: "Getting Started Guide",
           description: "Learn the basics of using our 3D interface",
           action: () =>
-            window.open("https://docs.example.com/getting-started", "_blank"),
+            window.open("https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf", "_blank"),
           external: true,
         },
         {
@@ -100,7 +99,7 @@ const HelpMenu = () => {
           description: "Complete documentation",
           action: () =>
             window.open(
-              "https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/edit?usp=sharing",
+              "https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf",
               "_blank"
             ),
           external: true,
@@ -110,7 +109,7 @@ const HelpMenu = () => {
           title: "Three.js Integration",
           description: "Understanding 3D scene interactions",
           action: () =>
-            window.open("https://docs.example.com/threejs-guide", "_blank"),
+            window.open("https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf", "_blank"),
           external: true,
         },
         {
@@ -118,7 +117,7 @@ const HelpMenu = () => {
           title: "Troubleshooting",
           description: "Common issues and solutions",
           action: () =>
-            window.open("https://docs.example.com/troubleshooting", "_blank"),
+            window.open("https://docs.google.com/document/d/1fFv4TMzJbd7IzAbNg_lJpecozelWV4pXN-5YmaoRF-A/export?format=pdf", "_blank"),
           external: true,
         },
       ],
@@ -146,8 +145,8 @@ const HelpMenu = () => {
         },
         {
           icon: Play,
-          title: "Advanced Features",
-          description: "Unlock powerful tools",
+          title: "Portfolio Site Download and/or Deployment",
+          description: "download or deploy your site!",
           action: () =>
             window.open("https://youtube.com/watch?v=demo3", "_blank"),
           external: true,
@@ -155,8 +154,8 @@ const HelpMenu = () => {
         },
         {
           icon: Play,
-          title: "Best Practices",
-          description: "Tips from power users",
+          title: "Explore the Community",
+          description: "View other's 3D templates with your CV info",
           action: () =>
             window.open("https://youtube.com/watch?v=demo4", "_blank"),
           external: true,
@@ -170,7 +169,7 @@ const HelpMenu = () => {
         {
           icon: HelpCircle,
           title: "How do I navigate the 3D scene?",
-          description: "Use mouse to orbit, scroll to zoom, right-click to pan",
+          description: "Use mouse to orbit, +/- to zoom, WASD to move around",
           action: () => {},
         },
         {
@@ -195,7 +194,7 @@ const HelpMenu = () => {
         {
           icon: HelpCircle,
           title: "What browsers are supported?",
-          description: "Chrome, Firefox, Safari, and Edge (latest versions)",
+          description: "Chrome, Safari, Edge, Firefox (latest versions)",
           action: () => {},
         },
       ],
@@ -215,7 +214,7 @@ const HelpMenu = () => {
       {/* help button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 p-4 rounded-full shadow-xl z-40 transition-all duration-200 hover:scale-105 bg-gradient-to-br from-purple-500 to-blue-500 text-white"
+        className="fixed bottom-6 right-6 p-4 rounded-full shadow-xl z-40 transition-all duration-200 hover:scale-105 bg-gradient-to-br from-purple-500 to-blue-500 text-white focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-opacity-50"
       >
         <HelpCircle size={24} />
       </button>
@@ -245,8 +244,10 @@ const HelpMenu = () => {
                 {activeSection !== "main" && (
                   <button
                     onClick={() => setActiveSection("main")}
-                    className={`p-1 rounded-full transition-colors ${
-                      isDark ? "hover:bg-slate-700" : "hover:bg-gray-100"
+                    className={`p-1 rounded-full transition-colors focus:outline-none focus:ring-2 ${
+                      isDark 
+                        ? "hover:bg-slate-700 focus:ring-slate-500" 
+                        : "hover:bg-gray-100 focus:ring-gray-300"
                     }`}
                   >
                     <ChevronRight
@@ -264,8 +265,10 @@ const HelpMenu = () => {
                   setIsOpen(false);
                   setActiveSection("main");
                 }}
-                className={`p-1 rounded-full transition-colors ${
-                  isDark ? "hover:bg-slate-700" : "hover:bg-gray-100"
+                className={`p-1 rounded-full transition-colors focus:outline-none focus:ring-2 ${
+                  isDark 
+                    ? "hover:bg-slate-700 focus:ring-slate-500" 
+                    : "hover:bg-gray-100 focus:ring-gray-300"
                 }`}
               >
                 <X size={20} className="text-gray-500" />
@@ -305,7 +308,7 @@ const HelpMenu = () => {
                     <button
                       key={index}
                       onClick={item.action}
-                      className={`w-full p-4 text-left transition-colors ${
+                      className={`w-full p-4 text-left transition-colors focus:outline-none focus:ring-0 ${
                         index < filteredItems.length - 1
                           ? isDark
                             ? "border-b border-slate-700"
@@ -376,10 +379,10 @@ const HelpMenu = () => {
               <p className="text-xs text-center text-gray-500">
                 Need more help? Contact us at{" "}
                 <a
-                  href="mailto:support@portfolioportal.com"
+                  href="mailto:ctrlfreakscapstone@gmail.com"
                   className="text-purple-600 hover:underline"
                 >
-                  support@portfolioportal.com
+                  support@portfolioportal.co.za
                 </a>
               </p>
             </div>

@@ -1,6 +1,7 @@
 <h1 align="center">
-  <img src="frontend/public/assets/logo1.png" alt="Logo"/>
+  <img src="frontend/public/assets/PortfolioPortal.jpg" alt="Logo" width="100%"/>
 </h1>
+
 
 <p align="center">
   <img src="https://img.shields.io/badge/coverage-pending-lightgrey" alt="Coverage Badge">
@@ -34,58 +35,119 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
 
 | Document                                         | GitHub (MD)                                         | PDF |
 | ------------------------------------------------ | --------------------------------------------------- | --- |
-| **Software Requirements Specification (SRS) v1** | [SRS-v1.md](Docs/Archives/demo%201/SRS-v1.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1br4loDNRrGsrz9mSQ0SoNAe4SZyIbOtNAWUlk0Hqpd4/export?format=pdf) | 
-| **Software Requirements Specification (SRS) v2** | [SRS-v2.md](Docs/Archives/demo%202/SRS-v2.0.md)     | 📄 [PDF](https://docs.google.com/document/d/1YuFVzTCzYVBHjqC2GIN7uIED1_1ScgQXl-vynpJZYWY/export?format=pdf) |
-| **Software Requirements Specification (SRS) v3** | [SRS-v3.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1XfveKVg0gf_Prq3Ai0Kdq_T5n0KtQHBUxNvgh2EG6Og/export?format=pdf) |
 | **Software Requirements Specification (SRS) v4** | [SRS-v4.md](Docs/SRS.md)                            | 📄 [PDF](https://docs.google.com/document/d/1AdkXLw0L0QYuMzKTnngBeQmyf88WLrqCNR6NADljZ8g/export?format=pdf) |
 | **Architectural Requirements**                   | [Architecture.md](Docs/ArchitecturalRequirements.md)| 📄 [PDF](https://docs.google.com/document/d/1rxkMraYgFYUdMYmQF_VLTrUnhh7xI9QWVL8zSpGn-2w/export?format=pdf) |
-| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
-| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)| 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
 | **Coding Standards**                             | [CodingStandards.md](Docs/CodingStandards.md)       | 📄 [PDF](https://docs.google.com/document/d/1j0fwH4UwJNHiyEn0N_KdP3u124mgLxRNWcVEKuTFRPc/export?format=pdf) |
 | **Testing Policy**                               | [TestingPolicy.md](Docs/CodingStandards.md)         | 📄 [PDF](https://docs.google.com/document/d/1UXAOX9HmwBgozpefsD_36RBrdGiVT1ungcakLqp5elg/export?format=pdf) |
-| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_ |
-| **Server README**                                | [server/README.md](server/README.md)                | _N/A_ |
-| **Frontend README**                              | [frontend/README.md](frontend/README.md)            | _N/A_ |
 | **Project Management**                           | [ProjectManagement.md](https://github.com/orgs/COS301-SE-2025/projects/118) | _N/A_ |
-
-
-## 🎥 Demo 1
-
-- [Demo 1 Video](https://youtu.be/gwhL0oYh90Y)
-- [Demo 1 Presentation](https://www.canva.com/design/DAGn94hteWs/_gTECzG006hoJGb7K9oaGQ/view?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hee3bb8a8c2)
+| **User Manual**                                  | [UserManual.md](Docs/UserManual.md)                 | 📄 [PDF](https://docs.google.com/document/d/1xpYEr_gpnPbiTEHjSDPLsoRo8oy0msK5yuGsxLp-_v0/export?format=pdf) |
+| **Technical Installation Manual**                | [TechInstallManual.md](Docs/TechnicalInstallation.md)| 📄 [PDF](https://docs.google.com/document/d/1KhyXSj1a-Nh9sYJlSksyh8CfJHQmo1Nhs8T0O-OssVc/export?format=pdf) |
+| **Archived Docs**                                | [Docs/Archives/](Docs/Archives/)                    | _N/A_ |
 
 ---
 
-## 🎥 Demo 2
+## 🎥 Demo Videos
 
-- [Demo 2 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)
-- [Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+<details>
+  <summary><strong>Demo 1</strong></summary>
+
+  - 🎬 [Watch Demo 1 Video](https://youtu.be/gwhL0oYh90Y)  
+  - 🖥️ [View Demo 1 Presentation](https://www.canva.com/design/DAGn94hteWs/_gTECzG006hoJGb7K9oaGQ/view?utm_content=DAGn94hteWs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hee3bb8a8c2)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 2</strong></summary>
+
+  - 🎬 [Watch Demo 2 Video](https://m.youtube.com/watch?v=SGc-FlTARXQ)  
+  - 🖥️ [View Demo 2 Presentation Slides](https://www.canva.com/design/DAGrPsxEpnk/idI6EzrxXvLiagAmAqmIpQ/edit?utm_content=DAGrPsxEpnk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 3</strong></summary>
+
+  - 🎬 [Watch Demo 3 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)  
+  - 🖥️ [View Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Demo 4</strong></summary>
+
+  - 🎬 [Watch Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
+  - 🖥️ [View Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/8BEfPfNiJ1l-BFLLcUu14A/edit?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
+
+
+
+<details>
+  <summary><strong>Project Day – Final Demo🎓 </strong></summary>
+
+  - 🎬 [Watch Final Demo Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)  
+  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+</details>
 
 ---
 
-## 🎥 Demo 3
-
-- [Demo 3 Video](https://drive.google.com/file/d/1XCRL63djTu1q51S68pc_lnhHm-LdyNL6/view?usp=sharing)
-- [Demo 3 Presentation Slides](https://www.canva.com/design/DAGv82gdITo/IzhXwJ-SksZ11WxdAxIW9w/edit?utm_content=DAGv82gdITo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-
----
-
-## 🎥 Demo 4
-
-- [Demo 4 Video](https://drive.google.com/file/d/11xSkT0_MJJfBVPtdgOl5lh9kuE6pu1N-/view?usp=sharing)
-- [Demo 4 Presentation Slides](https://www.canva.com/design/DAGyA7EVHSg/8BEfPfNiJ1l-BFLLcUu14A/edit?utm_content=DAGyA7EVHSg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+## 🚀  Deployment of our system:
+Our system is live and accessible here:
+- 🌐 [Portfolio Portal](https://www.portfolioportal.co.za/)
 
 ---
 
-##  CVs to test with:
+## 📄 CVs to Test With
 
-- [Software Developer (Space Template)](https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Artist (Forest Template)](https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Finance Manager (Office Template)](https://www.canva.com/design/DAGwJKtX6QE/csYznEg-pY2vf-FpFJaPfw/edit?utm_content=DAGwJKtX6QE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Medical Assistant (Lab Template)](https://www.canva.com/design/DAGwT8dRXzM/hu0--roX3m688uxQICh0NA/edit?utm_content=DAGwT8dRXzM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [Mining Engineer (Cave Template)](https://www.canva.com/design/DAGwfwnQPWg/fLqTxsrCfIUBQ68BdGYUjQ/edit?utm_content=DAGwfwnQPWg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+<details>
+  <summary>🧑‍💻 Software Developer CV (Space Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJJUnsWY/Fc9LpY75U14T2MQl4B55ug/edit?utm_content=DAGwJJUnsWY&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Ava Reynolds
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>🎨 Artist CV (Forest Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJPuYvf4/sZGZB6l5ZjeSChBuWOpg7w/edit?utm_content=DAGwJPuYvf4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Alex Omari
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>💼 Finance Manager CV (Office Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwJKtX6QE/csYznEg-pY2vf-FpFJaPfw/edit?utm_content=DAGwJKtX6QE&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Daniel Brooks
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>⚕️ Medical Assistant CV (Lab Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwT8dRXzM/hu0--roX3m688uxQICh0NA/edit?utm_content=DAGwT8dRXzM&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Gabriel Martinez
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>⛏️ Mining Engineer CV (Cave Template)</summary>
+  <p>
+    <a href="https://www.canva.com/design/DAGwfwnQPWg/fLqTxsrCfIUBQ68BdGYUjQ/edit?utm_content=DAGwfwnQPWg&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton" target="_blank">
+      Brian Park
+    </a>
+  </p>
+</details>
 
 ---
+
 
 ## 👨‍💻 Technology Stack
 
@@ -96,6 +158,14 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" width="60" />
   </a>
   &nbsp;&nbsp;
+  <a href="https://vitejs.dev/" title="Vite">
+    <img src="https://vitejs.dev/logo.svg" alt="Vite" width="60" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://threejs.org/" title="Three.js">
+    <img src="https://threejs.org/files/favicon.ico" alt="Three.js" width="60" />
+  </a>
+  &nbsp;&nbsp;
   <a href="https://www.figma.com/" title="Figma">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma" width="60" />
   </a>
@@ -104,8 +174,6 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cypressio/cypressio-original.svg" alt="Cypress" width="60" />
   </a>
 </p>
-
----
 
 ### 🟩 Backend
 
@@ -127,13 +195,15 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   </a>
 </p>
 
----
-
 ### 🚀 Project Management & Deployment
 
 <p align="center">
   <a href="https://www.postman.com/" title="Postman">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postman/postman-original.svg" alt="Postman" width="60" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://railway.app/" title="Railway">
+    <img src="https://railway.app/favicon.ico" alt="Railway" width="60" />
   </a>
   &nbsp;&nbsp;
   <a href="https://git-scm.com/" title="Git">
@@ -145,21 +215,71 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   </a>
 </p>
 
+
 ---
 
 ## 👥 Meet the Team
 
-<p align="center">
-  <img src="frontend/public/assets/CtrlFreaks.png" alt="Team Photo" width="600"/>
-</p>
+<details>
+  <summary><strong>Angelique Breedt</strong> - Project Manager + Services & UI Engineer</summary>
 
-| Name                 | Role         | Student Number | Description                                                                                                                                                                                                                                                                                                                                                                           | LinkedIn                                                                           | Profile |
-| -------------------- | ------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------- |
-| **Angelique Breedt** | Group Leader + Developer | u23542838      | I am a BSc Computer Science student working as group leader for CTRL Freaks on the PortfolioPortal system. I am responsible for ensuring the group is on track and that tasks are accurately delegated. I am also responsible for communication with the client and AL mentor. My focus is on the backend development.                                                                | [LinkedIn](https://www.linkedin.com/in/angelique-breedt/)                          | [GitHub](https://github.com/angiexbreedt) |
-| **Eric Booyens**     | Developer    | u05127824      | I am in my third year of studying BSc Computer Science with statistics electives at the University of Pretoria. My strengths include my strong work ethic, my willingness and ability to learn, my problem solving skills, and my charming looks. My focus is on the backend development.                                                                                             | [LinkedIn](https://www.linkedin.com/in/eric-booyens-60a736353/)                    | [GitHub](https://github.com/Eric-Booyens) |
-| **Keegan Walker**    | Developer    | u22693760      | I am in my last year of study as a motivated BSC Information and Knowledge Systems student. I am an experienced full-stack developer with a broad programming knowledge in Angular, Ionic, JavaScript and Python. My specialty is database systems, such as PostgreSQL and I am eager to create technology that enriches the user experiences.                                        | [LinkedIn](https://www.linkedin.com/in/keegan-walker-2144a0324/)                   | [GitHub](https://github.com/K33gan123) |
-| **Nabegh Muhra**     | Developer    | u23661268      | I’m a third-year Information and Knowledge Systems student with strong full-stack development experience. I’ve built clean, responsive front ends using React and handled everything from routing to authentication and database integration on the back end with Node.js, Express, Vue and MongoDB. I’m comfortable working with Git, Docker, and deploying real-world applications. | [LinkedIn](https://www.linkedin.com/in/nabegh-muhra-222446252/)                    | [GitHub](https://github.com/Nmuhra) |
-| **Christopher Yoko** | Developer    | u22857941      | I am a BSc Information and Knowledge Systems student with a strong background in design and frontend development. I currently work part-time as a web designer, where I focus on creating intuitive and visually engaging user interfaces.                                                                                                                                            | [LinkedIn](https://www.linkedin.com/in/chris-yoko-73a79a257/?originalSubdomain=za) | [GitHub](https://github.com/PawnParser) |
+<img src="frontend/public/assets/angelique.jpg" width="150" style="border-radius:50%"/>
+ 
+I am a BSc Computer Science student and the group leader for Ctrl Freaks. I oversee project progress, delegate tasks effectively, and manage communication with both the client and AL mentor. I contribute to the project as a full-stack developer, with a particular focus on backend development. 
+
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/angelique-breedt/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/angiexbreedt)
+
+</details>
+
+<details>
+  <summary><strong>Eric Booyens</strong> - Services & Integration Engineer + DevOps</summary>
+
+<img src="frontend/public/assets/eric.jpeg" width="150" style="border-radius:50%"/>
+  
+I am in my third year of studying BSc Computer Science with statistics electives at the University of Pretoria. My strengths include my strong work ethic, my willingness and ability to learn, my problem solving skills, and my charming looks. My focus is on the backend development.
+
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/eric-booyens-60a736353/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/Eric-Booyens)
+
+</details>
+
+<details>
+  <summary><strong>Christopher Yoko</strong> - Designer + UI/UX Engineer</summary>
+
+<img src="frontend/public/assets/christopher.jpg" width="150" style="border-radius:50%"/>
+
+I am a BSc Information and Knowledge Systems student with a strong background in design and frontend development. I currently work part-time as a web designer, where I focus on creating intuitive and visually engaging user interfaces.
+
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/chris-yoko-73a79a257/?originalSubdomain=za) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/PawnParser)
+
+</details>
+
+
+<details>
+  <summary><strong>Nabegh Muhra</strong> - UI & Data Engineer + DevOps</summary>
+
+<img src="frontend/public/assets/nabegh.jpeg" width="150" style="border-radius:50%"/>
+
+I’m a third-year BSc Information and Knowledge Systems student with strong full-stack development experience. I’ve built clean, responsive frontends using React and handled everything from routing to authentication and database integration on the backend with Node.js, Express, Vue and MongoDB. I’m comfortable working with Git, Docker, and deploying real-world applications.
+
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/nabegh-muhra-222446252/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/Nmuhra)
+
+</details>
+
+<details>
+  <summary><strong>Keegan Walker</strong> - UI, Services & Data Engineer</summary>
+
+<img src="frontend/public/assets/keegan.jpeg" width="150" style="border-radius:50%"/>
+ 
+I am in my last year of study as a motivated BSc Information and Knowledge Systems student. I am an experienced full-stack developer with a broad programming knowledge in Angular, Ionic, JavaScript and Python. My specialty is database systems, such as PostgreSQL and I am eager to create technology that enriches the user experiences.
+
+[<img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" width="32"/>](https://www.linkedin.com/in/keegan-walker-2144a0324/) 
+[<img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" width="32" style="background-color:white;border-radius:5px;padding:2px;"/>](https://github.com/K33gan123)
+
+</details>
 
 
 ---
@@ -179,3 +299,8 @@ We use the **git flow** branching strategy. The `main` branch is used for produc
 ### Issue Tracking
 
 Issues are created and tracked on GitHub Projects. Each issue is linked to a developer and typically represents a discrete feature, bug fix, or documentation task.
+
+---
+
+## 📬 Contact the team:
+- For any inquiries or feedback, you can reach out to the team at: ctrlfreakscapstone@gmail.com
