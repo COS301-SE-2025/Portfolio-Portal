@@ -17,5 +17,13 @@ export const profileService = {
     });
   },
   
-  getProfilePictureUrl: () => api.get('/users/me/profile-picture')
+  getProfilePictureUrl: () => api.get('/users/me/profile-picture'),
+
+  deleteProfile: (token) => {
+    return api.delete('/users/me', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 };

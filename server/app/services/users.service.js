@@ -124,6 +124,8 @@ const createUser = async (userData) => {
   }
 };
 
+
+
 const updateUserProfile = async (userId, updateData) => {
   try {
     // Validate required fields if provided
@@ -161,6 +163,47 @@ const updateUserProfile = async (userId, updateData) => {
     return updatedUser;
   } catch (error) {
     console.error('UpdateUserProfile service error:', error.message);
+    throw error;
+  }
+};
+const deleteUser = async (userId, token) => {
+  try {
+    console.log(`DeleteUser service called for userId: ${userId}`);
+    
+    // Step 1: Delete user from database (this also handles profile picture)
+    await User.delete(userId);
+    
+    // Step 2: Delete user from Supabase Auth
+    await User.deleteFromAuth(userId);
+    
+    // Step 3: Invalidate the current session
+    // The token will be invalid after auth deletion, but we attempt logout for cleanup
+    try {
+      await logoutUser(token);
+    } catch (logoutError) {
+      // Log but don't fail - user is already deleted
+      console.warn('Logout after deletion failed (expected):', logoutError.message);
+    }
+    
+    console.log('User deletion completed successfully');
+    return true;
+  } catch (error) {
+    console.error('DeleteUser service error:', error.message);
+    throw error;
+  }
+};
+
+const checkUserDeletionEligibility = async (userId) => {
+  try {
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('CheckUserDeletionEligibility error:', error.message);
     throw error;
   }
 };
@@ -357,5 +400,7 @@ module.exports = {
   getUsersBySkills,
   getProfileStats,
   getProfilePicture,
-  getPublicProfile
+  getPublicProfile,
+  deleteUser, 
+  checkUserDeletionEligibility 
 };
