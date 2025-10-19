@@ -133,6 +133,15 @@ const Contact = () => {
           />
           </div>
         </div>
+
+        {/* 3D Model Copyright Notice */}
+        <div className="mt-16 pt-8 border-t border-gray-700 text-center">
+          <p className="text-gray-500 text-sm">
+            3D Model: "rick and morty lab" by{" "}
+            <span className="text-emerald-400">julianikonenko - Sketchfab.com</span> -{" "}
+            <span className="text-gray-400">Licensed under CC-BY-4.0</span>
+          </p>
+        </div>
       </div>
 
       {/* Add CSS for shimmer animation */}
