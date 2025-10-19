@@ -51,7 +51,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/forest3d',
   '/space',
   '/space3d',
-  '/lab3d',
+  '/lab',
   '/labpro',
   '/cave',
   '/cavev2',
@@ -117,7 +117,7 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/lab3d" element={
+            <Route path="/lab" element={
               <ProtectedRoute>
                 <LabPage />
               </ProtectedRoute>
