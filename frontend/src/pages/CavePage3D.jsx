@@ -1545,7 +1545,18 @@ const useCameraAnimation = () => {
 
 // Main Scene
 const Scene = ({ selectedObject, setSelectedObject }) => {
-  const { name, about, experience, education, skills, summary, description, certifications, projects } = useCVData() || {};
+  const { 
+    name, 
+    about, 
+    experience, 
+    education, 
+    skills,
+    summary,
+    description,
+    certifications,
+    projects 
+  } = useCVData() || {};
+  
   const { moveTo, reset } = useCameraAnimation();
 
   useEffect(() => {
@@ -1560,139 +1571,140 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // CORRECTED: Using real CV data for all interactive objects
   const interactiveObjects = [
-  {
-    id: 'name-cart',
-    component: MiningCart,
-    position: [-3, -0.4, -2.5],
-    type: 'cart',
-    title: 'Who Am I?',
-    content: name ? (
-      <div>
-        <div className="font-semibold text-orange-300 text-lg mb-2">{name}</div>
-        {description && <div className="text-gray-300 mb-3">{description}</div>}
-        {summary && <div className="text-gray-400 text-sm">{summary}</div>}
-      </div>
-    ) : "Explorer of digital caves..."
-  },
-  {
-    id: 'experience-bat',
-    component: Bat,
-    position: [2, 4.5, -5],
-    type: 'bat',
-    title: 'Experience',
-    content: experience && experience.length > 0 ? (
-      <div>
-        {experience.slice(0, 3).map((exp, i) => (
-          <div key={i} className="mb-4 p-3 bg-orange-500/10 rounded-lg border border-orange-400/20">
-            <div className="font-semibold text-orange-300">{exp.title}</div>
-            <div className="text-gray-300">{exp.company}</div>
-            <div className="text-sm text-gray-400 mb-2">
-              {exp.startDate} - {exp.endDate || 'Present'}
-            </div>
-            {exp.extra && exp.extra.length > 0 && (
-              <ul className="text-xs text-gray-300 list-disc list-inside">
-                {exp.extra.slice(0, 2).map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-        {experience.length > 3 && (
-          <div className="text-center text-orange-400 text-sm mt-2">
-            +{experience.length - 3} more experiences
-          </div>
-        )}
-      </div>
-    ) : "My professional journey through the caves of tech..."
-  },
-  {
-    id: 'skills-chest',
-    component: TreasureChest,
-    position: [5, -0.45, -1.5],
-    type: 'chest',
-    title: 'Skills & Expertise',
-    content: skills && skills.length > 0 ? (
-      <div>
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {skills.slice(0, 8).map((skill, i) => (
-            <div key={i} className="bg-orange-500/20 border border-orange-400/30 px-2 py-1 rounded text-center">
-              <span className="text-orange-300 text-sm">{skill}</span>
+    {
+      id: 'name-cart',
+      component: MiningCart,
+      position: [-3, -0.4, -2.5],
+      type: 'cart',
+      title: 'Who Am I?',
+      content: name ? (
+        <div>
+          <div className="font-semibold text-orange-300 text-lg mb-2">{name}</div>
+          {description && <div className="text-gray-300 mb-3">{description}</div>}
+          {summary && <div className="text-gray-400 text-sm">{summary}</div>}
+        </div>
+      ) : "Explorer of digital caves..."
+    },
+    {
+      id: 'experience-bat',
+      component: Bat,
+      position: [2, 4.5, -5],
+      type: 'bat',
+      title: 'Experience',
+      content: experience && experience.length > 0 ? (
+        <div>
+          {experience.slice(0, 3).map((exp, i) => (
+            <div key={i} className="mb-4 p-3 bg-orange-500/10 rounded-lg border border-orange-400/20">
+              <div className="font-semibold text-orange-300">{exp.title}</div>
+              <div className="text-gray-300">{exp.company}</div>
+              <div className="text-sm text-gray-400 mb-2">
+                {exp.startDate} - {exp.endDate || 'Present'}
+              </div>
+              {exp.extra && exp.extra.length > 0 && (
+                <ul className="text-xs text-gray-300 list-disc list-inside">
+                  {exp.extra.slice(0, 2).map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
-        </div>
-        {certifications && certifications.length > 0 && (
-          <div className="mt-4">
-            <div className="font-semibold text-cyan-300 mb-2">Certifications</div>
-            {certifications.slice(0, 2).map((cert, i) => (
-              <div key={i} className="text-gray-300 text-sm mb-1">
-                • {cert.title}
-              </div>
-            ))}
-          </div>
-        )}
-        {skills.length > 8 && (
-          <div className="text-center text-orange-400 text-sm mt-2">
-            +{skills.length - 8} more skills
-          </div>
-        )}
-      </div>
-    ) : "Treasures of knowledge and expertise..."
-  },
-  {
-    id: 'education-crystal',
-    component: Crystal,
-    position: [-2, 0, -5],
-    type: 'crystal',
-    title: 'Education',
-    content: education && education.length > 0 ? (
-      <div>
-        {education.slice(0, 2).map((edu, i) => (
-          <div key={i} className="mb-4 p-3 bg-cyan-500/10 rounded-lg border border-cyan-400/20">
-            <div className="font-semibold text-cyan-300">{edu.degree}</div>
-            <div className="text-gray-300">{edu.institution}</div>
-            <div className="text-sm text-gray-400">
-              {edu.field && <div>{edu.field}</div>}
-              {edu.endDate && <div>Completed: {edu.endDate}</div>}
-              {edu.gpa && <div>GPA: {edu.gpa}</div>}
+          {experience.length > 3 && (
+            <div className="text-center text-orange-400 text-sm mt-2">
+              +{experience.length - 3} more experiences
             </div>
-          </div>
-        ))}
-        {education.length > 2 && (
-          <div className="text-center text-cyan-400 text-sm mt-2">
-            +{education.length - 2} more education entries
-          </div>
-        )}
-      </div>
-    ) : "Crystallized knowledge foundation..."
-  },
-  {
-    id: 'about-puddle',
-    component: WaterPuddle,
-    position: [0, -0.45, -4],
-    type: 'puddle',
-    title: 'About Me',
-    content: about ? (
-      <div className="space-y-3">
-        <div className="text-gray-300 leading-relaxed">{about}</div>
-        {projects && projects.length > 0 && (
-          <div className="mt-4">
-            <div className="font-semibold text-blue-300 mb-2">Recent Projects</div>
-            {projects.slice(0, 2).map((project, i) => (
-              <div key={i} className="text-gray-300 text-sm mb-2">
-                • <span className="font-medium">{project.title}</span>
-                {project.description && (
-                  <div className="text-gray-400 ml-2">{project.description}</div>
-                )}
+          )}
+        </div>
+      ) : "My professional journey through the caves of tech..."
+    },
+    {
+      id: 'skills-chest',
+      component: TreasureChest,
+      position: [5, -0.45, -1.5],
+      type: 'chest',
+      title: 'Skills & Expertise',
+      content: skills && skills.length > 0 ? (
+        <div>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            {skills.slice(0, 8).map((skill, i) => (
+              <div key={i} className="bg-orange-500/20 border border-orange-400/30 px-2 py-1 rounded text-center">
+                <span className="text-orange-300 text-sm">{skill}</span>
               </div>
             ))}
           </div>
-        )}
-      </div>
-    ) : "Reflecting on my journey through technology and innovation..."
-  }
-];
+          {certifications && certifications.length > 0 && (
+            <div className="mt-4">
+              <div className="font-semibold text-cyan-300 mb-2">Certifications</div>
+              {certifications.slice(0, 2).map((cert, i) => (
+                <div key={i} className="text-gray-300 text-sm mb-1">
+                  • {cert.title}
+                </div>
+              ))}
+            </div>
+          )}
+          {skills.length > 8 && (
+            <div className="text-center text-orange-400 text-sm mt-2">
+              +{skills.length - 8} more skills
+            </div>
+          )}
+        </div>
+      ) : "Treasures of knowledge and expertise..."
+    },
+    {
+      id: 'education-crystal',
+      component: Crystal,
+      position: [-2, 0, -5],
+      type: 'crystal',
+      title: 'Education',
+      content: education && education.length > 0 ? (
+        <div>
+          {education.slice(0, 2).map((edu, i) => (
+            <div key={i} className="mb-4 p-3 bg-cyan-500/10 rounded-lg border border-cyan-400/20">
+              <div className="font-semibold text-cyan-300">{edu.degree}</div>
+              <div className="text-gray-300">{edu.institution}</div>
+              <div className="text-sm text-gray-400">
+                {edu.field && <div>{edu.field}</div>}
+                {edu.endDate && <div>Completed: {edu.endDate}</div>}
+                {edu.gpa && <div>GPA: {edu.gpa}</div>}
+              </div>
+            </div>
+          ))}
+          {education.length > 2 && (
+            <div className="text-center text-cyan-400 text-sm mt-2">
+              +{education.length - 2} more education entries
+            </div>
+          )}
+        </div>
+      ) : "Crystallized knowledge foundation..."
+    },
+    {
+      id: 'about-puddle',
+      component: WaterPuddle,
+      position: [0, -0.45, -4],
+      type: 'puddle',
+      title: 'About Me',
+      content: about ? (
+        <div className="space-y-3">
+          <div className="text-gray-300 leading-relaxed">{about}</div>
+          {projects && projects.length > 0 && (
+            <div className="mt-4">
+              <div className="font-semibold text-blue-300 mb-2">Recent Projects</div>
+              {projects.slice(0, 2).map((project, i) => (
+                <div key={i} className="text-gray-300 text-sm mb-2">
+                  • <span className="font-medium">{project.title}</span>
+                  {project.description && (
+                    <div className="text-gray-400 ml-2">{project.description}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : "Reflecting on my journey through technology and innovation..."
+    }
+  ];
 
   const handleObjectClick = (objectId) => {
     if (selectedObject === objectId) {
@@ -1914,7 +1926,7 @@ const ControlledOrbitControls = (props) => {
 
 // Main Component
 const CavePage3D = () => {
-  const { name, description } = useCVData() || {};
+  const { name, description, experience, education, skills, about } = useCVData() || {};
   const [selectedObject, setSelectedObject] = useState(null);
 
   const getSelectedObjectData = () => {
@@ -1931,20 +1943,48 @@ const CavePage3D = () => {
         ) : "Explorer of digital caves..."
       },
       'experience-bat': {
-        title: 'Experience',
-        content: "Click on the flying bat to see my professional journey..."
+        title: 'Professional Experience',
+        content: experience ? (
+          <div>
+            {experience.slice(0, 2).map((exp, i) => (
+              <div key={i} className="mb-3">
+                <div className="font-semibold text-green-300">{exp.title}</div>
+                <div className="text-gray-300">{exp.company}</div>
+                <div className="text-sm text-gray-400">{exp.startDate} - {exp.endDate}</div>
+              </div>
+            ))}
+          </div>
+        ) : "Click on the flying bat to see my professional journey..."
       },
       'skills-chest': {
-        title: 'Skills',
-        content: "Click on the treasure chest to discover my skills..."
+        title: 'Skills & Expertise',
+        content: skills ? (
+          <div className="grid grid-cols-2 gap-2">
+            {skills.map((skill, i) => (
+              <div key={i} className="bg-purple-500/20 border border-purple-400/30 px-2 py-1 rounded text-center">
+                <span className="text-purple-300 text-sm">{skill}</span>
+              </div>
+            ))}
+          </div>
+        ) : "Click on the treasure chest to discover my skills..."
       },
       'education-crystal': {
-        title: 'Education',
-        content: "Click on the crystal to see my educational background..."
+        title: 'Education & Learning',
+        content: education ? (
+          <div>
+            {education.slice(0, 2).map((edu, i) => (
+              <div key={i} className="mb-3">
+                <div className="font-semibold text-green-300">{edu.degree}</div>
+                <div className="text-gray-300">{edu.institution}</div>
+                <div className="text-sm text-gray-400">{edu.endDate}</div>
+              </div>
+            ))}
+          </div>
+        ) :"Click on the crystal to see my educational background..."
       },
       'about-puddle': {
-        title: 'About Me',
-        content: "Click on the water puddle to learn more about me..."
+      title: 'About Me',
+      content: about ||"Click on the water puddle to learn more about me..."
       }
     };
 
