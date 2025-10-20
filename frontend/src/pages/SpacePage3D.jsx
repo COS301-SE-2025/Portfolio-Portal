@@ -353,7 +353,7 @@ const Satellite = ({ position, onClick, isHighlighted }) => {
       <mesh>
         <boxGeometry args={[1.5, 0.8, 2]} />
         <meshStandardMaterial 
-          color={isHighlighted || hovered ? "#ffffff" : "#bbbbbb"}
+          color={isHighlighted || hovered ? "#ffffff" : "#cccccc"}
           emissive={isHighlighted || hovered ? "#2244aa" : "#000000"}
           emissiveIntensity={isHighlighted || hovered ? 0.3 : 0}
           roughness={0.3}
