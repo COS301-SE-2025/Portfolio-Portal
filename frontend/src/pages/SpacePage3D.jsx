@@ -701,12 +701,12 @@ const useCameraAnimation = () => {
       newLookAt.lerpVectors(startLookAt.current, targetLookAt.current, smoothStep);
       camera.lookAt(newLookAt);
       
-      if (animationProgress.current >= 1) {
+      if (animationProgress.current >= 0.999) {
         animating.current = false;
-        // Force final position to prevent any drift
-        camera.position.copy(targetPosition.current);
+        // Force exact final position
+        camera.position.set(targetPosition.current.x, targetPosition.current.y, targetPosition.current.z);
         camera.lookAt(targetLookAt.current);
-        camera.updateProjectionMatrix();
+        camera.updateMatrixWorld();
       }
     }
   });
@@ -942,17 +942,17 @@ const SpacePage3D = () => {
   return (
     <div className="relative w-full h-screen bg-gradient-to-b from-[#000011] via-[#001133] to-[#002255] overflow-hidden">
       {/* Instructions Panel */}
-      <div className="absolute top-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 w-72 shadow-2xl shadow-cyan-400/20">
+      <div className="absolute top-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 w-80 shadow-2xl shadow-cyan-400/20">
         <h3 className="text-cyan-300 font-bold mb-2 text-base flex items-center">
           <span className="mr-2 text-sm">🌟</span>
           {name || 'Your Name'}'s Solar System
         </h3>
-        <p className="text-white text-xs mb-2 leading-relaxed">
+        <p className="text-white text-xs mb-2.5 leading-relaxed">
           Welcome, space explorer! Navigate through my cosmic portfolio by clicking on the glowing interactive objects.
         </p>
         
-        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg p-2.5 border border-purple-400/30 mb-2">
-          <p className="text-purple-300 text-xs font-bold mb-1">🎮 Flight Controls:</p>
+        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg p-2.5 border border-purple-400/30 mb-2.5">
+          <p className="text-purple-300 text-xs font-bold mb-1.5">🎮 Flight Controls:</p>
           <div className="text-purple-200 text-xs space-y-0.5">
             <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">W A S D</span> → Navigate</div>
             <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">SHIFT</span> → Boost</div>
@@ -980,8 +980,8 @@ const SpacePage3D = () => {
       </div>
 
       {/* Navigation Map */}
-      <div className="absolute bottom-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-3 w-72 shadow-2xl shadow-cyan-400/20">
-        <h4 className="text-cyan-300 font-bold mb-2 text-sm">Navigation Map</h4>
+      <div className="absolute top-95 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 w-80 shadow-2xl shadow-cyan-400/20">
+        <h4 className="text-cyan-300 font-bold mb-2.5 text-sm">Navigation Map</h4>
         <div className="grid grid-cols-1 gap-2 text-xs">
           <button 
             onClick={() => setSelectedObject(selectedObject === 'alien' ? null : 'alien')}
@@ -1081,6 +1081,7 @@ const SpacePage3D = () => {
             autoRotate={false}
             enableDamping
             dampingFactor={0.05}
+            enabled={!window.cameraAnimating || !window.cameraAnimating.current}
           />
         </Suspense>
       </Canvas>
