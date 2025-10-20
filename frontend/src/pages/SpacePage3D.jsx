@@ -972,7 +972,7 @@ const SpacePage3D = () => {
       {/* Home Button */}
       <div className="absolute top-6 right-6 z-10">
         <button 
-          onClick={() => window.location.href = '/'}
+          onClick={() => window.location.href = '/home'}
           className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 border border-cyan-400/50 text-cyan-300 px-6 py-3 rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-cyan-400/30 font-medium"
         >
           🏠 Return to Base Station
