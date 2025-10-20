@@ -6,20 +6,6 @@ import * as THREE from 'three';
 import { useMemo } from 'react';
 import useCVData from "../hooks/useCVData"; 
 
-// Mock CV data hook for now
-// const useCvData = () => ({
-//   name: "John Doe",
-//   about: "A passionate explorer of digital caves and immersive experiences.",
-//   experience: [
-//     { title: "Senior Developer", company: "Tech Corp", startDate: "2020", endDate: "Present" },
-//     { title: "Junior Developer", company: "StartUp Inc", startDate: "2018", endDate: "2020" }
-//   ],
-//   education: [
-//     { degree: "BS Computer Science", institution: "University", endDate: "2018" }
-//   ],
-//   skills: ["React", "Three.js", "JavaScript", "3D Graphics", "WebGL", "Node.js"]
-// });
-
 const useWASDMovement = () => {
   const { camera } = useThree();
   const [keys, setKeys] = useState({
@@ -2016,7 +2002,7 @@ const CavePage3D = () => {
       {/* Home button */}
       <div className="absolute top-4 right-4 z-10">
         <button 
-          onClick={() => window.location.href = '/'}
+          onClick={() => window.location.href = '/home'}
           className="bg-orange-400/20 hover:bg-orange-400/30 border border-orange-400/50 text-orange-400 px-4 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-orange-400/20"
         >
           🏠 Back to Surface

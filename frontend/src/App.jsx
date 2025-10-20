@@ -143,7 +143,7 @@ function App() {
 
             <Route path="/cave" element={
               <ProtectedRoute>
-                <CavePage />
+                <CavePage3D />
               </ProtectedRoute>
             } />
 
