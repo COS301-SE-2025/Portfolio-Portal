@@ -1,5 +1,3 @@
-// frontend/src/services/githubService.js
-
 import api from './api.service';
 
 class GitHubService {
@@ -42,7 +40,7 @@ class GitHubService {
    * Deploy portfolio to GitHub Pages
    * @param {Object} userData - User portfolio data
    * @param {string} template - Template name
-   * @param {string} repositoryName - Repository name
+   * @param {string} repositoryName - Optional repository name
    * @returns {Promise<Object>} Deployment result
    */
   async deployPortfolio(userData, template, repositoryName) {
@@ -100,6 +98,56 @@ class GitHubService {
     } catch (error) {
       return false;
     }
+  }
+
+  /**
+   * Open GitHub OAuth popup window
+   * @param {string} authUrl - OAuth authorization URL
+   * @returns {Promise<Object>} Authentication result
+   */
+  openAuthPopup(authUrl) {
+    return new Promise((resolve, reject) => {
+      const popup = window.open(
+        authUrl,
+        'github-auth',
+        'width=600,height=700,scrollbars=yes,resizable=yes'
+      );
+
+      // Check if popup was blocked
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        reject(new Error('Popup was blocked. Please allow popups for this site.'));
+        return;
+      }
+
+      // Poll for popup closure or success
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          
+          // Check URL parameters for success/error
+          const urlParams = new URLSearchParams(window.location.search);
+          const authSuccess = urlParams.get('github_auth');
+          const error = urlParams.get('error');
+
+          if (authSuccess === 'success') {
+            resolve({ success: true, username: urlParams.get('username') });
+          } else if (error) {
+            reject(new Error(`Authentication failed: ${error}`));
+          } else {
+            reject(new Error('Authentication was cancelled'));
+          }
+        }
+      }, 1000);
+
+      // Timeout after 5 minutes
+      setTimeout(() => {
+        clearInterval(checkClosed);
+        if (!popup.closed) {
+          popup.close();
+        }
+        reject(new Error('Authentication timeout'));
+      }, 300000);
+    });
   }
 }
 

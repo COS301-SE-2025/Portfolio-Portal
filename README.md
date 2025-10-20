@@ -88,7 +88,7 @@ Driven by an **intelligent template selection algorithm**, every portfolio is ta
   <summary><strong>Project Day – Final Demo🎓 </strong></summary>
 
   - 🎬 [Watch Final Demo Video](https://drive.google.com/file/d/13BbnrhWRDIJ5mjVmm6Sw6O0CcJHEpFLd/view?usp=sharing)  
-  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/IsmC9Aq09fXdYbWkdKh4ag/view?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haacfd913b5)
+  - 🖥️ [View Final Presentation Slides](https://www.canva.com/design/DAG1Uj01HKs/GvFIu1c43-kOnjta3uy2lQ/edit?utm_content=DAG1Uj01HKs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 </details>
 
 ---
