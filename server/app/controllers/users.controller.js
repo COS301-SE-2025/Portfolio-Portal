@@ -249,6 +249,27 @@ const getPublicProfile = async (req, res, next) => {
   }
 };
 
+// Delete user account (simple version - use with caution)
+const deleteUserSimple = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const token = req.headers.authorization?.replace('Bearer ', '');
+
+    if (!token) {
+      return res.status(401).json({ error: 'Authorization token required' });
+    }
+
+    await userService.deleteUser(userId, token);
+
+    res.status(200).json({ 
+      message: 'Account deleted successfully',
+      deleted: true 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUser,
   getCurrentUser,
@@ -263,5 +284,6 @@ module.exports = {
   getUsersBySkills,
   getProfileStats,
   getPublicProfile,
-  getProfilePicture
+  getProfilePicture,
+  deleteUserSimple
 };

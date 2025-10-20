@@ -115,6 +115,21 @@ const Contact = () => {
             onDeploySuccess={handleDeploySuccess}
           />
         </motion.div>
+
+        {/* 3D Model Copyright Notice */}
+        <motion.div
+          variants={fadeIn("up", "spring", 1.1, 1)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="mt-16 pt-8 border-t border-gray-700 text-center"
+        >
+          <p className="text-white text-sm" style={{ color: 'white' }}>
+            3D Model: "Low Poly Forest Campfire [Updated]" by{" "}
+            <span className="text-green-400">Minzkraut - Sketchfab.com</span> -{" "}
+            <span style={{ color: 'white' }}>Licensed under CC-BY-NC-SA-4.0</span>
+          </p>
+        </motion.div>
       </div>
     </section>
   );

@@ -64,7 +64,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 // Profile Edit Form Component
-const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
+const ProfileEditForm = ({ profile, onUpdate, onClose, onOpenDeleteModal }) => {
   const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     name: profile.name || "",
@@ -242,6 +242,105 @@ const ProfileEditForm = ({ profile, onUpdate, onClose }) => {
           )}
         </button>
       </div>
+      {/* Danger Zone */}
+      <div className="mt-8 pt-6 border-t border-gray-700">
+        <div className="text-center">
+          <h3 className={`text-lg font-semibold mb-2 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+            Danger Zone
+          </h3>
+          <p className={`text-sm mb-4 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            Once you delete your account, there is no going back. Please be certain.
+          </p>
+          <button
+            type="button"
+            onClick={onOpenDeleteModal}
+            className={`inline-flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              isDark
+                ? "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800"
+                : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+            }`}
+          >
+            <X className="w-4 h-4 mr-2" />
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, isDark, isDeleting }) => {
+  useEffect(() => {
+    document.body.classList.toggle("modal-open", isOpen);
+    return () => document.body.classList.remove("modal-open");
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className={`fixed inset-0 ${
+        isDark ? "bg-black/70" : "bg-black/60"
+      } backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn`}
+    >
+      <div
+        className={`rounded-2xl max-w-md w-full shadow-2xl transform animate-slideUp ${
+          isDark ? "bg-slate-900 text-white" : "bg-white text-gray-900"
+        }`}
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-center mb-4">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              isDark ? "bg-red-900/30" : "bg-red-100"
+            }`}>
+              <X className="w-8 h-8 text-red-500" />
+            </div>
+          </div>
+          
+          <h3 className="text-2xl font-bold text-center mb-2">Delete Account?</h3>
+          <p className={`text-center mb-6 ${
+            isDark ? "text-gray-400" : "text-gray-600"
+          }`}>
+            This action cannot be undone. All your data, including your profile, portfolio, and settings will be permanently deleted.
+          </p>
+
+          <div className="space-y-3">
+            <button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center ${
+                isDeleting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+              }`}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                  Deleting Account...
+                </>
+              ) : (
+                <>
+                  <X className="w-5 h-5 mr-2" />
+                  Yes, Delete My Account
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={onClose}
+              disabled={isDeleting}
+              className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 ${
+                isDark
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              } ${isDeleting ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -257,6 +356,9 @@ const ProfileSection = () => {
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+const [isDeleting, setIsDeleting] = useState(false);
+const [deleteError, setDeleteError] = useState(null);
   // Initialize profile image from localStorage
   useEffect(() => {
     const imageUrl = localStorage.getItem("imageURL");
@@ -356,6 +458,36 @@ const ProfileSection = () => {
     }
   };
 
+const handleDeleteAccount = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    setDeleteError("User not logged in");
+    return;
+  }
+
+  try {
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    await profileService.deleteProfile(token);
+
+    // Clear all local storage
+    localStorage.removeItem("token");
+    localStorage.removeItem("imageURL");
+    localStorage.clear();
+
+    // Redirect to home page
+    navigate("/");
+  } catch (err) {
+    console.error("Delete account error:", err.response?.data || err.message);
+    setDeleteError(
+      err.response?.data?.error || err.message || "Failed to delete account"
+    );
+    setIsDeleting(false);
+    setIsDeleteModalOpen(false);
+  }
+};
+  
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -561,19 +693,31 @@ const ProfileSection = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="mt-4 sm:mt-0">
-                      <button
-                        onClick={() => setIsModalOpen(true)}
-                        className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
-                          isDark
-                            ? "inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
-                            : "bg-gradient-to-r from-blue-600 to-pink-600 text-white hover:from-purple-700 hover:to-blue-700"
-                        }`}
-                      >
-                        <Edit className="w-5 h-5 mr-2" />
-                        Edit Profile
-                      </button>
-                    </div>
+                    <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
+  <button
+    onClick={() => setIsModalOpen(true)}
+    className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+      isDark
+        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-purple-700 hover:to-blue-700"
+        : "bg-gradient-to-r from-blue-600 to-pink-600 text-white hover:from-purple-700 hover:to-blue-700"
+    }`}
+  >
+    <Edit className="w-5 h-5 mr-2" />
+    Edit Profile
+  </button>
+  
+  {/* <button
+    onClick={() => setIsDeleteModalOpen(true)}
+    className={`inline-flex items-center px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+      isDark
+        ? "bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800"
+        : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+    }`}
+  >
+    <X className="w-5 h-5 mr-2" />
+    Delete Account
+  </button> */}
+</div>
                   </div>
                 </div>
               </div>
@@ -822,15 +966,55 @@ const ProfileSection = () => {
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <ProfileEditForm
-          profile={profile}
-          onUpdate={(updatedProfile) => {
-            setProfile(updatedProfile);
-            setIsModalOpen(false);
-          }}
-          onClose={() => setIsModalOpen(false)}
-        />
-      </Modal>
+  <ProfileEditForm
+    profile={profile}
+    onUpdate={(updatedProfile) => {
+      setProfile(updatedProfile);
+      setIsModalOpen(false);
+    }}
+    onClose={() => setIsModalOpen(false)}
+    onOpenDeleteModal={() => {
+      setIsModalOpen(false);
+      setIsDeleteModalOpen(true);
+    }}
+  />
+</Modal>
+
+      {/* Delete Error Alert */}
+      {deleteError && (
+        <div
+          className={`fixed top-4 right-4 rounded-lg shadow-lg z-50 animate-slideIn ${
+            isDark ? "bg-red-900/80 text-red-200" : "bg-red-500 text-white"
+          } px-6 py-4 max-w-md`}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <X className="w-5 h-5" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">Failed to delete account</p>
+              <p className="text-sm mt-1">{deleteError}</p>
+            </div>
+            <button
+              className={`rounded-full p-1 transition-colors ${
+                isDark ? "hover:bg-red-800" : "hover:bg-red-600"
+              }`}
+              onClick={() => setDeleteError(null)}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+        isDark={isDark}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

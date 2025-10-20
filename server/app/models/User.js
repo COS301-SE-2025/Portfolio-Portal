@@ -275,6 +275,74 @@ class User {
       throw error;
     }
   }
+
+static async delete(authId) {
+  try {
+    console.log(`User.delete called for authId: ${authId}`);
+    
+   
+    const user = await this.findById(authId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+
+    if (user.profile_picture_path) {
+      await this.deleteProfilePicture(authId);
+    }
+
+   
+    const { error: dbError } = await supabase
+      .from('users')
+      .delete()
+      .eq('auth_id', authId);
+
+    if (dbError) {
+      console.error('Database deletion error:', dbError.message);
+      throw new Error(`Failed to delete user from database: ${dbError.message}`);
+    }
+
+    console.log('User successfully deleted from database');
+    return true;
+  } catch (error) {
+    console.error('User.delete error:', error.message);
+    throw error;
+  }
+}
+
+static async deleteFromAuth(authId) {
+  try {
+    console.log(`User.deleteFromAuth called for authId: ${authId}`);
+    
+    // Create admin client with service role key
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+    
+    // Delete user from Supabase Auth using admin client
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(authId);
+
+    if (error) {
+      console.error('Auth deletion error:', error.message);
+      throw new Error(`Failed to delete user from auth: ${error.message}`);
+    }
+
+    console.log('User successfully deleted from auth');
+    return true;
+  } catch (error) {
+    console.error('User.deleteFromAuth error:', error.message);
+    throw error;
+  }
+}
+
   static async searchUsers(query, limit = 10, offset = 0) {
     try {
       const searchTerm = `%${query}%`;

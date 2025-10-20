@@ -55,6 +55,9 @@ const useWASDMovement = () => {
   useFrame((state, delta) => {
     if (!camera) return;
 
+    // Don't allow WASD movement during camera animation
+    if (window.cameraAnimating && window.cameraAnimating.current) return;
+
     const speed = keys.shift ? 25 : 12;
     const moveVector = new THREE.Vector3();
 
@@ -350,7 +353,7 @@ const Satellite = ({ position, onClick, isHighlighted }) => {
       <mesh>
         <boxGeometry args={[1.5, 0.8, 2]} />
         <meshStandardMaterial 
-          color={isHighlighted || hovered ? "#ffffff" : "#bbbbbb"}
+          color={isHighlighted || hovered ? "#ffffff" : "#cccccc"}
           emissive={isHighlighted || hovered ? "#2244aa" : "#000000"}
           emissiveIntensity={isHighlighted || hovered ? 0.3 : 0}
           roughness={0.3}
@@ -611,10 +614,18 @@ const useCameraAnimation = () => {
   const targetLookAt = useRef(new THREE.Vector3());
   const originalPosition = useRef(new THREE.Vector3());
   const originalLookAt = useRef(new THREE.Vector3());
-  const animating = useRef(false);
   const animationProgress = useRef(0);
+  const startPosition = useRef(new THREE.Vector3());
+  const startLookAt = useRef(new THREE.Vector3());
+
+  // Expose animating state globally for WASD to check
+  if (!window.cameraAnimating) {
+    window.cameraAnimating = { current: false };
+  }
+  const animating = window.cameraAnimating;
 
   const moveTo = (objectPosition, objectType) => {
+    // Store original position only once
     if (originalPosition.current.length() === 0) {
       originalPosition.current.copy(camera.position);
       
@@ -622,6 +633,12 @@ const useCameraAnimation = () => {
       camera.getWorldDirection(direction);
       originalLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
     }
+    
+    // Store current position as start for this animation
+    startPosition.current.copy(camera.position);
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+    startLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
     
     const objPos = new THREE.Vector3(...objectPosition);
     let cameraOffset, lookAtOffset;
@@ -657,6 +674,11 @@ const useCameraAnimation = () => {
 
   const reset = () => {
     if (originalPosition.current.length() > 0) {
+      startPosition.current.copy(camera.position);
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      startLookAt.current.copy(camera.position).add(direction.multiplyScalar(10));
+      
       targetPosition.current.copy(originalPosition.current);
       targetLookAt.current.copy(originalLookAt.current);
       animating.current = true;
@@ -672,16 +694,19 @@ const useCameraAnimation = () => {
       const smoothStep = t * t * (3 - 2 * t);
       
       const newPosition = new THREE.Vector3();
-      newPosition.lerpVectors(originalPosition.current, targetPosition.current, smoothStep);
+      newPosition.lerpVectors(startPosition.current, targetPosition.current, smoothStep);
       camera.position.copy(newPosition);
       
       const newLookAt = new THREE.Vector3();
-      newLookAt.lerpVectors(originalLookAt.current, targetLookAt.current, smoothStep);
+      newLookAt.lerpVectors(startLookAt.current, targetLookAt.current, smoothStep);
       camera.lookAt(newLookAt);
       
-      if (animationProgress.current >= 1) {
+      if (animationProgress.current >= 0.999) {
         animating.current = false;
+        // Force exact final position
+        camera.position.set(targetPosition.current.x, targetPosition.current.y, targetPosition.current.z);
         camera.lookAt(targetLookAt.current);
+        camera.updateMatrixWorld();
       }
     }
   });
@@ -690,8 +715,21 @@ const useCameraAnimation = () => {
 };
 
 // Camera Controller
-const CameraController = () => {
+const CameraController = ({ selectedObject, objectPositions }) => {
+  const { moveTo, reset } = useCameraAnimation();
+
+  useEffect(() => {
+    if (selectedObject && objectPositions[selectedObject]) {
+      const { position, type } = objectPositions[selectedObject];
+      moveTo(position, type);
+    } else if (!selectedObject) {
+      reset();
+    }
+  }, [selectedObject, moveTo, reset, objectPositions]);
+
+  // WASD is called separately to avoid conflicts
   useWASDMovement();
+
   return null;
 };
 
@@ -703,9 +741,18 @@ const Scene = ({ selectedObject, setSelectedObject }) => {
     setSelectedObject(selectedObject === objectId ? null : objectId);
   };
 
+  // Define object positions for camera animation
+  const objectPositions = {
+    'alien': { position: [-15, 8, 10], type: 'alien' },
+    'about': { position: [25, 0, 0], type: 'planet' },
+    'skills': { position: [-20, 5, -15], type: 'planet' },
+    'education': { position: [30, 15, -10], type: 'satellite' },
+    'experience': { position: [10, -8, 25], type: 'astronaut' }
+  };
+
   return (
     <>
-      <CameraController />
+      <CameraController selectedObject={selectedObject} objectPositions={objectPositions} />
       
       {/* Stars */}
       <Stars 
@@ -895,39 +942,37 @@ const SpacePage3D = () => {
   return (
     <div className="relative w-full h-screen bg-gradient-to-b from-[#000011] via-[#001133] to-[#002255] overflow-hidden">
       {/* Instructions Panel */}
-      <div className="absolute top-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-6 max-w-sm shadow-2xl shadow-cyan-400/20">
-        <h3 className="text-cyan-300 font-bold mb-3 text-xl flex items-center">
-          <span className="mr-3">🌟</span>
+      <div className="absolute top-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 w-80 shadow-2xl shadow-cyan-400/20">
+        <h3 className="text-cyan-300 font-bold mb-2 text-base flex items-center">
+          <span className="mr-2 text-sm">🌟</span>
           {name || 'Your Name'}'s Solar System
         </h3>
-        <p className="text-white text-sm mb-4 leading-relaxed">
-          Welcome, space explorer! Navigate through my cosmic portfolio by clicking on the glowing interactive objects scattered throughout this solar system.
+        <p className="text-white text-xs mb-2.5 leading-relaxed">
+          Welcome, space explorer! Navigate through my cosmic portfolio by clicking on the glowing interactive objects.
         </p>
         
-        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg p-4 border border-purple-400/30 mb-4">
-          <p className="text-purple-300 text-xs font-bold mb-2">🎮 Flight Controls:</p>
-          <div className="text-purple-200 text-xs space-y-1">
-            <div><span className="font-mono bg-purple-400/30 px-2 py-1 rounded text-xs">W A S D</span> → Navigate through space</div>
-            <div><span className="font-mono bg-purple-400/30 px-2 py-1 rounded text-xs">SHIFT</span> → Turbo boost</div>
-            <div><span className="font-mono bg-purple-400/30 px-2 py-1 rounded text-xs">SPACE</span> → Ascend</div>
-            <div><span className="font-mono bg-purple-400/30 px-2 py-1 rounded text-xs">Mouse</span> → Look around</div>
+        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg p-2.5 border border-purple-400/30 mb-2.5">
+          <p className="text-purple-300 text-xs font-bold mb-1.5">🎮 Flight Controls:</p>
+          <div className="text-purple-200 text-xs space-y-0.5">
+            <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">W A S D</span> → Navigate</div>
+            <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">SHIFT</span> → Boost</div>
+            <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">SPACE</span> → Ascend</div>
+            <div><span className="font-mono bg-purple-400/30 px-1.5 py-0.5 rounded text-xs">Mouse</span> → Look</div>
           </div>
         </div>
 
-        <div className="text-xs text-gray-300">
-          🎯 <strong>Interactive Objects:</strong><br/>
-          👽 Alien - Personal Info<br/>
-          🪐 Blue Planet - About Me<br/>
-          🌸 Pink Planet - Skills<br/>
-          🛰️ Satellite - Education<br/>
-          🚀 Astronaut - Experience
+        <div className="text-xs text-gray-300 leading-tight">
+          🎯 <strong>Objects:</strong><br/>
+          👽 Alien - Info | 🪐 Blue - About<br/>
+          🌸 Pink - Skills | 🛰️ Sat - Education<br/>
+          🚀 Astro - Experience
         </div>
       </div>
 
       {/* Home Button */}
       <div className="absolute top-6 right-6 z-10">
         <button 
-          onClick={() => window.location.href = '/'}
+          onClick={() => window.location.href = '/home'}
           className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 border border-cyan-400/50 text-cyan-300 px-6 py-3 rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-cyan-400/30 font-medium"
         >
           🏠 Return to Base Station
@@ -935,29 +980,44 @@ const SpacePage3D = () => {
       </div>
 
       {/* Navigation Map */}
-      <div className="absolute bottom-6 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 shadow-2xl shadow-cyan-400/20">
-        <h4 className="text-cyan-300 font-bold mb-3 text-sm">Navigation Map</h4>
+      <div className="absolute top-95 left-6 z-10 bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md border border-cyan-400/40 rounded-xl p-4 w-80 shadow-2xl shadow-cyan-400/20">
+        <h4 className="text-cyan-300 font-bold mb-2.5 text-sm">Navigation Map</h4>
         <div className="grid grid-cols-1 gap-2 text-xs">
-          <div className={`flex items-center p-2 rounded-lg transition-all ${selectedObject === 'alien' ? 'bg-green-500/30 border border-green-400/50' : 'bg-gray-500/20'}`}>
-            <span className="mr-2">👽</span>
+          <button 
+            onClick={() => setSelectedObject(selectedObject === 'alien' ? null : 'alien')}
+            className={`flex items-center p-2 rounded-lg transition-all cursor-pointer hover:scale-105 ${selectedObject === 'alien' ? 'bg-green-500/30 border border-green-400/50 shadow-lg shadow-green-400/30' : 'bg-gray-500/20 hover:bg-gray-500/30'}`}
+          >
+            <span className="mr-2 text-sm">👽</span>
             <span className="text-gray-200">Alien - Who Am I?</span>
-          </div>
-          <div className={`flex items-center p-2 rounded-lg transition-all ${selectedObject === 'about' ? 'bg-blue-500/30 border border-blue-400/50' : 'bg-gray-500/20'}`}>
-            <span className="mr-2">🪐</span>
+          </button>
+          <button 
+            onClick={() => setSelectedObject(selectedObject === 'about' ? null : 'about')}
+            className={`flex items-center p-2 rounded-lg transition-all cursor-pointer hover:scale-105 ${selectedObject === 'about' ? 'bg-blue-500/30 border border-blue-400/50 shadow-lg shadow-blue-400/30' : 'bg-gray-500/20 hover:bg-gray-500/30'}`}
+          >
+            <span className="mr-2 text-sm">🪐</span>
             <span className="text-gray-200">Blue Planet - About</span>
-          </div>
-          <div className={`flex items-center p-2 rounded-lg transition-all ${selectedObject === 'skills' ? 'bg-pink-500/30 border border-pink-400/50' : 'bg-gray-500/20'}`}>
-            <span className="mr-2">🌸</span>
+          </button>
+          <button 
+            onClick={() => setSelectedObject(selectedObject === 'skills' ? null : 'skills')}
+            className={`flex items-center p-2 rounded-lg transition-all cursor-pointer hover:scale-105 ${selectedObject === 'skills' ? 'bg-pink-500/30 border border-pink-400/50 shadow-lg shadow-pink-400/30' : 'bg-gray-500/20 hover:bg-gray-500/30'}`}
+          >
+            <span className="mr-2 text-sm">🌸</span>
             <span className="text-gray-200">Pink Planet - Skills</span>
-          </div>
-          <div className={`flex items-center p-2 rounded-lg transition-all ${selectedObject === 'education' ? 'bg-yellow-500/30 border border-yellow-400/50' : 'bg-gray-500/20'}`}>
-            <span className="mr-2">🛰️</span>
+          </button>
+          <button 
+            onClick={() => setSelectedObject(selectedObject === 'education' ? null : 'education')}
+            className={`flex items-center p-2 rounded-lg transition-all cursor-pointer hover:scale-105 ${selectedObject === 'education' ? 'bg-yellow-500/30 border border-yellow-400/50 shadow-lg shadow-yellow-400/30' : 'bg-gray-500/20 hover:bg-gray-500/30'}`}
+          >
+            <span className="mr-2 text-sm">🛰️</span>
             <span className="text-gray-200">Satellite - Education</span>
-          </div>
-          <div className={`flex items-center p-2 rounded-lg transition-all ${selectedObject === 'experience' ? 'bg-orange-500/30 border border-orange-400/50' : 'bg-gray-500/20'}`}>
-            <span className="mr-2">🚀</span>
+          </button>
+          <button 
+            onClick={() => setSelectedObject(selectedObject === 'experience' ? null : 'experience')}
+            className={`flex items-center p-2 rounded-lg transition-all cursor-pointer hover:scale-105 ${selectedObject === 'experience' ? 'bg-orange-500/30 border border-orange-400/50 shadow-lg shadow-orange-400/30' : 'bg-gray-500/20 hover:bg-gray-500/30'}`}
+          >
+            <span className="mr-2 text-sm">🚀</span>
             <span className="text-gray-200">Astronaut - Experience</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -1021,6 +1081,7 @@ const SpacePage3D = () => {
             autoRotate={false}
             enableDamping
             dampingFactor={0.05}
+            enabled={!window.cameraAnimating || !window.cameraAnimating.current}
           />
         </Suspense>
       </Canvas>
