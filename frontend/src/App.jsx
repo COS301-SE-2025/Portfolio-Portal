@@ -36,6 +36,7 @@ const HIDDEN_NAVBAR_PATHS = [
   '/space3d',
   '/profile',
   '/lab',
+  '/lab3d',
   '/labpro',
   '/social',
   '/cave',
@@ -52,6 +53,7 @@ const HIDDEN_THEME_BUTTON_PATHS = [
   '/space',
   '/space3d',
   '/lab',
+  '/lab3d',
   '/labpro',
   '/cave',
   '/cavev2',
@@ -116,8 +118,14 @@ function App() {
                 <ForestPage3D />
               </ProtectedRoute>
             } />
-            
+
             <Route path="/lab" element={
+              <ProtectedRoute>
+                <LabPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/lab3d" element={
               <ProtectedRoute>
                 <LabPage />
               </ProtectedRoute>
